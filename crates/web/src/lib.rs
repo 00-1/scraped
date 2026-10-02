@@ -173,6 +173,10 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state, "truth": look.truth }),
             )
         }
+        "regions" => {
+            let g = scraped_game::Game::new(seed(req), scraped_content::Pack::default());
+            Ok(json!({ "text": g.regions_debug(opt(req, "days", 180)) }))
+        }
         "writing" => {
             let site = scraped_game::site::Site::new(seed(req));
             Ok(

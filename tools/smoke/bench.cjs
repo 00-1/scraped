@@ -31,6 +31,8 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   const site = await page.textContent('#worldText');
   await page.click('#writingView');
   await page.waitForFunction(() => document.querySelector('#worldText').textContent.startsWith('LIVE CLAIMS'));
+  await page.click('#regionsView');
+  await page.waitForFunction(() => document.querySelector('#worldText').textContent.startsWith('TRAJECTORY'), null, { timeout: 30000 });
   await browser.close();
   if (errors.length) throw new Error('page errors: ' + errors.join('; '));
   if (!site.startsWith('SITE 0')) throw new Error('site view missing: ' + site.slice(0, 80));

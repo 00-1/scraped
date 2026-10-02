@@ -8,6 +8,7 @@ world commands (all spoilers, so --spoil is required):
   scraped-lang world --seed N history --spoil
   scraped-lang world --seed N site S --spoil      (S = settlement number)
   scraped-lang world --seed N writing --spoil   (surfaces, live claims, why places are strange)
+  scraped-lang world --seed N regions --spoil [--days D]   (regional variables, drivers, D days ahead)
   scraped-lang world --seed N json --spoil";
 
 /// Runs a world command; `Err` carries the message to print.
@@ -16,6 +17,7 @@ pub fn run(args: &[String]) -> Result<String, String> {
     let mut spoil = false;
     let mut png = None;
     let mut scale = 3usize;
+    let mut days = 180u32;
     let mut rest = Vec::new();
     let mut it = args.iter();
     while let Some(a) = it.next() {
@@ -28,6 +30,12 @@ pub fn run(args: &[String]) -> Result<String, String> {
                 )
             }
             "--spoil" => spoil = true,
+            "--days" => {
+                days = it
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .ok_or("--days needs a number")?
+            }
             "--png" => png = Some(it.next().ok_or("--png needs a file name")?.clone()),
             "--scale" => {
                 scale = it
@@ -77,6 +85,10 @@ pub fn run(args: &[String]) -> Result<String, String> {
                 &site.writing,
                 &site.writing.scraped,
             ))
+        }
+        Some("regions") => {
+            let g = scraped_game::Game::new(seed, scraped_content::Pack::default());
+            Ok(g.regions_debug(days))
         }
         Some("json") => {
             let mut s = serde_json::to_string(&w).expect("world serialises");
