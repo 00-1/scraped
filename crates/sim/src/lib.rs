@@ -11,5 +11,6 @@ pub mod env;
 pub mod fixtures;
 pub mod items;
 pub mod outdoors;
+pub mod region;
 pub mod rules;
 pub mod writing;

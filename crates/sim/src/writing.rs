@@ -220,7 +220,13 @@ const INSCRIBABLE: &[&str] = &[
 impl Writing {
     /// Surfaces from history, plus a few latent potent inscriptions: the
     /// pivot beside the scraping tool and some further afield.
-    pub fn new(w: &World, land: &Land, fixtures: &Fixtures, start: usize) -> Self {
+    pub fn new(
+        w: &World,
+        land: &Land,
+        fixtures: &Fixtures,
+        start: usize,
+        regions: Option<&crate::region::Regions>,
+    ) -> Self {
         let mut out = Writing::default();
         let n = w.texts.len();
         // History's potent writing was cast: it lies scraped, and acts.
@@ -338,6 +344,79 @@ impl Writing {
             let subject = subjects[((h >> 24) % subjects.len() as u64) as usize];
             add(&mut out, structure, r, f, verb, subject, (h >> 30) & 1 == 1);
             placed += 1;
+        }
+        // Evidence of the big picture: shortage ledgers in the storehouses
+        // of the regions with the least life left.
+        // DESIGN-Q: up to four scarce ledgers, in storehouses of regions
+        // whose life has fallen most below their land's natural level.
+        if let Some(regions) = regions {
+            let mut worst: Vec<(i32, usize)> = regions
+                .regions
+                .iter()
+                .map(|r| {
+                    (
+                        regions.initial.vars[r.id][crate::region::LIFE] * 1000
+                            / r.natural[0].max(1),
+                        r.id,
+                    )
+                })
+                .filter(|(ratio, _)| *ratio < 900)
+                .collect();
+            worst.sort_unstable();
+            let goods = scraped_lang::concepts::nouns_tagged("good");
+            let mut placed = 0;
+            for (_, r) in worst {
+                if placed >= 4 {
+                    break;
+                }
+                let Some(st) = w.structures.iter().find(|st| {
+                    st.kind == scraped_world::structures::StructureKind::Storehouse
+                        && regions.at(land.structure_pos[st.id]) == Some(r)
+                        && !out.extra.iter().any(|t| t.structure == st.id)
+                }) else {
+                    continue;
+                };
+                let rooms = fixtures.reachable_rooms(w, st.id);
+                let Some((room, feature)) = rooms.iter().find_map(|&ri| {
+                    st.interior.rooms[ri]
+                        .features
+                        .iter()
+                        .position(|f| matches!(f.kind, "tablet" | "shelf" | "wall" | "jar"))
+                        .map(|f| (ri, f))
+                }) else {
+                    continue;
+                };
+                let h = hash(&[w.seed, 0x5ca2, st.id as u64]);
+                let mut items: Vec<NounPhrase> = Vec::new();
+                for k in 0..2u64 {
+                    let c = &goods[((h >> (8 * k)) % goods.len() as u64) as usize];
+                    if items.iter().any(|i| i.head == Head::Concept(c.id.clone())) {
+                        continue;
+                    }
+                    items
+                        .push(NounPhrase::concept(&c.id).counted(1 + ((h >> (16 + k)) % 2) as u16));
+                }
+                if items.len() >= 2 {
+                    let mut total = NounPhrase::concept("total");
+                    total.quantity = Some(items.iter().filter_map(|i| i.quantity).sum());
+                    items.push(total);
+                }
+                let material = st.interior.rooms[room].features[feature].material;
+                out.extra.push(Text {
+                    id: n + out.extra.len(),
+                    era,
+                    year: year - 1,
+                    kind: Kind::Ledger,
+                    meaning: Sentence::List(items),
+                    author: None,
+                    event: None,
+                    structure: st.id,
+                    room: Some(room),
+                    feature: Some(feature),
+                    material,
+                });
+                placed += 1;
+            }
         }
         // Stack every text on its surface, oldest first.
         let all = w.texts.iter().chain(out.extra.iter());

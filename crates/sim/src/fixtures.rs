@@ -119,6 +119,9 @@ pub struct Fixtures {
     pub unstable: BTreeSet<(usize, usize)>,
     /// Bridges standing raised: impassable until lowered.
     pub raised: BTreeSet<usize>,
+    /// Rubble already dug through (structure, link): the way to each
+    /// great inscription is always open.
+    pub cleared: BTreeSet<(usize, usize)>,
     pub creatures: Vec<Spawn>,
 }
 
@@ -138,6 +141,19 @@ impl Fixtures {
     pub fn new(w: &World, land: &Land, start: usize) -> Self {
         let seed = w.seed ^ 0x00f1_77e5;
         let mut f = Fixtures::default();
+        let great_events = crate::region::great_events(w);
+        let great_texts: BTreeSet<usize> = w
+            .texts
+            .iter()
+            .filter(|t| t.event.is_some_and(|e| great_events.contains(&e)))
+            .map(|t| t.id)
+            .collect();
+        let great_homes: BTreeSet<usize> = w
+            .texts
+            .iter()
+            .filter(|t| great_texts.contains(&t.id))
+            .map(|t| t.structure)
+            .collect();
         for st in &w.structures {
             let sid = st.id as u64;
             let pos = land.structure_pos[st.id];
@@ -224,7 +240,7 @@ impl Fixtures {
                 .min_by_key(|(i, r)| (r.level, *i))
                 .map(|(i, _)| i);
             if let Some(room) = deepest {
-                if room != 0 && roll(seed, &[sid, 30], 35) {
+                if room != 0 && !great_homes.contains(&st.id) && roll(seed, &[sid, 30], 35) {
                     f.flooded.push(Flooded {
                         structure: st.id,
                         room,
@@ -287,6 +303,13 @@ impl Fixtures {
             });
         }
 
+        // DESIGN-Q: rubble on the way to a great inscription has been dug
+        // through, so each is reachable by ordinary means.
+        for t in w.texts.iter().filter(|t| great_texts.contains(&t.id)) {
+            if let Some(room) = t.room {
+                f.clear_way(w, t.structure, room);
+            }
+        }
         f.place_sluices(w, land);
         f.place_creatures(w, land, start);
         f.ensure_basics(w, land, start);
@@ -539,7 +562,17 @@ impl Fixtures {
         // until M08–M09.
         // DESIGN-Q: where the scraper, stylus and lens lie (an archive or
         // temple each, never the starting town).
-        for (n, tool) in ["scraper", "stylus", "lens"].into_iter().enumerate() {
+        for (n, tool) in [
+            "scraper",
+            "stylus",
+            "lens",
+            "fine_scraper",
+            "old_scraper",
+            "first_scraper",
+        ]
+        .into_iter()
+        .enumerate()
+        {
             let homes: Vec<usize> = w
                 .structures
                 .iter()
@@ -560,10 +593,35 @@ impl Fixtures {
                 w.history.settlements[start].cell.uy(),
             );
             let pick = hash(&[w.seed, 0x7001, n as u64]) as usize;
-            let Some(sid) = (0..homes.len())
-                .map(|k| homes[(pick + k) % homes.len()])
-                .find(|&sid| land.route(w, from, land.structure_pos[sid]).is_some())
-            else {
+            let reachable = |sid: usize| land.route(w, from, land.structure_pos[sid]).is_some();
+            // Stronger scrapers lie farther out; the strongest with the root.
+            // DESIGN-Q: the fine scraper about halfway out, the old one far,
+            // the first scraper where the root inscription lies.
+            let chosen = if n < 3 {
+                (0..homes.len())
+                    .map(|k| homes[(pick + k) % homes.len()])
+                    .find(|&sid| reachable(sid))
+            } else {
+                let root_home = w
+                    .texts
+                    .iter()
+                    .find(|t| t.event == Some(w.history.root))
+                    .map(|t| t.structure)
+                    .filter(|&sid| !self.reachable_rooms(w, sid).is_empty() && reachable(sid));
+                let mut far: Vec<usize> = homes
+                    .iter()
+                    .copied()
+                    .filter(|&sid| reachable(sid))
+                    .collect();
+                far.sort_by_key(|&sid| (land.structure_pos[sid].dist2(from), sid));
+                match (tool, root_home) {
+                    ("first_scraper", Some(r)) => Some(r),
+                    ("first_scraper", None) => far.last().copied(),
+                    ("old_scraper", _) => far.get(far.len() * 4 / 5).copied(),
+                    _ => far.get(far.len() / 2).copied(),
+                }
+            };
+            let Some(sid) = chosen else {
                 continue;
             };
             let room = *self.reachable_rooms(w, sid).last().unwrap_or(&0);
@@ -597,7 +655,7 @@ impl Fixtures {
         while i < seen.len() {
             let r = seen[i];
             i += 1;
-            for l in &st.interior.links {
+            for (li, l) in st.interior.links.iter().enumerate() {
                 let other = if l.a == r {
                     l.b
                 } else if l.b == r {
@@ -605,7 +663,7 @@ impl Fixtures {
                 } else {
                     continue;
                 };
-                if l.state == PassageState::Blocked
+                if (l.state == PassageState::Blocked && !self.cleared.contains(&(structure, li)))
                     || rooms[other].collapsed
                     || flooded(other)
                     || seen.contains(&other)
@@ -616,6 +674,47 @@ impl Fixtures {
             }
         }
         seen
+    }
+
+    /// Clears blocked links on the way from a building's entrance to a room.
+    fn clear_way(&mut self, w: &World, structure: usize, target: usize) {
+        let st = &w.structures[structure];
+        let rooms = &st.interior.rooms;
+        if rooms.is_empty() || rooms[0].collapsed || rooms[target].collapsed {
+            return;
+        }
+        // Breadth-first over every passage, rubble included.
+        let mut prev: Vec<Option<(usize, usize)>> = vec![None; rooms.len()];
+        let mut seen = vec![false; rooms.len()];
+        seen[0] = true;
+        let mut queue = vec![0usize];
+        let mut i = 0;
+        while i < queue.len() {
+            let r = queue[i];
+            i += 1;
+            for (li, l) in st.interior.links.iter().enumerate() {
+                let other = if l.a == r {
+                    l.b
+                } else if l.b == r {
+                    l.a
+                } else {
+                    continue;
+                };
+                if seen[other] || rooms[other].collapsed {
+                    continue;
+                }
+                seen[other] = true;
+                prev[other] = Some((r, li));
+                queue.push(other);
+            }
+        }
+        let mut cur = target;
+        while let Some((from, li)) = prev[cur] {
+            if st.interior.links[li].state == PassageState::Blocked {
+                self.cleared.insert((structure, li));
+            }
+            cur = from;
+        }
     }
 
     /// River flow at a cell, given which sluices are open.

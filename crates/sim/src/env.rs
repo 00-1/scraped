@@ -13,6 +13,7 @@ use scraped_world::World;
 
 use crate::fixtures::{Fixtures, MechKind, Spot};
 use crate::outdoors::{hash, outdoor_light, weather, Land, Pos, LOCAL};
+use crate::region::{season_offset, RegionState, Regions, CLIMATE, LIFE, STABILITY, WATER};
 use crate::rules::{ice_cm, Effect, Props, Rules};
 use crate::writing::{resolve, Claim, Class, Property};
 
@@ -66,6 +67,8 @@ pub struct Env<'a> {
     pub forced: Option<(&'static str, &'static str)>,
     /// Claims of live writing acting now.
     pub claims: &'a [Claim],
+    /// The regions and their state, when the regional simulation runs.
+    pub regional: Option<(&'a Regions, &'a RegionState)>,
 }
 
 /// What a spot is like, in coarse terms for descriptions and the body.
@@ -117,13 +120,51 @@ impl<'a> Env<'a> {
             Some(_) => 0.0,
             None => DIURNAL[hour],
         };
+        let seasonal = match self.forced {
+            Some(_) => 0.0,
+            None => season_offset(minutes),
+        };
+        let regional = self
+            .region_var(pos, CLIMATE)
+            .map_or(0.0, |c| f64::from(c) / 1000.0);
         mean + swing
             + spell
             + wet
+            + seasonal
+            + regional
             + f64::from(
                 self.claimed(Property::Heat, &[Class::Land], pos)
                     .unwrap_or(0),
             )
+    }
+
+    /// A regional variable where a point lies.
+    pub fn region_var(&self, p: Pos, v: usize) -> Option<i32> {
+        let (regions, st) = self.regional?;
+        let r = regions.at(p)?;
+        st.vars.get(r).map(|x| x[v])
+    }
+
+    /// A regional variable against where it stood when play began (1000:
+    /// unchanged): the land as generated already shows that state.
+    pub fn region_ratio(&self, p: Pos, v: usize) -> Option<i32> {
+        let (regions, st) = self.regional?;
+        let r = regions.at(p)?;
+        let start = regions.initial.vars.get(r)?[v].max(1);
+        Some(st.vars[r][v] * 1000 / start)
+    }
+
+    /// Coarse regional cues at a point: (life, water, stability, climate).
+    pub fn region_bands(&self, p: Pos) -> Option<[&'static str; 4]> {
+        let (regions, st) = self.regional?;
+        let r = regions.at(p)?;
+        let x = st.vars[r];
+        Some([
+            crate::region::band(LIFE, x[LIFE]),
+            crate::region::band(WATER, x[WATER]),
+            crate::region::band(STABILITY, x[STABILITY]),
+            crate::region::band(CLIMATE, x[CLIMATE]),
+        ])
     }
 
     /// What live writing makes of a property at a point, for claims on
@@ -208,8 +249,16 @@ impl<'a> Env<'a> {
 
     /// River flow at a cell after any open sluices.
     pub fn flow(&self, x: usize, y: usize) -> u32 {
-        self.fixtures
-            .flow(self.world, x, y, &|i| self.sluice_open(i))
+        let f = self
+            .fixtures
+            .flow(self.world, x, y, &|i| self.sluice_open(i));
+        // Rivers rise and shrink with their region's water.
+        // DESIGN-Q: river flow scales with the region's water against its
+        // natural level, between a fifth and double.
+        match self.region_ratio(Pos::of_cell(x, y), WATER) {
+            Some(r) => (u64::from(f) * r.clamp(200, 2000) as u64 / 1000) as u32,
+            None => f,
+        }
     }
 
     pub fn is_river(&self, x: usize, y: usize) -> bool {

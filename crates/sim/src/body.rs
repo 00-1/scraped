@@ -45,6 +45,9 @@ pub struct Body {
     pub injury: u32,
     /// Minutes towards healing one level of injury.
     pub healing: u32,
+    /// Years of age; wounds heal more slowly as it rises.
+    #[serde(default)]
+    pub age: u32,
 }
 
 const HOUR: u32 = 60;
@@ -145,7 +148,11 @@ impl Body {
         }
         // Healing, if the body has the means.
         if self.injury > 0 && self.thirst_state() < 2 && self.hunger_state() < 3 {
-            self.healing += if sleeping { minutes * 2 } else { minutes };
+            // DESIGN-Q: past 30, healing slows by a sixtieth a year (to
+            // nothing at 90).
+            let slow = self.age.saturating_sub(30).min(59);
+            let gained = if sleeping { minutes * 2 } else { minutes };
+            self.healing += gained * (60 - slow) / 60;
             if self.healing >= HEAL {
                 self.injury -= 1;
                 self.healing = 0;

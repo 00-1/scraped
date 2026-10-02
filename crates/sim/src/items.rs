@@ -100,6 +100,21 @@ pub const ITEMS: &[ItemKind] = &[
         ..BASE
     },
     ItemKind {
+        id: "fine_scraper",
+        tool: Some("writing"),
+        ..BASE
+    },
+    ItemKind {
+        id: "old_scraper",
+        tool: Some("writing"),
+        ..BASE
+    },
+    ItemKind {
+        id: "first_scraper",
+        tool: Some("writing"),
+        ..BASE
+    },
+    ItemKind {
         id: "stylus",
         tool: Some("writing"),
         ..BASE
@@ -126,6 +141,19 @@ pub const ITEMS: &[ItemKind] = &[
         ..BASE
     },
 ];
+
+/// How far a scraping tool reaches: 1 a door or room, 2 a site, 3 a
+/// region, 4 the great inscriptions.
+// DESIGN-Q: four scrapers of rising power, all found rather than made.
+pub fn scrape_power(id: &str) -> u8 {
+    match id {
+        "scraper" => 1,
+        "fine_scraper" => 2,
+        "old_scraper" => 3,
+        "first_scraper" => 4,
+        _ => 0,
+    }
+}
 
 /// Item ids, for content enums.
 pub fn ids() -> Vec<&'static str> {
