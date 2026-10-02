@@ -11,9 +11,13 @@ if [ ! -s "$wasm" ]; then
   exit 1
 fi
 b64=$(base64 < "$wasm" | tr -d '\n')
+# Stamp the page with the commit and build time, so a stale copy is obvious.
+commit=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)
+if [ -n "$(git status --porcelain -- .. ../../crates 2>/dev/null)" ]; then commit="$commit+changes"; fi
+build="{\"commit\":\"$commit\",\"time\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
 # The template holds the engine on a line of its own: "__ENGINE__";
 {
-  sed '/^"__ENGINE__";$/,$d' index.html
+  sed '/^"__ENGINE__";$/,$d' index.html | sed "s|__BUILD__|$build|"
   printf '"%s";\n' "$b64"
   sed '1,/^"__ENGINE__";$/d' index.html
 } > dist/scraped-bench.html

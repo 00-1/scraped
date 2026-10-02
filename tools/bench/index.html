@@ -77,6 +77,7 @@ footer { color: var(--muted); font-size: .85rem; }
 <div class="wrap">
   <header>
     <h1>Scraped Again</h1>
+    <p class="status" id="build"></p>
     <p class="sub">Language bench. Generate a language, read its inscriptions as text or glyphs, and compare the same texts across its eras. Spoilers show the true meanings, the sound changes and the full grammar.</p>
   </header>
   <form class="controls" id="controls">
@@ -110,6 +111,7 @@ footer { color: var(--muted); font-size: .85rem; }
   <footer>The Rust language engine runs in your browser as WebAssembly and gives the same output as the <code>scraped-lang</code> command-line tool. Glyph drawings are a debugging aid; in the game, glyphs are only ever described.</footer>
 </div>
 <script>
+const BUILD = __BUILD__;
 const ENGINE_B64 =
 "__ENGINE__";
 const $ = id => document.getElementById(id);
@@ -118,6 +120,15 @@ let engine;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+// Which build this is, and how long ago it was made.
+function showBuild() {
+  const mins = Math.max(0, Math.round((Date.now() - Date.parse(BUILD.time)) / 60000));
+  const ago = mins < 1 ? "just now" : mins < 60 ? `${mins} min ago` : mins < 2880 ? `${Math.round(mins / 60)} h ago` : `${Math.round(mins / 1440)} days ago`;
+  $("build").textContent = `Build ${BUILD.commit} · built ${ago} (${BUILD.time.replace("T", " ").slice(0, 16)} UTC)`;
+}
+showBuild();
+setInterval(showBuild, 30000);
 
 async function boot() {
   const bytes = Uint8Array.from(atob(ENGINE_B64), c => c.charCodeAt(0));
@@ -134,6 +145,7 @@ function parseSeed(text) {
 }
 
 function generate() {
+  if (!engine) { $("status").textContent = "The engine has not loaded, so nothing can be generated."; return; }
   const seed = parseSeed($("seed").value);
   if (seed === null) { $("status").textContent = "Enter a whole number from 0 to 18446744073709551615 as the seed."; return; }
   const count = Math.min(200, Math.max(1, parseInt($("count").value, 10) || 30));
