@@ -80,6 +80,14 @@ table.preview td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule)
 table.preview td.out { font-size: 1rem; }
 table.preview svg { width: 40px; height: 40px; color: var(--ink); }
 .empty { color: var(--muted); font-style: italic; }
+.form { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; align-items: center; }
+.form > label { font: .78rem var(--mono); color: var(--muted); }
+.form input[type=text], .form select, .form textarea { font: .85rem var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 6px; min-width: 0; width: 100%; }
+.form textarea { min-height: 3.2em; resize: vertical; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.checks label { font: .8rem var(--mono); display: inline-flex; gap: 4px; align-items: center; }
+@media (max-width: 560px) { .form { grid-template-columns: 1fr; } }
+.beats { display: flex; flex-wrap: wrap; gap: 6px; }
 .help { font-size: .88rem; color: var(--muted); }
 .help code { font-family: var(--mono); font-size: .82rem; color: var(--ink); }
 footer { color: var(--muted); font-size: .85rem; }
@@ -101,6 +109,7 @@ footer { color: var(--muted); font-size: .85rem; }
   <div class="layout">
     <aside>
       <input type="search" id="search" placeholder="Find a slot" aria-label="Find a slot">
+      <form id="newStorylet" class="row" style="gap:6px"><input type="text" id="newStoryletId" placeholder="new_storylet_id" aria-label="New storylet id" style="flex:1;min-width:0;font:.85rem var(--mono);padding:4px 6px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)"><button type="submit">New storylet</button></form>
       <div id="slotList"></div>
     </aside>
     <main id="main"><div class="card"><p class="empty">Loading…</p></div></main>
@@ -117,7 +126,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;",
 function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
-let engine, registry;
+let engine, registry, schema;
 const state = { pack: { files: [] }, saved: "", slot: null, lint: { issues: [], coverage: [] }, dir: null, seed: "42", spoil: false, search: "", db: null, downloads: null, written: {}, syncing: false };
 // Inside the claude.ai viewer the page is a cross-origin frame: no folder
 // picker, but the artifact's own database, which Claude reads into content/.
@@ -180,6 +189,9 @@ function mergeProject(bundled, files) {
     if (!f) { pack.files.push(b); continue; }
     const have = new Set(f.variants.map(v => v.slot));
     f.variants.push(...b.variants.filter(v => !have.has(v.slot)));
+    const ids = new Set((f.storylets || []).map(s => s.id));
+    const extra = (b.storylets || []).filter(s => !ids.has(s.id));
+    if (extra.length) f.storylets = [...(f.storylets || []), ...extra];
   }
   pack.files.sort((a, b) => a.path.localeCompare(b.path));
   return pack;
@@ -202,7 +214,8 @@ function relint() {
   clearTimeout(lintTimer);
   lintTimer = setTimeout(() => {
     state.lint = api({ cmd: "lint", pack: state.pack });
-    renderList(); renderSlotIssues(); updateStatus();
+    registry = api({ cmd: "registry", pack: state.pack });
+    renderList(); renderSlotIssues(); renderBeats(); updateStatus();
   }, 250);
 }
 function updateStatus() {
@@ -247,6 +260,7 @@ function renderSlot() {
       </tbody></table></div>
       <ul class="issues" id="slotIssues"></ul>
     </section>
+    ${storyletOf(s.id) ? storyletCard(storyletOf(s.id).s) : ""}
     <section class="card">
       <div class="row" style="justify-content:space-between"><h3>Variants</h3><button type="button" id="addVariant" class="primary">Add variant</button></div>
       ${vs.length ? vs.map((x, n) => variantCard(x, n, vs.length)).join("") : `<p class="empty">No variants yet. Add one, then watch the preview below.</p>`}
@@ -263,7 +277,78 @@ function renderSlot() {
       </div>
       <div class="scroll"><table class="preview" id="preview"></table></div>
     </section>`;
-  renderSlotIssues(); renderPreview();
+  renderSlotIssues(); renderPreview(); renderBeats();
+}
+
+// ---------- storylets ----------
+function storyletOf(slotId) {
+  if (!slotId || !slotId.startsWith("story.")) return null;
+  const id = slotId.slice(6);
+  for (const f of state.pack.files) { const s = (f.storylets || []).find(x => x.id === id); if (s) return { f, s }; }
+  return null;
+}
+function allStorylets() { return state.pack.files.flatMap(f => f.storylets || []); }
+const opt = (vals, cur, none) => (none ? `<option value="">${none}</option>` : "") + vals.map(v => `<option ${v === cur ? "selected" : ""}>${esc(v)}</option>`).join("");
+const checks = (field, vals, cur) => `<div class="checks">${vals.map(v => `<label><input type="checkbox" data-sfield="${field}" value="${esc(v)}" ${(cur || []).includes(v) ? "checked" : ""}>${esc(v)}</label>`).join("")}</div>`;
+function storyletCard(st) {
+  const p = st.place || {}, ins = st.inscription;
+  const placed = st.at === "structure" || st.at === "outdoors";
+  return `<section class="card" id="storyletCard">
+    <h3>Storylet</h3>
+    <div class="form">
+      <label for="s-about">What happens</label><textarea id="s-about" data-sfield="about">${esc(st.about || "")}</textarea>
+      <label for="s-at">Where</label><select id="s-at" data-sfield="at">${opt(schema.at, st.at || "anywhere")}</select>
+      ${st.at === "hook" ? `<label for="s-hook">Beat</label><select id="s-hook" data-sfield="hook">${opt(schema.hooks, st.hook, "choose a beat")}</select>` : ""}
+      <label for="s-when">When</label><input type="text" id="s-when" data-sfield="when" value="${esc(st.when || "")}" placeholder="always, e.g. carrying has 'torch' and day > 2">
+      <label for="s-after">After</label><select id="s-after" data-sfield="after">${opt(allStorylets().map(x => x.id).filter(x => x !== st.id), st.after, "nothing")}</select>
+      ${placed ? `
+      <label>Buildings</label>${checks("place.structure", schema.structures, p.structure)}
+      <label>Land</label>${checks("place.biome", schema.biomes, p.biome)}
+      <label for="s-era">Era</label><select id="s-era" data-sfield="place.era">${opt(schema.eras, p.era, "any")}</select>
+      <label>Also</label><div class="checks"><label><input type="checkbox" data-sfield="place.near_water" ${p.near_water ? "checked" : ""}>near water</label><label><input type="checkbox" data-sfield="place.away" ${p.away ? "checked" : ""}>not in the starting town</label></div>
+      <label for="s-ins">Writing</label><select id="s-ins" data-sfield="inscription.register">${opt(schema.registers, ins && ins.register, "none")}</select>
+      ${ins ? `<label for="s-ins-about">About</label><input type="text" id="s-ins-about" data-sfield="inscription.about" value="${esc(ins.about || "")}" placeholder="a concept or kind: water, gate, sacred">
+      <label for="s-ins-era">In the language of</label><select id="s-ins-era" data-sfield="inscription.era">${opt(schema.eras, ins.era, "its building's era")}</select>` : ""}` : ""}
+      <label for="s-effects">Effects</label><textarea id="s-effects" data-sfield="effects" placeholder="one per line: give torch · flag met_keeper · unflag met_keeper · open">${esc((st.effects || []).join("\n"))}</textarea>
+      <label>Options</label><div class="checks"><label><input type="checkbox" data-sfield="repeat" ${st.repeat ? "checked" : ""}>can happen more than once</label><label><input type="checkbox" data-sfield="example" ${st.example ? "checked" : ""}>example (placeholder)</label></div>
+    </div>
+    <p class="help">Its text is written below as variants of <code>story.${esc(st.id)}</code>. Conditions and text can use: ${schema.variables.map(v => `<code title="${esc(v.description)}">${esc(v.name)}</code>`).join(" ")}. Items to give: ${schema.items.map(i => `<code>${esc(i)}</code>`).join(" ")}.</p>
+    <div class="beats" id="beats"></div>
+    ${placed ? `<div class="row" style="justify-content:space-between"><h3>Where it lands</h3><div class="row"><label for="placeSeed">World <input type="number" id="placeSeed" value="${esc(state.seed)}" min="0"></label><button type="button" id="placeIt">Place it</button><button type="button" id="placeAnother">Another world</button></div></div><div id="placement" class="help">Choose a world and place it to see where it appears and what it says there.</div>` : ""}
+    <div class="row"><span style="flex:1"></span><button type="button" class="ghost" id="deleteStorylet">Delete storylet</button></div>
+  </section>`;
+}
+function renderBeats() {
+  const box = $("beats"); if (!box || !schema) return;
+  const written = new Set(allStorylets().filter(s => s.at === "hook").map(s => s.hook));
+  box.innerHTML = `<span class="help">Spine beats:</span>` + schema.hooks.map(h => `<span class="chip ${written.has(h) ? "ok" : "warn"}" title="${written.has(h) ? "has a storylet" : "no storylet yet"}">${esc(h)}</span>`).join("");
+}
+function setStoryField(st, field, el) {
+  const [a, b] = field.split(".");
+  const val = el.type === "checkbox" ? (el.value && el.value !== "on" ? null : el.checked) : el.value;
+  if (field === "effects") { const e = el.value.split("\n").map(x => x.trim()).filter(Boolean); if (e.length) st.effects = e; else delete st.effects; return; }
+  if (el.type === "checkbox" && el.value && el.value !== "on") {
+    st[a] ||= {}; const list = new Set(st[a][b] || []);
+    el.checked ? list.add(el.value) : list.delete(el.value);
+    if (list.size) st[a][b] = [...list]; else delete st[a][b];
+  } else if (b) {
+    if (a === "inscription" && b === "register" && !val) { delete st.inscription; return; }
+    st[a] ||= (a === "inscription" ? { register: "everyday", about: "" } : {});
+    if (val === "" || val === false) delete st[a][b]; else st[a][b] = val;
+  } else if (val === "" || val === false) { if (a !== "at" && a !== "about") delete st[a]; else st[a] = a === "at" ? "anywhere" : ""; }
+  else st[a] = val;
+  if (st.place && !Object.keys(st.place).length) delete st.place;
+}
+function placeStorylet() {
+  const box = $("placement"); const st = storyletOf(state.slot); if (!box || !st) return;
+  const seed = $("placeSeed").value || "42";
+  const r = api({ cmd: "storylet_preview", pack: state.pack, id: st.s.id, seed });
+  if (r.error) { box.innerHTML = `<span class="empty">${esc(r.error)}</span>`; return; }
+  if (!r.placed) { box.innerHTML = `<span class="empty">In world ${esc(seed)}, no building fits these rules.</span>`; return; }
+  const b = r.building;
+  box.innerHTML = `<p>World ${esc(seed)}: a ${esc(b.condition)} ${esc(b.kind)} of the ${esc(b.era)} era, ${Math.round(b.metres_from_start / 100) / 10} km ${esc(b.bearing || "")} of the start${b.settlement == null ? "" : `, in settlement ${b.settlement}`}.</p>
+    ${r.inscription ? `<p>Its writing: <code>${esc(r.inscription.romanised)}</code>${state.spoil ? ` — <em>${esc(r.inscription.gloss)}</em>` : " (turn on spoilers in the preview for its meaning)"}</p>` : ""}
+    <p class="out">${esc(r.text)}</p>`;
 }
 function variantCard(x, n, total) {
   const v = x.v;
@@ -308,6 +393,11 @@ function renderPreview() {
 // ---------- editing ----------
 function variantAt(el) { const f = state.pack.files.find(f => f.path === el.dataset.file); return { f, i: +el.dataset.index, v: f.variants[+el.dataset.index] }; }
 document.addEventListener("input", e => {
+  if (e.target.dataset.sfield && e.target.type !== "checkbox" && e.target.tagName !== "SELECT") {
+    const st = storyletOf(state.slot); if (!st) return;
+    setStoryField(st.s, e.target.dataset.sfield, e.target);
+    persist(); updateStatus(); relint(); return;
+  }
   const card = e.target.closest(".variant"); if (!card) return;
   const { v } = variantAt(card); const field = e.target.dataset.field;
   if (field === "text") { v.text = e.target.value; card.querySelector("pre").innerHTML = highlight(v.text); }
@@ -331,12 +421,37 @@ document.addEventListener("click", async e => {
   }
   if (e.target.id === "addVariant") { fileFor(state.slot).variants.push({ slot: state.slot, text: "" }); persist(); relint(); renderSlot(); document.querySelector(".variant:last-of-type textarea")?.focus(); }
   if (e.target.id === "newSeed") { state.seed = String(Math.floor(Math.random() * 1e9)); renderSlot(); }
+  if (e.target.id === "placeIt") placeStorylet();
+  if (e.target.id === "placeAnother") { $("placeSeed").value = String(Math.floor(Math.random() * 1e9)); placeStorylet(); }
+  if (e.target.id === "deleteStorylet") {
+    const st = storyletOf(state.slot); if (!st || !confirm(`Delete the storylet ${st.s.id}? Its text stays until you delete the variants.`)) return;
+    st.f.storylets = st.f.storylets.filter(x => x !== st.s);
+    persist(); relint(); renderSlot();
+  }
 });
 document.addEventListener("change", e => {
+  if (e.target.dataset.sfield && (e.target.type === "checkbox" || e.target.tagName === "SELECT")) {
+    const st = storyletOf(state.slot); if (!st) return;
+    setStoryField(st.s, e.target.dataset.sfield, e.target);
+    persist(); relint(); renderSlot(); return;
+  }
   if (e.target.id === "seed") { state.seed = e.target.value || "42"; renderPreview(); }
   if (e.target.id === "spoil") { state.spoil = e.target.checked; renderPreview(); }
 });
 $("search").addEventListener("input", e => { state.search = e.target.value; renderList(); });
+$("newStorylet").addEventListener("submit", e => {
+  e.preventDefault();
+  const id = $("newStoryletId").value.trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
+  if (!id) return;
+  if (allStorylets().some(s => s.id === id)) { state.slot = "story." + id; renderSlot(); return; }
+  const f = fileFor("story.x");
+  (f.storylets ||= []).push({ id, about: "", at: "anywhere" });
+  f.variants.push({ slot: "story." + id, text: "" });
+  $("newStoryletId").value = "";
+  state.slot = "story." + id; store("author.slot", state.slot);
+  registry = api({ cmd: "registry", pack: state.pack });
+  persist(); relint(); renderList(); renderSlot();
+});
 
 // ---------- files ----------
 function packFromTexts(files) {
@@ -436,6 +551,7 @@ async function boot() {
   const bytes = Uint8Array.from(atob(ENGINE_B64), c => c.charCodeAt(0));
   engine = (await WebAssembly.instantiate(bytes, {})).instance.exports;
   registry = api({ cmd: "registry" });
+  schema = api({ cmd: "storylet_schema" });
   const draft = load("author.pack");
   const bundled = packFromTexts(BUNDLED);
   if (draft) { state.pack = JSON.parse(draft); state.saved = load("author.saved") || JSON.stringify(bundled); }
@@ -463,6 +579,8 @@ async function boot() {
   }
   state.slot = load("author.slot") || registry.slots[0]?.id;
   state.lint = api({ cmd: "lint", pack: state.pack });
+  registry = api({ cmd: "registry", pack: state.pack });
+  if (!registry.slots.some(s => s.id === state.slot)) state.slot = registry.slots[0]?.id;
   renderList(); renderSlot(); updateStatus();
 }
 boot().catch(err => { $("packStatus").textContent = "The engine failed to load: " + err.message; });

@@ -23,6 +23,23 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   await page.waitForFunction(() => document.querySelector('#preview td.out')?.textContent.includes('pointing'), null, { timeout: 5000 });
   const preview = await page.textContent('#preview td.out');
   const status = await page.textContent('#packStatus');
+  // A new storylet, placed in a temple, previewed in a real world.
+  await page.fill('#newStoryletId', 'smoke well');
+  await page.click('#newStorylet button');
+  await page.waitForSelector('#storyletCard');
+  await page.selectOption('#s-at', 'structure');
+  await page.waitForSelector('[data-sfield="place.structure"][value="temple"]');
+  await page.check('[data-sfield="place.structure"][value="temple"]');
+  await page.selectOption('#s-ins', 'everyday');
+  await page.waitForSelector('#s-ins-about');
+  await page.fill('#s-ins-about', 'water');
+  await page.fill('textarea[data-field=text]', 'A temple, and {inscription}.');
+  await page.click('#placeIt');
+  await page.waitForFunction(() => /temple/.test(document.querySelector('#placement').textContent), null, { timeout: 20000 });
+  const placement = await page.textContent('#placement');
+  if (!/Its writing/.test(placement)) throw new Error('no writing in placement: ' + placement);
+  const chips = await page.textContent('#beats');
+  if (!chips.includes('opening')) throw new Error('beats missing: ' + chips);
   await browser.close();
   if (errors.length) throw new Error('page errors: ' + errors.join('; '));
   if (!status.includes('Unsaved changes')) throw new Error('status did not notice the edit: ' + status);
