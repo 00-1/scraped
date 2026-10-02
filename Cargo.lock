@@ -84,6 +84,7 @@ name = "scraped-cli"
 version = "0.1.0"
 dependencies = [
  "scraped-content",
+ "scraped-game",
  "scraped-lang",
  "scraped-world",
  "serde",
@@ -94,6 +95,18 @@ dependencies = [
 name = "scraped-content"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
+ "toml",
+]
+
+[[package]]
+name = "scraped-game"
+version = "0.1.0"
+dependencies = [
+ "scraped-content",
+ "scraped-lang",
+ "scraped-world",
  "serde",
  "serde_json",
  "toml",
@@ -111,10 +124,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "scraped-play"
+version = "0.1.0"
+dependencies = [
+ "scraped-content",
+ "scraped-game",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "scraped-web"
 version = "0.1.0"
 dependencies = [
  "scraped-content",
+ "scraped-game",
  "scraped-lang",
  "scraped-world",
  "serde",

@@ -1,0 +1,26 @@
+notes = "Where the player is: the open site, buildings, rooms and ways out."
+
+[[variant]]
+slot = "place.site"
+text = "You stand among ruins in {a biome}, in the {time}. Here {list structures}."
+example = true
+
+[[variant]]
+slot = "place.structure"
+text = "the {condition} {kind}"
+example = true
+
+[[variant]]
+slot = "place.room"
+text = "A {purpose}[if level < 0], below ground[end][if light == 'dim'], dim and close[end].[if things] Here: {list things}.[end][if exits] Ways out: {list exits}.[end]"
+example = true
+
+[[variant]]
+slot = "place.exit"
+text = "{a passage} {direction}[if state != 'open'] ({state})[end]"
+example = true
+
+[[variant]]
+slot = "place.out"
+text = "the way out"
+example = true

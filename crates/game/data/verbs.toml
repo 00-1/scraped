@@ -1,0 +1,107 @@
+# The verbs the parser knows. Each verb has an id (used in code) and the
+# words a player may type for it; multi-word forms are matched first.
+# Later milestones add verbs here (scrape, write, name) without code changes
+# to the parser.
+#
+#   object = "none" | "optional" | "required"
+
+[[verb]]
+id = "look"
+words = ["look", "l", "look around"]
+object = "none"
+
+[[verb]]
+id = "examine"
+words = ["examine", "x", "inspect", "look at", "l at", "study"]
+object = "required"
+
+[[verb]]
+id = "go"
+words = ["go", "walk", "go to", "walk to", "go into", "go through", "enter", "head"]
+object = "required"
+
+[[verb]]
+id = "out"
+words = ["out", "leave", "exit", "go out", "outside"]
+object = "none"
+
+[[verb]]
+id = "take"
+words = ["take", "get", "pick up", "grab", "carry"]
+object = "required"
+
+[[verb]]
+id = "drop"
+words = ["drop", "put down", "leave behind"]
+object = "required"
+
+[[verb]]
+id = "read"
+words = ["read", "r"]
+object = "required"
+
+[[verb]]
+id = "more"
+words = ["more", "next", "read on", "continue"]
+object = "none"
+
+[[verb]]
+id = "inventory"
+words = ["inventory", "i", "inv"]
+object = "none"
+
+[[verb]]
+id = "wait"
+words = ["wait", "z", "rest"]
+object = "none"
+
+[[verb]]
+id = "define"
+words = ["define", "transliterate", "label", "call"]
+object = "required"
+
+[[verb]]
+id = "help"
+words = ["help", "?", "h"]
+object = "none"
+
+# Directions are verbs of their own: "north" means "go north".
+[[verb]]
+id = "north"
+words = ["north", "n"]
+object = "none"
+
+[[verb]]
+id = "south"
+words = ["south", "s"]
+object = "none"
+
+[[verb]]
+id = "east"
+words = ["east", "e"]
+object = "none"
+
+[[verb]]
+id = "west"
+words = ["west", "w"]
+object = "none"
+
+[[verb]]
+id = "up"
+words = ["up", "u", "climb", "climb up", "go up"]
+object = "none"
+
+[[verb]]
+id = "down"
+words = ["down", "d", "descend", "climb down", "go down"]
+object = "none"
+
+[[verb]]
+id = "open"
+words = ["open", "push open", "pull open"]
+object = "required"
+
+[[verb]]
+id = "close"
+words = ["close", "shut"]
+object = "required"

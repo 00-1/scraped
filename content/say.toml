@@ -1,0 +1,149 @@
+notes = "Short responses: carrying things, moving, the parser, labels, time, help and saving."
+
+[[variant]]
+slot = "say.inventory"
+text = "[if count > 0]You carry {list items}.[else]You carry nothing.[end]"
+example = true
+
+[[variant]]
+slot = "say.take"
+text = "You take {thing}."
+example = true
+
+[[variant]]
+slot = "say.take_fixed"
+text = "{cap thing} will not move."
+example = true
+
+[[variant]]
+slot = "say.take_held"
+text = "You already have {thing}."
+example = true
+
+[[variant]]
+slot = "say.drop"
+text = "You put down {thing}."
+example = true
+
+[[variant]]
+slot = "say.drop_unheld"
+text = "You are not carrying {thing}."
+example = true
+
+[[variant]]
+slot = "say.no_exit"
+text = "There is no way {direction}."
+example = true
+
+[[variant]]
+slot = "say.blocked"
+text = "The {passage} {direction} cannot be passed: it is {state}."
+example = true
+
+[[variant]]
+slot = "say.buried"
+text = "{cap thing} is buried too deep to enter."
+example = true
+
+[[variant]]
+slot = "say.outside_already"
+text = "You are already outside."
+example = true
+
+[[variant]]
+slot = "say.not_entrance"
+text = "Find your way back to the entrance first."
+example = true
+
+[[variant]]
+slot = "say.not_here"
+text = "You see no {words} here."
+example = true
+
+[[variant]]
+slot = "say.which"
+text = "Which do you mean: {list options}?"
+example = true
+
+[[variant]]
+slot = "say.unknown_verb"
+text = "You don't know how to '{word}'. Type 'help'."
+example = true
+
+[[variant]]
+slot = "say.need_object"
+text = "{cap verb} what?"
+example = true
+
+[[variant]]
+slot = "say.empty"
+text = "You wait for a thought."
+example = true
+
+[[variant]]
+slot = "say.define"
+text = "In your notes, glyph {number} is now «{label}»."
+example = true
+
+[[variant]]
+slot = "say.define_bad"
+text = "Read something first, then write: define 3 as ka."
+example = true
+
+[[variant]]
+slot = "say.wait"
+text = "You wait {duration minutes}."
+example = true
+
+[[variant]]
+slot = "say.help"
+text = '''
+Try: look, examine (x) something, go to a building, north, south, east, west, up, down, out,
+open and close doors, take, drop, inventory (i), read something, more, wait,
+and define 3 as ka to label glyph 3 of what you last read.'''
+example = true
+
+[[variant]]
+slot = "say.intro"
+text = "You wake in {a biome}, among old buildings. Writing is everywhere, and you cannot read it."
+example = true
+
+[[variant]]
+slot = "say.saved"
+text = "Saved."
+example = true
+
+[[variant]]
+slot = "say.loaded"
+text = "Loaded."
+example = true
+
+[[variant]]
+slot = "say.pack_changed"
+text = "(This save was made with different text. Events replay the same; the wording may differ.)"
+example = true
+
+[[variant]]
+slot = "say.door_open"
+text = "You open {thing}."
+example = true
+
+[[variant]]
+slot = "say.door_close"
+text = "You close {thing}."
+example = true
+
+[[variant]]
+slot = "say.door_already_open"
+text = "{cap thing} is already open."
+example = true
+
+[[variant]]
+slot = "say.door_already_closed"
+text = "{cap thing} is already closed."
+example = true
+
+[[variant]]
+slot = "say.door_stuck"
+text = "{cap thing} will not move."
+example = true

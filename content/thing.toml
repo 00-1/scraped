@@ -1,0 +1,11 @@
+notes = "Things the player can examine, read or carry."
+
+[[variant]]
+slot = "thing.name"
+text = "{a material} {kind}"
+example = true
+
+[[variant]]
+slot = "thing.examine"
+text = "{cap a material} {kind}.[if written] Marks are cut into it: writing. You could read it.[end]"
+example = true

@@ -1,0 +1,31 @@
+notes = "Reading: the frame around a text, each glyph, and paging."
+
+[[variant]]
+slot = "read.frame"
+text = "On {thing}, {count glyphs glyph}[if pages > 1] (page {page} of {pages})[end]:"
+example = true
+
+[[variant]]
+slot = "read.glyph"
+text = "{number}. [if known]«{label}» [end]{description}"
+example = true
+
+[[variant]]
+slot = "read.more"
+text = "(Type 'more' to read on.)"
+example = true
+
+[[variant]]
+slot = "read.end"
+text = "That is all of it."
+example = true
+
+[[variant]]
+slot = "read.nothing"
+text = "There is no writing on {thing}."
+example = true
+
+[[variant]]
+slot = "read.no_more"
+text = "You are not reading anything."
+example = true
