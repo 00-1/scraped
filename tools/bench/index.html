@@ -1,0 +1,224 @@
+<title>Scraped Again Lexicon Bench</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one working column like a rubbing laid on a desk; controls on top, inscriptions numbered in the margin. */
+:root {
+  --bg: #e9ebe6; --sheet: #f6f7f3; --ink: #22262b; --muted: #5d6560; --rule: #cdd2cb;
+  --accent: #2d6f63; --accent-soft: #d5e5df; --gloss: #7a4f2a;
+  --display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #16191c; --sheet: #1e2226; --ink: #e4e7e2; --muted: #9aa39d; --rule: #343a3f;
+  --accent: #7cc2b2; --accent-soft: #233a35; --gloss: #e0aa78; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #16191c; --sheet: #1e2226; --ink: #e4e7e2; --muted: #9aa39d; --rule: #343a3f;
+  --accent: #7cc2b2; --accent-soft: #233a35; --gloss: #e0aa78; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 18px; }
+header { display: grid; gap: 4px; }
+h1 { font-family: var(--display); font-weight: 700; letter-spacing: .08em; font-size: clamp(1.6rem, 4vw, 2.3rem); margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; max-width: 64ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: end; background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
+.field { display: grid; gap: 4px; }
+label, .label { font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+input[type=text], input[type=number], select { font: 500 .95rem var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; }
+input[type=text] { width: 13ch; } input[type=number] { width: 7ch; }
+button { font: 500 .85rem var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 7px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--sheet); border-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toggle { display: flex; gap: 8px; align-items: center; font-family: var(--mono); font-size: .85rem; cursor: pointer; padding-block: 6px; text-transform: none; letter-spacing: 0; color: var(--ink); }
+.toggle input { accent-color: var(--accent); width: 1rem; height: 1rem; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rule); }
+.tabs, .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 8px 12px; color: var(--muted); }
+.tabs button[aria-selected=true] { color: var(--ink); border-bottom-color: var(--accent); }
+.chips { padding-block: 6px; }
+.chips button[aria-pressed=true] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.status { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 0; min-width: 0; }
+ol.corpus { list-style: none; margin: 0; padding: 0; }
+ol.corpus > li { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0 10px; padding: 9px 16px 9px 0; border-bottom: 1px solid var(--rule); }
+ol.corpus > li:last-child { border-bottom: 0; }
+.n { font: .8rem var(--mono); color: var(--muted); text-align: right; padding-top: .2rem; font-variant-numeric: tabular-nums; }
+.line { font: 500 1.05rem var(--mono); letter-spacing: .02em; overflow-wrap: anywhere; min-width: 0; }
+.glyphline { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; color: var(--ink); }
+.glyphline svg { width: 30px; height: 30px; }
+.glyphline .gap { width: 14px; }
+.glyphrows { display: grid; gap: 4px; min-width: 0; }
+.spoil { grid-column: 2; display: grid; gap: 6px; margin-top: 6px; min-width: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.chip { font: 500 .68rem var(--mono); letter-spacing: .08em; text-transform: uppercase; background: var(--accent-soft); color: var(--accent); padding: 2px 7px; border-radius: 3px; }
+.tr { font-style: italic; color: var(--muted); }
+.igt { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.igt div { display: grid; font-family: var(--mono); font-size: .82rem; }
+.igt .g { color: var(--gloss); }
+.note { padding: 18px 16px; color: var(--muted); margin: 0; }
+.scroll { overflow-x: auto; }
+table.eras { border-collapse: collapse; font-family: var(--mono); font-size: .88rem; width: 100%; }
+table.eras th, table.eras td { text-align: left; padding: 6px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.eras th { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+table.eras td.n { text-align: right; }
+.rules { padding: 6px 16px 14px; display: grid; gap: 4px; font-family: var(--mono); font-size: .88rem; }
+.rules h2, .sheet h2 { font-family: var(--display); font-size: 1rem; letter-spacing: .1em; margin: 10px 0 4px; }
+.glyphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 10px; padding: 8px 16px 16px; }
+.glyph { border: 1px solid var(--rule); border-radius: 4px; padding: 8px; display: grid; gap: 4px; align-content: start; }
+.glyph svg { width: 56px; height: 56px; color: var(--ink); }
+.glyph .w { font-family: var(--mono); font-size: .85rem; }
+.glyph .d { font-size: .78rem; color: var(--muted); line-height: 1.35; }
+pre.sheettext { margin: 0; padding: 8px 16px 16px; font: .85rem/1.5 var(--mono); overflow-x: auto; }
+footer { color: var(--muted); font-size: .85rem; }
+</style>
+<div class="wrap">
+  <header>
+    <h1>Scraped Again</h1>
+    <p class="sub">Language bench. Generate a language, read its inscriptions as text or glyphs, and compare the same texts across its eras. Spoilers show the true meanings, the sound changes and the full grammar.</p>
+  </header>
+  <form class="controls" id="controls">
+    <div class="field"><label for="seed">Seed</label><input type="text" id="seed" inputmode="numeric" value="42" autocomplete="off"></div>
+    <div class="field"><label for="count">Inscriptions</label><input type="number" id="count" min="1" max="200" value="30"></div>
+    <div class="field"><label for="eras">Eras</label><input type="number" id="eras" min="1" max="5" value="3"></div>
+    <div class="field"><label for="separation">Word breaks</label><select id="separation"><option value="0">spaces</option><option value="1">dividers</option><option value="2">none</option></select></div>
+    <div class="field"><label for="script">Script</label><select id="script"><option value="0">by seed</option><option value="1">alphabet</option><option value="2">abjad</option><option value="3">syllabary</option></select></div>
+    <label class="toggle" for="names"><input type="checkbox" id="names"> Mark names</label>
+    <label class="toggle" for="fused"><input type="checkbox" id="fused"> Fused forms</label>
+    <button type="submit" class="primary">Generate</button>
+    <button type="button" id="random">Random seed</button>
+    <label class="toggle" for="spoil"><input type="checkbox" id="spoil"> Show spoilers</label>
+  </form>
+  <div class="bar">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="corpus" aria-selected="true">Corpus</button>
+      <button type="button" role="tab" data-tab="eras" aria-selected="false">Eras</button>
+      <button type="button" role="tab" data-tab="script" aria-selected="false">Script</button>
+      <button type="button" role="tab" data-tab="grammar" aria-selected="false">Grammar</button>
+    </div>
+    <div class="chips" id="eraChips"></div>
+  </div>
+  <div class="chips" id="viewChips">
+    <button type="button" data-view="text" aria-pressed="true">Romanised</button>
+    <button type="button" data-view="glyphs" aria-pressed="false">Glyphs</button>
+    <button type="button" id="copy">Copy text</button>
+  </div>
+  <div class="status" id="status">Loading engine…</div>
+  <div class="panel" id="panel"></div>
+  <footer>The Rust language engine runs in your browser as WebAssembly and gives the same output as the <code>scraped-lang</code> command-line tool. Glyph drawings are a debugging aid; in the game, glyphs are only ever described.</footer>
+</div>
+<script>
+const ENGINE_B64 =
+"__ENGINE__";
+const $ = id => document.getElementById(id);
+const state = { tab: "corpus", era: 0, view: "text", data: null };
+let engine;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+async function boot() {
+  const bytes = Uint8Array.from(atob(ENGINE_B64), c => c.charCodeAt(0));
+  engine = (await WebAssembly.instantiate(bytes, {})).instance.exports;
+  const saved = load("seed"); if (saved) $("seed").value = saved;
+  $("spoil").checked = load("spoil") === "1";
+  generate();
+}
+
+function parseSeed(text) {
+  if (!/^\d+$/.test(text.trim())) return null;
+  const b = BigInt(text.trim());
+  return b <= 0xFFFFFFFFFFFFFFFFn ? b : null;
+}
+
+function generate() {
+  const seed = parseSeed($("seed").value);
+  if (seed === null) { $("status").textContent = "Enter a whole number from 0 to 18446744073709551615 as the seed."; return; }
+  const count = Math.min(200, Math.max(1, parseInt($("count").value, 10) || 30));
+  const eras = Math.min(5, Math.max(1, parseInt($("eras").value, 10) || 3));
+  $("count").value = count; $("eras").value = eras;
+  const flags = ($("names").checked ? 1 : 0) | ($("fused").checked ? 2 : 0);
+  const t0 = performance.now();
+  const ptr = engine.generate(Number(seed & 0xFFFFFFFFn), Number(seed >> 32n), count, eras,
+    Number($("separation").value), Number($("script").value), flags);
+  state.data = JSON.parse(new TextDecoder().decode(new Uint8Array(engine.memory.buffer, ptr, engine.output_len())));
+  state.era = Math.min(state.era, state.data.eras.length - 1);
+  store("seed", state.data.seed);
+  $("status").textContent = `Seed ${state.data.seed} · ${count} inscriptions · ${eras} era${eras > 1 ? "s" : ""} · generated in ${Math.round(performance.now() - t0)} ms`;
+  render();
+}
+
+function glyphRows(lines, era) {
+  const glyphs = era.sheet.script.glyphs;
+  return `<div class="glyphrows">${lines.map(l => `<div class="glyphline">${l.split(" ").map(t =>
+    t === "/" ? `<span class="gap"></span>` : `<span title="#${t} ${esc(glyphs[+t].writes)}">${glyphs[+t].svg}</span>`).join("")}</div>`).join("")}</div>`;
+}
+
+function render() {
+  const spoil = $("spoil").checked;
+  const d = state.data; if (!d) return;
+  const era = d.eras[state.era];
+  document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
+  document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === state.view));
+  $("viewChips").hidden = state.tab !== "corpus";
+  $("eraChips").hidden = state.tab === "eras";
+  $("eraChips").innerHTML = d.eras.length > 1 ? d.eras.map(e =>
+    `<button type="button" data-era="${e.era}" aria-pressed="${e.era === state.era}">Era ${e.era}</button>`).join("") : "";
+  const p = $("panel");
+  const needSpoil = what => `<p class="note">The ${what} is all spoilers. Turn on “Show spoilers” to see it.</p>`;
+  if (state.tab === "corpus") {
+    p.innerHTML = `<ol class="corpus">${era.corpus.inscriptions.map((i, n) => `
+      <li><span class="n">${i.index}</span>${state.view === "glyphs" ? glyphRows(era.glyphs[n], era) : `<span class="line">${esc(i.text)}</span>`}
+      ${spoil ? `<div class="spoil">
+        <div class="meta"><span class="chip">${esc(i.kind)}</span><span class="tr">${esc(i.translation)}</span></div>
+        <div class="igt">${i.words.map(w => `<div><span>${esc(w.segmented)}</span><span class="g">${esc(w.gloss)}</span></div>`).join("")}</div>
+      </div>` : ""}</li>`).join("")}</ol>`;
+  } else if (state.tab === "eras") {
+    const last = d.eras[d.eras.length - 1].sheet;
+    const rules = spoil && last.history.length ? `<div class="rules"><h2>Sound changes</h2>${last.history.map(s =>
+      s.rules.map(r => `<div>era ${s.era}: ${esc(ruleText(r))}</div>`).join("")).join("")}</div>` : "";
+    p.innerHTML = `${rules}<div class="scroll"><table class="eras"><thead><tr><th>#</th>${d.eras.map(e => `<th>Era ${e.era}</th>`).join("")}${spoil ? "<th>Meaning</th>" : ""}</tr></thead><tbody>
+      ${d.eras[0].plain.map((_, n) => `<tr><td class="n">${n + 1}</td>${d.eras.map(e => `<td>${esc(e.plain[n])}</td>`).join("")}${spoil ? `<td class="tr">${esc(d.eras[0].corpus.inscriptions[n].translation)}</td>` : ""}</tr>`).join("")}
+      </tbody></table></div>`;
+  } else if (!spoil) {
+    p.innerHTML = needSpoil(state.tab === "script" ? "script table" : "grammar sheet");
+  } else if (state.tab === "script") {
+    const s = era.sheet.script;
+    p.innerHTML = `<p class="note">${esc(s.kind)}, written ${esc(s.direction.replace(/_/g, " "))}. ${["voicing", "fricative", "nasal"].filter(k => s.logic[k]).map(k => `${k === "voicing" ? "Voiced" : k === "fricative" ? "Fricative" : "Nasal"} sounds add one stroke.`).join(" ")}</p>
+      <div class="glyphs">${s.glyphs.map(g => `<div class="glyph">${g.svg}<span class="w">#${g.number} ${esc(g.writes)} · ${esc(g.roman)}</span><span class="d">${esc(g.description)}</span></div>`).join("")}</div>`;
+  } else {
+    p.innerHTML = `<pre class="sheettext">${esc(era.sheetText)}</pre>`;
+  }
+}
+
+function ruleText(r) {
+  switch (r.type) {
+    case "shift": return `${r.from} > ${r.to}`;
+    case "intervocalic": return `${r.from} > ${r.to} between vowels`;
+    case "before_front": return `${r.from} > ${r.to} before a front vowel`;
+    case "cluster_loss": return "consonant clusters lose their second consonant";
+    case "apocope": return "final vowel lost after a single consonant in longer words";
+    default: return JSON.stringify(r);
+  }
+}
+
+$("controls").addEventListener("submit", e => { e.preventDefault(); generate(); });
+$("random").addEventListener("click", () => { $("seed").value = String(Math.floor(Math.random() * 1e9)); generate(); });
+$("spoil").addEventListener("change", () => { store("spoil", $("spoil").checked ? "1" : "0"); render(); });
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.tab) { state.tab = t.dataset.tab; render(); }
+  if (t.dataset.era) { state.era = +t.dataset.era; render(); }
+  if (t.dataset.view) { state.view = t.dataset.view; render(); }
+});
+$("copy").addEventListener("click", () => {
+  if (!state.data) return;
+  const text = state.data.eras[state.era].plain.join("\n") + "\n";
+  navigator.clipboard.writeText(text).then(
+    () => { $("status").textContent = `Copied era ${state.era} of seed ${state.data.seed}.`; },
+    () => { $("status").textContent = "Copy was blocked here. Select the text and copy it by hand."; });
+});
+boot().catch(e => { $("status").textContent = "The engine failed to load: " + e.message; });
+</script>

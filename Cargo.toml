@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["crates/lang", "crates/cli"]
+exclude = ["tools/bench"]
 
 [workspace.package]
 edition = "2021"
