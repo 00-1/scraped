@@ -110,8 +110,11 @@ footer { color: var(--muted); font-size: .85rem; }
   <footer>The Rust language engine runs in your browser as WebAssembly and gives the same output as the <code>scraped-lang</code> command-line tool. Glyph drawings are a debugging aid; in the game, glyphs are only ever described.</footer>
 </div>
 <script>
-const ENGINE_B64 =
-"__ENGINE__";
+// The engine, compiled from Rust to WebAssembly and then to plain
+// JavaScript (wasm2js), since some hosts forbid compiling WebAssembly.
+__ENGINE__
+</script>
+<script>
 const $ = id => document.getElementById(id);
 const state = { tab: "corpus", era: 0, view: "text", data: null };
 let engine;
@@ -120,8 +123,7 @@ function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
 async function boot() {
-  const bytes = Uint8Array.from(atob(ENGINE_B64), c => c.charCodeAt(0));
-  engine = (await WebAssembly.instantiate(bytes, {})).instance.exports;
+  engine = ENGINE;
   const saved = load("seed"); if (saved) $("seed").value = saved;
   $("spoil").checked = load("spoil") === "1";
   generate();
@@ -134,6 +136,7 @@ function parseSeed(text) {
 }
 
 function generate() {
+  if (!engine) { $("status").textContent = "The engine has not loaded, so nothing can be generated."; return; }
   const seed = parseSeed($("seed").value);
   if (seed === null) { $("status").textContent = "Enter a whole number from 0 to 18446744073709551615 as the seed."; return; }
   const count = Math.min(200, Math.max(1, parseInt($("count").value, 10) || 30));
