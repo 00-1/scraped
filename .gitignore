@@ -8,3 +8,4 @@ android/.tools/
 android/build/
 android/dist/
 android/.keystore/
+/scraped-again.apk
