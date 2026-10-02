@@ -207,3 +207,27 @@
 6. **Hands**: six kinds, by author.
 
 **Content slots added:** `read.lost`, `read.scraped`, `read.ghosts`, `scrape.done`, `scrape.no_tool`, `scrape.bare`, `effect.change`, `effect.held`, `tool.found`. `read.frame` gained `hand`; `prop.cues` gained `uncanny`.
+
+## 2026-10-02 — M09 Player writing
+
+**Done**
+- **Parser, surface → meaning** (`crates/lang/src/parse.rs`): the renderer run backwards. At each slot it generates the forms the grammar allows (every noun in each number for the case, every verb in each tense and polarity, every numeral, the potent frame) and keeps what matches, with memoisation. Works on phonemes or on glyphs, with or without word dividers. Every corpus sentence of seeds 1, 42 and 9001, in every era, parses back to its meaning (by glyphs, an abjad's dropped vowels may leave a different meaning that writes the same).
+- **Writing**: `write <glyphs> on <thing>` with the stylus. Glyphs are script numbers or the player's own labels, `/` between words; never English. The confirmation echoes the glyph descriptions, not the meaning. Writing goes on blank surfaces or over a scraped trace (not over fresh writing), takes half an hour to dry, and becomes a new layer.
+- **Understanding gate**: reading silently records each root and the texts it appeared in; a word can be written only once its root has been met in 2 texts (configurable; function words exempt). Grammatical forms need not have been seen.
+- **Agreement**: writing over a trace must keep its register (potent over potent) and fill the same slots: the same roles, each with the same number and the same kind of noun. Otherwise it smudges and won't take.
+- **Misfires**: text that doesn't parse is written but inert; text that parses acts as written (a wrong word or an unintended negation does what it says: "let the house not burn" chills the room). A garbled text inside the potent frame turns on its writer when scraped (one level of injury; "writing" is a new cause of death).
+- **Deep reading**: carrying the lens shows the layer beneath the live one, fainter (35% of glyphs in daylight, 20% dim), and its words count as encountered.
+- **Player layers** are stored in the game state in order, ready for M11's chronicle; their claims use the M08 engine.
+- **Agent protocol**: responses carry `wrote` (accepted, refusal id, glyph numbers) and `scraped` (whether anything perceptible changed); spoilers add the player's understanding by root.
+- **Tests**: parse inverts render; the gate refuses and is configurable; agreement fixtures; misfires are deterministic and negation bites; the lens reads beneath and reading records roots; a decipherer that knows only the grammar composes "let the house burn", writes it on a blank wall, scrapes it and warms the room on at least 4 of 5 seeds.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Era**: players write in the newest era's language and script only.
+2. **Gate**: 2 texts; partly scraped readings count; potent formulae and "and" need no encounters.
+3. **Agreement**: checked against the whole trace beneath (register, roles, number, kind of noun), not only its surviving words.
+4. **Where writing goes**: walls, steles, altars, niches, lintels and similar features; not over unscraped writing.
+5. **Lens**: 35% / 20% of the deeper layer visible.
+6. **Backlash**: a potent-framed text that doesn't parse hurts its writer when scraped; there is no "forgiving" parse of word-order mistakes yet (they don't parse, so they're inert).
+7. Players can't write personal names yet.
+
+**Content slots added:** `write.done`, `write.refused`, `write.unknown_mark`, `write.hesitate`, `write.smudge`, `write.backlash`, `scrape.wet`, `read.deep`; `death.narrate` and `end.summary` gained the cause `writing`.

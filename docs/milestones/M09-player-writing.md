@@ -47,14 +47,14 @@ The act of writing (by material and tool), smudging or refusing, ink drying, mis
 
 ## Checklist
 
-- [ ] Surface → meaning parser
-- [ ] Writing tool and `write` command
-- [ ] Understanding tracking and gate
-- [ ] Layer constraint (agreement + register)
-- [ ] Misfires and inert text
-- [ ] Deep-reading tool
-- [ ] Player layers enter history
-- [ ] Agent protocol extensions
-- [ ] Slots registered with examples
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Surface → meaning parser
+- [x] Writing tool and `write` command
+- [x] Understanding tracking and gate
+- [x] Layer constraint (agreement + register)
+- [x] Misfires and inert text
+- [x] Deep-reading tool
+- [x] Player layers enter history
+- [x] Agent protocol extensions
+- [x] Slots registered with examples
+- [x] Tests listed above
+- [x] LOG.md entry

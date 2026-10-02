@@ -57,6 +57,9 @@ torch`, `light torch`, `wear cloak`, `status`. Mechanisms: `open sluice`,
 `pull lever`, `pry door`. `shout` scares some creatures off and brings down
 loose stone; `cross` tries ice, wading or swimming. With the scraper,
 `scrape <thing>` scrapes its top fresh writing away, and potent writing acts.
+With the stylus, `write 4 12 7 / 3 9 on wall` writes glyphs (script numbers,
+or your own labels from `define`) once you have met each word in two texts;
+the lens shows the layer beneath when you read.
 
 ### Worlds
 
@@ -92,7 +95,8 @@ Every English word the player reads is written by Jb in `content/` (see
 
 ## Layout
 
-- `crates/lang` — the language engine (pure library, WebAssembly-compatible).
+- `crates/lang` — the language engine (pure library, WebAssembly-compatible), including
+  the parser that reads text back into meaning.
   - `data/concepts.toml` — the starter concept list.
   - `tests/snapshots/` — pinned output for seeds 1, 42 and 9001, every era. After an
     intended change, regenerate with `UPDATE_SNAPSHOTS=1 cargo test` and review the diff.
