@@ -142,6 +142,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let legacy: Option<scraped_game::ending::Legacy> = opt(req, "legacy", None);
             let mut game = scraped_game::Game::with_legacy(seed(req), pack, legacy);
             game.spoil = opt(req, "spoil", false);
+            game.trace = opt(req, "trace", false);
             let first = game.start();
             GAME.with(|g| *g.borrow_mut() = Some(game));
             Ok(json!(first))
@@ -176,6 +177,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let save: scraped_game::Save = field(req, "save")?;
             let (mut game, changed) = scraped_game::Game::load(&save, pack);
             game.spoil = opt(req, "spoil", false);
+            game.trace = opt(req, "trace", false);
             let mut text = game.message("say.loaded");
             if changed {
                 text.push_str("\n\n");
@@ -209,6 +211,63 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             Ok(registry_json(&scraped_game::slots::registry_for(&pack)))
         }
         "storylet_schema" => Ok(scraped_game::storylets::schema()),
+        // Bots play the given seeds; which text players meet, and how often.
+        "coverage" => {
+            let (pack, _) = pack(req)?;
+            let seeds: Vec<u64> = opt::<Vec<String>>(req, "seeds", vec!["1".into(), "42".into()])
+                .iter()
+                .filter_map(|s| s.parse().ok())
+                .collect();
+            let steps: usize = opt(req, "steps", 120);
+            Ok(json!(scraped_game::coverage::run(
+                &pack,
+                &seeds,
+                steps.min(1000)
+            )))
+        }
+        "voice" => {
+            let (pack, _) = pack(req)?;
+            Ok(json!({
+                "glossary": scraped_content::voice::glossary(&pack, opt(req, "min", 3)),
+                "echoes": scraped_content::voice::echoes(&pack),
+                "stats": scraped_content::voice::stats(&pack),
+            }))
+        }
+        // What changed since `old` (the committed pack the tool was built
+        // with), and whether saves still replay the same.
+        "diff" => {
+            let new: Pack = field(req, "pack")?;
+            let old: Pack = match req.get("old") {
+                Some(o) if !o.is_null() => {
+                    serde_json::from_value(o.clone()).map_err(|e| e.to_string())?
+                }
+                _ => {
+                    let files: Vec<(String, String)> =
+                        opt::<Vec<FileText>>(req, "old_files", Vec::new())
+                            .into_iter()
+                            .map(|f| (f.path, f.text))
+                            .collect();
+                    Pack::load(&files).0
+                }
+            };
+            Ok(json!(scraped_content::voice::diff(&old, &new)))
+        }
+        // Hot reload: the running playtest takes the new text.
+        "play_pack" => {
+            let (pack, _) = pack(req)?;
+            GAME.with(|g| match g.borrow_mut().as_mut() {
+                Some(game) => {
+                    game.set_pack(pack);
+                    Ok(json!({ "ok": true }))
+                }
+                None => Err("no game started".to_string()),
+            })
+        }
+        // The run inspector: what the player knows and has done.
+        "play_inspect" => GAME.with(|g| match g.borrow().as_ref() {
+            Some(game) => Ok(game.inspect()),
+            None => Err("no game started".to_string()),
+        }),
         "storylet_preview" => {
             let (pack, _) = pack(req)?;
             let id: String = field(req, "id")?;
@@ -238,6 +297,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let registry = scraped_game::slots::registry_for(&pack);
             let mut issues = lint(&registry, &pack, &errors, &hooks);
             issues.extend(scraped_game::storylets::lint(&pack));
+            issues.extend(scraped_content::voice::echoes(&pack));
             let cov = coverage(&registry, &pack, &issues);
             Ok(json!({ "issues": issues, "coverage": cov, "version": pack.version() }))
         }
@@ -303,7 +363,11 @@ fn registry_json(registry: &Registry) -> Value {
             v
         })
         .collect();
-    json!({ "slots": slots, "helpers": scraped_content::render::HELPERS.iter().map(|h| json!({"name": h.name, "usage": h.usage})).collect::<Vec<_>>() })
+    json!({
+        "slots": slots,
+        "helpers": scraped_content::render::HELPERS.iter().map(|h| json!({"name": h.name, "usage": h.usage})).collect::<Vec<_>>(),
+        "review": scraped_game::slots::REVIEW.iter().map(|(f, stage)| json!({"family": f, "stage": stage})).collect::<Vec<_>>(),
+    })
 }
 
 /// Every era of a language, for the bench page.
@@ -475,6 +539,43 @@ mod tests {
             .iter()
             .all(|i| i["severity"] != "error"
                 || !i["kind"].as_str().unwrap().starts_with("storylet")));
+    }
+
+    #[test]
+    fn authoring_v2_commands() {
+        let text = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../content/say.toml"
+        ))
+        .unwrap();
+        let files = json!([{"path": "say.toml", "text": text}]);
+        let cov = call(json!({"cmd": "coverage", "files": files, "seeds": ["1"], "steps": 20}));
+        assert!(cov["slots"].as_array().unwrap().len() > 3, "{cov}");
+        assert!(cov["never"].is_array());
+        let voice = call(json!({"cmd": "voice", "files": files}));
+        assert!(voice["stats"].is_array());
+        let parsed = call(json!({"cmd": "parse", "files": files}));
+        let mut changed = parsed["pack"].clone();
+        changed["files"][0]["variants"][0]["text"] = json!("Something new.");
+        let d = call(json!({"cmd": "diff", "pack": changed, "old_files": files}));
+        assert_eq!(d["changed"].as_array().unwrap().len(), 1);
+        assert_eq!(d["breaks_saves"], false);
+        // A traced playtest, hot reloaded, inspected.
+        let first = call(json!({"cmd": "play_new", "seed": "42", "files": files, "trace": true}));
+        assert!(
+            first["renders"].as_array().is_some_and(|r| !r.is_empty()),
+            "{first}"
+        );
+        assert_eq!(
+            call(json!({"cmd": "play_pack", "pack": changed}))["ok"],
+            true
+        );
+        let r = call(json!({"cmd": "play", "line": "help"}));
+        assert!(r["renders"][0]["slot"].is_string());
+        let inspect = call(json!({"cmd": "play_inspect"}));
+        assert!(inspect["record"]["regions"].is_array());
+        let reg = call(json!({"cmd": "registry"}));
+        assert_eq!(reg["review"][0]["family"], "story");
     }
 
     #[test]

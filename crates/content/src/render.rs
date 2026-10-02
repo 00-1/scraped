@@ -4,6 +4,7 @@
 //! give the same text. Where several variants apply, the renderer avoids
 //! repeating the one it used last for that slot.
 
+use serde::Serialize;
 use std::collections::BTreeMap;
 
 use crate::english;
@@ -116,6 +117,27 @@ pub fn word_position(name: &str, i: usize) -> bool {
             .any(|h| h.name == name && h.words.contains(&i))
 }
 
+/// One slot rendered: which variant made it, which `[if]` branches were
+/// taken, and the text. The authoring tool uses these to say why a line
+/// was shown and to measure coverage.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Trace {
+    pub slot: String,
+    /// The variant used, as (file, index in file); `None`: no variant
+    /// applied and a placeholder was shown.
+    pub file: Option<String>,
+    pub variant: Option<usize>,
+    /// Whether the variant is an agent-written example.
+    pub example: bool,
+    /// Whether the variant has a `when` condition.
+    pub conditional: bool,
+    /// `[if]` outcomes in the order met (true: the first branch).
+    pub branches: Vec<bool>,
+    pub text: String,
+    /// 0 for a slot the game asked for; deeper for `{>slot}` calls.
+    pub depth: usize,
+}
+
 /// Renders slots from a pack.
 pub struct Renderer<'a> {
     pub registry: &'a Registry,
@@ -124,6 +146,9 @@ pub struct Renderer<'a> {
     pub hooks: &'a dyn Hooks,
     last: BTreeMap<String, String>,
     depth: usize,
+    /// Every slot rendered so far, outermost last.
+    pub trace: Vec<Trace>,
+    open: Vec<Trace>,
 }
 
 /// A problem met while rendering. Rendering still produces text: the error
@@ -140,6 +165,8 @@ impl<'a> Renderer<'a> {
             hooks,
             last: BTreeMap::new(),
             depth: 0,
+            trace: Vec::new(),
+            open: Vec::new(),
         }
     }
 
@@ -165,6 +192,27 @@ impl<'a> Renderer<'a> {
 
     /// Like `render`, but reports the first error instead of inlining it.
     pub fn try_render(&mut self, slot: &str, ctx: &Context) -> Result<String, RenderError> {
+        self.open.push(Trace {
+            slot: slot.to_string(),
+            file: None,
+            variant: None,
+            example: false,
+            conditional: false,
+            branches: Vec::new(),
+            text: String::new(),
+            depth: self.depth,
+        });
+        let out = self.render_inner(slot, ctx);
+        let mut t = self.open.pop().expect("opened above");
+        t.text = match &out {
+            Ok(s) => s.clone(),
+            Err(RenderError(m)) => format!("⟦error: {m}⟧"),
+        };
+        self.trace.push(t);
+        out
+    }
+
+    fn render_inner(&mut self, slot: &str, ctx: &Context) -> Result<String, RenderError> {
         let variants = self.pack.variants(slot);
         let eligible: Vec<&Variant> = variants
             .into_iter()
@@ -180,6 +228,17 @@ impl<'a> Renderer<'a> {
             return Ok(placeholder(slot));
         }
         let chosen = self.choose(slot, ctx, &eligible);
+        if let Some((f, i, _)) = self
+            .pack
+            .all_variants()
+            .find(|(_, _, v)| std::ptr::eq(*v, chosen))
+        {
+            let t = self.open.last_mut().expect("open");
+            t.file = Some(f.path.clone());
+            t.variant = Some(i);
+            t.example = chosen.example;
+            t.conditional = chosen.when.is_some();
+        }
         let nodes = template::parse(&chosen.text)
             .map_err(|e| RenderError(format!("{slot}: {}", e.message)))?;
         self.last.insert(slot.to_string(), chosen.text.clone());
@@ -251,7 +310,11 @@ impl<'a> Renderer<'a> {
                     then,
                     otherwise,
                 } => {
-                    let branch = if eval(cond, ctx)? { then } else { otherwise };
+                    let taken = eval(cond, ctx)?;
+                    if let Some(t) = self.open.last_mut() {
+                        t.branches.push(taken);
+                    }
+                    let branch = if taken { then } else { otherwise };
                     out.push_str(&self.nodes(branch, ctx, slot)?);
                 }
                 // Damage filtering arrives in M08; until then text is whole.

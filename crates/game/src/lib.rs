@@ -10,6 +10,9 @@ pub use scraped_sim::outdoors;
 pub mod composing;
 #[cfg(test)]
 mod composing_tests;
+pub mod coverage;
+#[cfg(test)]
+mod coverage_tests;
 pub mod ending;
 #[cfg(test)]
 mod ending_tests;
@@ -252,6 +255,9 @@ pub struct Output {
     /// Ground truth (only filled when asked for: spoilers).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truth: Option<Json>,
+    /// The slot renders behind the text (only when `Game::trace` is set).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub renders: Vec<Rendered>,
 }
 
 /// A saved game: everything needed to replay it.
@@ -310,6 +316,28 @@ pub struct Game {
     pub placed: Vec<storylets::Placed>,
     /// Beats of the spine announced so far.
     pub hooks_seen: BTreeSet<String>,
+    /// The storylets' rules, fixed when the world was made: a hot reload
+    /// of the pack changes their text, never where or when they happen.
+    storylets: Vec<scraped_content::Storylet>,
+    /// Whether outputs list the slot renders that made them.
+    pub trace: bool,
+    /// Slot renders since the last command began (or the whole run, when
+    /// `keep_renders` is set), with their variables.
+    renders: Vec<Rendered>,
+    pub keep_renders: bool,
+}
+
+/// A slot rendered during play, with the variables it was given: what the
+/// authoring tool needs to answer "why did I see this?".
+#[derive(Debug, Clone, Serialize)]
+pub struct Rendered {
+    #[serde(flatten)]
+    pub trace: scraped_content::Trace,
+    pub vars: Context,
+    /// Game time, in minutes.
+    pub minutes: u32,
+    /// The renderer's seed, so the text can be rendered again exactly.
+    pub seed: u64,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -407,7 +435,12 @@ impl Game {
             legacy,
             placed,
             hooks_seen: BTreeSet::new(),
+            storylets: Vec::new(),
+            trace: false,
+            renders: Vec::new(),
+            keep_renders: false,
         };
+        g.storylets = g.pack.storylets().cloned().collect();
         g.recompute_drivers();
         g.initial_drivers = g.drivers.clone();
         g
@@ -477,7 +510,39 @@ impl Game {
         if keep_memory {
             self.memory = r.memory();
         }
+        let minutes = self.state.minutes;
+        let traces = std::mem::take(&mut r.trace);
+        drop(r);
+        self.renders
+            .extend(traces.into_iter().map(|trace| Rendered {
+                trace,
+                vars: c.clone(),
+                minutes,
+                seed,
+            }));
         out
+    }
+
+    /// Replaces the content pack mid-game: text changes at once; the game's
+    /// state, and where and when storylets happen, do not.
+    pub fn set_pack(&mut self, pack: Pack) {
+        let mut reg_pack = pack.clone();
+        // Slots for the storylets this world was made with, whatever the
+        // new pack says.
+        reg_pack.files.push(scraped_content::PackFile {
+            path: String::new(),
+            notes: None,
+            variants: Vec::new(),
+            storylets: self.storylets.clone(),
+        });
+        self.registry = slots::registry_for(&reg_pack);
+        self.pack = pack;
+        self.glyph_cache.clear();
+    }
+
+    /// The renders kept so far (see `keep_renders`).
+    pub fn renders(&self) -> &[Rendered] {
+        &self.renders
     }
 
     /// Renders a description; variants may vary from turn to turn.
@@ -522,6 +587,16 @@ impl Game {
         let seed = self.seed() ^ (u64::from(era) << 32 | index as u64);
         let mut r = Renderer::new(&self.registry, &self.pack, seed, &hooks);
         let d = describe_glyph(&mut r, &glyph);
+        let traces = std::mem::take(&mut r.trace);
+        drop(r);
+        let minutes = self.state.minutes;
+        self.renders
+            .extend(traces.into_iter().map(|trace| Rendered {
+                trace,
+                vars: Context::new(),
+                minutes,
+                seed,
+            }));
         self.glyph_cache.insert((era, index), d.clone());
         d
     }
@@ -800,6 +875,11 @@ impl Game {
             text,
             state,
             truth: if self.spoil { truth } else { None },
+            renders: if self.trace {
+                self.renders.clone()
+            } else {
+                Vec::new()
+            },
         }
     }
 
@@ -807,6 +887,9 @@ impl Game {
 
     /// Runs one command and describes the result.
     pub fn step(&mut self, input: &str) -> Output {
+        if !self.keep_renders {
+            self.renders.clear();
+        }
         self.log.push(input.to_string());
         self.sync_made();
         self.sync_written();

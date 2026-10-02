@@ -329,6 +329,28 @@ impl Game {
         }
     }
 
+    /// The run inspector (spoilers): understanding by root, what has been
+    /// read and written, the record so far, storylets and live claims here.
+    pub fn inspect(&self) -> serde_json::Value {
+        let met: Vec<&String> = self.state.encountered.keys().collect();
+        let unmet: Vec<&str> = scraped_lang::concepts::all()
+            .iter()
+            .filter(|c| c.pos != scraped_lang::concepts::Pos::Particle)
+            .map(|c| c.id.as_str())
+            .filter(|c| !self.state.encountered.contains_key(*c))
+            .collect();
+        serde_json::json!({
+            "understanding": self.understanding(),
+            "threshold": self.threshold,
+            "met": met,
+            "unmet": unmet,
+            "record": self.record(),
+            "storylets": self.storylets_truth(),
+            "claims_here": self.claims_here(),
+            "regions": self.regions_truth(),
+        })
+    }
+
     /// What this run leaves to the next world, once it has ended.
     pub fn legacy(&self) -> Option<Legacy> {
         self.state.dead.as_ref()?;

@@ -1972,6 +1972,47 @@ pub fn registry() -> Registry {
     Registry::new(all)
 }
 
+/// The order for a systematic writing session: slot families in the order
+/// a player meets them, with the stage of the game each belongs to.
+// DESIGN-Q: opening, then early game (looking, moving, reading, staying
+// alive), then late game (writing that acts, the regions, endings).
+pub const REVIEW: &[(&str, &str)] = &[
+    ("story", "opening"),
+    ("say", "opening"),
+    ("place", "opening"),
+    ("thing", "opening"),
+    ("prop", "early"),
+    ("land", "early"),
+    ("travel", "early"),
+    ("read", "early"),
+    ("glyph", "early"),
+    ("item", "early"),
+    ("drink", "early"),
+    ("fill", "early"),
+    ("eat", "early"),
+    ("forage", "early"),
+    ("gather", "early"),
+    ("fire", "early"),
+    ("sleep", "early"),
+    ("body", "early"),
+    ("hazard", "early"),
+    ("door", "early"),
+    ("mech", "early"),
+    ("cross", "early"),
+    ("shout", "early"),
+    ("creature", "early"),
+    ("tool", "late"),
+    ("scrape", "late"),
+    ("effect", "late"),
+    ("write", "late"),
+    ("region", "late"),
+    ("great", "late"),
+    ("time", "late"),
+    ("death", "late"),
+    ("end", "late"),
+    ("notebook", "late"),
+];
+
 /// The registry with a slot for each of the pack's storylets.
 pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     let mut all = scraped_lang::slots::slots();

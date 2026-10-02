@@ -502,7 +502,7 @@ impl Game {
         if self.state.dead.is_some() {
             return;
         }
-        let all: Vec<Storylet> = self.pack.storylets().cloned().collect();
+        let all: Vec<Storylet> = self.storylets.clone();
         for s in all {
             let fits = match s.at.as_str() {
                 "anywhere" => true,
@@ -519,8 +519,8 @@ impl Game {
     /// Returns their texts.
     pub(crate) fn hook(&mut self, hook: &str, tool: &str, ending: &str) -> Vec<String> {
         let all: Vec<Storylet> = self
-            .pack
-            .storylets()
+            .storylets
+            .iter()
             .filter(|s| s.at == "hook" && s.hook.as_deref() == Some(hook))
             .cloned()
             .collect();

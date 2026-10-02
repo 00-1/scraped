@@ -12,8 +12,9 @@ pub mod pack;
 pub mod render;
 pub mod slot;
 pub mod template;
+pub mod voice;
 
 pub use lint::{coverage, lint, release_check, Coverage, Issue, Severity, Status};
 pub use pack::{InscriptionRequest, Pack, PackError, PackFile, Placement, Storylet, Variant};
-pub use render::{Hooks, NoHooks, Renderer};
+pub use render::{Hooks, NoHooks, Renderer, Trace};
 pub use slot::{Context, Registry, SlotDef, Value, VarType, SAMPLE_SEEDS};
