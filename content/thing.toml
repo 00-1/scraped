@@ -2,7 +2,7 @@ notes = "Things the player can examine, read or carry."
 
 [[variant]]
 slot = "thing.name"
-text = "{a material} {kind}"
+text = "[if item]{a kind}[else]{a material} {kind}[end]"
 example = true
 
 [[variant]]

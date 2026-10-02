@@ -1,0 +1,11 @@
+notes = "Drinking."
+
+[[variant]]
+slot = "drink.done"
+text = "You drink[if source != 'container'] from the {source}[end]."
+example = true
+
+[[variant]]
+slot = "drink.none"
+text = "There is nothing to drink."
+example = true

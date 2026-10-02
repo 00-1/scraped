@@ -6,10 +6,13 @@
 //! them. Every sentence comes from a content slot; nothing in this crate is
 //! prose.
 
-pub mod outdoors;
+pub use scraped_sim::outdoors;
 pub mod parser;
+mod physical;
 pub mod site;
 pub mod slots;
+#[cfg(test)]
+mod survival;
 mod travel;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -23,7 +26,10 @@ use scraped_world::structures::{Exit, PassageState};
 
 use outdoors::Pos;
 use parser::{resolve, Candidate, Command, ParseError, Resolution};
-use site::{ctx, label, light, time_of_day, Place, Site, Way};
+use scraped_sim::body::{Activity, Body};
+use scraped_sim::creatures::Creature;
+use scraped_sim::env::SimState;
+use site::{ctx, label, time_of_day, Place, Site, Thing, Way};
 
 /// Verbs that are compass points or up and down.
 const DIRECTION_VERBS: &[&str] = &[
@@ -56,6 +62,21 @@ pub enum Target {
     Named(usize),
     /// A followable edge nearby, by index into `outdoors::EDGES`.
     Edge(usize),
+    /// A mechanism, by index into `Fixtures::mechanisms`.
+    Mechanism(usize),
+    /// The fire burning here.
+    Fire,
+}
+
+/// How a run ended, for the end-of-run summary.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Death {
+    pub cause: String,
+    /// The command the player was carrying out.
+    pub doing: String,
+    pub minutes: u32,
+    /// Where, as a debug id.
+    pub place: String,
 }
 
 /// A question the game is waiting for an answer to.
@@ -101,6 +122,28 @@ pub struct State {
     /// Doors the player has opened or closed: "structure:link" → open.
     pub doors: BTreeMap<String, bool>,
     pub pending: Option<Pending>,
+    /// The physical world as the player has changed it.
+    pub sim: SimState,
+    pub body: Body,
+    pub creatures: Vec<Creature>,
+    /// Torches and lamps burning.
+    pub lit: BTreeSet<usize>,
+    /// Minutes of burning left in torches and lamps.
+    pub fuel: BTreeMap<usize, u32>,
+    /// Drinks of water in carried containers.
+    pub water: BTreeMap<usize, u32>,
+    /// Clothing worn.
+    pub worn: BTreeSet<usize>,
+    /// Things used up: eaten, burnt.
+    pub gone: BTreeSet<usize>,
+    /// Kinds of things made or found during play; their ids follow the
+    /// world's things.
+    pub made: Vec<String>,
+    /// How loud the player is being right now (0–3).
+    pub noise: u8,
+    /// Need states last told to the player.
+    pub felt: Vec<usize>,
+    pub dead: Option<Death>,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -123,6 +166,15 @@ pub struct Summary {
     /// The last journey as the player perceived it.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub travelled: Option<Travelled>,
+    /// The body's needs, by coarse state.
+    pub body: BTreeMap<String, String>,
+    /// "daylight", "dim" or "dark".
+    pub light: String,
+    /// Weight carried, and the most that can be.
+    pub load: (u32, u32),
+    /// How the run ended, if it has.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dead: Option<String>,
 }
 
 /// A landmark as the player sees it: rough bearing and distance only.
@@ -175,6 +227,12 @@ pub struct Game {
     pub forced: Option<(&'static str, &'static str)>,
     glyph_cache: BTreeMap<(u32, usize), String>,
     last_travel: Option<Travelled>,
+    /// Things made during play (ids after the world's things).
+    extra: Vec<Thing>,
+    /// What happened while time passed, for the next output.
+    notes: Vec<String>,
+    /// Something happened that should stop a journey or sleep.
+    interrupted: bool,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -209,6 +267,18 @@ impl Game {
             labels: BTreeMap::new(),
             doors: BTreeMap::new(),
             pending: None,
+            sim: SimState::default(),
+            body: Body::default(),
+            creatures: site.fixtures.creatures.iter().map(Creature::new).collect(),
+            lit: BTreeSet::new(),
+            fuel: BTreeMap::new(),
+            water: BTreeMap::new(),
+            worn: BTreeSet::new(),
+            gone: BTreeSet::new(),
+            made: Vec::new(),
+            noise: 0,
+            felt: vec![0; 6],
+            dead: None,
         };
         Game {
             site,
@@ -221,6 +291,9 @@ impl Game {
             forced: None,
             glyph_cache: BTreeMap::new(),
             last_travel: None,
+            extra: Vec::new(),
+            notes: Vec::new(),
+            interrupted: false,
         }
     }
 
@@ -299,7 +372,7 @@ impl Game {
     }
 
     fn thing_name(&mut self, id: usize) -> String {
-        let c = self.site.thing_vars(&self.site.things[id]);
+        let c = self.site.thing_vars(self.thing(id));
         self.stable("thing.name", c, 1_000 + id as u64)
     }
 
@@ -347,13 +420,21 @@ impl Game {
                     Some(false) if w.state == PassageState::Open => w.state = PassageState::Closed,
                     _ => {}
                 }
+                if self.state.sim.opened.contains(&(structure, w.link))
+                    && w.state == PassageState::Blocked
+                {
+                    w.state = PassageState::Open;
+                }
+                if self.state.sim.fallen.contains(&(structure, w.link)) {
+                    w.state = PassageState::Blocked;
+                }
                 w
             })
             .collect()
     }
 
     fn where_is(&self, thing: usize) -> Option<Place> {
-        if self.state.carried.contains(&thing) {
+        if self.state.carried.contains(&thing) || self.state.gone.contains(&thing) {
             return None;
         }
         Some(
@@ -361,12 +442,12 @@ impl Game {
                 .state
                 .moved
                 .get(&thing)
-                .unwrap_or(&self.site.things[thing].home),
+                .unwrap_or(&self.thing(thing).home),
         )
     }
 
     fn here(&self) -> Vec<usize> {
-        (0..self.site.things.len())
+        (0..self.thing_count())
             .filter(|&t| {
                 self.where_is(t) == Some(self.state.place)
                     && (self.state.place != Place::Outside || self.local(self.thing_pos(t)))
@@ -375,22 +456,29 @@ impl Game {
     }
 
     fn thing_pos(&self, t: usize) -> Pos {
-        *self
-            .state
-            .dropped
-            .get(&t)
-            .unwrap_or(&self.site.things[t].pos)
+        *self.state.dropped.get(&t).unwrap_or(&self.thing(t).pos)
     }
 
     fn visible_targets(&mut self) -> Vec<Candidate<Target>> {
         let mut out = Vec::new();
-        for t in self.here().into_iter().chain(self.state.carried.clone()) {
+        let seen: Vec<usize> = if self.is_dark() {
+            Vec::new()
+        } else {
+            self.here()
+        };
+        for t in seen.into_iter().chain(self.state.carried.clone()) {
             let name = self.thing_name(t);
-            out.push(Candidate::new(
-                Target::Thing(t),
-                &name,
-                &[self.site.things[t].kind],
-            ));
+            let kind = self.thing(t).kind.replace('_', " ");
+            out.push(Candidate::new(Target::Thing(t), &name, &[&kind]));
+        }
+        for m in self.mechanisms_here() {
+            let name = self.mech_name(m);
+            let kind = label(&self.site.fixtures.mechanisms[m].kind).replace('_', " ");
+            out.push(Candidate::new(Target::Mechanism(m), &name, &[&kind]));
+        }
+        if self.fire_here_pub() {
+            let name = self.fire_name();
+            out.push(Candidate::new(Target::Fire, &name, &["fire"]));
         }
         for w in self.ways() {
             let name = self.way_name(&w);
@@ -417,11 +505,18 @@ impl Game {
                 let r = &st.interior.rooms[room];
                 let (purpose, level, kind, condition) =
                     (r.purpose, r.level, label(&st.kind), label(&st.condition));
-                let things: Vec<Value> = self
-                    .here()
-                    .into_iter()
-                    .map(|t| Value::from(self.thing_name(t)))
-                    .collect();
+                let dark = self.is_dark();
+                let mut things: Vec<Value> = if dark {
+                    Vec::new()
+                } else {
+                    self.here()
+                        .into_iter()
+                        .map(|t| Value::from(self.thing_name(t)))
+                        .collect()
+                };
+                for m in self.mechanisms_here() {
+                    things.push(Value::from(self.mech_name(m)));
+                }
                 let mut exits: Vec<Value> = self
                     .ways()
                     .iter()
@@ -430,20 +525,35 @@ impl Game {
                 if room == 0 {
                     exits.push(Value::from(self.stable("place.out", Context::new(), 7)));
                 }
-                let c = ctx(&[
-                    ("purpose", Value::from(purpose)),
-                    ("structure", Value::from(kind)),
-                    ("condition", Value::from(condition)),
-                    ("level", Value::Number(i64::from(level))),
-                    (
-                        "light",
-                        Value::from(light(self.state.place, &self.site, self.state.minutes)),
-                    ),
-                    ("things", Value::List(things)),
-                    ("exits", Value::List(exits)),
-                    ("time", Value::from(time)),
-                ]);
-                self.say("place.room", c)
+                let light = self
+                    .env()
+                    .local(self.spot(), self.state.minutes, self.carried_light())
+                    .light;
+                let room_text = if dark {
+                    let c = ctx(&[
+                        ("level", Value::Number(i64::from(level))),
+                        ("exits", Value::List(exits)),
+                    ]);
+                    self.say("place.dark", c)
+                } else {
+                    let c = ctx(&[
+                        ("purpose", Value::from(purpose)),
+                        ("structure", Value::from(kind)),
+                        ("condition", Value::from(condition)),
+                        ("level", Value::Number(i64::from(level))),
+                        ("light", Value::from(light)),
+                        ("things", Value::List(things)),
+                        ("exits", Value::List(exits)),
+                        ("time", Value::from(time)),
+                    ]);
+                    self.say("place.room", c)
+                };
+                let cues = self.cues();
+                [room_text, cues]
+                    .into_iter()
+                    .filter(|p| !p.is_empty())
+                    .collect::<Vec<_>>()
+                    .join("\n\n")
             }
         }
     }
@@ -478,6 +588,11 @@ impl Game {
         } else {
             (Vec::new(), Vec::new(), None)
         };
+        let light = self
+            .env()
+            .local(self.spot(), self.state.minutes, self.carried_light())
+            .light
+            .to_string();
         Summary {
             place,
             things,
@@ -488,10 +603,22 @@ impl Game {
             edges,
             weather,
             travelled: self.last_travel.take(),
+            body: self
+                .state
+                .body
+                .states()
+                .iter()
+                .map(|(k, v)| (k.to_string(), v.to_string()))
+                .collect(),
+            light,
+            load: (self.weight(), scraped_sim::items::CARRY),
+            dead: self.state.dead.as_ref().map(|d| d.cause.clone()),
         }
     }
 
     fn output(&mut self, parts: Vec<String>, truth: Option<Json>) -> Output {
+        let mut parts = parts;
+        parts.extend(self.take_notes());
         let text = parts
             .into_iter()
             .filter(|p| !p.is_empty())
@@ -517,6 +644,11 @@ impl Game {
     /// Runs one command and describes the result.
     pub fn step(&mut self, input: &str) -> Output {
         self.log.push(input.to_string());
+        self.sync_made();
+        self.state.noise = 0;
+        if self.state.dead.is_some() {
+            return self.ended();
+        }
         let parsed = parser::parse(input);
         // While a "which one?" question is open, anything that is not a
         // command is taken as the answer.
@@ -552,7 +684,7 @@ impl Game {
     }
 
     fn pass(&mut self, minutes: u32) {
-        self.state.minutes += minutes;
+        self.advance(minutes, Activity::Resting);
     }
 
     fn command(&mut self, cmd: Command) -> Output {
@@ -606,6 +738,18 @@ impl Game {
             "follow" => self.follow(&cmd.words),
             "back" => self.go_back(),
             "name" => self.name_place(&cmd.words),
+            "light" => self.light(&cmd.words),
+            "extinguish" => self.extinguish(&cmd.words),
+            "drink" => self.drink(&cmd.words),
+            "eat" => self.eat(&cmd.words),
+            "sleep" => self.sleep(),
+            "forage" => self.forage(),
+            "gather" => self.gather(),
+            "make" => self.make(&cmd.words),
+            "feed" => self.feed_fire(),
+            "shout" => self.shout(),
+            "cross" => self.cross(&cmd.words),
+            "status" => self.status(),
             "go" => {
                 // "go north" is a direction; anything else names a place.
                 if let [d] = cmd.words.as_slice() {
@@ -668,6 +812,8 @@ impl Game {
             Target::Landmark(i) => self.landmark_name(i),
             Target::Named(i) => self.state.names[i].0.clone(),
             Target::Edge(e) => self.edge_name(e),
+            Target::Mechanism(m) => self.mech_name(m),
+            Target::Fire => self.fire_name(),
         }
     }
 
@@ -677,11 +823,39 @@ impl Game {
         let named = ctx(&[("thing", Value::from(name.as_str()))]);
         match (verb, target) {
             ("examine", Target::Thing(i)) => {
+                if self.thing(i).texts.is_empty()
+                    && scraped_sim::items::kind(self.thing(i).kind).is_some()
+                {
+                    return self.examine_item(i);
+                }
                 self.pass(2);
-                let c = self.site.thing_vars(&self.site.things[i]);
+                let c = self.site.thing_vars(self.thing(i));
                 let t = self.say("thing.examine", c);
                 self.output(vec![t], None)
             }
+            ("examine", Target::Mechanism(m)) => self.examine_mech(m),
+            ("open" | "close" | "operate", Target::Mechanism(m)) => self.operate(m, verb),
+            ("light", Target::Mechanism(m)) | ("extinguish", Target::Mechanism(m)) => {
+                self.operate(m, if verb == "light" { "open" } else { "close" })
+            }
+            ("drink", Target::Mechanism(_)) => self.drink(&[]),
+            ("fill", Target::Thing(i)) => self.fill(i),
+            ("eat", Target::Thing(i)) => self.eat_thing(i),
+            ("light", Target::Thing(i)) => {
+                if self.thing(i).kind == "hearth" {
+                    self.light_fire()
+                } else {
+                    self.light_item(i)
+                }
+            }
+            ("light", Target::Fire) | ("feed", Target::Fire) => self.feed_fire(),
+            ("extinguish", Target::Fire) => self.extinguish_fire(),
+            ("extinguish", Target::Thing(i)) => self.douse_item(i),
+            ("wear", Target::Thing(i)) => self.wear(i, true),
+            ("remove", Target::Thing(i)) => self.wear(i, false),
+            ("use", Target::Thing(i)) => self.use_thing(i),
+            ("use", Target::Mechanism(m)) => self.operate(m, "operate"),
+            ("pry", t) => self.pry(t),
             ("examine", Target::Structure(s)) | ("go", Target::Structure(s)) => {
                 if verb == "examine" {
                     self.pass(1);
@@ -703,9 +877,12 @@ impl Game {
                     let t = self.say("say.take_held", named);
                     return self.output(vec![t], None);
                 }
-                if !self.site.things[i].portable {
+                if !self.thing(i).portable {
                     let t = self.say("say.take_fixed", named);
                     return self.output(vec![t], None);
+                }
+                if self.overloaded_by(i) {
+                    return self.too_heavy_thing(i);
                 }
                 self.pass(1);
                 self.state.carried.push(i);
@@ -725,7 +902,8 @@ impl Game {
                 if self.state.place == Place::Outside {
                     self.state.dropped.insert(i, self.state.pos);
                 }
-                if self.site.things[i].home != self.state.place {
+                self.state.worn.remove(&i);
+                if self.thing(i).home != self.state.place {
                     self.state.moved.insert(i, self.state.place);
                 } else {
                     self.state.moved.remove(&i);
@@ -734,8 +912,12 @@ impl Game {
                 self.output(vec![t], None)
             }
             ("read", Target::Thing(i)) => {
-                if self.site.things[i].texts.is_empty() {
+                if self.thing(i).texts.is_empty() {
                     let t = self.say("read.nothing", named);
+                    return self.output(vec![t], None);
+                }
+                if self.is_dark() {
+                    let t = self.say("read.dark", named);
                     return self.output(vec![t], None);
                 }
                 self.state.reading = Some(Reading { thing: i, page: 0 });
@@ -793,6 +975,19 @@ impl Game {
             && w.state != PassageState::Blocked
             && w.passage == Some(scraped_world::structures::Passage::Door);
         let already = (w.state == PassageState::Open) == open;
+        if movable && open && !already && self.barred(structure, w.link) {
+            if self.carrying_pry_bar() {
+                self.pass(10);
+                self.state.sim.unbarred.insert((structure, w.link));
+                self.state
+                    .doors
+                    .insert(format!("{structure}:{}", w.link), true);
+                let t = self.say("door.pried", named);
+                return self.output(vec![t], None);
+            }
+            let t = self.say("hazard.barred", named);
+            return self.output(vec![t], None);
+        }
         let slot = match (movable, already, open) {
             (false, _, _) => "say.door_stuck",
             (true, true, true) => "say.door_already_open",
@@ -857,10 +1052,19 @@ impl Game {
             let t = self.say("say.blocked", c);
             return self.output(vec![t], None);
         }
+        if self.flooded(way.to) {
+            let named = ctx(&[("thing", Value::from(self.way_name(&way)))]);
+            let t = self.say("hazard.flooded", named);
+            return self.output(vec![t], None);
+        }
+        let fall = self.dark_stair(way.passage);
         self.pass(1);
+        if self.state.dead.is_some() {
+            return self.output(fall.into_iter().collect(), None);
+        }
         self.state.place = way.to;
         let t = self.look();
-        self.output(vec![t], None)
+        self.output(fall.into_iter().chain([t]).collect(), None)
     }
 
     // ---------- reading ----------
@@ -868,7 +1072,7 @@ impl Game {
     /// The glyphs of everything written on a thing, in reading order.
     fn marks(&self, thing: usize) -> Vec<Mark> {
         let mut out = Vec::new();
-        for (n, &tid) in self.site.things[thing].texts.iter().enumerate() {
+        for (n, &tid) in self.thing(thing).texts.iter().enumerate() {
             if n > 0 {
                 out.push(Mark::Break);
             }
@@ -906,7 +1110,7 @@ impl Game {
         let last = ((page + 1) * PAGE).min(glyphs.len());
         self.pass(5);
         let thing_name = self.thing_name(thing);
-        let t = &self.site.things[thing];
+        let t = self.thing(thing);
         let era = self.site.world.texts[t.texts[0]].era as usize;
         let frame_ctx = ctx(&[
             ("thing", Value::from(thing_name)),
@@ -971,7 +1175,8 @@ impl Game {
             self.state.reading = None;
             self.say("read.end", Context::new())
         };
-        let truth = json!(self.site.things[thing]
+        let truth = json!(self
+            .thing(thing)
             .texts
             .iter()
             .map(|&tid| {
@@ -1034,5 +1239,18 @@ impl Game {
         self.state.labels.insert(format!("{era}:{index}"), label);
         let t = self.say("say.define", c);
         self.output(vec![t], None)
+    }
+}
+
+impl Game {
+    fn carrying_pry_bar(&self) -> bool {
+        self.state
+            .carried
+            .iter()
+            .any(|&t| self.thing(t).kind == "pry_bar")
+    }
+
+    fn fire_here_pub(&self) -> bool {
+        self.env().fire_at(self.spot()).is_some()
     }
 }

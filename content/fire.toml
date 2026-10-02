@@ -1,0 +1,31 @@
+notes = "Fires: lighting, feeding, going out."
+
+[[variant]]
+slot = "fire.name"
+text = "the fire"
+example = true
+
+[[variant]]
+slot = "fire.lit"
+text = "The {where} catches."
+example = true
+
+[[variant]]
+slot = "fire.fail"
+text = "You can't make fire: {reason}."
+example = true
+
+[[variant]]
+slot = "fire.fed"
+text = "You feed the fire."
+example = true
+
+[[variant]]
+slot = "fire.out"
+text = "The {where} burns out."
+example = true
+
+[[variant]]
+slot = "fire.doused"
+text = "You put out the {where}."
+example = true

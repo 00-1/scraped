@@ -1,0 +1,11 @@
+notes = "Eating."
+
+[[variant]]
+slot = "eat.done"
+text = "You eat {thing}."
+example = true
+
+[[variant]]
+slot = "eat.none"
+text = "You have nothing to eat."
+example = true

@@ -1,0 +1,26 @@
+notes = "Mechanisms: wells, sluices, wheels, levers, braziers."
+
+[[variant]]
+slot = "mech.name"
+text = "the {kind}"
+example = true
+
+[[variant]]
+slot = "mech.examine"
+text = "The {kind} is {state}."
+example = true
+
+[[variant]]
+slot = "mech.operate"
+text = "You work the {kind}. It is {state} now."
+example = true
+
+[[variant]]
+slot = "mech.already"
+text = "The {kind} is already {state}."
+example = true
+
+[[variant]]
+slot = "mech.cannot"
+text = "The {kind} can't be worked by hand."
+example = true

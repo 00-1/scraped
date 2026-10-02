@@ -24,3 +24,8 @@ example = true
 slot = "place.out"
 text = "the way out"
 example = true
+
+[[variant]]
+slot = "place.dark"
+text = "It is too dark to see anything here.[if exits] You can feel your way to {list exits}.[end]"
+example = true

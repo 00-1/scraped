@@ -29,3 +29,8 @@ example = true
 slot = "read.no_more"
 text = "You are not reading anything."
 example = true
+
+[[variant]]
+slot = "read.dark"
+text = "It is too dark to read {thing}."
+example = true

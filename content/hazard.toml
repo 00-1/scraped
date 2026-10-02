@@ -1,0 +1,21 @@
+notes = "Hazards: falls, falling stone, flooded rooms, barred doors."
+
+[[variant]]
+slot = "hazard.fall"
+text = "You fall on the stair in the dark."
+example = true
+
+[[variant]]
+slot = "hazard.collapse"
+text = "Stone falls from above."
+example = true
+
+[[variant]]
+slot = "hazard.flooded"
+text = "{cap thing} leads into water."
+example = true
+
+[[variant]]
+slot = "hazard.barred"
+text = "{cap thing} won't open."
+example = true

@@ -1,0 +1,11 @@
+notes = "Gathering firewood."
+
+[[variant]]
+slot = "gather.found"
+text = "You gather a bundle of wood."
+example = true
+
+[[variant]]
+slot = "gather.none"
+text = "There is no wood here."
+example = true

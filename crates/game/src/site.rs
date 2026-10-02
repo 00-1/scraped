@@ -6,7 +6,9 @@ use scraped_world::history::Settlement;
 use scraped_world::structures::{Condition, Exit, Material, PassageState, Structure};
 use scraped_world::World;
 
-use crate::outdoors::{outdoor_light, Land, Pos};
+use scraped_sim::fixtures::{Fixtures, Spot};
+pub use scraped_sim::outdoors::{label, time_of_day};
+use scraped_sim::outdoors::{outdoor_light, Land, Pos};
 
 /// Where the player is.
 #[derive(
@@ -51,6 +53,8 @@ pub struct Site {
     /// Every thing in the world.
     pub things: Vec<Thing>,
     pub land: Land,
+    /// Items, mechanisms, creatures and obstacles of the physical game.
+    pub fixtures: Fixtures,
 }
 
 /// One way out of a room.
@@ -63,13 +67,6 @@ pub struct Way {
     pub passage: Option<scraped_world::structures::Passage>,
     pub state: PassageState,
     pub collapsed: bool,
-}
-
-pub fn label<T: serde::Serialize>(x: &T) -> String {
-    serde_json::to_value(x)
-        .ok()
-        .and_then(|v| v.as_str().map(str::to_string))
-        .unwrap_or_default()
 }
 
 impl Site {
@@ -139,12 +136,25 @@ impl Site {
                 });
             }
         }
+        let fixtures = Fixtures::new(&world, &land, settlement);
+        for p in &fixtures.items {
+            things.push(Thing {
+                id: things.len(),
+                kind: p.kind,
+                material: item_material(p.kind),
+                home: place_of(p.at),
+                portable: true,
+                texts: Vec::new(),
+                pos: p.pos,
+            });
+        }
         Site {
             world,
             settlement,
             structures,
             things,
             land,
+            fixtures,
         }
     }
 
@@ -207,6 +217,14 @@ impl Site {
             ("material", Value::from(label(&t.material))),
             ("written", Value::Bool(!t.texts.is_empty())),
             ("condition", Value::from(condition)),
+            (
+                "item",
+                Value::Bool(
+                    t.texts.is_empty()
+                        && scraped_sim::items::kind(t.kind).is_some()
+                        && t.kind != "jar",
+                ),
+            ),
         ])
     }
 
@@ -272,17 +290,6 @@ pub fn ctx(pairs: &[(&str, Value)]) -> Context {
         .collect()
 }
 
-/// Time of day from minutes since midnight of the first day.
-pub fn time_of_day(minutes: u32) -> &'static str {
-    match (minutes / 60) % 24 {
-        5..=7 => "dawn",
-        8..=11 => "morning",
-        12..=16 => "afternoon",
-        17..=20 => "evening",
-        _ => "night",
-    }
-}
-
 /// How light a place is.
 // DESIGN-Q: until light and lamps exist (M07), underground rooms and night
 // indoors are "dim" but still readable.
@@ -298,5 +305,23 @@ pub fn light(place: Place, site: &Site, minutes: u32) -> &'static str {
                 "daylight"
             }
         }
+    }
+}
+
+/// The game's place for a sim spot.
+pub fn place_of(s: Spot) -> Place {
+    match s {
+        Spot::Out { .. } => Place::Outside,
+        Spot::Room { structure, room } => Place::Room { structure, room },
+    }
+}
+
+/// What an item is mostly made of, for descriptions.
+pub fn item_material(kind: &str) -> Material {
+    match kind {
+        "torch" | "wood" | "berries" => Material::Wood,
+        "lamp" | "firesteel" | "pry_bar" | "scraper" | "stylus" | "lens" => Material::Metal,
+        "waterskin" | "cloak" => Material::Vellum,
+        _ => Material::Clay,
     }
 }

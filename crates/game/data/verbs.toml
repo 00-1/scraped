@@ -145,3 +145,94 @@ object = "none"
 id = "southwest"
 words = ["southwest", "sw", "south-west"]
 object = "none"
+
+# The physical world (M07).
+[[verb]]
+id = "light"
+words = ["light", "kindle", "ignite", "make fire", "start fire", "light fire", "light a fire", "make a fire"]
+object = "optional"
+
+[[verb]]
+id = "extinguish"
+words = ["extinguish", "put out", "douse", "snuff", "snuff out"]
+object = "required"
+
+[[verb]]
+id = "drink"
+words = ["drink", "drink from", "drink water", "draw water"]
+object = "optional"
+
+[[verb]]
+id = "fill"
+words = ["fill", "fill up"]
+object = "required"
+
+[[verb]]
+id = "eat"
+words = ["eat", "eat some"]
+object = "optional"
+
+[[verb]]
+id = "sleep"
+words = ["sleep", "go to sleep", "lie down", "rest until morning"]
+object = "none"
+
+[[verb]]
+id = "forage"
+words = ["forage", "search for food", "look for food", "gather food", "pick berries"]
+object = "none"
+
+[[verb]]
+id = "gather"
+words = ["gather", "gather wood", "collect wood", "gather firewood", "collect firewood", "chop wood"]
+object = "optional"
+
+[[verb]]
+id = "make"
+words = ["make", "build", "craft"]
+object = "required"
+
+[[verb]]
+id = "feed"
+words = ["feed", "stoke", "add wood", "put wood on", "add fuel"]
+object = "optional"
+
+[[verb]]
+id = "operate"
+words = ["pull", "push", "operate", "work", "turn", "raise", "lower", "crank"]
+object = "required"
+
+[[verb]]
+id = "wear"
+words = ["wear", "put on"]
+object = "required"
+
+[[verb]]
+id = "remove"
+words = ["remove", "take off"]
+object = "required"
+
+[[verb]]
+id = "use"
+words = ["use"]
+object = "required"
+
+[[verb]]
+id = "pry"
+words = ["pry", "prise", "force", "pry open", "force open", "lever open"]
+object = "required"
+
+[[verb]]
+id = "shout"
+words = ["shout", "yell", "scream", "make noise", "clap", "call out"]
+object = "none"
+
+[[verb]]
+id = "cross"
+words = ["cross", "wade", "swim", "wade across", "swim across", "ford"]
+object = "optional"
+
+[[verb]]
+id = "status"
+words = ["status", "health", "how am i", "condition"]
+object = "none"

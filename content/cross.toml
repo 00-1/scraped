@@ -1,0 +1,21 @@
+notes = "Crossing water."
+
+[[variant]]
+slot = "cross.done"
+text = "You cross the {by}."
+example = true
+
+[[variant]]
+slot = "cross.fail"
+text = "You can't cross here."
+example = true
+
+[[variant]]
+slot = "cross.fell_through"
+text = "The ice breaks under you."
+example = true
+
+[[variant]]
+slot = "cross.swept"
+text = "The current drags you under."
+example = true

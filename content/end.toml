@@ -1,0 +1,6 @@
+notes = "The end of a run (stub until M11)."
+
+[[variant]]
+slot = "end.summary"
+text = "Your time here is over. You lasted {days} days."
+example = true

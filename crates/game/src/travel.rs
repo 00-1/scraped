@@ -3,13 +3,14 @@
 
 use scraped_content::{Context, Value};
 
-use crate::outdoors::{
-    self, bearing, distance_band, duration_band, hash, parse_bearing, rotate, rough_metres,
-    rough_minutes, sight_range, unit, InView, Pos, Way, ARRIVE, BEARINGS, EDGES, EYE, LOCAL, STEP,
-};
 use crate::parser::{resolve, Candidate, Resolution};
 use crate::site::{ctx, label, time_of_day, Place};
 use crate::{Game, Output, Sighting, Target, Travelled};
+use scraped_sim::body::Activity;
+use scraped_sim::outdoors::{
+    self, bearing, distance_band, duration_band, hash, parse_bearing, rotate, rough_metres,
+    rough_minutes, sight_range, unit, InView, Pos, Way, ARRIVE, BEARINGS, EDGES, EYE, LOCAL, STEP,
+};
 
 /// Landmarks named in a look, at most.
 const HORIZON: usize = 6;
@@ -199,6 +200,9 @@ impl Game {
             for t in self.here() {
                 near.push(Value::from(self.thing_name(t)));
             }
+            for m in self.mechanisms_here() {
+                near.push(Value::from(self.mech_name(m)));
+            }
         }
         let high = self.site.land.high(pos) && range >= 5000.0;
         parts.push(self.say(
@@ -222,6 +226,9 @@ impl Game {
             let mut all = names.clone();
             for th in self.here() {
                 all.push(Value::from(self.thing_name(th)));
+            }
+            for m in self.mechanisms_here() {
+                all.push(Value::from(self.mech_name(m)));
             }
             let c = ctx(&[
                 ("biome", Value::from(self.site.biome_at(pos))),
@@ -252,6 +259,30 @@ impl Game {
                 ("light", Value::from(light)),
             ]),
         ));
+        let cues = self.cues();
+        parts.push(cues);
+        let beasts: Vec<usize> = self.creatures_in_view();
+        if !beasts.is_empty() {
+            let mut names = Vec::new();
+            for i in beasts {
+                let name = self.creature_name(i);
+                let at = self.state.creatures[i].pos;
+                let c = ctx(&[
+                    ("name", Value::from(name)),
+                    (
+                        "archetype",
+                        Value::from(self.site.fixtures.creatures[i].archetype),
+                    ),
+                    (
+                        "bearing",
+                        Value::from(bearing(pos, at).map_or("north", |b| BEARINGS[b])),
+                    ),
+                    ("distance", Value::from(distance_band(pos.dist(at)))),
+                ]);
+                names.push(Value::from(self.say("creature.seen", c)));
+            }
+            parts.push(self.say("creature.near", ctx(&[("creatures", Value::List(names))])));
+        }
         if high {
             let (biomes, sea) = self.site.land.region(&self.site.world, pos, range);
             let main = biomes.first().copied().unwrap_or("grassland");
@@ -411,10 +442,15 @@ impl Game {
             Way::Upstream | Way::Downstream if !water => Way::Onward,
             w => w,
         };
-        let (path, end) =
-            self.site
-                .land
-                .follow(&self.site.world, e, self.state.pos, way, FOLLOW_CELLS);
+        let env = self.env();
+        let (path, end) = self.site.land.follow(
+            &self.site.world,
+            e,
+            self.state.pos,
+            way,
+            FOLLOW_CELLS,
+            &|x, y| env.obstacle(x, y),
+        );
         if path.len() < 2 {
             let c = ctx(&[
                 ("edge", Value::from(EDGES[e])),
@@ -486,12 +522,18 @@ impl Game {
         mode: &str,
         edge: Option<(usize, Option<&'static str>)>,
     ) -> Output {
-        let world = &self.site.world;
-        let land = &self.site.land;
         let start = self.state.pos;
         let start_minutes = self.state.minutes;
+        let env = self.env();
+        let route = match &goal {
+            Goal::To(p) => self
+                .site
+                .land
+                .route_by(&self.site.world, start, *p, &|x, y| env.passable(x, y)),
+            _ => None,
+        };
         let (waypoints, max) = match &goal {
-            Goal::To(p) => match land.route(world, start, *p) {
+            Goal::To(_) => match route {
                 Some(path) => (path, MAX_STEPS),
                 None => {
                     let name = dest.map(|d| self.target_name(d)).unwrap_or_default();
@@ -518,11 +560,12 @@ impl Game {
         let (mut bx, mut by) = (f64::from(start.x), f64::from(start.y));
         let mut err: i32 = 0;
         let mut blind = 0;
-        let mut minutes = 0.0;
+        let mut carry = 0.0;
         let mut wi = 0;
+        self.interrupted = false;
         let mut event: Option<(&str, Context)> = None;
         for step in 0..max {
-            let now = start_minutes + minutes as u32;
+            let now = self.state.minutes;
             let (weather, light, range) = self.conditions_at(pos, now);
             let view = self.view_from(pos, range);
             // DESIGN-Q: in clear daylight outside woods the sun keeps the
@@ -582,15 +625,10 @@ impl Game {
             let actual = rotate(intended, err);
             let next = pos.moved(actual.0 * len, actual.1 * len);
             let (nx, ny) = next.cell();
-            let obstacle = self
-                .site
-                .land
-                .obstacle(&self.site.world, nx, ny)
-                .filter(|o| {
-                    // Following a river keeps to its bank.
-                    !(*o == "river"
-                        && edge.is_some_and(|(e, _)| self.site.land.has_edge(nx, ny, e)))
-                });
+            let obstacle = self.env().obstacle(nx, ny).filter(|o| {
+                // Following a river keeps to its bank.
+                !(*o == "river" && edge.is_some_and(|(e, _)| self.site.land.has_edge(nx, ny, e)))
+            });
             if let Some(by_what) = obstacle {
                 let c = ctx(&[
                     ("by", Value::from(by_what)),
@@ -602,8 +640,16 @@ impl Game {
                 event = Some(("travel.blocked", c));
                 break;
             }
-            minutes += self.site.land.walk_minutes(&self.site.world, pos, next);
+            carry += self.site.land.walk_minutes(&self.site.world, pos, next)
+                * self.state.body.slowness();
             pos = next;
+            self.state.pos = pos;
+            let whole = carry.floor();
+            carry -= whole;
+            self.advance(whole as u32, Activity::Walking);
+            if self.state.dead.is_some() || self.interrupted {
+                break;
+            }
             bx += intended.0 * len;
             by += intended.1 * len;
             if guided {
@@ -638,7 +684,7 @@ impl Game {
                 }
             }
             // Anything new in sight stops the walk.
-            let now = start_minutes + minutes as u32;
+            let now = self.state.minutes;
             let (_, _, range) = self.conditions_at(pos, now);
             let fresh: Vec<InView> = self
                 .view_from(pos, range)
@@ -671,7 +717,7 @@ impl Game {
                 break;
             }
         }
-        if event.is_none() {
+        if event.is_none() && self.state.dead.is_none() && !self.interrupted {
             match (&goal, edge) {
                 (Goal::To(g), _) => {
                     if pos.dist(*g) <= ARRIVE {
@@ -699,8 +745,7 @@ impl Game {
         }
         let moved = pos != start;
         self.state.pos = pos;
-        let total = (minutes + 0.5).floor() as u32;
-        self.state.minutes += total;
+        let total = self.state.minutes - start_minutes;
         let believed = Pos::new(bx.floor() as i32, by.floor() as i32);
         let mut parts = Vec::new();
         if moved {
@@ -734,7 +779,7 @@ impl Game {
         if let Some((slot, c)) = event {
             parts.push(self.say(slot, c));
         }
-        if moved {
+        if moved && self.state.dead.is_none() {
             parts.push(self.look_outside());
         }
         let truth = serde_json::json!({

@@ -1,0 +1,6 @@
+notes = "Death, by cause."
+
+[[variant]]
+slot = "death.narrate"
+text = "You die ({cause})."
+example = true

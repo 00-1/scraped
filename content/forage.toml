@@ -1,0 +1,11 @@
+notes = "Foraging for food."
+
+[[variant]]
+slot = "forage.found"
+text = "You find some {kind}."
+example = true
+
+[[variant]]
+slot = "forage.none"
+text = "You find nothing to eat."
+example = true

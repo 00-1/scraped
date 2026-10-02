@@ -1,0 +1,11 @@
+notes = "Filling containers."
+
+[[variant]]
+slot = "fill.done"
+text = "You fill {thing}."
+example = true
+
+[[variant]]
+slot = "fill.none"
+text = "You can't fill {thing} here."
+example = true

@@ -1,0 +1,6 @@
+notes = "Forcing doors."
+
+[[variant]]
+slot = "door.pried"
+text = "You force {thing} open."
+example = true

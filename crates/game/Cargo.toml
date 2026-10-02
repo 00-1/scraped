@@ -9,6 +9,7 @@ publish.workspace = true
 [dependencies]
 scraped-content = { path = "../content" }
 scraped-lang = { path = "../lang" }
+scraped-sim = { path = "../sim" }
 scraped-world = { path = "../world" }
 serde.workspace = true
 serde_json.workspace = true

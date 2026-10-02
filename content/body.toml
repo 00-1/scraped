@@ -1,0 +1,16 @@
+notes = "How the body feels: needs and their changes."
+
+[[variant]]
+slot = "body.change"
+text = "[if worse]You are {state}.[else]You feel better: {state}.[end]"
+example = true
+
+[[variant]]
+slot = "body.status"
+text = "Warmth: {warmth}. Thirst: {thirst}. Hunger: {hunger}. Rest: {rest}. Injury: {injury}. Wetness: {wet}."
+example = true
+
+[[variant]]
+slot = "body.collapse"
+text = "Exhausted, you fall asleep where you stand."
+example = true

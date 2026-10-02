@@ -6,11 +6,11 @@ use std::rc::Rc;
 
 use scraped_content::{Context, Registry, SlotDef, Value, VarType};
 
-use crate::outdoors::{
+use crate::site::{ctx, label, light, time_of_day, Place, Site};
+use scraped_sim::outdoors::{
     bearing, distance_band, duration_band, rough_metres, rough_minutes, Pos, BEARINGS, DISTANCES,
     DURATIONS, EDGES,
 };
-use crate::site::{ctx, label, light, time_of_day, Place, Site};
 
 fn e(values: &[&str]) -> VarType {
     VarType::Enum {
@@ -98,7 +98,70 @@ pub const KINDS: &[&str] = &[
     "parapet",
     "beam",
     "inscription",
+    "torch",
+    "lamp",
+    "oil",
+    "firesteel",
+    "wood",
+    "waterskin",
+    "cloak",
+    "provisions",
+    "berries",
+    "pry_bar",
+    "scraper",
+    "stylus",
+    "lens",
 ];
+pub const NEEDS: &[&str] = &["warmth", "thirst", "hunger", "rest", "injury", "wet"];
+pub const ALL_NEED_STATES: &[&str] = &[
+    "warm",
+    "chilled",
+    "shivering",
+    "hypothermic",
+    "fine",
+    "thirsty",
+    "parched",
+    "dying",
+    "hungry",
+    "weak",
+    "starving",
+    "rested",
+    "tired",
+    "exhausted",
+    "unhurt",
+    "bruised",
+    "hurt",
+    "badly_hurt",
+    "dry",
+    "damp",
+    "soaked",
+];
+pub const TEMPERATURES: &[&str] = &["freezing", "cold", "cool", "mild", "warm", "hot"];
+pub const WETNESSES: &[&str] = &["dry", "damp", "wet", "flooded"];
+pub const AIRS: &[&str] = &["still", "draughty", "windy"];
+pub const MECH_STATES: &[&str] = &[
+    "water", "dry", "open", "shut", "turning", "still", "up", "pulled", "raised", "lowered", "lit",
+    "cold",
+];
+pub const FIRE_PLACES: &[&str] = &["campfire", "hearth", "brazier"];
+pub const FIRE_FAILS: &[&str] = &[
+    "burning",
+    "no_place",
+    "no_flame",
+    "no_fuel",
+    "rain",
+    "wet",
+    "no_fire",
+    "not_lightable",
+    "not_lit",
+];
+pub const SOURCES: &[&str] = &["well", "river", "stream", "lake", "flood", "container"];
+pub const ARCHETYPES: &[&str] = &["scavenger", "grazer", "predator", "deep"];
+pub const MADE: &[&str] = &["torch", "shelter", "lamp_filled"];
+pub const MAKE_WHAT: &[&str] = &["torch", "shelter", "unknown"];
+pub const MAKE_WHY: &[&str] = &["no_wood", "indoors", "unknown"];
+pub const CROSS_HOW: &[&str] = &["ice", "wade", "swim"];
+pub const CROSS_FAILS: &[&str] = &["no_water", "too_wide"];
 pub const MATERIALS: &[&str] = &["stone", "clay", "wood", "metal", "plaster", "vellum"];
 pub const DIRECTIONS: &[&str] = &["north", "south", "east", "west", "up", "down"];
 /// Directions a player may type, compass diagonals included.
@@ -553,7 +616,10 @@ fn s_region(seed: u64) -> Vec<Context> {
             Value::List(biomes.into_iter().map(Value::from).collect()),
         ),
         ("main", Value::from(main)),
-        ("shape", Value::from(crate::outdoors::shape(&site.world))),
+        (
+            "shape",
+            Value::from(scraped_sim::outdoors::shape(&site.world)),
+        ),
         ("sea", Value::Bool(sea)),
     ])]
 }
@@ -650,6 +716,369 @@ fn s_all_directions(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_cues(_: u64) -> Vec<Context> {
+    let mut out = Vec::new();
+    for (i, t) in TEMPERATURES.iter().enumerate() {
+        out.push(ctx(&[
+            ("temperature", Value::from(*t)),
+            ("wetness", Value::from(WETNESSES[i % 4])),
+            ("air", Value::from(AIRS[i % 3])),
+            ("unstable", Value::Bool(i == 2)),
+            ("fire", Value::Bool(i == 1)),
+            ("dark", Value::Bool(i == 3)),
+            ("indoors", Value::Bool(i % 2 == 0)),
+        ]));
+    }
+    out
+}
+
+fn s_dark(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("level", Value::Number(-1)),
+            ("exits", Value::List(vec!["a stair up".into()])),
+        ]),
+        ctx(&[("level", Value::Number(0)), ("exits", Value::List(vec![]))]),
+    ]
+}
+
+fn s_mech(_: u64) -> Vec<Context> {
+    scraped_sim::fixtures::MECHANISMS
+        .iter()
+        .map(|k| ctx(&[("kind", Value::from(*k))]))
+        .collect()
+}
+
+fn s_mech_state(_: u64) -> Vec<Context> {
+    [
+        ("well", "water"),
+        ("well", "dry"),
+        ("sluice", "open"),
+        ("sluice", "shut"),
+        ("wheel", "turning"),
+        ("wheel", "still"),
+        ("drain_lever", "pulled"),
+        ("bridge_lever", "lowered"),
+        ("bridge_lever", "raised"),
+        ("brazier", "lit"),
+        ("brazier", "cold"),
+    ]
+    .iter()
+    .map(|(k, st)| ctx(&[("kind", Value::from(*k)), ("state", Value::from(*st))]))
+    .collect()
+}
+
+fn s_fire_place(_: u64) -> Vec<Context> {
+    FIRE_PLACES
+        .iter()
+        .map(|w| ctx(&[("where", Value::from(*w))]))
+        .collect()
+}
+
+fn s_fire_lit(_: u64) -> Vec<Context> {
+    FIRE_PLACES
+        .iter()
+        .map(|w| ctx(&[("where", Value::from(*w)), ("fuel", Value::Number(120))]))
+        .collect()
+}
+
+fn s_fire_fail(_: u64) -> Vec<Context> {
+    FIRE_FAILS
+        .iter()
+        .map(|r| ctx(&[("reason", Value::from(*r))]))
+        .collect()
+}
+
+fn s_fuel(_: u64) -> Vec<Context> {
+    vec![ctx(&[("fuel", Value::Number(240))])]
+}
+
+fn s_item_kind(_: u64) -> Vec<Context> {
+    ["torch", "lamp"]
+        .iter()
+        .map(|k| ctx(&[("kind", Value::from(*k))]))
+        .collect()
+}
+
+fn s_item_examine(_: u64) -> Vec<Context> {
+    scraped_sim::items::ITEMS
+        .iter()
+        .map(|k| {
+            ctx(&[
+                ("kind", Value::from(k.id)),
+                ("lit", Value::Bool(k.light)),
+                ("fuel", Value::Number(i64::from(k.burns))),
+                ("water", Value::Number(i64::from(k.holds / 2))),
+                ("holds", Value::Number(i64::from(k.holds))),
+                ("worn", Value::Bool(k.warmth > 0)),
+            ])
+        })
+        .collect()
+}
+
+fn s_made(_: u64) -> Vec<Context> {
+    MADE.iter()
+        .map(|k| ctx(&[("kind", Value::from(*k))]))
+        .collect()
+}
+
+fn s_make_fail(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("what", Value::from("torch")),
+            ("reason", Value::from("no_wood")),
+        ]),
+        ctx(&[
+            ("what", Value::from("shelter")),
+            ("reason", Value::from("indoors")),
+        ]),
+        ctx(&[
+            ("what", Value::from("unknown")),
+            ("reason", Value::from("unknown")),
+        ]),
+    ]
+}
+
+fn s_heavy(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("thing", Value::from("a bundle of wood")),
+        ("weight", Value::Number(14)),
+        ("limit", Value::Number(15)),
+    ])]
+}
+
+fn s_drink(_: u64) -> Vec<Context> {
+    SOURCES
+        .iter()
+        .map(|src| {
+            ctx(&[
+                ("source", Value::from(*src)),
+                ("full", Value::Bool(*src != "container")),
+            ])
+        })
+        .collect()
+}
+
+fn s_fill(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("thing", Value::from("the waterskin")),
+        ("drinks", Value::Number(4)),
+    ])]
+}
+
+fn s_fill_none(_: u64) -> Vec<Context> {
+    ["container", "water"]
+        .iter()
+        .map(|r| {
+            ctx(&[
+                ("thing", Value::from("the tablet")),
+                ("reason", Value::from(*r)),
+            ])
+        })
+        .collect()
+}
+
+fn s_eat(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("thing", Value::from("the provisions")),
+            ("hours", Value::Number(12)),
+        ]),
+        ctx(&[
+            ("thing", Value::from("some berries")),
+            ("hours", Value::Number(4)),
+        ]),
+    ]
+}
+
+fn s_sleep(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("hours", Value::Number(8)), ("woken", Value::Bool(false))]),
+        ctx(&[("hours", Value::Number(2)), ("woken", Value::Bool(true))]),
+    ]
+}
+
+fn s_biome(_: u64) -> Vec<Context> {
+    BIOMES
+        .iter()
+        .map(|b| ctx(&[("biome", Value::from(*b))]))
+        .collect()
+}
+
+fn s_found(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("kind", Value::from("berries")),
+        ("biome", Value::from("forest")),
+    ])]
+}
+
+fn s_body_change(_: u64) -> Vec<Context> {
+    let groups: [(&str, &[&str]); 6] = [
+        ("warmth", scraped_sim::body::WARMTH_STATES),
+        ("thirst", scraped_sim::body::THIRST_STATES),
+        ("hunger", scraped_sim::body::HUNGER_STATES),
+        ("rest", scraped_sim::body::REST_STATES),
+        ("injury", scraped_sim::body::INJURY_STATES),
+        ("wet", scraped_sim::body::WET_STATES),
+    ];
+    let mut out = Vec::new();
+    for (need, states) in groups {
+        for (i, st) in states.iter().enumerate() {
+            out.push(ctx(&[
+                ("need", Value::from(need)),
+                ("state", Value::from(*st)),
+                ("worse", Value::Bool(i > 0)),
+            ]));
+        }
+    }
+    out
+}
+
+fn s_status(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("warmth", Value::from("warm")),
+            ("thirst", Value::from("fine")),
+            ("hunger", Value::from("fine")),
+            ("rest", Value::from("rested")),
+            ("injury", Value::from("unhurt")),
+            ("wet", Value::from("dry")),
+        ]),
+        ctx(&[
+            ("warmth", Value::from("shivering")),
+            ("thirst", Value::from("parched")),
+            ("hunger", Value::from("weak")),
+            ("rest", Value::from("exhausted")),
+            ("injury", Value::from("badly_hurt")),
+            ("wet", Value::from("soaked")),
+        ]),
+    ]
+}
+
+fn s_hurt(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("hurt", Value::Number(1))]),
+        ctx(&[("hurt", Value::Number(2))]),
+    ]
+}
+
+fn s_cross(_: u64) -> Vec<Context> {
+    CROSS_HOW
+        .iter()
+        .map(|h| ctx(&[("how", Value::from(*h)), ("by", Value::from("river"))]))
+        .collect()
+}
+
+fn s_cross_fail(_: u64) -> Vec<Context> {
+    CROSS_FAILS
+        .iter()
+        .map(|r| ctx(&[("reason", Value::from(*r))]))
+        .collect()
+}
+
+fn s_by(_: u64) -> Vec<Context> {
+    ["river", "lake"]
+        .iter()
+        .map(|b| ctx(&[("by", Value::from(*b))]))
+        .collect()
+}
+
+fn s_creature_name(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("archetype", Value::from("scavenger")),
+            ("biome", Value::from("grassland")),
+        ]),
+        ctx(&[
+            ("archetype", Value::from("grazer")),
+            ("biome", Value::from("tundra")),
+        ]),
+        ctx(&[
+            ("archetype", Value::from("predator")),
+            ("biome", Value::from("forest")),
+        ]),
+        ctx(&[
+            ("archetype", Value::from("deep")),
+            ("biome", Value::from("underground")),
+        ]),
+    ]
+}
+
+fn s_creature_seen(_: u64) -> Vec<Context> {
+    ARCHETYPES
+        .iter()
+        .zip(DISTANCES.iter())
+        .map(|(a, d)| {
+            ctx(&[
+                ("name", Value::from(format!("the {a}"))),
+                ("archetype", Value::from(*a)),
+                ("bearing", Value::from("north")),
+                ("distance", Value::from(*d)),
+            ])
+        })
+        .collect()
+}
+
+fn s_creature_near(_: u64) -> Vec<Context> {
+    vec![ctx(&[(
+        "creatures",
+        Value::List(vec!["a scavenger to the north (middle)".into()]),
+    )])]
+}
+
+fn s_struck(_: u64) -> Vec<Context> {
+    ARCHETYPES
+        .iter()
+        .map(|a| {
+            ctx(&[
+                ("name", Value::from(format!("the {a}"))),
+                ("archetype", Value::from(*a)),
+                ("harm", Value::Number(if *a == "grazer" { 1 } else { 2 })),
+            ])
+        })
+        .collect()
+}
+
+fn s_stole(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("name", Value::from("the scavenger")),
+        ("thing", Value::from("the provisions")),
+    ])]
+}
+
+fn s_creature(_: u64) -> Vec<Context> {
+    vec![ctx(&[("name", Value::from("the scavenger"))])]
+}
+
+fn s_death(_: u64) -> Vec<Context> {
+    scraped_sim::body::DEATHS
+        .iter()
+        .enumerate()
+        .map(|(i, c)| {
+            ctx(&[
+                ("cause", Value::from(*c)),
+                ("doing", Value::from("head north")),
+                ("day", Value::Number(i as i64 + 1)),
+                ("indoors", Value::Bool(i % 2 == 1)),
+            ])
+        })
+        .collect()
+}
+
+fn s_end(_: u64) -> Vec<Context> {
+    scraped_sim::body::DEATHS
+        .iter()
+        .enumerate()
+        .map(|(i, c)| {
+            ctx(&[
+                ("cause", Value::from(*c)),
+                ("days", Value::Number(i as i64)),
+                ("hours", Value::Number(i as i64 * 24 + 5)),
+            ])
+        })
+        .collect()
+}
+
 /// Every slot the game declares.
 pub fn slots() -> Vec<SlotDef> {
     let thing = "The thing's name as the game refers to it, e.g. 'the stone altar'.";
@@ -695,6 +1124,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("material", e(MATERIALS), "What it is made of.")
             .var("written", VarType::Bool, "Whether there is writing on it.")
             .var("condition", e(CONDITIONS), "The condition of the building it is in.")
+            .var("item", VarType::Bool, "A carryable item (torch, wood, cloak…) rather than part of a building or a jar or tablet; its material matters less than its kind. Kinds with two words use an underscore (pry_bar).")
             .min_variants(1)
             .max_len(60)
             .sampler(s_thing),
@@ -703,6 +1133,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("material", e(MATERIALS), "What it is made of.")
             .var("written", VarType::Bool, "Whether there is writing on it.")
             .var("condition", e(CONDITIONS), "The condition of the building it is in.")
+            .var("item", VarType::Bool, "A carryable item rather than part of a building (items show their state through item.examine instead).")
             .max_len(400)
             .sampler(s_thing),
         SlotDef::new("read.frame", "Introduces reading a piece of writing, before its glyphs are listed ('Carved into the stone, in a cramped hand:'). Never reveals meaning.")
@@ -907,6 +1338,189 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("travel.indoors", "An outdoor command (head, follow, back, name) typed indoors: go outside first.")
             .var("verb", VarType::Text, "The command.")
             .sampler(s_indoors),
+        SlotDef::new("prop.cues", "Short cues about the feel of a place, after its look: cold, damp, draughty, dark, unstable stone, a fire. Only what the senses give; often nothing needs saying.")
+            .var("temperature", e(TEMPERATURES), "How warm the air is.")
+            .var("wetness", e(WETNESSES), "How wet the place is (flooded: standing water).")
+            .var("air", e(AIRS), "Still, draughty or windy.")
+            .var("unstable", VarType::Bool, "Loose stone overhead that noise could bring down.")
+            .var("fire", VarType::Bool, "A fire burns here.")
+            .var("dark", VarType::Bool, "Too dark to see.")
+            .var("indoors", VarType::Bool, "In a room rather than outdoors.")
+            .max_len(300)
+            .sampler(s_cues),
+        SlotDef::new("place.dark", "The look in a room too dark to see: no things, only the ways out the player can feel. Should make the player want light.")
+            .var("level", VarType::Number, "Floor: 0 ground, below 0 underground.")
+            .var("exits", VarType::List, "Ways out, rendered by place.exit.")
+            .max_len(300)
+            .sampler(s_dark),
+        SlotDef::new("read.dark", "The player tries to read in the dark.")
+            .var("thing", VarType::Text, "The thing's name.")
+            .sampler(s_named),
+        SlotDef::new("mech.name", "A mechanism's short name for lists and the parser ('the well', 'the sluice gate'). Include the kind word (well, sluice, wheel, lever, brazier).")
+            .var("kind", e(scraped_sim::fixtures::MECHANISMS), "What it is: a well, a sluice gate on a river, a water wheel, a lever that drains a flooded room, a lever that raises and lowers a bridge, or a brazier.")
+            .min_variants(1)
+            .max_len(60)
+            .sampler(s_mech),
+        SlotDef::new("mech.examine", "A mechanism looked at closely: what it is and what state it is in. Hint at what it does without explaining the puzzle.")
+            .var("kind", e(scraped_sim::fixtures::MECHANISMS), "What it is.")
+            .var("state", e(MECH_STATES), "Its state: a well with water or dry; a sluice open or shut; a wheel turning or still; a drain lever up or pulled; a bridge raised or lowered; a brazier lit or cold.")
+            .max_len(300)
+            .sampler(s_mech_state),
+        SlotDef::new("mech.operate", "The player works a mechanism and it moves: a sluice opens or shuts, a drain lever is pulled (the water starts to go), a bridge comes down or goes up.")
+            .var("kind", e(scraped_sim::fixtures::MECHANISMS), "What it is.")
+            .var("state", e(MECH_STATES), "Its new state.")
+            .max_len(300)
+            .sampler(s_mech_state),
+        SlotDef::new("mech.already", "The mechanism is already the way the player wants it.")
+            .var("kind", e(scraped_sim::fixtures::MECHANISMS), "What it is.")
+            .var("state", e(MECH_STATES), "Its state.")
+            .sampler(s_mech_state),
+        SlotDef::new("mech.cannot", "This mechanism can't be worked by hand (a water wheel turns only with the river).")
+            .var("kind", e(scraped_sim::fixtures::MECHANISMS), "What it is.")
+            .var("state", e(MECH_STATES), "Its state.")
+            .sampler(s_mech_state),
+        SlotDef::new("fire.name", "The fire burning here, as the parser names it ('the fire'). Include the word 'fire'.")
+            .var("where", e(FIRE_PLACES), "A campfire outdoors, a hearth, or a brazier.")
+            .min_variants(1)
+            .max_len(40)
+            .sampler(s_fire_place),
+        SlotDef::new("fire.lit", "A fire catches.")
+            .var("where", e(FIRE_PLACES), "Where it burns.")
+            .var("fuel", VarType::Number, "Minutes it will burn without more wood.")
+            .sampler(s_fire_lit),
+        SlotDef::new("fire.fail", "A fire or flame can't be made or worked: something is missing or wrong. Say what, plainly, so the player knows what to find.")
+            .var("reason", e(FIRE_FAILS), "Why: one is already burning; no hearth or brazier here (indoors); nothing to strike a flame with; no wood; rain; the wood is too wet (as wet as the player); no fire here; that can't be lit; that isn't lit.")
+            .max_len(200)
+            .sampler(s_fire_fail),
+        SlotDef::new("fire.fed", "More wood goes on the fire.").var("fuel", VarType::Number, "Minutes it will now burn.").sampler(s_fuel),
+        SlotDef::new("fire.out", "A fire nearby burns down and goes out.").var("where", e(FIRE_PLACES), "Which fire.").sampler(s_fire_place),
+        SlotDef::new("fire.doused", "The player puts a fire out.").var("where", e(FIRE_PLACES), "Which fire.").sampler(s_fire_place),
+        SlotDef::new("item.examine", "An item looked at closely: what it is, and its state (lit, how much burning is left, how much water it holds, whether worn). Only mention what applies.")
+            .var("kind", e(&scraped_sim::items::ids()), "What it is.")
+            .var("lit", VarType::Bool, "Burning now (torch, lamp).")
+            .var("fuel", VarType::Number, "Minutes of burning left (torch, lamp), or what it adds to a fire (wood, oil).")
+            .var("water", VarType::Number, "Drinks of water in it.")
+            .var("holds", VarType::Number, "Drinks it can hold (0 if not a container).")
+            .var("worn", VarType::Bool, "Worn now (cloak).")
+            .max_len(300)
+            .sampler(s_item_examine),
+        SlotDef::new("item.lit", "A torch or lamp is lit (or already was).").var("kind", e(&["torch", "lamp"]), "Which.").sampler(s_item_kind),
+        SlotDef::new("item.out", "A torch burns out (it is used up) or a lamp runs dry.").var("kind", e(&["torch", "lamp"]), "Which.").sampler(s_item_kind),
+        SlotDef::new("item.doused", "The player puts out a torch or lamp.").var("kind", e(&["torch", "lamp"]), "Which.").sampler(s_item_kind),
+        SlotDef::new("item.made", "The player makes something: a torch from wood, a rough shelter, or fills a lamp with oil.").var("kind", e(MADE), "What was made.").sampler(s_made),
+        SlotDef::new("item.make_fail", "Something can't be made: what's missing.")
+            .var("what", e(MAKE_WHAT), "What the player tried to make ('unknown' for anything the game doesn't know how to make).")
+            .var("reason", e(MAKE_WHY), "Why not: no wood, or a shelter indoors.")
+            .sampler(s_make_fail),
+        SlotDef::new("item.too_heavy", "The player can't carry any more.")
+            .var("thing", VarType::Text, "What they tried to pick up.")
+            .var("weight", VarType::Number, "What they carry now.")
+            .var("limit", VarType::Number, "The most they can carry.")
+            .sampler(s_heavy),
+        SlotDef::new("item.wear", "The player puts on clothing.").var("thing", VarType::Text, thing).sampler(s_named),
+        SlotDef::new("item.remove", "The player takes clothing off.").var("thing", VarType::Text, thing).sampler(s_named),
+        SlotDef::new("item.cannot_use", "The player tries to use, wear or pry with something in a way it can't be used.").var("thing", VarType::Text, thing).sampler(s_named),
+        SlotDef::new("drink.done", "The player drinks: deeply from a well, river, stream or lake, or a mouthful from a container.")
+            .var("source", e(SOURCES), "Where the water comes from (flood: standing water in a room).")
+            .var("full", VarType::Bool, "A full drink (from a source) rather than a mouthful.")
+            .sampler(s_drink),
+        SlotDef::new("drink.none", "There is nothing to drink here and nothing carried.").sampler(s_none),
+        SlotDef::new("fill.done", "A container is filled with water.")
+            .var("thing", VarType::Text, thing)
+            .var("drinks", VarType::Number, "Drinks it now holds.")
+            .sampler(s_fill),
+        SlotDef::new("fill.none", "A container can't be filled: it isn't one (or isn't carried), or there is no water here.")
+            .var("thing", VarType::Text, thing)
+            .var("reason", e(&["container", "water"]), "Why.")
+            .sampler(s_fill_none),
+        SlotDef::new("eat.done", "The player eats.")
+            .var("thing", VarType::Text, thing)
+            .var("hours", VarType::Number, "Hours of hunger it takes away.")
+            .sampler(s_eat),
+        SlotDef::new("eat.none", "Nothing to eat (or that isn't food).").sampler(s_none),
+        SlotDef::new("sleep.done", "The player wakes after sleeping (or is woken early).")
+            .var("hours", VarType::Number, "Hours slept.")
+            .var("woken", VarType::Bool, "Woken before rested.")
+            .sampler(s_sleep),
+        SlotDef::new("forage.found", "An hour's foraging finds something to eat.")
+            .var("kind", e(&["berries"]), "What was found.")
+            .var("biome", e(BIOMES), "Where.")
+            .sampler(s_found),
+        SlotDef::new("forage.none", "An hour's foraging finds nothing.").var("biome", e(BIOMES), "Where.").sampler(s_biome),
+        SlotDef::new("gather.found", "The player gathers a bundle of firewood.").var("biome", e(BIOMES), "Where.").sampler(s_biome),
+        SlotDef::new("gather.none", "There is no wood to gather here (open, bare or frozen land).").var("biome", e(BIOMES), "Where.").sampler(s_biome),
+        SlotDef::new("body.change", "A need changes: the player grows thirsty, starts shivering, warms up again, is hurt, heals, dries off. Said once, when the state changes. Coarse, felt, never numbers.")
+            .var("need", e(NEEDS), "Which need.")
+            .var("state", e(ALL_NEED_STATES), "Its new state (warm/chilled/shivering/hypothermic; fine/thirsty/parched/dying; fine/hungry/weak/starving; rested/tired/exhausted; unhurt/bruised/hurt/badly_hurt; dry/damp/soaked).")
+            .var("worse", VarType::Bool, "Whether it got worse (or better).")
+            .max_len(200)
+            .sampler(s_body_change),
+        SlotDef::new("body.status", "How the player feels, all needs at once (the 'status' command). Felt, not numbers.")
+            .var("warmth", e(scraped_sim::body::WARMTH_STATES), "Warmth.")
+            .var("thirst", e(scraped_sim::body::THIRST_STATES), "Thirst.")
+            .var("hunger", e(scraped_sim::body::HUNGER_STATES), "Hunger.")
+            .var("rest", e(scraped_sim::body::REST_STATES), "Rest.")
+            .var("injury", e(scraped_sim::body::INJURY_STATES), "Injury.")
+            .var("wet", e(scraped_sim::body::WET_STATES), "Wetness.")
+            .max_len(500)
+            .sampler(s_status),
+        SlotDef::new("body.collapse", "Exhaustion: the player drops where they stand and sleeps.").sampler(s_none),
+        SlotDef::new("hazard.fall", "A fall on a stair in the dark.").var("hurt", VarType::Number, "Levels of injury (1 or 2).").sampler(s_hurt),
+        SlotDef::new("hazard.collapse", "Noise brings loose stone down in this room: a way may close, another open, and the player may be hurt.").var("hurt", VarType::Number, "Levels of injury.").sampler(s_hurt),
+        SlotDef::new("hazard.flooded", "The way leads into a room under water; the player can't go that way until it drains.").var("thing", VarType::Text, "The way, from place.exit.").sampler(s_named),
+        SlotDef::new("hazard.barred", "A door is barred or stuck fast: it won't open by hand. (A pry bar would do it.)").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
+        SlotDef::new("door.pried", "The player forces a barred door open with a pry bar.").var("thing", VarType::Text, "The door.").sampler(s_named),
+        SlotDef::new("shout.done", "The player shouts or makes a din.").sampler(s_none),
+        SlotDef::new("cross.done", "The player gets across water: walking on ice, wading, or swimming.")
+            .var("how", e(CROSS_HOW), "How.")
+            .var("by", e(&["river", "lake"]), "What was crossed.")
+            .sampler(s_cross),
+        SlotDef::new("cross.fail", "The player can't cross here: no water close by, or it is too wide to swim.").var("reason", e(CROSS_FAILS), "Why.").sampler(s_cross_fail),
+        SlotDef::new("cross.fell_through", "Thin ice gives way under the player. They are soaked and cold, and may not get out.").var("by", e(&["river", "lake"]), "Where.").sampler(s_by),
+        SlotDef::new("cross.swept", "The current takes the player off their feet.").var("by", e(&["river", "lake"]), "Where.").sampler(s_by),
+        SlotDef::new("creature.name", "A creature's short name ('the scavenger', 'the thing in the dark'). Invent the beasts of this world in words, never a real species; include a word the player can type.")
+            .var("archetype", e(ARCHETYPES), "What kind: a scavenger (steals food, scared off by fire and noise), a grazer (charges if you come close), a predator (strikes from hiding, kept off by fire), or something deep (lives in dark underground rooms, fears light).")
+            .var("biome", e(&[BIOMES, &["underground"]].concat()), "Where it lives.")
+            .min_variants(1)
+            .max_len(60)
+            .sampler(s_creature_name),
+        SlotDef::new("creature.seen", "One creature in view, inside a look ('a scavenger to the north, not far').")
+            .var("name", VarType::Text, "Its name, from creature.name.")
+            .var("archetype", e(ARCHETYPES), "What kind.")
+            .var("bearing", e(&BEARINGS), "Which way.")
+            .var("distance", e(&DISTANCES), "How far by eye.")
+            .max_len(120)
+            .sampler(s_creature_seen),
+        SlotDef::new("creature.near", "Creatures in view, after the look outdoors.").var("creatures", VarType::List, "Each rendered by creature.seen.").sampler(s_creature_near),
+        SlotDef::new("creature.sighted", "A creature comes into view and the player stops (travel interrupted).")
+            .var("name", VarType::Text, "Its name.")
+            .var("archetype", e(ARCHETYPES), "What kind.")
+            .var("bearing", e(&BEARINGS), "Which way.")
+            .var("distance", e(&DISTANCES), "How far by eye.")
+            .sampler(s_creature_seen),
+        SlotDef::new("creature.struck", "A creature strikes the player: a grazer's charge, a predator from hiding, something in the dark.")
+            .var("name", VarType::Text, "Its name.")
+            .var("archetype", e(ARCHETYPES), "What kind.")
+            .var("harm", VarType::Number, "Levels of injury (1 or 2).")
+            .sampler(s_struck),
+        SlotDef::new("creature.stole", "A scavenger makes off with the player's food.")
+            .var("name", VarType::Text, "Its name.")
+            .var("thing", VarType::Text, "What it took.")
+            .sampler(s_stole),
+        SlotDef::new("creature.fled", "Fire, light or noise drives a creature off.").var("name", VarType::Text, "Its name.").sampler(s_creature),
+        SlotDef::new("death.narrate", "The player dies. One short paragraph per cause; the run ends. Should feel earned, not cruel.")
+            .var("cause", e(scraped_sim::body::DEATHS), "What killed them: cold, thirst, hunger, injury (wounds), drowning, a fall, falling stone (collapse), or a creature.")
+            .var("doing", VarType::Text, "The command they were carrying out.")
+            .var("day", VarType::Number, "Which day of the run (from 1).")
+            .var("indoors", VarType::Bool, "Whether they died indoors.")
+            .max_len(600)
+            .sampler(s_death),
+        SlotDef::new("end.summary", "After death: the run is over (a stub until M11's end-of-run summary). Any further command shows this.")
+            .var("cause", e(scraped_sim::body::DEATHS), "What killed them.")
+            .var("days", VarType::Number, "Whole days survived.")
+            .var("hours", VarType::Number, "Hours survived.")
+            .max_len(400)
+            .sampler(s_end),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
         SlotDef::new("say.pack_changed", "A loaded save was made with different text (content pack) than now: the story replays the same, but wording may differ.")

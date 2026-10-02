@@ -1,0 +1,6 @@
+notes = "Making noise."
+
+[[variant]]
+slot = "shout.done"
+text = "You shout."
+example = true

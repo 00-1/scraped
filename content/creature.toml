@@ -1,0 +1,36 @@
+notes = "Creatures: names, sightings, attacks."
+
+[[variant]]
+slot = "creature.name"
+text = "the {archetype}"
+example = true
+
+[[variant]]
+slot = "creature.seen"
+text = "{name} to the {bearing}"
+example = true
+
+[[variant]]
+slot = "creature.near"
+text = "You see {list creatures}."
+example = true
+
+[[variant]]
+slot = "creature.sighted"
+text = "You stop: {name} to the {bearing}."
+example = true
+
+[[variant]]
+slot = "creature.struck"
+text = "{cap name} attacks you."
+example = true
+
+[[variant]]
+slot = "creature.stole"
+text = "{cap name} takes {thing}."
+example = true
+
+[[variant]]
+slot = "creature.fled"
+text = "{cap name} runs off."
+example = true
