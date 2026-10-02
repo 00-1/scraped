@@ -24,6 +24,18 @@ fn pack() -> Pack {
 
 const WORDS: &[&str] = &[
     "look",
+    "head north",
+    "head southwest",
+    "ne",
+    "follow river",
+    "follow road east",
+    "follow stream upstream",
+    "go back",
+    "name this place camp",
+    "go to camp",
+    "go to town",
+    "go to the hill",
+    "x mountain",
     "n",
     "s",
     "e",

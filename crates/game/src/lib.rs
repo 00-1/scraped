@@ -6,11 +6,13 @@
 //! them. Every sentence comes from a content slot; nothing in this crate is
 //! prose.
 
+pub mod outdoors;
 pub mod parser;
 pub mod site;
 pub mod slots;
+mod travel;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as Json};
@@ -19,8 +21,23 @@ use scraped_content::{Context, Pack, Registry, Renderer, Value};
 use scraped_lang::slots::{describe_glyph, LangHooks};
 use scraped_world::structures::{Exit, PassageState};
 
+use outdoors::Pos;
 use parser::{resolve, Candidate, Command, ParseError, Resolution};
 use site::{ctx, label, light, time_of_day, Place, Site, Way};
+
+/// Verbs that are compass points or up and down.
+const DIRECTION_VERBS: &[&str] = &[
+    "north",
+    "south",
+    "east",
+    "west",
+    "up",
+    "down",
+    "northeast",
+    "northwest",
+    "southeast",
+    "southwest",
+];
 
 /// Glyphs shown per page of reading.
 pub const PAGE: usize = 16;
@@ -33,6 +50,12 @@ pub enum Target {
     Structure(usize),
     /// A way out of the current room, by direction.
     Way(Exit),
+    /// Something seen in the distance, by index into `Land::landmarks`.
+    Landmark(usize),
+    /// A place the player named, by index into `State::names`.
+    Named(usize),
+    /// A followable edge nearby, by index into `outdoors::EDGES`.
+    Edge(usize),
 }
 
 /// A question the game is waiting for an answer to.
@@ -56,6 +79,16 @@ pub struct State {
     pub carried: Vec<usize>,
     /// Things put down somewhere other than where they started.
     pub moved: BTreeMap<usize, Place>,
+    /// Where things put down outdoors lie.
+    pub dropped: BTreeMap<usize, Pos>,
+    /// Where the player is on the land (indoors: the building's spot).
+    pub pos: Pos,
+    /// Landmarks the player has seen, so only new ones interrupt travel.
+    pub seen: BTreeSet<usize>,
+    /// Where each journey started, for `go back`.
+    pub trail: Vec<Pos>,
+    /// Places the player has named, with where they truly are.
+    pub names: Vec<(String, Pos)>,
     /// Minutes since midnight of the first day.
     pub minutes: u32,
     /// The last thing referred to, for "it".
@@ -78,6 +111,35 @@ pub struct Summary {
     pub carried: Vec<String>,
     pub exits: Vec<String>,
     pub minutes: u32,
+    /// Landmarks in view, most salient first (outdoors).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub landmarks: Vec<Sighting>,
+    /// Edges nearby (outdoors), by kind id.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub edges: Vec<String>,
+    /// Weather and light outdoors.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub weather: Option<String>,
+    /// The last journey as the player perceived it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub travelled: Option<Travelled>,
+}
+
+/// A landmark as the player sees it: rough bearing and distance only.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Sighting {
+    pub name: String,
+    pub bearing: String,
+    pub distance: String,
+}
+
+/// A journey as the player perceived it (drift included).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Travelled {
+    /// Compass point of the whole journey, or empty if back where it began.
+    pub bearing: String,
+    pub metres: i64,
+    pub minutes: i64,
 }
 
 /// The response to one command.
@@ -109,7 +171,10 @@ pub struct Game {
     log: Vec<String>,
     /// Whether outputs include ground truth.
     pub spoil: bool,
+    /// Debug and tests: fixed weather and light outdoors.
+    pub forced: Option<(&'static str, &'static str)>,
     glyph_cache: BTreeMap<(u32, usize), String>,
+    last_travel: Option<Travelled>,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -132,6 +197,11 @@ impl Game {
             place: Place::Outside,
             carried: Vec::new(),
             moved: BTreeMap::new(),
+            dropped: BTreeMap::new(),
+            pos: site.start(),
+            seen: BTreeSet::new(),
+            trail: Vec::new(),
+            names: Vec::new(),
             minutes: 8 * 60,
             it: None,
             reading: None,
@@ -148,7 +218,9 @@ impl Game {
             memory: BTreeMap::new(),
             log: Vec::new(),
             spoil: false,
+            forced: None,
             glyph_cache: BTreeMap::new(),
+            last_travel: None,
         }
     }
 
@@ -295,8 +367,19 @@ impl Game {
 
     fn here(&self) -> Vec<usize> {
         (0..self.site.things.len())
-            .filter(|&t| self.where_is(t) == Some(self.state.place))
+            .filter(|&t| {
+                self.where_is(t) == Some(self.state.place)
+                    && (self.state.place != Place::Outside || self.local(self.thing_pos(t)))
+            })
             .collect()
+    }
+
+    fn thing_pos(&self, t: usize) -> Pos {
+        *self
+            .state
+            .dropped
+            .get(&t)
+            .unwrap_or(&self.site.things[t].pos)
     }
 
     fn visible_targets(&mut self) -> Vec<Candidate<Target>> {
@@ -315,11 +398,12 @@ impl Game {
             out.push(Candidate::new(Target::Way(w.exit), &name, &[&dir]));
         }
         if self.state.place == Place::Outside {
-            for s in self.site.structures.clone() {
+            for s in self.local_structures() {
                 let name = self.structure_name(s);
                 let kind = label(&self.site.structure(s).kind);
                 out.push(Candidate::new(Target::Structure(s), &name, &[&kind]));
             }
+            out.extend(self.outdoor_targets());
         }
         out
     }
@@ -327,36 +411,7 @@ impl Game {
     fn look(&mut self) -> String {
         let time = time_of_day(self.state.minutes);
         match self.state.place {
-            Place::Outside => {
-                let names: Vec<Value> = self
-                    .site
-                    .structures
-                    .clone()
-                    .into_iter()
-                    .map(|s| Value::from(self.structure_name(s)))
-                    .collect();
-                let mut things: Vec<Value> = Vec::new();
-                for t in self.here() {
-                    things.push(Value::from(self.thing_name(t)));
-                }
-                let mut all = names.clone();
-                all.extend(things);
-                let c = ctx(&[
-                    ("biome", Value::from(self.site.biome())),
-                    ("structures", Value::List(all)),
-                    ("count", Value::Number(names.len() as i64)),
-                    (
-                        "abandoned",
-                        Value::Bool(
-                            self.site.world.history.settlements[self.site.settlement]
-                                .abandoned
-                                .is_some(),
-                        ),
-                    ),
-                    ("time", Value::from(time)),
-                ]);
-                self.say("place.site", c)
-            }
+            Place::Outside => self.look_outside(),
             Place::Room { structure, room } => {
                 let st = self.site.structure(structure);
                 let r = &st.interior.rooms[room];
@@ -412,13 +467,16 @@ impl Game {
             .collect();
         let exits = match self.state.place {
             Place::Outside => self
-                .site
-                .structures
-                .clone()
+                .local_structures()
                 .into_iter()
                 .map(|s| self.structure_name(s))
                 .collect(),
             _ => self.ways().iter().map(|w| label(&w.exit)).collect(),
+        };
+        let (landmarks, edges, weather) = if self.state.place == Place::Outside {
+            self.outdoor_summary()
+        } else {
+            (Vec::new(), Vec::new(), None)
         };
         Summary {
             place,
@@ -426,6 +484,10 @@ impl Game {
             carried,
             exits,
             minutes: self.state.minutes,
+            landmarks,
+            edges,
+            weather,
+            travelled: self.last_travel.take(),
         }
     }
 
@@ -436,6 +498,13 @@ impl Game {
             .collect::<Vec<_>>()
             .join("\n\n");
         let state = self.summary();
+        let truth = truth.or_else(|| {
+            Some(json!({
+                "pos": [self.state.pos.x, self.state.pos.y],
+                "cell": self.state.pos.cell(),
+                "town": self.site.land.town(&self.site.world, self.state.pos),
+            }))
+        });
         Output {
             text,
             state,
@@ -531,14 +600,17 @@ impl Game {
             "more" => self.more(),
             "define" => self.define(&cmd.words),
             "out" => self.go_out(),
-            "north" | "south" | "east" | "west" | "up" | "down" => self.go_dir(&cmd.verb),
+            "north" | "south" | "east" | "west" | "up" | "down" | "northeast" | "northwest"
+            | "southeast" | "southwest" => self.go_dir(&cmd.verb),
+            "head" => self.head(&cmd.words),
+            "follow" => self.follow(&cmd.words),
+            "back" => self.go_back(),
+            "name" => self.name_place(&cmd.words),
             "go" => {
                 // "go north" is a direction; anything else names a place.
                 if let [d] = cmd.words.as_slice() {
                     if let Some(v) = parser::parse(d).ok().filter(|c| {
-                        c.words.is_empty()
-                            && ["north", "south", "east", "west", "up", "down"]
-                                .contains(&c.verb.as_str())
+                        c.words.is_empty() && DIRECTION_VERBS.contains(&c.verb.as_str())
                     }) {
                         return self.go_dir(&v.verb);
                     }
@@ -556,6 +628,13 @@ impl Game {
         let cands = self.visible_targets();
         match resolve(words, &cands, self.state.it.as_ref()) {
             Resolution::One(t) => self.act(verb, t),
+            Resolution::None if verb == "go" && self.state.place == Place::Outside => {
+                let t = self.say(
+                    "travel.unseen",
+                    ctx(&[("words", Value::from(words.join(" ")))]),
+                );
+                self.output(vec![t], None)
+            }
             Resolution::None => {
                 let t = self.say(
                     "say.not_here",
@@ -586,6 +665,9 @@ impl Game {
                 Some(w) => self.way_name(&w),
                 None => label(&e),
             },
+            Target::Landmark(i) => self.landmark_name(i),
+            Target::Named(i) => self.state.names[i].0.clone(),
+            Target::Edge(e) => self.edge_name(e),
         }
     }
 
@@ -628,6 +710,7 @@ impl Game {
                 self.pass(1);
                 self.state.carried.push(i);
                 self.state.moved.remove(&i);
+                self.state.dropped.remove(&i);
                 let t = self.say("say.take", named);
                 self.output(vec![t], None)
             }
@@ -638,6 +721,10 @@ impl Game {
                 }
                 self.pass(1);
                 self.state.carried.retain(|&c| c != i);
+                self.state.dropped.remove(&i);
+                if self.state.place == Place::Outside {
+                    self.state.dropped.insert(i, self.state.pos);
+                }
                 if self.site.things[i].home != self.state.place {
                     self.state.moved.insert(i, self.state.place);
                 } else {
@@ -656,6 +743,20 @@ impl Game {
                 self.page()
             }
             ("go", Target::Way(e)) => self.go_dir(&label(&e)),
+            ("go", Target::Landmark(i)) => self.go_landmark(i),
+            ("go", Target::Named(i)) => {
+                let pos = self.state.names[i].1;
+                self.travel_to(pos, Some(target), "walk")
+            }
+            ("go", Target::Edge(e)) | ("follow", Target::Edge(e)) => {
+                self.follow_edge(e, outdoors::Way::Onward)
+            }
+            ("examine", Target::Landmark(_))
+            | ("examine", Target::Edge(_))
+            | ("examine", Target::Named(_)) => {
+                let t = self.describe_far(target);
+                self.output(vec![t], None)
+            }
             ("open", Target::Way(e)) | ("close", Target::Way(e)) => self.door(verb == "open", e),
             ("examine", Target::Way(e)) => {
                 let w = self
@@ -729,7 +830,16 @@ impl Game {
     }
 
     fn go_dir(&mut self, dir: &str) -> Output {
+        if self.state.place == Place::Outside {
+            if let Some(b) = outdoors::parse_bearing(dir) {
+                return self.head_toward(b);
+            }
+        }
         let exit = match dir {
+            "northeast" | "northwest" | "southeast" | "southwest" => {
+                let t = self.say("say.no_exit", ctx(&[("direction", Value::from(dir))]));
+                return self.output(vec![t], None);
+            }
             "north" => Exit::North,
             "south" => Exit::South,
             "east" => Exit::East,

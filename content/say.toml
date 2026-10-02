@@ -98,7 +98,8 @@ example = true
 [[variant]]
 slot = "say.help"
 text = '''
-Try: look, examine (x) something, go to a building, north, south, east, west, up, down, out,
+Try: look, examine (x) something, go to a building or anything you can see, north, ne, up, out,
+head north, follow the river downstream, go back, name this place the gap, go to the gap,
 open and close doors, take, drop, inventory (i), read something, more, wait,
 and define 3 as ka to label glyph 3 of what you last read.'''
 example = true
@@ -146,4 +147,14 @@ example = true
 [[variant]]
 slot = "say.door_stuck"
 text = "{cap thing} will not move."
+example = true
+
+[[variant]]
+slot = "say.named"
+text = "You will remember this place as {name}."
+example = true
+
+[[variant]]
+slot = "say.name_bad"
+text = "Name it what? Try: name this place the gap."
 example = true

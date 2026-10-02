@@ -1,0 +1,66 @@
+notes = "Journeys: how far you went, getting lost, arriving, and what stops you."
+
+[[variant]]
+slot = "travel.report"
+text = "You travel {bearing}[if edge != 'none'] along the {edge}[end], about {metres} metres, in about {minutes} minutes."
+example = true
+
+[[variant]]
+slot = "travel.lost"
+text = "With nothing to steer by, you are no longer sure of your way."
+example = true
+
+[[variant]]
+slot = "travel.arrive"
+text = "You reach {name}."
+example = true
+
+[[variant]]
+slot = "travel.not_there"
+text = "You should have reached {name} by now, but it is nowhere to be seen."
+example = true
+
+[[variant]]
+slot = "travel.interrupt"
+text = "You stop: {name} has come into view to the {bearing}."
+example = true
+
+[[variant]]
+slot = "travel.blocked"
+text = "The {by} bars your way {bearing}."
+example = true
+
+[[variant]]
+slot = "travel.edge_end"
+text = "You can follow the {edge} no further[if by != 'end']: the {by} is ahead[end]."
+example = true
+
+[[variant]]
+slot = "travel.already"
+text = "You are already there."
+example = true
+
+[[variant]]
+slot = "travel.no_route"
+text = "You can see no way to get there on foot."
+example = true
+
+[[variant]]
+slot = "travel.unseen"
+text = "You can't see any {words} from here."
+example = true
+
+[[variant]]
+slot = "travel.no_edge"
+text = "There is no {words} here to follow."
+example = true
+
+[[variant]]
+slot = "travel.indoors"
+text = "You need to be outside to {verb}."
+example = true
+
+[[variant]]
+slot = "travel.back_none"
+text = "You haven't come from anywhere yet."
+example = true

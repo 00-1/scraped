@@ -6,6 +6,10 @@ use std::rc::Rc;
 
 use scraped_content::{Context, Registry, SlotDef, Value, VarType};
 
+use crate::outdoors::{
+    bearing, distance_band, duration_band, rough_metres, rough_minutes, Pos, BEARINGS, DISTANCES,
+    DURATIONS, EDGES,
+};
 use crate::site::{ctx, label, light, time_of_day, Place, Site};
 
 fn e(values: &[&str]) -> VarType {
@@ -97,9 +101,56 @@ pub const KINDS: &[&str] = &[
 ];
 pub const MATERIALS: &[&str] = &["stone", "clay", "wood", "metal", "plaster", "vellum"];
 pub const DIRECTIONS: &[&str] = &["north", "south", "east", "west", "up", "down"];
+/// Directions a player may type, compass diagonals included.
+pub const ALL_DIRECTIONS: &[&str] = &[
+    "north",
+    "south",
+    "east",
+    "west",
+    "up",
+    "down",
+    "northeast",
+    "northwest",
+    "southeast",
+    "southwest",
+];
+pub const LANDMARKS: &[&str] = &[
+    "town",
+    "ruins",
+    "hill",
+    "mountain",
+    "house",
+    "temple",
+    "storehouse",
+    "archive",
+    "tomb",
+    "cemetery",
+    "tower",
+    "wall",
+    "waystation",
+    "bridge",
+    "mine",
+];
+pub const TERRAINS: &[&str] = &["flat", "slope", "hilltop", "valley"];
+pub const SIDES: &[&str] = &[
+    "here",
+    "north",
+    "northeast",
+    "east",
+    "southeast",
+    "south",
+    "southwest",
+    "west",
+    "northwest",
+];
+pub const MODES: &[&str] = &["walk", "head", "follow", "back"];
+pub const OBSTACLES: &[&str] = &["sea", "lake", "river"];
+pub const EDGE_ENDS: &[&str] = &["end", "sea", "lake", "river"];
+pub const SHAPES: &[&str] = &["island", "basin"];
 pub const PASSAGES: &[&str] = &["door", "arch", "stair", "opening"];
 pub const STATES: &[&str] = &["open", "closed", "blocked", "collapsed"];
 pub const LIGHTS: &[&str] = &["daylight", "dim", "dark"];
+pub const WEATHERS: &[&str] = &["clear", "rain", "fog"];
 pub const TIMES: &[&str] = &["dawn", "morning", "afternoon", "evening", "night"];
 pub const WRITING: &[&str] = &["left_to_right", "right_to_left", "boustrophedon"];
 
@@ -311,13 +362,6 @@ fn s_words(_: u64) -> Vec<Context> {
     ]
 }
 
-fn s_direction(_: u64) -> Vec<Context> {
-    DIRECTIONS
-        .iter()
-        .map(|d| ctx(&[("direction", Value::from(*d))]))
-        .collect()
-}
-
 fn s_verb(_: u64) -> Vec<Context> {
     ["examine", "take", "read", "go"]
         .iter()
@@ -351,6 +395,259 @@ fn s_remaining(_: u64) -> Vec<Context> {
 
 fn s_way(seed: u64) -> Vec<Context> {
     s_exit(seed)
+}
+
+fn s_land_name(seed: u64) -> Vec<Context> {
+    let site = sample_site(seed);
+    site.land
+        .landmarks
+        .iter()
+        .map(|l| {
+            ctx(&[
+                ("kind", Value::from(l.kind)),
+                ("size", Value::Number(l.size)),
+                ("biome", Value::from(site.biome_at(l.pos))),
+            ])
+        })
+        .collect()
+}
+
+fn s_landmark(seed: u64) -> Vec<Context> {
+    let site = sample_site(seed);
+    let from = site.start();
+    site.land
+        .in_view(
+            &site.world,
+            from,
+            20000.0,
+            site.land.town(&site.world, from),
+        )
+        .iter()
+        .take(8)
+        .map(|v| {
+            let kind = site.land.landmarks[v.landmark].kind;
+            ctx(&[
+                ("name", Value::from(format!("the {kind}"))),
+                ("kind", Value::from(kind)),
+                ("bearing", Value::from(BEARINGS[v.bearing])),
+                ("distance", Value::from(distance_band(v.metres))),
+            ])
+        })
+        .collect()
+}
+
+fn s_horizon(seed: u64) -> Vec<Context> {
+    let all: Vec<Value> = s_landmark(seed)
+        .iter()
+        .map(|c| {
+            Value::from(format!(
+                "{} to the {}",
+                c["name"].text(),
+                c["bearing"].text()
+            ))
+        })
+        .collect();
+    [
+        (0, "fog", "daylight"),
+        (3, "clear", "daylight"),
+        (6, "clear", "dim"),
+        (1, "rain", "dark"),
+    ]
+    .iter()
+    .map(|&(n, w, l)| {
+        let shown: Vec<Value> = all.iter().take(n).cloned().collect();
+        let count = shown.len() as i64;
+        ctx(&[
+            ("landmarks", Value::List(shown)),
+            ("count", Value::Number(count)),
+            ("weather", Value::from(w)),
+            ("light", Value::from(l)),
+        ])
+    })
+    .collect()
+}
+
+fn s_weather(_: u64) -> Vec<Context> {
+    let mut out = Vec::new();
+    for w in WEATHERS {
+        for (l, t) in [
+            ("daylight", "morning"),
+            ("dim", "evening"),
+            ("dark", "night"),
+        ] {
+            out.push(ctx(&[
+                ("weather", Value::from(*w)),
+                ("light", Value::from(l)),
+                ("time", Value::from(t)),
+            ]));
+        }
+    }
+    out
+}
+
+/// Sample spots: the start, and the places of landmarks.
+fn spots(site: &Site) -> Vec<Pos> {
+    let mut out = vec![site.start()];
+    out.extend(site.land.landmarks.iter().take(10).map(|l| l.pos));
+    out
+}
+
+fn s_area(seed: u64) -> Vec<Context> {
+    let site = sample_site(seed);
+    spots(&site)
+        .into_iter()
+        .map(|p| {
+            let edges: Vec<Value> = site
+                .land
+                .edges_near(p)
+                .into_iter()
+                .map(|(e, b)| {
+                    Value::from(match b {
+                        None => format!("a {} here", EDGES[e]),
+                        Some(b) => format!("a {} to the {}", EDGES[e], BEARINGS[b]),
+                    })
+                })
+                .collect();
+            let town = site.land.town(&site.world, p);
+            ctx(&[
+                ("biome", Value::from(site.biome_at(p))),
+                ("terrain", Value::from(site.land.terrain_here(p))),
+                ("edges", Value::List(edges)),
+                ("near", Value::List(Vec::new())),
+                ("high", Value::Bool(site.land.high(p))),
+                ("in_town", Value::Bool(town.is_some())),
+                ("time", Value::from("morning")),
+            ])
+        })
+        .collect()
+}
+
+fn s_edge_name(_: u64) -> Vec<Context> {
+    EDGES
+        .iter()
+        .map(|e| ctx(&[("kind", Value::from(*e))]))
+        .collect()
+}
+
+fn s_edge(_: u64) -> Vec<Context> {
+    EDGES
+        .iter()
+        .zip(SIDES.iter().cycle())
+        .map(|(e, s)| {
+            ctx(&[
+                ("name", Value::from(format!("the {e}"))),
+                ("kind", Value::from(*e)),
+                ("side", Value::from(*s)),
+            ])
+        })
+        .collect()
+}
+
+fn s_region(seed: u64) -> Vec<Context> {
+    let site = sample_site(seed);
+    let (biomes, sea) = site.land.region(&site.world, site.start(), 20000.0);
+    let main = biomes.first().copied().unwrap_or("grassland");
+    vec![ctx(&[
+        (
+            "biomes",
+            Value::List(biomes.into_iter().map(Value::from).collect()),
+        ),
+        ("main", Value::from(main)),
+        ("shape", Value::from(crate::outdoors::shape(&site.world))),
+        ("sea", Value::Bool(sea)),
+    ])]
+}
+
+fn s_report(seed: u64) -> Vec<Context> {
+    let site = sample_site(seed);
+    let from = site.start();
+    let mut out = Vec::new();
+    for (i, l) in site.land.landmarks.iter().take(6).enumerate() {
+        let m = from.dist(l.pos);
+        let minutes = (m / 60.0) as u32;
+        out.push(ctx(&[
+            ("mode", Value::from(MODES[i % MODES.len()])),
+            (
+                "bearing",
+                Value::from(bearing(from, l.pos).map_or("nowhere", |b| BEARINGS[b])),
+            ),
+            ("distance", Value::from(distance_band(m))),
+            ("metres", Value::Number(rough_metres(m))),
+            ("duration", Value::from(duration_band(minutes))),
+            ("minutes", Value::Number(rough_minutes(minutes))),
+            (
+                "edge",
+                Value::from(if i % MODES.len() == 2 {
+                    "river"
+                } else {
+                    "none"
+                }),
+            ),
+        ]));
+    }
+    out
+}
+
+fn s_lost(_: u64) -> Vec<Context> {
+    [
+        ("fog", "daylight", "forest"),
+        ("clear", "dark", "grassland"),
+        ("rain", "dim", "marsh"),
+    ]
+    .iter()
+    .map(|&(w, l, b)| {
+        ctx(&[
+            ("weather", Value::from(w)),
+            ("light", Value::from(l)),
+            ("biome", Value::from(b)),
+        ])
+    })
+    .collect()
+}
+
+fn s_place_name(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("name", Value::from("the tall hill"))]),
+        ctx(&[("name", Value::from("the gap"))]),
+    ]
+}
+
+fn s_interrupt(seed: u64) -> Vec<Context> {
+    s_landmark(seed)
+}
+
+fn s_blocked(_: u64) -> Vec<Context> {
+    OBSTACLES
+        .iter()
+        .zip(BEARINGS.iter())
+        .map(|(o, b)| ctx(&[("by", Value::from(*o)), ("bearing", Value::from(*b))]))
+        .collect()
+}
+
+fn s_edge_end(_: u64) -> Vec<Context> {
+    EDGES
+        .iter()
+        .zip(EDGE_ENDS.iter().cycle())
+        .map(|(e, b)| ctx(&[("edge", Value::from(*e)), ("by", Value::from(*b))]))
+        .collect()
+}
+
+fn s_indoors(_: u64) -> Vec<Context> {
+    ["head", "follow", "back", "name"]
+        .iter()
+        .map(|v| ctx(&[("verb", Value::from(*v))]))
+        .collect()
+}
+
+fn s_input(_: u64) -> Vec<Context> {
+    vec![ctx(&[("input", Value::from("this place"))])]
+}
+
+fn s_all_directions(_: u64) -> Vec<Context> {
+    ALL_DIRECTIONS
+        .iter()
+        .map(|d| ctx(&[("direction", Value::from(*d))]))
+        .collect()
 }
 
 /// Every slot the game declares.
@@ -447,7 +744,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.take_held", "The player tries to pick up something already carried.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("say.drop", "The player puts something down.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("say.drop_unheld", "The player tries to drop something not carried.").var("thing", VarType::Text, thing).sampler(s_named),
-        SlotDef::new("say.no_exit", "There is no way to go in that direction.").var("direction", e(DIRECTIONS), "Which way the player tried.").sampler(s_direction),
+        SlotDef::new("say.no_exit", "There is no way to go in that direction (indoors, or up and down outdoors).").var("direction", e(ALL_DIRECTIONS), "Which way the player tried.").sampler(s_all_directions),
         SlotDef::new("say.blocked", "The way is closed, blocked, or leads into a collapsed room.")
             .var("direction", e(DIRECTIONS), "Which way.")
             .var("passage", e(PASSAGES), "What kind of passage.")
@@ -493,6 +790,124 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(900)
             .sampler(s_site),
         SlotDef::new("say.saved", "The game was saved.").sampler(s_none),
+        SlotDef::new("say.named", "The player names the spot they stand on ('name this place the gap'). They can later 'go to the gap' from anywhere; the game remembers its true position, but getting there still takes finding the way.")
+            .var("name", VarType::Text, "The name the player chose.")
+            .sampler(s_place_name),
+        SlotDef::new("say.name_bad", "A 'name' command with no name: explain the form 'name this place the gap'.")
+            .var("input", VarType::Text, "What the player typed after 'name'.")
+            .sampler(s_input),
+        SlotDef::new("land.weather", "Weather and light at a glance, opening the look outdoors. Short.")
+            .var("weather", e(WEATHERS), "Clear, rain or fog.")
+            .var("light", e(LIGHTS), "Daylight, dim (dawn and dusk) or dark (night).")
+            .var("time", e(TIMES), "Time of day.")
+            .max_len(200)
+            .sampler(s_weather),
+        SlotDef::new("land.area", "The ground where the player stands outdoors (the local 100–300 m): land, lie of the ground, edges close by (rivers, roads, coast…), and anything near enough to walk to. When 'in_town' is true, place.site follows with the settlement's buildings, so don't list them here.")
+            .var("biome", e(BIOMES), "The land here.")
+            .var("terrain", e(TERRAINS), "The lie of the ground: flat, a slope, a hilltop or a valley floor.")
+            .var("edges", VarType::List, "Edges close by, each rendered by land.edge.")
+            .var("near", VarType::List, "Buildings and things close by outside a settlement, rendered by their name slots.")
+            .var("high", VarType::Bool, "Whether this is a high point that looks out over the region (land.region follows).")
+            .var("in_town", VarType::Bool, "Whether the player stands in a settlement.")
+            .var("time", e(TIMES), "Time of day.")
+            .max_len(600)
+            .sampler(s_area),
+        SlotDef::new("land.edge_name", "An edge's short name for the parser ('the river', 'the old road'). The player types words from it ('follow the river'), so include the kind word.")
+            .var("kind", e(&EDGES), "What kind of edge.")
+            .min_variants(1)
+            .max_len(40)
+            .sampler(s_edge_name),
+        SlotDef::new("land.edge", "One edge close by, inside land.area: where it runs relative to the player ('a river runs just to the east').")
+            .var("name", VarType::Text, "The edge's name, from land.edge_name.")
+            .var("kind", e(&EDGES), "What kind of edge.")
+            .var("side", e(SIDES), "Where it is: 'here' (underfoot or alongside) or a compass point.")
+            .max_len(120)
+            .sampler(s_edge),
+        SlotDef::new("land.name", "A landmark's short name as seen from afar and typed by the player ('the twin-peaked hill', 'the tower'). Include the kind word. Never use the place's real name: the player can't know it.")
+            .var("kind", e(LANDMARKS), "What it is: a town, ruins, a hill or mountain, or a lone building.")
+            .var("size", VarType::Number, "Towns: 1 hamlet to 4 city. Hills: height above the land around, in hundreds of metres.")
+            .var("biome", e(BIOMES), "The land it stands in.")
+            .min_variants(1)
+            .max_len(60)
+            .sampler(s_land_name),
+        SlotDef::new("land.landmark", "One distant landmark in a look: what it is, which way, how far by eye ('a tower stands far off to the north-east'). Never exact numbers.")
+            .var("name", VarType::Text, "The landmark, from land.name.")
+            .var("kind", e(LANDMARKS), "What it is.")
+            .var("bearing", e(&BEARINGS), "Which way it lies.")
+            .var("distance", e(&DISTANCES), "How far by eye: near (under ~400 m), short (~1 km), middle (a few km), far (up to ~10 km), horizon (beyond).")
+            .max_len(160)
+            .sampler(s_landmark),
+        SlotDef::new("land.horizon", "What stands out further away, closing the look outdoors: the most striking landmarks in view, or how little can be seen (fog, night).")
+            .var("landmarks", VarType::List, "Landmarks in view, most striking first, each rendered by land.landmark.")
+            .var("count", VarType::Number, "How many.")
+            .var("weather", e(WEATHERS), "The weather, which limits the view.")
+            .var("light", e(LIGHTS), "The light, which limits the view.")
+            .max_len(900)
+            .sampler(s_horizon),
+        SlotDef::new("land.region", "From a high point: the lie of the whole region (what land spreads out below, whether the sea is in view).")
+            .var("biomes", VarType::List, "The commonest kinds of land in view, commonest first (biome ids).")
+            .var("main", e(BIOMES), "The commonest.")
+            .var("shape", e(SHAPES), "Island (sea all round) or basin (ringed by mountains).")
+            .var("sea", VarType::Bool, "Whether the sea is in view.")
+            .max_len(400)
+            .sampler(s_region),
+        SlotDef::new("travel.report", "Opens the account of a journey: which way and how far the player went, as they judge it (they may be wrong if they got lost). Players map from this, so give the bearing and a rough distance or time; never exact figures beyond what's given.")
+            .var("mode", e(MODES), "How they travelled: walking to a place, heading a direction, following an edge, or going back.")
+            .var("bearing", e(&[&BEARINGS[..], &["nowhere"]].concat()), "The overall direction travelled ('nowhere' if they ended where they began).")
+            .var("distance", e(&DISTANCES), "Rough distance band.")
+            .var("metres", VarType::Number, "Distance as the player judges it, rounded (to 100 m under a kilometre, 500 m above).")
+            .var("duration", e(&DURATIONS), "Rough time taken.")
+            .var("minutes", VarType::Number, "Time taken, rounded to quarter hours.")
+            .var("edge", e(&[&EDGES[..], &["none"]].concat()), "The edge followed, or 'none'.")
+            .max_len(300)
+            .sampler(s_report),
+        SlotDef::new("travel.lost", "A getting-lost cue: on the way, nothing could be seen to steer by (fog, darkness, deep forest), so the player is less sure where they are. Must not say where they truly are.")
+            .var("weather", e(WEATHERS), "The weather now.")
+            .var("light", e(LIGHTS), "The light now.")
+            .var("biome", e(BIOMES), "The land they are in now.")
+            .max_len(300)
+            .sampler(s_lost),
+        SlotDef::new("travel.arrive", "The player reaches where they were going.")
+            .var("name", VarType::Text, "The destination's name.")
+            .max_len(200)
+            .sampler(s_place_name),
+        SlotDef::new("travel.not_there", "The player walked as far as they thought they needed to, but the place they were heading for is not here: they have drifted off course.")
+            .var("name", VarType::Text, "Where they meant to go.")
+            .max_len(200)
+            .sampler(s_place_name),
+        SlotDef::new("travel.interrupt", "Something comes into view for the first time, and the player stops to look.")
+            .var("name", VarType::Text, "What they see, from land.name.")
+            .var("kind", e(LANDMARKS), "What it is.")
+            .var("bearing", e(&BEARINGS), "Which way.")
+            .var("distance", e(&DISTANCES), "How far by eye.")
+            .max_len(200)
+            .sampler(s_interrupt),
+        SlotDef::new("travel.blocked", "Water bars the way: sea, a lake, or a river too deep to wade, with no ford or bridge here.")
+            .var("by", e(OBSTACLES), "What blocks the way.")
+            .var("bearing", e(&BEARINGS), "Which way the player was going.")
+            .max_len(200)
+            .sampler(s_blocked),
+        SlotDef::new("travel.edge_end", "The edge the player is following ends or can be followed no further (a river reaches the sea or a lake, a road peters out).")
+            .var("edge", e(&EDGES), "The edge being followed.")
+            .var("by", e(EDGE_ENDS), "Why: it simply ends, or water.")
+            .max_len(200)
+            .sampler(s_edge_end),
+        SlotDef::new("travel.already", "The player asks to go somewhere they are already at.")
+            .var("name", VarType::Text, "The place.")
+            .sampler(s_place_name),
+        SlotDef::new("travel.no_route", "There is no way to walk to that place from here (across the sea, say).")
+            .var("name", VarType::Text, "The place.")
+            .sampler(s_place_name),
+        SlotDef::new("travel.unseen", "The player names somewhere to go that they can't see from here and haven't named ('you can't see that from here').")
+            .var("words", VarType::Text, "What the player typed.")
+            .sampler(s_words),
+        SlotDef::new("travel.no_edge", "The player asks to follow something that isn't close by (no river here, say), or it's unclear which.")
+            .var("words", VarType::Text, "What the player typed.")
+            .sampler(s_words),
+        SlotDef::new("travel.indoors", "An outdoor command (head, follow, back, name) typed indoors: go outside first.")
+            .var("verb", VarType::Text, "The command.")
+            .sampler(s_indoors),
+        SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
         SlotDef::new("say.pack_changed", "A loaded save was made with different text (content pack) than now: the story replays the same, but wording may differ.")
             .sampler(s_none),

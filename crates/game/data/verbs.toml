@@ -17,7 +17,7 @@ object = "required"
 
 [[verb]]
 id = "go"
-words = ["go", "walk", "go to", "walk to", "go into", "go through", "enter", "head"]
+words = ["go", "walk", "go to", "walk to", "go into", "go through", "enter", "travel to", "make for"]
 object = "required"
 
 [[verb]]
@@ -65,6 +65,26 @@ id = "help"
 words = ["help", "?", "h"]
 object = "none"
 
+[[verb]]
+id = "head"
+words = ["head", "head for", "head towards", "head toward", "walk towards", "set off"]
+object = "required"
+
+[[verb]]
+id = "follow"
+words = ["follow", "walk along", "go along", "keep to"]
+object = "required"
+
+[[verb]]
+id = "back"
+words = ["back", "go back", "retrace", "retrace my steps", "retrace your steps", "return"]
+object = "none"
+
+[[verb]]
+id = "name"
+words = ["name", "name this place", "call this place", "name this spot", "call this spot", "name here"]
+object = "required"
+
 # Directions are verbs of their own: "north" means "go north".
 [[verb]]
 id = "north"
@@ -105,3 +125,23 @@ object = "required"
 id = "close"
 words = ["close", "shut"]
 object = "required"
+
+[[verb]]
+id = "northeast"
+words = ["northeast", "ne", "north-east"]
+object = "none"
+
+[[verb]]
+id = "northwest"
+words = ["northwest", "nw", "north-west"]
+object = "none"
+
+[[verb]]
+id = "southeast"
+words = ["southeast", "se", "south-east"]
+object = "none"
+
+[[verb]]
+id = "southwest"
+words = ["southwest", "sw", "south-west"]
+object = "none"

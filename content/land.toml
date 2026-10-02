@@ -1,0 +1,41 @@
+notes = "The land outdoors: weather, the ground underfoot, edges, landmarks and the view."
+
+[[variant]]
+slot = "land.weather"
+text = "{cap weather}, in the {time}[if light == 'dark'], too dark to see far[end]."
+example = true
+
+[[variant]]
+slot = "land.area"
+text = "You stand on {terrain} ground, in {biome}.[if edges] {cap list edges}.[end][if near] Close by: {list near}.[end]"
+example = true
+
+[[variant]]
+slot = "land.edge_name"
+text = "the {kind}"
+example = true
+
+[[variant]]
+slot = "land.edge"
+text = "{name}[if side == 'here'] runs here[else] lies to the {side}[end]"
+example = true
+
+[[variant]]
+slot = "land.name"
+text = "the {kind}"
+example = true
+
+[[variant]]
+slot = "land.landmark"
+text = "{name} to the {bearing} ({distance})"
+example = true
+
+[[variant]]
+slot = "land.horizon"
+text = "[if count > 0]In the distance: {list landmarks}.[else]You can see nothing further off.[end]"
+example = true
+
+[[variant]]
+slot = "land.region"
+text = "From up here the land spreads out: mostly {main}.[if sea] The sea is in view.[end]"
+example = true
