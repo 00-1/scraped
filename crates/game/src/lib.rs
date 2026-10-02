@@ -14,6 +14,9 @@ pub mod slots;
 #[cfg(test)]
 mod survival;
 mod travel;
+mod writing;
+#[cfg(test)]
+mod writing_tests;
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -29,6 +32,7 @@ use parser::{resolve, Candidate, Command, ParseError, Resolution};
 use scraped_sim::body::{Activity, Body};
 use scraped_sim::creatures::Creature;
 use scraped_sim::env::SimState;
+use scraped_sim::writing::Claim;
 use site::{ctx, label, time_of_day, Place, Site, Thing, Way};
 
 /// Verbs that are compass points or up and down.
@@ -144,6 +148,11 @@ pub struct State {
     /// Need states last told to the player.
     pub felt: Vec<usize>,
     pub dead: Option<Death>,
+    /// Texts scraped: history's casts, and the player's. Nothing is ever
+    /// removed from this set or from any surface (nothing is lost).
+    pub scraped: BTreeSet<usize>,
+    /// Writing tools the player has come across (for the first-find note).
+    pub found: BTreeSet<String>,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -233,6 +242,8 @@ pub struct Game {
     notes: Vec<String>,
     /// Something happened that should stop a journey or sleep.
     interrupted: bool,
+    /// Claims of live writing, recomputed whenever something is scraped.
+    claims: Vec<Claim>,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -241,6 +252,8 @@ enum Mark {
     Glyph {
         era: u32,
         index: usize,
+        /// Scraped away: the reader can't make it out.
+        lost: bool,
     },
     Gap,
     /// Between separate pieces of writing on one thing.
@@ -279,7 +292,12 @@ impl Game {
             noise: 0,
             felt: vec![0; 6],
             dead: None,
+            scraped: site.writing.scraped.clone(),
+            found: BTreeSet::new(),
         };
+        let claims = site
+            .writing
+            .live_claims(&site.world, &site.land, &state.scraped);
         Game {
             site,
             registry: slots::registry(),
@@ -294,6 +312,7 @@ impl Game {
             extra: Vec::new(),
             notes: Vec::new(),
             interrupted: false,
+            claims,
         }
     }
 
@@ -411,6 +430,7 @@ impl Game {
         let Place::Room { structure, .. } = self.state.place else {
             return Vec::new();
         };
+        let held = self.doors_held();
         self.site
             .ways(self.state.place)
             .into_iter()
@@ -427,6 +447,17 @@ impl Game {
                 }
                 if self.state.sim.fallen.contains(&(structure, w.link)) {
                     w.state = PassageState::Blocked;
+                }
+                if w.passage == Some(scraped_world::structures::Passage::Door) && !w.collapsed {
+                    match held {
+                        Some(h) if h > 0 && w.state == PassageState::Closed => {
+                            w.state = PassageState::Open
+                        }
+                        Some(h) if h < 0 && w.state == PassageState::Open => {
+                            w.state = PassageState::Closed
+                        }
+                        _ => {}
+                    }
                 }
                 w
             })
@@ -630,6 +661,7 @@ impl Game {
                 "pos": [self.state.pos.x, self.state.pos.y],
                 "cell": self.state.pos.cell(),
                 "town": self.site.land.town(&self.site.world, self.state.pos),
+                "claims": self.claims_here(),
             }))
         });
         Output {
@@ -856,6 +888,7 @@ impl Game {
             ("use", Target::Thing(i)) => self.use_thing(i),
             ("use", Target::Mechanism(m)) => self.operate(m, "operate"),
             ("pry", t) => self.pry(t),
+            ("scrape", Target::Thing(i)) => self.scrape(i),
             ("examine", Target::Structure(s)) | ("go", Target::Structure(s)) => {
                 if verb == "examine" {
                     self.pass(1);
@@ -889,7 +922,9 @@ impl Game {
                 self.state.moved.remove(&i);
                 self.state.dropped.remove(&i);
                 let t = self.say("say.take", named);
-                self.output(vec![t], None)
+                let kind = self.thing(i).kind;
+                let found = self.tool_found(kind);
+                self.output(std::iter::once(t).chain(found).collect(), None)
             }
             ("drop", Target::Thing(i)) => {
                 if !self.state.carried.contains(&i) {
@@ -975,6 +1010,14 @@ impl Game {
             && w.state != PassageState::Blocked
             && w.passage == Some(scraped_world::structures::Passage::Door);
         let already = (w.state == PassageState::Open) == open;
+        if movable && !already {
+            if let Some(h) = self.doors_held() {
+                if (h > 0) != open {
+                    let t = self.say("effect.held", named);
+                    return self.output(vec![t], None);
+                }
+            }
+        }
         if movable && open && !already && self.barred(structure, w.link) {
             if self.carrying_pry_bar() {
                 self.pass(10);
@@ -1072,19 +1115,20 @@ impl Game {
     /// The glyphs of everything written on a thing, in reading order.
     fn marks(&self, thing: usize) -> Vec<Mark> {
         let mut out = Vec::new();
-        for (n, &tid) in self.thing(thing).texts.iter().enumerate() {
+        for (n, (tid, partial)) in self.layers_seen(thing).into_iter().enumerate() {
             if n > 0 {
                 out.push(Mark::Break);
             }
-            let text = &self.site.world.texts[tid];
+            let text = self.text(tid);
             let r = self.site.world.renderer(text.era);
             let rendered = r.render(&text.meaning);
             let script = &self.site.world.languages[text.era as usize].script;
-            for k in r.glyphs(&rendered) {
+            for (g, k) in r.glyphs(&rendered).into_iter().enumerate() {
                 out.push(match k {
                     Some(k) => Mark::Glyph {
                         era: text.era,
                         index: script.index(&k),
+                        lost: partial && self.lost(tid, g),
                     },
                     None => Mark::Gap,
                 });
@@ -1110,9 +1154,13 @@ impl Game {
         let last = ((page + 1) * PAGE).min(glyphs.len());
         self.pass(5);
         let thing_name = self.thing_name(thing);
+        let seen = self.layers_seen(thing);
+        let top = seen.last().map_or(self.thing(thing).texts[0], |l| l.0);
+        let hand = self.hand(top);
         let t = self.thing(thing);
-        let era = self.site.world.texts[t.texts[0]].era as usize;
+        let era = self.text(top).era as usize;
         let frame_ctx = ctx(&[
+            ("hand", Value::from(hand)),
             ("thing", Value::from(thing_name)),
             ("material", Value::from(label(&t.material))),
             ("glyphs", Value::Number(glyphs.len() as i64)),
@@ -1125,13 +1173,47 @@ impl Game {
             ),
         ]);
         let frame = self.say("read.frame", frame_ctx);
+        let mut extra_frames = Vec::new();
+        if page == 0 {
+            if let Some(&(_, true)) = seen.first() {
+                let lost = marks
+                    .iter()
+                    .filter(|m| matches!(m, Mark::Glyph { lost: true, .. }))
+                    .count();
+                let c = ctx(&[
+                    ("material", Value::from(label(&self.thing(thing).material))),
+                    ("lost", Value::Number(lost as i64)),
+                    ("glyphs", Value::Number(glyphs.len() as i64)),
+                ]);
+                extra_frames.push(self.say("read.scraped", c));
+            }
+            let ghosts = self.ghost_count(thing);
+            if ghosts > 0 {
+                extra_frames.push(self.say(
+                    "read.ghosts",
+                    ctx(&[("count", Value::Number(ghosts as i64))]),
+                ));
+            }
+        }
         // Lay the page out: one glyph per line, a blank line between words,
         // a rule between separate pieces of writing.
         let mut lines: Vec<String> = Vec::new();
         let mut n = 0;
         for m in &marks {
             match *m {
-                Mark::Glyph { era, index } => {
+                Mark::Glyph { lost: true, .. } => {
+                    n += 1;
+                    if n < first || n > last {
+                        continue;
+                    }
+                    let line = self.stable(
+                        "read.lost",
+                        ctx(&[("number", Value::Number(n as i64))]),
+                        3_000_000 + n as u64,
+                    );
+                    lines.push(line);
+                }
+                Mark::Glyph { era, index, .. } => {
                     n += 1;
                     if n < first || n > last {
                         continue;
@@ -1175,22 +1257,28 @@ impl Game {
             self.state.reading = None;
             self.say("read.end", Context::new())
         };
-        let truth = json!(self
+        let truth =
+            json!(self
             .thing(thing)
             .texts
             .iter()
             .map(|&tid| {
-                let text = &self.site.world.texts[tid];
+                let text = self.text(tid);
                 let r = self.site.world.renderer(text.era);
+                let state = if self.state.scraped.contains(&tid) { "scraped" } else { "unscraped" };
                 json!({
                     "era": text.era,
                     "kind": text.kind,
+                    "state": state,
                     "text": self.site.world.surface(text),
                     "translation": scraped_lang::english::translate(&text.meaning, &|p| r.name(p)),
                 })
             })
             .collect::<Vec<_>>());
-        self.output(vec![frame, body, after], Some(truth))
+        let mut parts = vec![frame];
+        parts.extend(extra_frames);
+        parts.extend([body, after]);
+        self.output(parts, Some(truth))
     }
 
     fn more(&mut self) -> Output {
@@ -1212,14 +1300,14 @@ impl Game {
             .or(words.last().filter(|w| w.parse::<usize>().is_err()))
             .map(|w| w.trim_matches(|c| c == '"' || c == '\'').to_string())
             .unwrap_or_default();
-        let glyphs: Vec<(u32, usize)> = self
+        let glyphs: Vec<(u32, usize, bool)> = self
             .state
             .last_read
             .map(|t| {
                 self.marks(t)
                     .into_iter()
                     .filter_map(|m| match m {
-                        Mark::Glyph { era, index } => Some((era, index)),
+                        Mark::Glyph { era, index, lost } => Some((era, index, lost)),
                         _ => None,
                     })
                     .collect()
@@ -1231,11 +1319,11 @@ impl Game {
             ("count", Value::Number(glyphs.len() as i64)),
             ("input", Value::from(input)),
         ]);
-        if number == 0 || number > glyphs.len() || label.is_empty() {
+        if number == 0 || number > glyphs.len() || label.is_empty() || glyphs[number - 1].2 {
             let t = self.say("say.define_bad", c);
             return self.output(vec![t], None);
         }
-        let (era, index) = glyphs[number - 1];
+        let (era, index, _) = glyphs[number - 1];
         self.state.labels.insert(format!("{era}:{index}"), label);
         let t = self.say("say.define", c);
         self.output(vec![t], None)

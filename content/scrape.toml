@@ -1,0 +1,16 @@
+notes = "Scraping writing away."
+
+[[variant]]
+slot = "scrape.done"
+text = "You scrape {thing} clean."
+example = true
+
+[[variant]]
+slot = "scrape.no_tool"
+text = "You have nothing to scrape {thing} with."
+example = true
+
+[[variant]]
+slot = "scrape.bare"
+text = "There is nothing left on {thing} to scrape."
+example = true

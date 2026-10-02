@@ -1,0 +1,11 @@
+notes = "The physical signs of writing taking effect. Never say what the writing said."
+
+[[variant]]
+slot = "effect.change"
+text = "Something changes: the {property} of the {class} [if rising]rises[else]falls[end]."
+example = true
+
+[[variant]]
+slot = "effect.held"
+text = "{cap thing} will not move."
+example = true

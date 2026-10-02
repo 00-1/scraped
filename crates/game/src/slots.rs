@@ -362,6 +362,10 @@ fn s_read(seed: u64) -> Vec<Context> {
                     "direction",
                     Value::from(label(&site.world.languages[era].script.direction)),
                 ),
+                (
+                    "hand",
+                    Value::from(crate::writing::HANDS[t.id % crate::writing::HANDS.len()]),
+                ),
             ])
         })
         .collect()
@@ -727,6 +731,7 @@ fn s_cues(_: u64) -> Vec<Context> {
             ("fire", Value::Bool(i == 1)),
             ("dark", Value::Bool(i == 3)),
             ("indoors", Value::Bool(i % 2 == 0)),
+            ("uncanny", Value::from(["none", "warmth", "frost"][i % 3])),
         ]));
     }
     out
@@ -1079,6 +1084,66 @@ fn s_end(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_glyph_number(_: u64) -> Vec<Context> {
+    vec![ctx(&[("number", Value::Number(4))])]
+}
+
+fn s_scraped(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("material", Value::from("stone")),
+            ("lost", Value::Number(7)),
+            ("glyphs", Value::Number(18)),
+        ]),
+        ctx(&[
+            ("material", Value::from("plaster")),
+            ("lost", Value::Number(12)),
+            ("glyphs", Value::Number(20)),
+        ]),
+    ]
+}
+
+fn s_ghosts(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("count", Value::Number(1))]),
+        ctx(&[("count", Value::Number(3))]),
+    ]
+}
+
+fn s_scrape(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("thing", Value::from("the stone stele")),
+        ("material", Value::from("stone")),
+    ])]
+}
+
+fn s_effect(_: u64) -> Vec<Context> {
+    let mut out = Vec::new();
+    for (p, c) in [
+        ("heat", "land"),
+        ("heat", "room"),
+        ("openness", "passage"),
+        ("stability", "structure"),
+    ] {
+        for rising in [true, false] {
+            out.push(ctx(&[
+                ("property", Value::from(p)),
+                ("rising", Value::Bool(rising)),
+                ("class", Value::from(c)),
+                ("indoors", Value::Bool(c != "land")),
+            ]));
+        }
+    }
+    out
+}
+
+fn s_tool(_: u64) -> Vec<Context> {
+    ["scraper", "stylus", "lens"]
+        .iter()
+        .map(|k| ctx(&[("kind", Value::from(*k))]))
+        .collect()
+}
+
 /// Every slot the game declares.
 pub fn slots() -> Vec<SlotDef> {
     let thing = "The thing's name as the game refers to it, e.g. 'the stone altar'.";
@@ -1144,6 +1209,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("pages", VarType::Number, "How many pages in all.")
             .var("texts", VarType::Number, "How many separate pieces of writing are on the thing.")
             .var("direction", e(WRITING), "Which way the writing runs.")
+            .var("hand", e(crate::writing::HANDS), "The look of the hand it was written in (the most recent visible layer). The same scribe always has the same hand, so attentive players can tell writers apart.")
             .min_variants(1)
             .max_len(200)
             .sampler(s_read),
@@ -1346,6 +1412,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("fire", VarType::Bool, "A fire burns here.")
             .var("dark", VarType::Bool, "Too dark to see.")
             .var("indoors", VarType::Bool, "In a room rather than outdoors.")
+            .var("uncanny", e(&["none", "warmth", "frost"]), "Heat or cold that doesn't belong here (writing's doing): an unnatural warmth, or frost against the season. Never say why.")
             .max_len(300)
             .sampler(s_cues),
         SlotDef::new("place.dark", "The look in a room too dark to see: no things, only the ways out the player can feel. Should make the player want light.")
@@ -1521,6 +1588,40 @@ pub fn slots() -> Vec<SlotDef> {
             .var("hours", VarType::Number, "Hours survived.")
             .max_len(400)
             .sampler(s_end),
+        SlotDef::new("read.lost", "A glyph of a scraped layer that can't be made out any more, in a reading. Keep the number visible.")
+            .var("number", VarType::Number, "The glyph's position.")
+            .min_variants(1)
+            .max_len(120)
+            .sampler(s_glyph_number),
+        SlotDef::new("read.scraped", "Before a scraped layer's glyphs: this writing was scraped, and only part of it survives ('Beneath the scouring, a few strokes survive:').")
+            .var("material", e(MATERIALS), "The surface.")
+            .var("lost", VarType::Number, "How many glyphs are lost to the eye (more survive in better light).")
+            .var("glyphs", VarType::Number, "How many glyphs there were.")
+            .max_len(200)
+            .sampler(s_scraped),
+        SlotDef::new("read.ghosts", "Fainter marks lie beneath what can be read: older layers, too faint to make out yet.")
+            .var("count", VarType::Number, "How many older layers.")
+            .max_len(200)
+            .sampler(s_ghosts),
+        SlotDef::new("scrape.done", "The act of scraping a whole text off a surface. Only the act; whatever it releases is told by effect.change.")
+            .var("thing", VarType::Text, thing)
+            .var("material", e(MATERIALS), "The surface.")
+            .max_len(300)
+            .sampler(s_scrape),
+        SlotDef::new("scrape.no_tool", "The player tries to scrape writing with nothing to scrape it with.").var("thing", VarType::Text, thing).sampler(s_named),
+        SlotDef::new("scrape.bare", "Nothing fresh to scrape: the surface's writing is already scraped.").var("thing", VarType::Text, thing).sampler(s_named),
+        SlotDef::new("effect.change", "The moment a claim takes effect (or stops) where the player is: a physical change only, never what the writing said. Heat rising or falling; doors swinging open or slamming shut; stone groaning loose or settling firm; frost or warmth spreading over the land.")
+            .var("property", e(&["heat", "openness", "stability"]), "What changes.")
+            .var("rising", VarType::Bool, "Warmer, more open, sounder (true) or the reverse.")
+            .var("class", e(&["passage", "room", "land", "structure"]), "What it acts on: doors and gates, rooms, the open land, stone.")
+            .var("indoors", VarType::Bool, "Whether the player is indoors.")
+            .max_len(300)
+            .sampler(s_effect),
+        SlotDef::new("effect.held", "A door won't move, though nothing bars it: it is held (writing's doing; never say so).").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
+        SlotDef::new("tool.found", "The player first picks up one of the three writing tools: the scraper, the stylus or the lens. A moment of discovery; don't explain what it does.")
+            .var("kind", e(&["scraper", "stylus", "lens"]), "Which tool.")
+            .max_len(400)
+            .sampler(s_tool),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
         SlotDef::new("say.pack_changed", "A loaded save was made with different text (content pack) than now: the story replays the same, but wording may differ.")

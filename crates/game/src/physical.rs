@@ -31,6 +31,7 @@ impl Game {
             fixtures: &self.site.fixtures,
             state: &self.state.sim,
             forced: self.forced,
+            claims: &self.claims,
         }
     }
 
@@ -68,6 +69,7 @@ impl Game {
             portable: true,
             texts: Vec::new(),
             pos: self.state.pos,
+            surface: None,
         });
         if carry {
             self.state.carried.push(id);
@@ -92,6 +94,7 @@ impl Game {
                 portable: true,
                 texts: Vec::new(),
                 pos: self.state.pos,
+                surface: None,
             });
         }
         self.extra.truncate(self.state.made.len());
@@ -1424,6 +1427,7 @@ impl Game {
             ("fire", Value::Bool(local.fire)),
             ("dark", Value::Bool(local.light == "dark")),
             ("indoors", Value::Bool(matches!(spot, Spot::Room { .. }))),
+            ("uncanny", Value::from(self.uncanny())),
         ]);
         self.say("prop.cues", c)
     }

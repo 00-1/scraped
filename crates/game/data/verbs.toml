@@ -236,3 +236,9 @@ object = "optional"
 id = "status"
 words = ["status", "health", "how am i", "condition"]
 object = "none"
+
+# Writing that acts (M08).
+[[verb]]
+id = "scrape"
+words = ["scrape", "scrape off", "scrape away", "scratch out", "rub out", "erase"]
+object = "required"

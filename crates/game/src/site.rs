@@ -9,6 +9,7 @@ use scraped_world::World;
 use scraped_sim::fixtures::{Fixtures, Spot};
 pub use scraped_sim::outdoors::{label, time_of_day};
 use scraped_sim::outdoors::{outdoor_light, Land, Pos};
+use scraped_sim::writing::Writing;
 
 /// Where the player is.
 #[derive(
@@ -33,10 +34,12 @@ pub struct Thing {
     /// Where it started.
     pub home: Place,
     pub portable: bool,
-    /// Indices into `World::texts`.
+    /// Text ids (world texts, then latent inscriptions), oldest layer first.
     pub texts: Vec<usize>,
     /// Where on the land it is (its building's spot).
     pub pos: Pos,
+    /// The written surface it carries, by index into `Writing::surfaces`.
+    pub surface: Option<usize>,
 }
 
 /// Feature kinds that can be picked up.
@@ -55,6 +58,8 @@ pub struct Site {
     pub land: Land,
     /// Items, mechanisms, creatures and obstacles of the physical game.
     pub fixtures: Fixtures,
+    /// Every written surface and its layers.
+    pub writing: Writing,
 }
 
 /// One way out of a room.
@@ -105,11 +110,14 @@ impl Site {
             .collect();
         let land = Land::new(&world);
         let mut things = Vec::new();
+        // (structure, room, feature) of each thing that is part of a building.
+        let mut feature_of: Vec<(usize, Option<usize>, Option<usize>)> = Vec::new();
         for st in &world.structures {
             let sid = st.id;
             let pos = land.structure_pos[sid];
             for (ri, room) in st.interior.rooms.iter().enumerate() {
-                for f in &room.features {
+                for (fi, f) in room.features.iter().enumerate() {
+                    feature_of.push((sid, Some(ri), Some(fi)));
                     things.push(Thing {
                         id: things.len(),
                         kind: f.kind,
@@ -121,6 +129,7 @@ impl Site {
                         portable: PORTABLE.contains(&f.kind),
                         texts: f.texts.clone(),
                         pos,
+                        surface: None,
                     });
                 }
             }
@@ -133,7 +142,9 @@ impl Site {
                     portable: false,
                     texts: st.outside.clone(),
                     pos,
+                    surface: None,
                 });
+                feature_of.push((sid, None, None));
             }
         }
         let fixtures = Fixtures::new(&world, &land, settlement);
@@ -146,7 +157,18 @@ impl Site {
                 portable: true,
                 texts: Vec::new(),
                 pos: p.pos,
+                surface: None,
             });
+        }
+        let writing = Writing::new(&world, &land, &fixtures, settlement);
+        for (si, s) in writing.surfaces.iter().enumerate() {
+            if let Some(t) = feature_of
+                .iter()
+                .position(|&f| f == (s.structure, s.room, s.feature))
+            {
+                things[t].surface = Some(si);
+                things[t].texts = s.layers.clone();
+            }
         }
         Site {
             world,
@@ -155,6 +177,7 @@ impl Site {
             things,
             land,
             fixtures,
+            writing,
         }
     }
 

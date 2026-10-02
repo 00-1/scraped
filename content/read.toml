@@ -34,3 +34,18 @@ example = true
 slot = "read.dark"
 text = "It is too dark to read {thing}."
 example = true
+
+[[variant]]
+slot = "read.lost"
+text = "{number}. (worn away)"
+example = true
+
+[[variant]]
+slot = "read.scraped"
+text = "This writing was scraped; {lost} of {glyphs} glyphs are lost."
+example = true
+
+[[variant]]
+slot = "read.ghosts"
+text = "Fainter marks lie beneath."
+example = true
