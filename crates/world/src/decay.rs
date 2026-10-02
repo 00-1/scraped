@@ -5,7 +5,7 @@ use serde::Serialize;
 use scraped_lang::rng::{Rng, Stream};
 
 use crate::history::{Effect, EventKind, History};
-use crate::structures::{Condition, Material, PassageState, Structure, StructureKind};
+use crate::structures::{Condition, Material, Passage, PassageState, Structure, StructureKind};
 use crate::terrain::Terrain;
 
 /// Physical evidence of an event that is not writing: a ruin, a wall.
@@ -79,7 +79,8 @@ pub fn apply(
         for l in &mut s.interior.links {
             if rng.chance(collapse / 2) {
                 l.state = PassageState::Blocked;
-            } else if rng.chance(25) {
+            } else if l.passage == Passage::Door && rng.chance(40) {
+                // Only doors close; arches, stairs and openings cannot.
                 l.state = PassageState::Closed;
             }
         }

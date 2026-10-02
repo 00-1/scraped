@@ -143,6 +143,17 @@ impl<'a> Renderer<'a> {
         }
     }
 
+    /// Which variant was used last for each slot. Games keep this between
+    /// turns so a replay renders exactly as the original did.
+    pub fn memory(&self) -> BTreeMap<String, String> {
+        self.last.clone()
+    }
+
+    /// Restores memory saved with `memory`.
+    pub fn set_memory(&mut self, memory: BTreeMap<String, String>) {
+        self.last = memory;
+    }
+
     /// Renders a slot. Missing content shows as a placeholder; errors show
     /// inline as `⟦error: …⟧`.
     pub fn render(&mut self, slot: &str, ctx: &Context) -> String {
