@@ -1,0 +1,200 @@
+piku tusune kepuhan xił xapelxum
+    #1 dedication · Piku made this altar for Tusu.
+    piku  tusu-ne   kepu-han   xił   xa-pelxum
+    Piku  Tusu-DAT  altar-ACC  this  PST-make
+
+bimginhuhan sunpa
+    #2 warning · Take the ox.
+    bimginhu-han  sunpa
+    ox-ACC        take
+
+kabuhan yoselpimyen
+    #3 warning · Do not enter the city.
+    kabu-han  yo-selpimyen
+    city-ACC  NEG-enter
+
+tusu kabune nanpe numke'ohan basun xasom
+    #4 ledger · Tusu brought six jars for the dark city.
+    tusu  kabu-ne   nanpe  numke-'o-han  basun  xa-som
+    Tusu  city-DAT  dark   jar-PL-ACC    six    PST-bring
+
+tepa la'enpa su hoł xol
+    #5 tomb · Tepa, daughter of La'en, lies here.
+    tepa  la'en-pa   su        hoł   xol
+    Tepa  La'en-GEN  daughter  here  lie
+
+homsa tutumne belhan xił xapelxum
+    #6 dedication · Homsa made this lamp for Tutum.
+    homsa  tutum-ne   bel-han   xił   xa-pelxum
+    Homsa  Tutum-DAT  lamp-ACC  this  PST-make
+
+xumtopun somwełpa su hoł xol
+    #7 tomb · Xumtopun, daughter of Somweł, lies here.
+    xumtopun  somweł-pa   su        hoł   xol
+    Xumtopun  Somweł-GEN  daughter  here  lie
+
+gam'o huya
+    #8 ledger · Nine knives.
+    gam-'o    huya
+    knife-PL  nine
+
+tamtonin bel'ohan lellum xabanhan
+    #9 ledger · Tamtonin gave ten lamps.
+    tamtonin  bel-'o-han   lellum  xa-banhan
+    Tamtonin  lamp-PL-ACC  ten     PST-give
+
+lembu tamtoninpa ki hoł xol
+    #10 tomb · Lembu, sister of Tamtonin, lies here.
+    lembu  tamtonin-pa   ki      hoł   xol
+    Lembu  Tamtonin-GEN  sister  here  lie
+
+tehusa bunxihane bon komumhan xił xapelxum
+    #11 dedication · Tehusa made this statue for the great god.
+    tehusa  bunxiha-ne  bon    komum-han   xił   xa-pelxum
+    Tehusa  god-DAT     great  statue-ACC  this  PST-make
+
+kamu'uhan yepil yokumpin
+    #12 warning · Do not scrape the white seal.
+    kamu'u-han  yepil  yo-kumpin
+    seal-ACC    white  NEG-scrape
+
+mayaso milñonmapa sexixi hoł xol
+    #13 tomb · Mayaso, mother of Milñonma, lies here.
+    mayaso  milñonma-pa   sexixi  hoł   xol
+    Mayaso  Milñonma-GEN  mother  here  lie
+
+mimsu bunxihane komumhan sagon xił xapelxum
+    #14 dedication · Mimsu made this small statue for the god.
+    mimsu  bunxiha-ne  komum-han   sagon  xił   xa-pelxum
+    Mimsu  god-DAT     statue-ACC  small  this  PST-make
+
+banwa kumama ginken lim'ohan bita xabanhan
+    #15 ledger · Banwa, good queen, gave five fish.
+    banwa  kumama  ginken  lim-'o-han   bita  xa-banhan
+    Banwa  queen   good    fish-PL-ACC  five  PST-give
+
+pumwu'o bita
+    #16 ledger · Five bowls.
+    pumwu-'o  bita
+    bowl-PL   five
+
+banwa xumtopunpa timmem hoł xol
+    #17 tomb · Banwa, son of Xumtopun, lies here.
+    banwa  xumtopun-pa   timmem  hoł   xol
+    Banwa  Xumtopun-GEN  son     here  lie
+
+xunhan yosuma
+    #18 warning · Do not burn the grain.
+    xun-han    yo-suma
+    grain-ACC  NEG-burn
+
+kemhan yepil kumpin
+    #19 warning · Scrape the white tablet.
+    kem-han     yepil  kumpin
+    tablet-ACC  white  scrape
+
+bunxihapa kasamuhan sagon suma
+    #20 warning · Burn the small cloth of the god.
+    bunxiha-pa  kasamu-han  sagon  suma
+    god-GEN     cloth-ACC   small  burn
+
+tutum tamtoninpa sexixi hoł xol
+    #21 tomb · Tutum, mother of Tamtonin, lies here.
+    tutum  tamtonin-pa   sexixi  hoł   xol
+    Tutum  Tamtonin-GEN  mother  here  lie
+
+lim'o huya
+    #22 ledger · Nine fish.
+    lim-'o   huya
+    fish-PL  nine
+
+meha kabune pumwuhan xił xapelxum
+    #23 dedication · Meha made this bowl for the city.
+    meha  kabu-ne   pumwu-han  xił   xa-pelxum
+    Meha  city-DAT  bowl-ACC   this  PST-make
+
+bel'o sopa gam'o waxem
+    #24 ledger · Two lamps, eight knives.
+    bel-'o   sopa  gam-'o    waxem
+    lamp-PL  two   knife-PL  eight
+
+tamtonin kabune pumwuhan xił xapelxum
+    #25 dedication · Tamtonin made this bowl for the city.
+    tamtonin  kabu-ne   pumwu-han  xił   xa-pelxum
+    Tamtonin  city-DAT  bowl-ACC   this  PST-make
+
+numke'o sopa
+    #26 ledger · Two jars.
+    numke-'o  sopa
+    jar-PL    two
+
+mayaso gimñunne wulkihan xił xapelxum
+    #27 dedication · Mayaso made this box for the temple.
+    mayaso  gimñun-ne   wulki-han  xił   xa-pelxum
+    Mayaso  temple-DAT  box-ACC    this  PST-make
+
+bel'o lellum lim'o lellum
+    #28 ledger · Ten lamps, ten fish.
+    bel-'o   lellum  lim-'o   lellum
+    lamp-PL  ten     fish-PL  ten
+
+lembu tamtoninpa ki hoł xol
+    #29 tomb · Lembu, sister of Tamtonin, lies here.
+    lembu  tamtonin-pa   ki      hoł   xol
+    Lembu  Tamtonin-GEN  sister  here  lie
+
+xumtopun somwełpa su hoł xol
+    #30 tomb · Xumtopun, daughter of Somweł, lies here.
+    xumtopun  somweł-pa   su        hoł   xol
+    Xumtopun  Somweł-GEN  daughter  here  lie
+
+wulkihan yosunpa
+    #31 warning · Do not take the box.
+    wulki-han  yo-sunpa
+    box-ACC    NEG-take
+
+milñonmapa kinlosamhan mese yokumom
+    #32 warning · Do not drink the red water of Milñonma.
+    milñonma-pa   kinlosam-han  mese  yo-kumom
+    Milñonma-GEN  water-ACC     red   NEG-drink
+
+xumtopun somwełpa su hoł xol
+    #33 tomb · Xumtopun, daughter of Somweł, lies here.
+    xumtopun  somweł-pa   su        hoł   xol
+    Xumtopun  Somweł-GEN  daughter  here  lie
+
+'ilwipa winyanhan yosuma
+    #34 warning · Do not burn the tree of 'Ilwi.
+    'ilwi-pa   winyan-han  yo-suma
+    'Ilwi-GEN  tree-ACC    NEG-burn
+
+luyi lim'ohan waxem xabanhan
+    #35 ledger · Luyi gave eight fish.
+    luyi  lim-'o-han   waxem  xa-banhan
+    Luyi  fish-PL-ACC  eight  PST-give
+
+lokimi'o nolwu
+    #36 ledger · Four sheep.
+    lokimi-'o  nolwu
+    sheep-PL   four
+
+suyose łohampa nu'al kumama hoł xol
+    #37 tomb · Suyose, husband of Łoham, queen, lies here.
+    suyose  łoham-pa   nu'al    kumama  hoł   xol
+    Suyose  Łoham-GEN  husband  queen   here  lie
+
+tamtoninpa sexixihan ñalki
+    #38 warning · Honour the mother of Tamtonin.
+    tamtonin-pa   sexixi-han  ñalki
+    Tamtonin-GEN  mother-ACC  honour
+
+kem'ohan sagon yokumpin
+    #39 warning · Do not scrape the small tablets.
+    kem-'o-han     sagon  yo-kumpin
+    tablet-PL-ACC  small  NEG-scrape
+
+milñonma bunxihane gamla gamhan xił xapelxum
+    #40 dedication · Milñonma made this knife for the holy god.
+    milñonma  bunxiha-ne  gamla  gam-han    xił   xa-pelxum
+    Milñonma  god-DAT     holy   knife-ACC  this  PST-make
+

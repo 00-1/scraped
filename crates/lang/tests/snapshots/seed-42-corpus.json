@@ -1,0 +1,913 @@
+{
+  "cast": [
+    {
+      "index": 0,
+      "name": "Liki",
+      "relation": null,
+      "title": null
+    },
+    {
+      "index": 1,
+      "name": "La'uhe",
+      "relation": null,
+      "title": null
+    },
+    {
+      "index": 2,
+      "name": "Yobe",
+      "relation": null,
+      "title": null
+    },
+    {
+      "index": 3,
+      "name": "Yu'ata",
+      "relation": null,
+      "title": "king"
+    },
+    {
+      "index": 4,
+      "name": "Himu",
+      "relation": {
+        "kin": "husband",
+        "of": 3
+      },
+      "title": null
+    },
+    {
+      "index": 5,
+      "name": "Ngu'u",
+      "relation": {
+        "kin": "wife",
+        "of": 2
+      },
+      "title": null
+    },
+    {
+      "index": 6,
+      "name": "Melako",
+      "relation": {
+        "kin": "daughter",
+        "of": 1
+      },
+      "title": null
+    },
+    {
+      "index": 7,
+      "name": "Tepala",
+      "relation": {
+        "kin": "brother",
+        "of": 2
+      },
+      "title": "priest"
+    },
+    {
+      "index": 8,
+      "name": "Biti",
+      "relation": {
+        "kin": "sister",
+        "of": 0
+      },
+      "title": null
+    },
+    {
+      "index": 9,
+      "name": "Lera",
+      "relation": {
+        "kin": "mother",
+        "of": 2
+      },
+      "title": "priest"
+    },
+    {
+      "index": 10,
+      "name": "Lole",
+      "relation": {
+        "kin": "wife",
+        "of": 1
+      },
+      "title": null
+    },
+    {
+      "index": 11,
+      "name": "Kiye",
+      "relation": {
+        "kin": "brother",
+        "of": 4
+      },
+      "title": null
+    },
+    {
+      "index": 12,
+      "name": "Bupi",
+      "relation": {
+        "kin": "son",
+        "of": 0
+      },
+      "title": "scribe"
+    },
+    {
+      "index": 13,
+      "name": "Bïpa",
+      "relation": {
+        "kin": "wife",
+        "of": 1
+      },
+      "title": null
+    },
+    {
+      "index": 14,
+      "name": "Keko",
+      "relation": {
+        "kin": "father",
+        "of": 12
+      },
+      "title": null
+    },
+    {
+      "index": 15,
+      "name": "Hipipa",
+      "relation": {
+        "kin": "daughter",
+        "of": 0
+      },
+      "title": "smith"
+    },
+    {
+      "index": 16,
+      "name": "Meti",
+      "relation": {
+        "kin": "sister",
+        "of": 13
+      },
+      "title": null
+    },
+    {
+      "index": 17,
+      "name": "Rayelu",
+      "relation": {
+        "kin": "father",
+        "of": 13
+      },
+      "title": null
+    },
+    {
+      "index": 18,
+      "name": "Hitïda",
+      "relation": {
+        "kin": "father",
+        "of": 8
+      },
+      "title": "scribe"
+    },
+    {
+      "index": 19,
+      "name": "Nepa",
+      "relation": {
+        "kin": "son",
+        "of": 10
+      },
+      "title": null
+    },
+    {
+      "index": 20,
+      "name": "Te'o",
+      "relation": {
+        "kin": "son",
+        "of": 17
+      },
+      "title": null
+    },
+    {
+      "index": 21,
+      "name": "Tsina",
+      "relation": {
+        "kin": "wife",
+        "of": 13
+      },
+      "title": null
+    },
+    {
+      "index": 22,
+      "name": "Huli",
+      "relation": {
+        "kin": "sister",
+        "of": 21
+      },
+      "title": null
+    },
+    {
+      "index": 23,
+      "name": "Fibolï",
+      "relation": {
+        "kin": "wife",
+        "of": 3
+      },
+      "title": null
+    }
+  ],
+  "inscriptions": [
+    {
+      "index": 1,
+      "kind": "tomb",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "adverbs": [
+            "here"
+          ],
+          "args": [
+            {
+              "np": {
+                "apposition": [
+                  {
+                    "head": {
+                      "concept": "daughter"
+                    },
+                    "number": "singular",
+                    "possessor": {
+                      "head": {
+                        "name": 0
+                      },
+                      "number": "singular"
+                    }
+                  },
+                  {
+                    "head": {
+                      "concept": "smith"
+                    },
+                    "number": "singular"
+                  }
+                ],
+                "head": {
+                  "name": 15
+                },
+                "number": "singular"
+              },
+              "role": "subject"
+            }
+          ],
+          "mood": "declarative",
+          "polarity": "positive",
+          "predicate": "lie",
+          "tense": "nonpast"
+        }
+      },
+      "text": "hipipa likini ralo 'eyu mifa nengi",
+      "translation": "Hipipa, daughter of Liki, smith, lies here.",
+      "words": [
+        {
+          "gloss": "Hipipa",
+          "segmented": "hipipa",
+          "text": "hipipa"
+        },
+        {
+          "gloss": "Liki-GEN",
+          "segmented": "liki-ni",
+          "text": "likini"
+        },
+        {
+          "gloss": "daughter",
+          "segmented": "ralo",
+          "text": "ralo"
+        },
+        {
+          "gloss": "smith",
+          "segmented": "'eyu",
+          "text": "'eyu"
+        },
+        {
+          "gloss": "here",
+          "segmented": "mifa",
+          "text": "mifa"
+        },
+        {
+          "gloss": "lie",
+          "segmented": "nengi",
+          "text": "nengi"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "dedication",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "args": [
+            {
+              "np": {
+                "head": {
+                  "name": 7
+                },
+                "number": "singular"
+              },
+              "role": "subject"
+            },
+            {
+              "np": {
+                "determiner": "this",
+                "head": {
+                  "concept": "altar"
+                },
+                "number": "singular"
+              },
+              "role": "object"
+            },
+            {
+              "np": {
+                "adjectives": [
+                  "great"
+                ],
+                "head": {
+                  "concept": "god"
+                },
+                "number": "singular"
+              },
+              "role": "recipient"
+            }
+          ],
+          "mood": "declarative",
+          "polarity": "positive",
+          "predicate": "make",
+          "tense": "past"
+        }
+      },
+      "text": "tepala kumuyi dono memaku nguke xikula",
+      "translation": "Tepala made this altar for the great god.",
+      "words": [
+        {
+          "gloss": "Tepala",
+          "segmented": "tepala",
+          "text": "tepala"
+        },
+        {
+          "gloss": "god-DAT",
+          "segmented": "kumu-yi",
+          "text": "kumuyi"
+        },
+        {
+          "gloss": "great",
+          "segmented": "dono",
+          "text": "dono"
+        },
+        {
+          "gloss": "altar-ACC",
+          "segmented": "mema-ku",
+          "text": "memaku"
+        },
+        {
+          "gloss": "this",
+          "segmented": "nguke",
+          "text": "nguke"
+        },
+        {
+          "gloss": "PST-make",
+          "segmented": "xi-kula",
+          "text": "xikula"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "kind": "tomb",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "adverbs": [
+            "here"
+          ],
+          "args": [
+            {
+              "np": {
+                "apposition": [
+                  {
+                    "head": {
+                      "concept": "daughter"
+                    },
+                    "number": "singular",
+                    "possessor": {
+                      "head": {
+                        "name": 1
+                      },
+                      "number": "singular"
+                    }
+                  }
+                ],
+                "head": {
+                  "name": 6
+                },
+                "number": "singular"
+              },
+              "role": "subject"
+            }
+          ],
+          "mood": "declarative",
+          "polarity": "positive",
+          "predicate": "lie",
+          "tense": "nonpast"
+        }
+      },
+      "text": "melako la'uheni ralo mifa nengi",
+      "translation": "Melako, daughter of La'uhe, lies here.",
+      "words": [
+        {
+          "gloss": "Melako",
+          "segmented": "melako",
+          "text": "melako"
+        },
+        {
+          "gloss": "La'uhe-GEN",
+          "segmented": "la'uhe-ni",
+          "text": "la'uheni"
+        },
+        {
+          "gloss": "daughter",
+          "segmented": "ralo",
+          "text": "ralo"
+        },
+        {
+          "gloss": "here",
+          "segmented": "mifa",
+          "text": "mifa"
+        },
+        {
+          "gloss": "lie",
+          "segmented": "nengi",
+          "text": "nengi"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "kind": "ledger",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "args": [
+            {
+              "np": {
+                "head": {
+                  "name": 15
+                },
+                "number": "singular"
+              },
+              "role": "subject"
+            },
+            {
+              "np": {
+                "head": {
+                  "concept": "ox"
+                },
+                "number": "singular",
+                "quantity": 1
+              },
+              "role": "object"
+            },
+            {
+              "np": {
+                "head": {
+                  "concept": "shrine"
+                },
+                "number": "singular"
+              },
+              "role": "recipient"
+            }
+          ],
+          "mood": "declarative",
+          "polarity": "positive",
+          "predicate": "bring",
+          "tense": "past"
+        }
+      },
+      "text": "hipipa batilayi diyuku buma xikanaba",
+      "translation": "Hipipa brought one ox for the shrine.",
+      "words": [
+        {
+          "gloss": "Hipipa",
+          "segmented": "hipipa",
+          "text": "hipipa"
+        },
+        {
+          "gloss": "shrine-DAT",
+          "segmented": "batila-yi",
+          "text": "batilayi"
+        },
+        {
+          "gloss": "ox-ACC",
+          "segmented": "diyu-ku",
+          "text": "diyuku"
+        },
+        {
+          "gloss": "one",
+          "segmented": "buma",
+          "text": "buma"
+        },
+        {
+          "gloss": "PST-bring",
+          "segmented": "xi-kanaba",
+          "text": "xikanaba"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "kind": "dedication",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "args": [
+            {
+              "np": {
+                "apposition": [
+                  {
+                    "head": {
+                      "concept": "smith"
+                    },
+                    "number": "singular"
+                  }
+                ],
+                "head": {
+                  "name": 15
+                },
+                "number": "singular"
+              },
+              "role": "subject"
+            },
+            {
+              "np": {
+                "determiner": "this",
+                "head": {
+                  "concept": "jar"
+                },
+                "number": "singular"
+              },
+              "role": "object"
+            },
+            {
+              "np": {
+                "head": {
+                  "name": 5
+                },
+                "number": "singular"
+              },
+              "role": "recipient"
+            }
+          ],
+          "mood": "declarative",
+          "polarity": "positive",
+          "predicate": "make",
+          "tense": "past"
+        }
+      },
+      "text": "hipipa 'eyu ngu'uyi hanabuku nguke xikula",
+      "translation": "Hipipa, smith, made this jar for Ngu'u.",
+      "words": [
+        {
+          "gloss": "Hipipa",
+          "segmented": "hipipa",
+          "text": "hipipa"
+        },
+        {
+          "gloss": "smith",
+          "segmented": "'eyu",
+          "text": "'eyu"
+        },
+        {
+          "gloss": "Ngu'u-DAT",
+          "segmented": "ngu'u-yi",
+          "text": "ngu'uyi"
+        },
+        {
+          "gloss": "jar-ACC",
+          "segmented": "hanabu-ku",
+          "text": "hanabuku"
+        },
+        {
+          "gloss": "this",
+          "segmented": "nguke",
+          "text": "nguke"
+        },
+        {
+          "gloss": "PST-make",
+          "segmented": "xi-kula",
+          "text": "xikula"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "kind": "dedication",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "args": [
+            {
+              "np": {
+                "head": {
+                  "name": 3
+                },
+                "number": "singular"
+              },
+              "role": "subject"
+            },
+            {
+              "np": {
+                "adjectives": [
+                  "holy"
+                ],
+                "determiner": "this",
+                "head": {
+                  "concept": "statue"
+                },
+                "number": "singular"
+              },
+              "role": "object"
+            },
+            {
+              "np": {
+                "apposition": [
+                  {
+                    "head": {
+                      "concept": "priest"
+                    },
+                    "number": "singular"
+                  }
+                ],
+                "head": {
+                  "name": 7
+                },
+                "number": "singular"
+              },
+              "role": "recipient"
+            }
+          ],
+          "mood": "declarative",
+          "polarity": "positive",
+          "predicate": "make",
+          "tense": "past"
+        }
+      },
+      "text": "yu'ata tepalayi yatïpiyi poluku xemï nguke xikula",
+      "translation": "Yu'ata made this holy statue for Tepala, priest.",
+      "words": [
+        {
+          "gloss": "Yu'ata",
+          "segmented": "yu'ata",
+          "text": "yu'ata"
+        },
+        {
+          "gloss": "Tepala-DAT",
+          "segmented": "tepala-yi",
+          "text": "tepalayi"
+        },
+        {
+          "gloss": "priest-DAT",
+          "segmented": "yatïpi-yi",
+          "text": "yatïpiyi"
+        },
+        {
+          "gloss": "statue-ACC",
+          "segmented": "polu-ku",
+          "text": "poluku"
+        },
+        {
+          "gloss": "holy",
+          "segmented": "xemï",
+          "text": "xemï"
+        },
+        {
+          "gloss": "this",
+          "segmented": "nguke",
+          "text": "nguke"
+        },
+        {
+          "gloss": "PST-make",
+          "segmented": "xi-kula",
+          "text": "xikula"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "kind": "tomb",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "adverbs": [
+            "here"
+          ],
+          "args": [
+            {
+              "np": {
+                "apposition": [
+                  {
+                    "head": {
+                      "concept": "father"
+                    },
+                    "number": "singular",
+                    "possessor": {
+                      "head": {
+                        "name": 13
+                      },
+                      "number": "singular"
+                    }
+                  }
+                ],
+                "head": {
+                  "name": 17
+                },
+                "number": "singular"
+              },
+              "role": "subject"
+            }
+          ],
+          "mood": "declarative",
+          "polarity": "positive",
+          "predicate": "lie",
+          "tense": "nonpast"
+        }
+      },
+      "text": "rayelu bïpani mï mifa nengi",
+      "translation": "Rayelu, father of Bïpa, lies here.",
+      "words": [
+        {
+          "gloss": "Rayelu",
+          "segmented": "rayelu",
+          "text": "rayelu"
+        },
+        {
+          "gloss": "Bïpa-GEN",
+          "segmented": "bïpa-ni",
+          "text": "bïpani"
+        },
+        {
+          "gloss": "father",
+          "segmented": "mï",
+          "text": "mï"
+        },
+        {
+          "gloss": "here",
+          "segmented": "mifa",
+          "text": "mifa"
+        },
+        {
+          "gloss": "lie",
+          "segmented": "nengi",
+          "text": "nengi"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "kind": "ledger",
+      "meaning": {
+        "type": "list",
+        "value": [
+          {
+            "head": {
+              "concept": "ox"
+            },
+            "number": "plural",
+            "quantity": 3
+          },
+          {
+            "head": {
+              "concept": "loaf"
+            },
+            "number": "plural",
+            "quantity": 5
+          },
+          {
+            "head": {
+              "concept": "bowl"
+            },
+            "number": "plural",
+            "quantity": 2
+          }
+        ]
+      },
+      "text": "diyunga xibi luyenga lotu dongunga pafa",
+      "translation": "Three oxen, five loaves, two bowls.",
+      "words": [
+        {
+          "gloss": "ox-PL",
+          "segmented": "diyu-nga",
+          "text": "diyunga"
+        },
+        {
+          "gloss": "three",
+          "segmented": "xibi",
+          "text": "xibi"
+        },
+        {
+          "gloss": "loaf-PL",
+          "segmented": "luye-nga",
+          "text": "luyenga"
+        },
+        {
+          "gloss": "five",
+          "segmented": "lotu",
+          "text": "lotu"
+        },
+        {
+          "gloss": "bowl-PL",
+          "segmented": "dongu-nga",
+          "text": "dongunga"
+        },
+        {
+          "gloss": "two",
+          "segmented": "pafa",
+          "text": "pafa"
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "kind": "ledger",
+      "meaning": {
+        "type": "list",
+        "value": [
+          {
+            "head": {
+              "concept": "loaf"
+            },
+            "number": "singular",
+            "quantity": 1
+          }
+        ]
+      },
+      "text": "luye buma",
+      "translation": "One loaf.",
+      "words": [
+        {
+          "gloss": "loaf",
+          "segmented": "luye",
+          "text": "luye"
+        },
+        {
+          "gloss": "one",
+          "segmented": "buma",
+          "text": "buma"
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "kind": "warning",
+      "meaning": {
+        "type": "clause",
+        "value": {
+          "args": [
+            {
+              "np": {
+                "adjectives": [
+                  "white"
+                ],
+                "head": {
+                  "concept": "stone"
+                },
+                "number": "singular",
+                "possessor": {
+                  "head": {
+                    "concept": "queen"
+                  },
+                  "number": "singular"
+                }
+              },
+              "role": "object"
+            }
+          ],
+          "mood": "imperative",
+          "polarity": "negative",
+          "predicate": "break",
+          "tense": "nonpast"
+        }
+      },
+      "text": "ngïbini pipaku yehi bingama",
+      "translation": "Do not break the white stone of the queen.",
+      "words": [
+        {
+          "gloss": "queen-GEN",
+          "segmented": "ngïbi-ni",
+          "text": "ngïbini"
+        },
+        {
+          "gloss": "stone-ACC",
+          "segmented": "pipa-ku",
+          "text": "pipaku"
+        },
+        {
+          "gloss": "white",
+          "segmented": "yehi",
+          "text": "yehi"
+        },
+        {
+          "gloss": "NEG-break",
+          "segmented": "bi-ngama",
+          "text": "bingama"
+        }
+      ]
+    }
+  ],
+  "seed": 42
+}
