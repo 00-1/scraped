@@ -1,0 +1,13 @@
+[package]
+name = "scraped-sim"
+description = "The physical world of Scraped Again: perception, local properties, interactions, mechanisms, items, the body and creatures."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+scraped-world = { path = "../world" }
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true

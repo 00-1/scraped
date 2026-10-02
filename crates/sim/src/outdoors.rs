@@ -15,8 +15,6 @@ use scraped_world::structures::StructureKind;
 use scraped_world::terrain::{Biome, Grid, CELL_METRES, SIZE};
 use scraped_world::World;
 
-use crate::site::{label, time_of_day};
-
 /// Metres per cell.
 pub const CELL: i32 = CELL_METRES as i32;
 /// Eye height of a standing person, in metres.
@@ -76,6 +74,26 @@ impl Pos {
             (self.x + r(dx)).clamp(0, max),
             (self.y + r(dy)).clamp(0, max),
         )
+    }
+}
+
+/// The serde id of a value (its `rename_all` spelling), for content
+/// variables.
+pub fn label<T: serde::Serialize>(x: &T) -> String {
+    serde_json::to_value(x)
+        .ok()
+        .and_then(|v| v.as_str().map(str::to_string))
+        .unwrap_or_default()
+}
+
+/// Time of day from minutes since midnight of the first day.
+pub fn time_of_day(minutes: u32) -> &'static str {
+    match (minutes / 60) % 24 {
+        5..=7 => "dawn",
+        8..=11 => "morning",
+        12..=16 => "afternoon",
+        17..=20 => "evening",
+        _ => "night",
     }
 }
 
@@ -549,6 +567,18 @@ impl Land {
 
     /// A walkable route between cells, cheapest by walking time, or `None`.
     pub fn route(&self, w: &World, from: Pos, to: Pos) -> Option<Vec<Pos>> {
+        self.route_by(w, from, to, &|x, y| self.passable(w, x, y))
+    }
+
+    /// A route over cells `pass` allows (the land as the player has changed
+    /// it: sluices, bridges).
+    pub fn route_by(
+        &self,
+        w: &World,
+        from: Pos,
+        to: Pos,
+        pass: &dyn Fn(usize, usize) -> bool,
+    ) -> Option<Vec<Pos>> {
         let s = SIZE;
         let (fx, fy) = from.cell();
         let (tx, ty) = to.cell();
@@ -573,7 +603,7 @@ impl Land {
             let (x, y) = (i % s, i / s);
             for (nx, ny) in w.terrain.height.neighbours(x, y) {
                 let j = idx(nx, ny);
-                if j != goal && !self.passable(w, nx, ny) {
+                if j != goal && !pass(nx, ny) {
                     continue;
                 }
                 let step = self.walk_minutes(w, Pos::of_cell(x, y), Pos::of_cell(nx, ny));
@@ -611,6 +641,7 @@ impl Land {
         from: Pos,
         way: Way,
         max: usize,
+        obstacle: &dyn Fn(usize, usize) -> Option<&'static str>,
     ) -> (Vec<Pos>, Option<&'static str>) {
         let s = SIZE;
         let start = match self.nearest_edge(from, edge, 1) {
@@ -674,9 +705,8 @@ impl Land {
                 break;
             };
             // Walking a river's bank is fine; open water is not.
-            if let Some(o) = self
-                .obstacle(w, n.0, n.1)
-                .filter(|o| *o != "river" || !self.has_edge(n.0, n.1, edge))
+            if let Some(o) =
+                obstacle(n.0, n.1).filter(|o| *o != "river" || !self.has_edge(n.0, n.1, edge))
             {
                 end = Some(o);
                 break;

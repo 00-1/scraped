@@ -1,0 +1,99 @@
+# How local properties act on each other. Each rule watches one place's
+# properties and, while its conditions hold, applies one effect at a rate per
+# hour. Effects are the verbs of the physical world; writing (M08) triggers
+# the same effects through `Rules::trigger`.
+#
+#   when  = conditions, all of which must hold:
+#           [property, op, value] with op one of "<", ">", "==", "!="
+#   effect = one of the effect ids handled in crates/sim/src/rules.rs
+#   rate   = how much per hour (units depend on the effect)
+#
+# Properties: temperature (°C), water ("none" | "still" | "flowing"),
+# wetness (0–100), fire (0 or 1), fuel (minutes of burning left),
+# flow (water passing per hour, river units), wheel (0 or 1),
+# light (0 dark, 1 dim, 2 daylight), noise (0 quiet – 3 very loud),
+# stability (0 crumbling – 100 sound), creatures (how many nearby).
+
+[[rule]]
+id = "freeze_still"
+when = [["temperature", "<", 0], ["water", "==", "still"]]
+effect = "ice"
+rate = 2.0          # cm of ice per degree of frost per day
+
+[[rule]]
+id = "freeze_flowing"
+when = [["temperature", "<", -3], ["water", "==", "flowing"]]
+effect = "ice"
+rate = 0.8
+
+[[rule]]
+id = "thaw"
+when = [["temperature", ">", 0], ["water", "!=", "none"]]
+effect = "melt"
+rate = 1.5
+
+[[rule]]
+id = "fire_dries"
+when = [["fire", "==", 1]]
+effect = "dry"
+rate = 60.0         # wetness points per hour
+
+[[rule]]
+id = "air_dries"
+when = [["fire", "==", 0], ["wetness", ">", 0], ["temperature", ">", 5]]
+effect = "dry"
+rate = 10.0
+
+[[rule]]
+id = "fire_burns_fuel"
+when = [["fire", "==", 1]]
+effect = "consume_fuel"
+rate = 60.0         # minutes of fuel per hour
+
+[[rule]]
+id = "fire_starves"
+when = [["fire", "==", 1], ["fuel", "<", 1]]
+effect = "extinguish"
+rate = 1.0
+
+[[rule]]
+id = "wet_wood_resists_fire"
+when = [["fire", "==", 0], ["wetness", ">", 50]]
+effect = "resist_ignition"
+rate = 1.0
+
+[[rule]]
+id = "flow_turns_wheel"
+when = [["flow", ">", 60]]
+effect = "turn_wheel"
+rate = 1.0
+
+[[rule]]
+id = "still_water_stops_wheel"
+when = [["flow", "<", 61], ["wheel", "==", 1]]
+effect = "stop_wheel"
+rate = 1.0
+
+[[rule]]
+id = "dark_hides"
+when = [["light", "==", 0]]
+effect = "hide_features"
+rate = 1.0
+
+[[rule]]
+id = "noise_dislodges"
+when = [["noise", ">", 1], ["stability", "<", 40]]
+effect = "collapse"
+rate = 1.0
+
+[[rule]]
+id = "noise_disturbs"
+when = [["noise", ">", 1], ["creatures", ">", 0]]
+effect = "disturb"
+rate = 1.0
+
+[[rule]]
+id = "fire_deters"
+when = [["fire", "==", 1], ["creatures", ">", 0]]
+effect = "deter"
+rate = 1.0
