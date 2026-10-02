@@ -37,6 +37,12 @@ The app has a chat app's shape, because the game is a conversation:
   face, and Android's own font-size setting is respected. The newest text
   stays in view as the keyboard opens and closes, and a *Latest* button
   appears if you have scrolled back. Back works as expected everywhere.
+- **A backdrop**, which can be switched off: a faint reading room by
+  lamplight (drifting warm light in the dark theme, mottled paper in the
+  light ones). It is painted by the Rust engine from the clock and the
+  theme only. It never shows anything about the game, which has no
+  graphics. It stays still if the phone asks for reduced motion and stops
+  when the app is out of sight.
 
 Everything the app says around the game comes from Jb's `app.label` slot
 (content/app.toml), including the name under the icon.
@@ -94,39 +100,68 @@ relay service, which doesn't exist yet.
 android/build.sh
 ```
 
-This writes `android/dist/scraped-again.apk`. It needs a JDK (17+), node,
-python3, and Rust with the wasm32 target. It does not use Gradle or the
-Android SDK manager. Instead it fetches the Android 35 platform jar, aapt2
-(from Apktool's release), D8 (R8's release) and apksig (Maven Central) into
-`android/.tools`. It then:
+This writes `android/dist/scraped-again.apk`. It needs:
 
-1. builds the page (`tools/app`, with the engine and content inside);
-2. writes the app name from the `app.label` slot;
-3. compiles the resources and Java;
-4. dexes;
-5. runs the agent-server tests on the JVM;
-6. signs with the v2 scheme and verifies.
+- Rust with the Android targets (`aarch64-linux-android`,
+  `armv7-linux-androideabi`, `x86_64-linux-android`) and `cargo-ndk`.
+- The Android SDK and NDK (`ANDROID_HOME`, `ANDROID_NDK_HOME`).
+- A JDK (17+) and node.
+
+It does four things:
+
+1. It builds the tools, then writes the app's name from the `app.label`
+   slot.
+2. It compiles the engine (`crates/android`, with Jb's content built in)
+   for each phone architecture.
+3. It runs Gradle.
+4. It copies the APK out.
+
+CI does all of this. It then plays the app on an emulator
+(`./gradlew connectedDebugAndroidTest`, from `android/`).
 
 The layout:
 
-- `android/src/` — the native shell:
-  - `MainActivity` — the WebView, keyboard and system bars, back, storage,
-    sharing, file sync, backup and the agent bridge.
-  - `Store` — the saved files.
+- `crates/android` — the engine as a native library. It holds the JNI
+  bridge to the same JSON interface the browser uses, plus the backdrop
+  painter.
+- `android/app/src/main/java/org/scrapedagain/`:
+  - `MainActivity` — the one screen.
+  - `Ui.kt` — every screen, in Jetpack Compose with Material 3.
+  - `Theme.kt` — colours, the reading face and the backdrop.
+  - `AppModel.kt` — the game, saving, sync, backup and agent access.
+  - `Engine.kt` — the engine, called on its own thread.
+  - `Store.kt` — the saved files.
   - `AgentServer` and `AgentProtocol` — the agent's two doors, MCP and plain
     HTTP.
-- `android/res/`, `android/AndroidManifest.xml` — theme, icon, backup rules.
-- `tools/app/index.html` — the whole interface. It is tested on an emulated
-  phone by `tools/smoke/app.cjs`.
+- `android/app/src/androidTest/`:
+  - `AppTest` — plays a world on a device: it types, sends an agent move,
+    connects over HTTP with the key and uses the notebook.
+  - `EngineTest` — checks that the engine on the phone produces the same
+    transcripts as every other platform.
+- `android/test-agent.sh` — tests the agent server off-device on a plain JVM.
 
 ### Signing
 
-Android only updates an app that is signed with the same key. Without one,
-`build.sh` makes a key in `android/.keystore/` (git-ignored). CI uses the
-repository secrets `ANDROID_KEYSTORE_B64` (a base64 PKCS12 keystore with
-alias `scraped`) and `ANDROID_KEYSTORE_PASSWORD` when they are set; set them
-once so every CI build can update the last.
+Android only updates an app that is signed with the same key. To sign for
+release, set `ANDROID_KEYSTORE` (a PKCS12 file), `ANDROID_KEYSTORE_PASSWORD`
+and optionally `ANDROID_KEY_ALIAS` (default `scraped`). Without them, the
+APK is signed with the machine's debug key.
 
-The APK is signed with the v2 scheme only, which is what Android 8 and newer
-check. The Play Store would need an app bundle instead; that's a later
-step.
+CI signs with the repository secrets `ANDROID_KEYSTORE_B64` (the keystore in
+base64) and `ANDROID_KEYSTORE_PASSWORD`. **Until those are set, each CI build
+has a different debug key.** Then a new APK won't install over the last
+one, and you have to uninstall first, which loses worlds that aren't synced.
+To make a key once:
+
+```sh
+keytool -genkeypair -keystore scraped-again.p12 -storetype PKCS12 \
+  -alias scraped -keyalg RSA -keysize 4096 -validity 10000
+base64 -w0 scraped-again.p12   # paste as ANDROID_KEYSTORE_B64
+```
+
+The native APK can't be installed over the earlier WebView one, which was
+signed with a different key. Sync or export your worlds first, uninstall,
+then restore. The saved-file format is the same.
+
+The Play Store would need an app bundle instead (`./gradlew bundleRelease`).
+That's a later step.

@@ -41,7 +41,7 @@ published to GitHub Pages). Saves, transcripts and notebooks stay in the
 browser or download as files.
 
 On Android: `android/build.sh` makes an APK (see [`docs/ANDROID.md`](docs/ANDROID.md)):
-a chat-style reading app with notebooks, Google backup, file sync and agent
+a native app (Jetpack Compose over the Rust engine) for reading, with notebooks, Google backup, file sync and agent
 access.
 
 In a terminal (release binaries are attached to each GitHub release):

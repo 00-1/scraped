@@ -71,7 +71,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: android-actions/setup-android@v3
       - run: cargo install cargo-ndk --locked
       - name: Signing key (if the repository has one)
         env:
