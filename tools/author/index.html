@@ -90,6 +90,7 @@ footer { color: var(--muted); font-size: .85rem; }
     <span class="status" id="build"></span>
   </header>
   <div class="bar">
+    <span id="projectNote" class="status" hidden></span>
     <button type="button" id="open" class="primary" title="Open the repository's content folder and save straight into it (Chrome or Edge)">Open content folder</button>
     <button type="button" id="save" disabled>Save to folder</button>
     <label class="filebtn" title="Load .toml files or a .zip of them">Import files<input type="file" id="import" accept=".toml,.zip" multiple></label>
@@ -104,7 +105,7 @@ footer { color: var(--muted); font-size: .85rem; }
     </aside>
     <main id="main"><div class="card"><p class="empty">Loading…</p></div></main>
   </div>
-  <footer>Drafts are kept in this browser until saved. Template language: see <code>content/README.md</code>. The engine runs here as WebAssembly, so previews are real generated worlds.</footer>
+  <footer>Drafts are kept in this browser until saved (on claude.ai they save to the project as you type). Template language: see <code>content/README.md</code>. The engine runs here as WebAssembly, so previews are real generated worlds.</footer>
 </div>
 <script>
 const BUILD = __BUILD__;
@@ -117,7 +118,10 @@ function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
 let engine, registry;
-const state = { pack: { files: [] }, saved: "", slot: null, lint: { issues: [], coverage: [] }, dir: null, seed: "42", spoil: false, search: "" };
+const state = { pack: { files: [] }, saved: "", slot: null, lint: { issues: [], coverage: [] }, dir: null, seed: "42", spoil: false, search: "", db: null, downloads: null, written: {}, syncing: false };
+// Inside the claude.ai viewer the page is a cross-origin frame: no folder
+// picker, but the artifact's own database, which Claude reads into content/.
+const IN_FRAME = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
 function api(req) {
   const bytes = new TextEncoder().encode(JSON.stringify(req));
@@ -143,7 +147,43 @@ function setPack(pack, markSaved) {
   persist();
   relint();
 }
-function persist() { store("author.pack", packKey()); store("author.saved", state.saved); }
+function persist() { store("author.pack", packKey()); store("author.saved", state.saved); scheduleSync(); }
+
+// ---------- project database (claude.ai) ----------
+const docId = path => path.replace(/\.toml$/, "").replace(/[^A-Za-z0-9_.~:@+-]/g, "_");
+let syncTimer;
+function scheduleSync() {
+  if (!state.db) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncToProject, 1500);
+}
+async function syncToProject() {
+  if (!state.db || state.syncing) { if (state.db) scheduleSync(); return; }
+  state.syncing = true;
+  try {
+    for (const f of textsOf(state.pack)) {
+      if (state.written[f.path] === f.text) continue;
+      await state.db.collection("content").doc(docId(f.path)).set({ path: f.path, text: f.text, updated: new Date().toISOString() });
+      state.written[f.path] = f.text;
+    }
+    state.saved = packKey(); store("author.saved", state.saved);
+    updateStatus();
+  } catch (err) {
+    $("packStatus").textContent = "Saving to the project failed: " + (err.code || err.message) + ". Your drafts are still kept in this browser.";
+  } finally { state.syncing = false; }
+}
+/** The project's files win; bundled example variants fill in slots a project file has none for. */
+function mergeProject(bundled, files) {
+  const pack = packFromTexts(files);
+  for (const b of bundled.files) {
+    const f = pack.files.find(f => f.path === b.path);
+    if (!f) { pack.files.push(b); continue; }
+    const have = new Set(f.variants.map(v => v.slot));
+    f.variants.push(...b.variants.filter(v => !have.has(v.slot)));
+  }
+  pack.files.sort((a, b) => a.path.localeCompare(b.path));
+  return pack;
+}
 function fileFor(slotId) {
   const family = slotId.split(".")[0];
   const path = `${family}.toml`;
@@ -167,8 +207,8 @@ function relint() {
 }
 function updateStatus() {
   const errors = (state.lint.issues || []).filter(i => i.severity === "error").length;
-  const where = state.dir ? `folder “${state.dir.name}”` : "this browser";
-  $("packStatus").textContent = `${dirty() ? "Unsaved changes" : "All changes saved"} (${where}) · pack ${state.lint.version || "…"} · ${errors} error${errors === 1 ? "" : "s"}`;
+  const where = state.db ? "the project" : state.dir ? `folder “${state.dir.name}”` : "this browser";
+  $("packStatus").textContent = `${dirty() ? (state.db ? "Saving…" : "Unsaved changes") : "All changes saved"} (${where}) · pack ${state.lint.version || "…"} · ${errors} error${errors === 1 ? "" : "s"}`;
   $("save").disabled = !state.dir || !dirty();
 }
 
@@ -346,8 +386,13 @@ $("import").addEventListener("change", async e => {
   e.target.value = "";
   if (files.length) { setPack(packFromTexts(files.filter(f => f.path.endsWith(".toml"))), false); renderSlot(); }
 });
-$("exportZip").addEventListener("click", () => {
+$("exportZip").addEventListener("click", async () => {
   const blob = new Blob([zip(textsOf(state.pack))], { type: "application/zip" });
+  if (state.downloads) {
+    try { await state.downloads.save({ filename: "content.zip", data: blob }); }
+    catch (err) { if (err.code !== "cancelled" && err.code !== "declined") $("packStatus").textContent = "Export failed: " + (err.code || err.message); }
+    return;
+  }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = "content.zip"; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
@@ -395,6 +440,27 @@ async function boot() {
   const bundled = packFromTexts(BUNDLED);
   if (draft) { state.pack = JSON.parse(draft); state.saved = load("author.saved") || JSON.stringify(bundled); }
   else { state.pack = bundled; state.saved = packKey(); }
+  if (IN_FRAME) { $("open").hidden = true; $("save").hidden = true; }
+  if (window.claude && window.claude.use) {
+    const [db, downloads] = await Promise.all([claude.use("db"), claude.use("downloads")]);
+    state.downloads = downloads;
+    if (!downloads && IN_FRAME) $("exportZip").hidden = true;
+    if (db) {
+      try {
+        const snap = await db.collection("content").get();
+        const files = snap.docs.map(d => d.data()).filter(d => d && typeof d.path === "string" && typeof d.text === "string").map(d => ({ path: d.path, text: d.text }));
+        state.db = db;
+        files.forEach(f => { state.written[f.path] = f.text; });
+        if (files.length) { state.pack = mergeProject(bundled, files); state.saved = packKey(); }
+        // A first visit with drafts from before: they become the project's.
+        else if (draft) state.saved = "";
+        else { textsOf(bundled).forEach(f => { state.written[f.path] = f.text; }); }
+        $("projectNote").hidden = false;
+        $("projectNote").textContent = "Edits save to the project automatically; Claude picks them up from there.";
+        persist();
+      } catch (err) { $("packStatus").textContent = "Could not reach the project's saved content: " + (err.code || err.message); }
+    }
+  }
   state.slot = load("author.slot") || registry.slots[0]?.id;
   state.lint = api({ cmd: "lint", pack: state.pack });
   renderList(); renderSlot(); updateStatus();
