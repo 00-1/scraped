@@ -23,7 +23,7 @@ engine = base64.b64encode(open(wasm, 'rb').read()).decode()
 build = json.dumps({"commit": commit, "time": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")})
 content = json.dumps([{"path": os.path.basename(f), "text": open(f, encoding="utf-8").read()}
                       for f in sorted(glob.glob("content/*.toml"))], ensure_ascii=False)
-for page in ["bench", "author", "play", "app"]:
+for page in ["bench", "author", "play"]:
     src = open(f"tools/{page}/index.html", encoding="utf-8").read()
     src = src.replace('"__ENGINE__";', json.dumps(engine) + ";")
     src = src.replace("__BUILD__", build).replace("__CONTENT__", content.replace("</", "<\\/"))

@@ -1,6 +1,6 @@
 // Off-device tests of the agent server and protocol: a real socket on
 // localhost, MCP and plain HTTP, the key, and that only text goes in and out.
-//   run by android/build.sh (needs org.json on the classpath)
+//   run by android/test-agent.sh
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;

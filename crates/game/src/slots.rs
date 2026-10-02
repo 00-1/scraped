@@ -2105,6 +2105,7 @@ pub const APP_LABELS: &[(&str, &str)] = &[
     ("dark", "Dark theme."),
     ("sepia", "Warm paper theme."),
     ("font", "Typeface setting."),
+    ("atmosphere", "Setting: a quiet moving backdrop behind the text, like lamplight or old paper. Decoration only; it shows nothing of the game."),
     ("serif", "Book typeface."),
     ("sans", "Plain typeface."),
     ("integrations", "Heading of the integrations screen (Google backup, file sync, AI agent)."),

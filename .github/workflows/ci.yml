@@ -28,7 +28,6 @@ jobs:
       - run: node tools/smoke/author.cjs
       - run: node tools/smoke/bench.cjs
       - run: node tools/smoke/play.cjs
-      - run: node tools/smoke/app.cjs
       # WebAssembly gives the same transcripts as native code.
       - run: node tools/smoke/determinism.cjs
 
@@ -52,8 +51,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo run -q -p scraped-cli -- content release-check
 
-  # The Android app: built without Gradle (android/build.sh), with its
-  # agent-server tests; the APK is kept as an artifact.
+  # The Android app: the Rust engine via cargo-ndk, the Compose app via
+  # Gradle; the APK is kept as an artifact. Then the app is played on an
+  # emulator (androidTest): the interface, the agent server, and transcripts
+  # matching every other platform.
   android:
     runs-on: ubuntu-latest
     steps:
@@ -62,23 +63,45 @@ jobs:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown,aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 17
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - uses: android-actions/setup-android@v3
+      - run: cargo install cargo-ndk --locked
       - name: Signing key (if the repository has one)
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
         run: |
-          if [ -n "$KEYSTORE_B64" ]; then mkdir -p android/.keystore; echo "$KEYSTORE_B64" | base64 -d > android/.keystore/scraped-again.p12; fi
+          if [ -n "$KEYSTORE_B64" ]; then
+            mkdir -p android/.keystore
+            echo "$KEYSTORE_B64" | base64 -d > android/.keystore/scraped-again.p12
+            echo "ANDROID_KEYSTORE=$PWD/android/.keystore/scraped-again.p12" >> "$GITHUB_ENV"
+          fi
       - run: android/build.sh
         env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'scraped-again' }}
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      - run: android/test-agent.sh
       - uses: actions/upload-artifact@v4
         with:
           name: scraped-again-apk
           path: android/dist/scraped-again.apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Play it on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          working-directory: android
+          script: ./gradlew --no-daemon connectedDebugAndroidTest

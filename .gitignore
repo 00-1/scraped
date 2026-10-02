@@ -4,7 +4,10 @@
 /tools/dist
 /node_modules
 # Android build: fetched tools, build output, the local signing key
-android/.tools/
+android/.gradle/
+android/app/build/
+android/app/src/main/jniLibs/
+android/local.properties
 android/build/
 android/dist/
 android/.keystore/
