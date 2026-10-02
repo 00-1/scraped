@@ -19,6 +19,19 @@ use serde_json::{json, Value};
 
 thread_local! {
     static OUT: RefCell<Vec<u8>> = const { RefCell::new(Vec::new()) };
+    /// The last world generated, so site views don't regenerate it.
+    static WORLD: RefCell<Option<scraped_world::World>> = const { RefCell::new(None) };
+}
+
+/// Runs `f` on the world for `seed`, generating it only when the seed changes.
+fn with_world<T>(seed: u64, f: impl FnOnce(&scraped_world::World) -> T) -> T {
+    WORLD.with(|w| {
+        let mut w = w.borrow_mut();
+        if w.as_ref().is_none_or(|w| w.seed != seed) {
+            *w = Some(scraped_world::World::generate(seed));
+        }
+        f(w.as_ref().expect("just generated"))
+    })
 }
 
 /// Reserves `len` bytes for a request and returns where to write it.
@@ -104,6 +117,32 @@ fn dispatch(req: &Value) -> Result<Value, String> {
     let registry = slots::registry();
     match cmd.as_str() {
         "bench" => Ok(bench(req)),
+        "world" => Ok(with_world(seed(req), |w| {
+            let (side, px) = scraped_world::debug::pixels(w, 1);
+            let lang = |e: u32| &w.languages[e as usize];
+            json!({
+                "seed": w.seed.to_string(),
+                "side": side,
+                "pixels": base64(&px),
+                "shape": w.terrain.shape,
+                "trajectory": w.history.trajectory,
+                "settlements": w.history.settlements.iter().map(|s| json!({
+                    "id": s.id,
+                    "name": scraped_lang::render::capitalise(&lang(s.era).romanise(&s.name)),
+                    "x": s.cell.x, "y": s.cell.y,
+                    "era": s.era, "abandoned": s.abandoned.is_some(), "capital": s.capital,
+                })).collect::<Vec<_>>(),
+                "counts": { "structures": w.structures.len(), "texts": w.texts.len(), "events": w.history.events.len() },
+                "timeline": scraped_world::debug::timeline(w),
+            })
+        })),
+        "site" => {
+            let id: usize = field(req, "settlement")?;
+            Ok(with_world(
+                seed(req),
+                |w| json!({ "text": scraped_world::debug::site(w, id) }),
+            ))
+        }
         "registry" => Ok(registry_json(&registry)),
         "parse" => {
             let (pack, errors) = pack(req)?;
@@ -149,6 +188,25 @@ fn dispatch(req: &Value) -> Result<Value, String> {
         }
         other => Err(format!("unknown command '{other}'")),
     }
+}
+
+/// Standard base64, for shipping pixels to JavaScript.
+fn base64(bytes: &[u8]) -> String {
+    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
+    for c in bytes.chunks(3) {
+        let n = (u32::from(c[0]) << 16)
+            | (u32::from(*c.get(1).unwrap_or(&0)) << 8)
+            | u32::from(*c.get(2).unwrap_or(&0));
+        for i in 0..4 {
+            if i <= c.len() {
+                out.push(T[(n >> (18 - 6 * i) & 63) as usize] as char);
+            } else {
+                out.push('=');
+            }
+        }
+    }
+    out
 }
 
 /// The registry plus a few sample variable sets per slot, for the tool.
@@ -289,6 +347,17 @@ mod tests {
             r["eras"][0]["plain"][0],
             corpus.text(&corpus.inscriptions[0])
         );
+    }
+
+    #[test]
+    fn world_and_site_views() {
+        let r = call(json!({"cmd": "world", "seed": "3"}));
+        assert_eq!(r["side"], 160);
+        assert!(!r["settlements"].as_array().unwrap().is_empty());
+        let site = call(json!({"cmd": "site", "seed": "3", "settlement": 0}));
+        assert!(site["text"].as_str().unwrap().starts_with("SITE 0"));
+        assert_eq!(base64(b"Man"), "TWFu");
+        assert_eq!(base64(b"Ma"), "TWE=");
     }
 
     #[test]

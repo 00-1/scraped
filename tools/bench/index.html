@@ -73,12 +73,19 @@ table.eras td.n { text-align: right; }
 .glyph .d { font-size: .78rem; color: var(--muted); line-height: 1.35; }
 pre.sheettext { margin: 0; padding: 8px 16px 16px; font: .85rem/1.5 var(--mono); overflow-x: auto; }
 footer { color: var(--muted); font-size: .85rem; }
+.world { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 16px; padding: 12px 16px 16px; }
+@media (max-width: 760px) { .world { grid-template-columns: 1fr; } }
+.map { position: relative; width: 100%; aspect-ratio: 1; max-width: 480px; }
+.map canvas { width: 100%; height: 100%; image-rendering: pixelated; border: 1px solid var(--rule); border-radius: 4px; }
+.map button { position: absolute; transform: translate(-50%, -50%); padding: 1px 5px; font-size: .7rem; border-radius: 3px; }
+.map button.gone { color: var(--muted); text-decoration: line-through; }
+.world pre { margin: 0; font: .8rem/1.45 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 520px; overflow: auto; }
 </style>
 <div class="wrap">
   <header>
     <h1>Scraped Again</h1>
     <p class="status" id="build"></p>
-    <p class="sub">Language bench. Generate a language, read its inscriptions as text or glyphs, and compare the same texts across its eras. Spoilers show the true meanings, the sound changes and the full grammar.</p>
+    <p class="sub">Language and world bench. Generate a language, read its inscriptions as text or glyphs, and compare the same texts across its eras. Spoilers show the true meanings, the sound changes, the full grammar, and the world built from the same seed: its map, history and sites.</p>
   </header>
   <form class="controls" id="controls">
     <div class="field"><label for="seed">Seed</label><input type="text" id="seed" inputmode="numeric" value="42" autocomplete="off"></div>
@@ -98,6 +105,7 @@ footer { color: var(--muted); font-size: .85rem; }
       <button type="button" role="tab" data-tab="eras" aria-selected="false">Eras</button>
       <button type="button" role="tab" data-tab="script" aria-selected="false">Script</button>
       <button type="button" role="tab" data-tab="grammar" aria-selected="false">Grammar</button>
+      <button type="button" role="tab" data-tab="world" aria-selected="false">World</button>
     </div>
     <div class="chips" id="eraChips"></div>
   </div>
@@ -184,7 +192,7 @@ function render() {
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
   document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === state.view));
   $("viewChips").hidden = state.tab !== "corpus";
-  $("eraChips").hidden = state.tab === "eras";
+  $("eraChips").hidden = state.tab === "eras" || state.tab === "world";
   $("eraChips").innerHTML = d.eras.length > 1 ? d.eras.map(e =>
     `<button type="button" data-era="${e.era}" aria-pressed="${e.era === state.era}">Era ${e.era}</button>`).join("") : "";
   const p = $("panel");
@@ -203,6 +211,25 @@ function render() {
     p.innerHTML = `${rules}<div class="scroll"><table class="eras"><thead><tr><th>#</th>${d.eras.map(e => `<th>Era ${e.era}</th>`).join("")}${spoil ? "<th>Meaning</th>" : ""}</tr></thead><tbody>
       ${d.eras[0].plain.map((_, n) => `<tr><td class="n">${n + 1}</td>${d.eras.map(e => `<td>${esc(e.plain[n])}</td>`).join("")}${spoil ? `<td class="tr">${esc(d.eras[0].corpus.inscriptions[n].translation)}</td>` : ""}</tr>`).join("")}
       </tbody></table></div>`;
+  } else if (state.tab === "world") {
+    if (!spoil) { p.innerHTML = needSpoil("world map and history"); return; }
+    if (!state.world || state.world.seed !== d.seed) {
+      $("status").textContent = "Generating the world…";
+      state.world = api({ cmd: "world", seed: d.seed }); state.site = null;
+      $("status").textContent = `World for seed ${d.seed}: ${state.world.shape}, ${state.world.settlements.length} settlements, ${state.world.counts.structures} structures, ${state.world.counts.texts} texts · trajectory ${state.world.trajectory}`;
+    }
+    const w = state.world;
+    p.innerHTML = `<div class="world">
+      <div class="map"><canvas id="mapCanvas" width="${w.side}" height="${w.side}"></canvas>
+        ${w.settlements.map(s => `<button type="button" data-site="${s.id}" class="${s.abandoned ? "gone" : ""}" style="left:${(s.x + .5) / w.side * 100}%;top:${(s.y + .5) / w.side * 100}%" title="${esc(s.name)}, era ${s.era}">${esc(s.name)}</button>`).join("")}
+      </div>
+      <pre id="worldText">${esc(state.site ? state.site : w.timeline)}</pre>
+    </div>`;
+    const ctx = $("mapCanvas").getContext("2d");
+    const img = ctx.createImageData(w.side, w.side);
+    const px = Uint8Array.from(atob(w.pixels), c => c.charCodeAt(0));
+    for (let i = 0, j = 0; i < px.length; i += 3, j += 4) { img.data[j] = px[i]; img.data[j + 1] = px[i + 1]; img.data[j + 2] = px[i + 2]; img.data[j + 3] = 255; }
+    ctx.putImageData(img, 0, 0);
   } else if (!spoil) {
     p.innerHTML = needSpoil(state.tab === "script" ? "script table" : "grammar sheet");
   } else if (state.tab === "script") {
@@ -233,6 +260,7 @@ document.addEventListener("click", e => {
   if (t.dataset.tab) { state.tab = t.dataset.tab; render(); }
   if (t.dataset.era) { state.era = +t.dataset.era; render(); }
   if (t.dataset.view) { state.view = t.dataset.view; render(); }
+  if (t.dataset.site) { state.site = api({ cmd: "site", seed: state.data.seed, settlement: +t.dataset.site }).text; $("worldText").textContent = state.site; }
 });
 $("copy").addEventListener("click", () => {
   if (!state.data) return;
