@@ -1,0 +1,15 @@
+[package]
+name = "scraped-android"
+description = "The engine for the Android app: a JNI bridge to the same JSON interface the browser uses, Jb's content built in, and the decorative backdrop."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+scraped-web = { path = "../web" }
+serde_json.workspace = true
+jni = { version = "0.21", default-features = false }
