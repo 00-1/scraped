@@ -54,3 +54,8 @@ example = true
 slot = "read.deep"
 text = "Beneath it, fainter, another layer shows through the lens."
 example = true
+
+[[variant]]
+slot = "read.legacy"
+text = "The oldest of the faint layers is in a hand that seems strangely familiar."
+example = true

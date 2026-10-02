@@ -11,6 +11,7 @@ use scraped_sim::outdoors::{
     bearing, distance_band, duration_band, rough_metres, rough_minutes, Pos, BEARINGS, DISTANCES,
     DURATIONS, EDGES,
 };
+use scraped_sim::region::VARIABLES;
 
 fn e(values: &[&str]) -> VarType {
     VarType::Enum {
@@ -114,6 +115,7 @@ pub const KINDS: &[&str] = &[
     "fine_scraper",
     "old_scraper",
     "first_scraper",
+    "first_lens",
 ];
 pub const NEEDS: &[&str] = &["warmth", "thirst", "hunger", "rest", "injury", "wet"];
 pub const ALL_NEED_STATES: &[&str] = &[
@@ -1074,17 +1076,126 @@ fn s_death(_: u64) -> Vec<Context> {
 }
 
 fn s_end(_: u64) -> Vec<Context> {
-    scraped_sim::body::DEATHS
+    let mut out: Vec<Context> = scraped_sim::body::DEATHS
         .iter()
         .enumerate()
         .map(|(i, c)| {
             ctx(&[
+                ("ending", Value::from("death")),
                 ("cause", Value::from(*c)),
-                ("days", Value::Number(i as i64)),
-                ("hours", Value::Number(i as i64 * 24 + 5)),
+                ("days", Value::Number(i as i64 + 1)),
+                ("years", Value::Number(25)),
+                ("places", Value::Number(i as i64 * 2)),
+                ("named", Value::Number(i as i64 % 3)),
+                ("read", Value::Number(i as i64 * 3)),
+                ("wrote", Value::Number(i as i64 % 2)),
+                ("released", Value::Number(i as i64 % 4)),
             ])
         })
-        .collect()
+        .collect();
+    for (i, e) in crate::ending::ENDINGS[1..].iter().enumerate() {
+        out.push(ctx(&[
+            ("ending", Value::from(*e)),
+            ("cause", Value::from(*e)),
+            ("days", Value::Number(40 + i as i64 * 400)),
+            (
+                "years",
+                Value::Number(if *e == "old_age" { 80 } else { 26 }),
+            ),
+            ("places", Value::Number(12)),
+            ("named", Value::Number(3)),
+            ("read", Value::Number(30)),
+            ("wrote", Value::Number(4)),
+            ("released", Value::Number(5)),
+        ]));
+    }
+    out
+}
+
+fn s_ending(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("day", Value::Number(12)),
+            ("indoors", Value::Bool(true)),
+            ("years", Value::Number(25)),
+        ]),
+        ctx(&[
+            ("day", Value::Number(20_000)),
+            ("indoors", Value::Bool(false)),
+            ("years", Value::Number(80)),
+        ]),
+    ]
+}
+
+fn s_end_region(_: u64) -> Vec<Context> {
+    let row = |biome: &str, bearing: &str, aspect: &str, b: &str, a: &str, w: &str, c: &str| {
+        ctx(&[
+            ("biome", Value::from(biome)),
+            ("bearing", Value::from(bearing)),
+            ("aspect", Value::from(aspect)),
+            ("before", Value::from(b)),
+            ("after", Value::from(a)),
+            ("without", Value::from(w)),
+            ("cause", Value::from(c)),
+        ])
+    };
+    vec![
+        row(
+            "grassland",
+            "north",
+            "life",
+            "middling",
+            "low",
+            "low",
+            "world",
+        ),
+        row("forest", "here", "water", "low", "high", "low", "you"),
+        row(
+            "marsh",
+            "southwest",
+            "stability",
+            "high",
+            "high",
+            "low",
+            "you",
+        ),
+        row(
+            "scrub", "east", "climate", "usual", "colder", "usual", "you",
+        ),
+        row("desert", "west", "life", "low", "very_low", "low", "both"),
+    ]
+}
+
+fn s_end_act(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("day", Value::Number(3)),
+            ("act", Value::from("silenced")),
+            ("scale", Value::from("great")),
+            ("aspect", Value::from("stability")),
+            ("rising", Value::Bool(false)),
+            ("bearing", Value::from("north")),
+        ]),
+        ctx(&[
+            ("day", Value::Number(9)),
+            ("act", Value::from("released")),
+            ("scale", Value::from("region")),
+            ("aspect", Value::from("water")),
+            ("rising", Value::Bool(true)),
+            ("bearing", Value::from("here")),
+        ]),
+    ]
+}
+
+fn s_chronicle(_: u64) -> Vec<Context> {
+    vec![ctx(&[("words", Value::Number(14))])]
+}
+
+fn s_section(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("section", Value::from("transcript"))]),
+        ctx(&[("section", Value::from("names"))]),
+    ]
 }
 
 fn s_glyph_number(_: u64) -> Vec<Context> {
@@ -1687,12 +1798,71 @@ pub fn slots() -> Vec<SlotDef> {
             .var("indoors", VarType::Bool, "Whether they died indoors.")
             .max_len(600)
             .sampler(s_death),
-        SlotDef::new("end.summary", "After death: the run is over (a stub until M11's end-of-run summary). Any further command shows this.")
-            .var("cause", e(scraped_sim::body::DEATHS), "What killed them.")
-            .var("days", VarType::Number, "Whole days survived.")
-            .var("hours", VarType::Number, "Hours survived.")
-            .max_len(400)
+        SlotDef::new("end.summary", "The run is over: the opening of the end-of-run summary, after the death or ending narration. The whole picture follows (region by region, the player's acts, the chronicle); this frames it with what the player did in plain counts.")
+            .var("ending", e(crate::ending::ENDINGS), "How it ended: death, leaving (left), writing yourself into the world (written_in), old age, or being overtaken by the land's collapse.")
+            .var("cause", e(&[scraped_sim::body::DEATHS, crate::ending::ENDINGS].concat()), "The cause of death, or the ending again.")
+            .var("days", VarType::Number, "Days of the run, from 1.")
+            .var("years", VarType::Number, "The player's age at the end.")
+            .var("places", VarType::Number, "Buildings entered.")
+            .var("named", VarType::Number, "Places the player named.")
+            .var("read", VarType::Number, "Texts read.")
+            .var("wrote", VarType::Number, "Texts the player wrote.")
+            .var("released", VarType::Number, "Texts the player scraped (claims released).")
+            .max_len(600)
             .sampler(s_end),
+        SlotDef::new("end.left", "The player scrapes the departure claim they wrote and leaves the world: the run ends by choice. The world stays as it is now.")
+            .var("day", VarType::Number, "Day of the run.")
+            .var("indoors", VarType::Bool, "Whether they were indoors.")
+            .var("years", VarType::Number, "The player's age.")
+            .max_len(600)
+            .sampler(s_ending),
+        SlotDef::new("end.written_in", "The player scrapes a claim they wrote about themselves (not the departure): they become part of the world, a trace in it, and the run ends.")
+            .var("day", VarType::Number, "Day of the run.")
+            .var("indoors", VarType::Bool, "Whether they were indoors.")
+            .var("years", VarType::Number, "The player's age.")
+            .max_len(600)
+            .sampler(s_ending),
+        SlotDef::new("end.old_age", "The player's life ends of old age.")
+            .var("day", VarType::Number, "Day of the run.")
+            .var("indoors", VarType::Bool, "Whether they were indoors.")
+            .var("years", VarType::Number, "The player's age.")
+            .max_len(600)
+            .sampler(s_ending),
+        SlotDef::new("end.overtaken", "The region the player stands in collapses (its ground and its life both give way) and the player is overtaken by it.")
+            .var("day", VarType::Number, "Day of the run.")
+            .var("indoors", VarType::Bool, "Whether they were indoors.")
+            .var("years", VarType::Number, "The player's age.")
+            .max_len(600)
+            .sampler(s_ending),
+        SlotDef::new("end.region", "One line of the end summary: one aspect of one region, at the start of the run and at its end, and whether that was the player's doing. 'without' is how it would be had the player done nothing (equal to 'after' when cause is world; when the player held a region steady, before equals after).")
+            .var("biome", e(BIOMES), "The region's commonest land.")
+            .var("bearing", e(&[&BEARINGS[..], &["here"]].concat()), "Which way it lies from where the run began, or here.")
+            .var("aspect", e(&VARIABLES), "What: life, water, stability, climate.")
+            .var("before", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it was at the start.")
+            .var("after", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it is at the end.")
+            .var("without", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it would be without the player.")
+            .var("cause", e(crate::ending::CAUSES), "world: it would have gone so anyway; you: the player's doing; both.")
+            .max_len(300)
+            .sampler(s_end_region),
+        SlotDef::new("end.calm", "In the end summary: nothing changed across the land that anyone would notice, by the player's hand or otherwise.").max_len(300).sampler(s_none),
+        SlotDef::new("end.act", "In the end summary, the causal chain: one thing the player did that began or ended a push on a region's course (scraping their own writing with a strong scraper, or silencing a great inscription).")
+            .var("day", VarType::Number, "Day of the run.")
+            .var("act", e(&["released", "silenced"]), "Began a push (released) or ended one (silenced).")
+            .var("scale", e(&["region", "great"]), "A region, or several (a great inscription's reach).")
+            .var("aspect", e(&VARIABLES), "What it pushes.")
+            .var("rising", VarType::Bool, "Toward more (true) or less.")
+            .var("bearing", e(&[&BEARINGS[..], &["here"]].concat()), "Which way from where the run began.")
+            .max_len(300)
+            .sampler(s_end_act),
+        SlotDef::new("end.chronicle", "Before the chronicle: a short text in the language, written as by those who came after, about the player's time. It follows as glyph numbers (or the player's labels), '/' between words. Present it as found writing; never say what it means.")
+            .var("words", VarType::Number, "How many words it has.")
+            .max_len(300)
+            .sampler(s_chronicle),
+        SlotDef::new("read.legacy", "Among the faint layers the lens shows: one older than anything, in a hand the player may recognise. It is the final inscription of a previous run. Never say so outright.").max_len(300).sampler(s_none),
+        SlotDef::new("notebook.heading", "A heading in the exported notebook: the transcript of the run, or the list of places the player named.")
+            .var("section", e(&["transcript", "names"]), "Which file.")
+            .max_len(80)
+            .sampler(s_section),
         SlotDef::new("read.lost", "A glyph of a scraped layer that can't be made out any more, in a reading. Keep the number visible.")
             .var("number", VarType::Number, "The glyph's position.")
             .min_variants(1)
@@ -1724,7 +1894,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_effect),
         SlotDef::new("effect.held", "A door won't move, though nothing bars it: it is held (writing's doing; never say so).").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
         SlotDef::new("tool.found", "The player first picks up one of the three writing tools: the scraper, the stylus or the lens. A moment of discovery; don't explain what it does.")
-            .var("kind", e(&["scraper", "stylus", "lens", "fine_scraper", "old_scraper", "first_scraper"]), "Which tool: the scraper, the stylus, the lens, or one of the stronger scrapers (fine, old, and the first, strongest of all).")
+            .var("kind", e(&["scraper", "stylus", "lens", "fine_scraper", "old_scraper", "first_scraper", "first_lens"]), "Which tool: the scraper, the stylus, the lens, one of the stronger scrapers (fine, old, and the first, strongest of all), or the first lens, which reads the faintest layers.")
             .max_len(400)
             .sampler(s_tool),
         SlotDef::new("write.done", "The player writes new text on a surface. Echo the glyphs back as they were cut or painted (descriptions given), never what they mean.")
@@ -1752,7 +1922,10 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_scrape),
         SlotDef::new("write.backlash", "A malformed potent inscription turns on its writer as it is scraped: a jolt, a burn, something that hurts (one level of injury).").sampler(s_none),
         SlotDef::new("scrape.wet", "The player tries to scrape writing whose ink or cuts are still fresh; it must dry first.").var("thing", VarType::Text, thing).sampler(s_named),
-        SlotDef::new("read.deep", "Through the lens, a fainter layer shows beneath the top one, before its glyphs are listed.").max_len(200).sampler(s_none),
+        SlotDef::new("read.deep", "Through the lens, a fainter layer shows beneath the top one, before its glyphs are listed. Through the first lens, every faint layer down to the oldest shows.")
+            .var("count", VarType::Number, "How many faint layers show (more than one only through the first lens).")
+            .max_len(200)
+            .sampler(s_count),
         SlotDef::new("region.cues", "The state of the wider land, seen from here, after the look outdoors: how much grows, how much water there is, whether the ground is sound, whether it is colder or warmer than the land should be, and the season. Only what can be seen; often little needs saying.")
             .var("life", e(BANDS), "How much grows and lives in this region.")
             .var("water", e(BANDS), "How much water: rivers, pools, damp ground.")

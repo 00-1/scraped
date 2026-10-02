@@ -1,0 +1,6 @@
+notes = "Headings in the exported notebook."
+
+[[variant]]
+slot = "notebook.heading"
+text = "[if section == 'transcript']Transcript[else]Places you named[end]"
+example = true

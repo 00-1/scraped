@@ -85,6 +85,11 @@ impl Site {
     // DESIGN-Q: until M12's authored frame, play starts in the most-written
     // living town that is not the capital, so the deepest text is elsewhere.
     pub fn new(seed: u64) -> Self {
+        Self::with_legacy(seed, None)
+    }
+
+    /// A site with a previous run's final inscription placed in it.
+    pub fn with_legacy(seed: u64, legacy: Option<&scraped_lang::meaning::Sentence>) -> Self {
         let world = World::generate(seed);
         let score = |s: &Settlement| {
             let texts: usize = world
@@ -166,7 +171,7 @@ impl Site {
             });
         }
         let regions = Regions::new(&world);
-        let writing = Writing::new(&world, &land, &fixtures, settlement, Some(&regions));
+        let writing = Writing::new(&world, &land, &fixtures, settlement, Some(&regions), legacy);
         // DESIGN-Q: the root reaches three regions out, other great
         // inscriptions two.
         let greats: Vec<Great> = great_events(&world)

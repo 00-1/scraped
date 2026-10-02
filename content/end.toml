@@ -1,6 +1,46 @@
-notes = "The end of a run (stub until M11)."
+notes = "The end of a run: other endings than death, and the summary of what it came to."
 
 [[variant]]
 slot = "end.summary"
-text = "Your time here is over. You lasted {days} days."
+text = "Your time here is over, after {days} days. You entered {places} buildings, read {read} texts, wrote {wrote} and scraped {released}."
+example = true
+
+[[variant]]
+slot = "end.left"
+text = "The last strokes come away, and the world lets you go."
+example = true
+
+[[variant]]
+slot = "end.written_in"
+text = "As the scraper lifts, you feel yourself set into the stone, one more layer among the rest."
+example = true
+
+[[variant]]
+slot = "end.old_age"
+text = "At {years}, your days run out."
+example = true
+
+[[variant]]
+slot = "end.overtaken"
+text = "The ground gives way beneath you, and the land takes you with it."
+example = true
+
+[[variant]]
+slot = "end.region"
+text = "To the {bearing}, the {biome}'s {aspect}: {before} then, {after} now[if cause == 'you'], by your hand[end][if cause == 'both'], partly your doing[end]."
+example = true
+
+[[variant]]
+slot = "end.calm"
+text = "The land is much as you found it."
+example = true
+
+[[variant]]
+slot = "end.act"
+text = "Day {day}: you {act} a push on the {aspect} to the {bearing}."
+example = true
+
+[[variant]]
+slot = "end.chronicle"
+text = "Later hands wrote of you, in {words} words:"
 example = true

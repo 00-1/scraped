@@ -6,7 +6,7 @@
 //! (scraped layers stay, as traces). Only the most recent scraped layer on
 //! a surface is live; older layers beneath it are ghosts.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::OnceLock;
 
 use serde::{Deserialize, Serialize};
@@ -15,7 +15,7 @@ use scraped_lang::corpus::Kind;
 use scraped_lang::meaning::{
     Argument, Clause, Head, Mood, NounPhrase, Polarity, Role, Sentence, Tense,
 };
-use scraped_world::history::EventKind;
+use scraped_world::history::{EventKind, Role as PersonRole};
 use scraped_world::structures::{Material, Passage, PassageState};
 use scraped_world::texts::Text;
 use scraped_world::World;
@@ -149,6 +149,15 @@ pub struct Writing {
     /// The first unscraped potent inscription a player is likely to meet,
     /// near the scraping tool.
     pub pivot: Option<usize>,
+    /// The root inscription: the world's first great writing.
+    pub root: Option<usize>,
+    /// The deepest stack's accounts beneath the root, oldest first: how
+    /// the world came to this, and the words for leaving it (M11). Only the
+    /// strongest lens reads them.
+    pub deep: Vec<usize>,
+    /// A previous run's final inscription, carried into this world as a
+    /// faint, very old layer (legacy, M11).
+    pub legacy: Option<usize>,
 }
 
 /// The claim a potent text makes, if any: (verb, subject, negative).
@@ -191,6 +200,38 @@ fn potent(verb: &str, subject: &str, negative: bool) -> Sentence {
     })
 }
 
+/// A plain statement: "<subject> <verb>ed (<object>)".
+fn statement(
+    verb: &str,
+    tense: Tense,
+    negative: bool,
+    subject: &str,
+    object: Option<&str>,
+) -> Sentence {
+    let mut args = vec![Argument {
+        role: Role::Subject,
+        np: NounPhrase::concept(subject),
+    }];
+    if let Some(o) = object {
+        args.push(Argument {
+            role: Role::Object,
+            np: NounPhrase::concept(o),
+        });
+    }
+    Sentence::Clause(Clause {
+        predicate: verb.to_string(),
+        mood: Mood::Declarative,
+        tense,
+        polarity: if negative {
+            Polarity::Negative
+        } else {
+            Polarity::Positive
+        },
+        args,
+        adverbs: Vec::new(),
+    })
+}
+
 /// How far a released claim reaches, by what it was written on.
 // DESIGN-Q: reach by surface material (stone 900 m, metal 700, clay 500,
 // wood and plaster 400, vellum 300); M10 scales it with the tool.
@@ -226,6 +267,7 @@ impl Writing {
         fixtures: &Fixtures,
         start: usize,
         regions: Option<&crate::region::Regions>,
+        legacy: Option<&Sentence>,
     ) -> Self {
         let mut out = Writing::default();
         let n = w.texts.len();
@@ -418,6 +460,10 @@ impl Writing {
                 placed += 1;
             }
         }
+        out.add_deep(w);
+        if let Some(m) = legacy {
+            out.add_legacy(w, fixtures, start, m);
+        }
         // Stack every text on its surface, oldest first.
         let all = w.texts.iter().chain(out.extra.iter());
         let mut surfaces: Vec<Surface> = Vec::new();
@@ -440,6 +486,130 @@ impl Writing {
         }
         out.surfaces = surfaces;
         out
+    }
+
+    /// Accounts beneath the root inscription, in the first era's language:
+    /// the oldest tells of the self departing and holds the departure claim;
+    /// above it, how the root was cast and what it did, recopied until the
+    /// stack is the deepest in the world.
+    // DESIGN-Q: the departure claim is "let the self depart"; the cause is
+    // told as "the <king|priest|scribe> scraped the tablet. The <subject>
+    // did (not) <verb>. The self did not depart." Padding layers repeat
+    // the middle sentence only.
+    fn add_deep(&mut self, w: &World) {
+        let Some(root) = w.texts.iter().find(|t| t.event == Some(w.history.root)) else {
+            return;
+        };
+        self.root = Some(root.id);
+        let Some((verb, subject, negative)) = claim_parts(root) else {
+            return;
+        };
+        let deepest = {
+            let mut depth: BTreeMap<(usize, Option<usize>, Option<usize>), usize> = BTreeMap::new();
+            for t in w.texts.iter().chain(self.extra.iter()) {
+                *depth.entry((t.structure, t.room, t.feature)).or_default() += 1;
+            }
+            let own = depth
+                .get(&(root.structure, root.room, root.feature))
+                .copied()
+                .unwrap_or(0);
+            let other = depth
+                .iter()
+                .filter(|(k, _)| **k != (root.structure, root.room, root.feature))
+                .map(|(_, &d)| d)
+                .max()
+                .unwrap_or(0);
+            (own, other)
+        };
+        let author = match w.history.events[w.history.root].kind {
+            EventKind::Writing { author, .. } => match w.history.people[author].role {
+                PersonRole::Priest => "priest",
+                PersonRole::Scribe => "scribe",
+                _ => "king",
+            },
+            _ => "king",
+        };
+        let departure = Sentence::Text(vec![
+            statement("depart", Tense::Past, false, "self", None),
+            potent("depart", "self", false),
+        ]);
+        let cause = Sentence::Text(vec![
+            statement("scrape", Tense::Past, false, author, Some("tablet")),
+            statement(&verb, Tense::Past, negative, &subject, None),
+            statement("depart", Tense::Past, true, "self", None),
+        ]);
+        // Later layers only repeat what came of it.
+        let echo = statement(&verb, Tense::Past, negative, &subject, None);
+        let n = w.texts.len();
+        let (own, other) = deepest;
+        // At least the departure and one account; then echoes of what came
+        // of it until no stack is as deep.
+        let echoes = other.saturating_sub(own + 1);
+        let copies = 1 + echoes;
+        for (k, meaning) in [departure, cause]
+            .into_iter()
+            .chain(std::iter::repeat_n(echo, echoes))
+            .enumerate()
+        {
+            let id = n + self.extra.len();
+            self.extra.push(Text {
+                id,
+                era: 0,
+                year: root.year - 1 - (copies + 1 - k) as i32,
+                kind: Kind::Account,
+                meaning,
+                author: None,
+                event: None,
+                structure: root.structure,
+                room: root.room,
+                feature: root.feature,
+                material: root.material,
+            });
+            self.deep.push(id);
+        }
+    }
+
+    /// Places a previous run's final inscription beneath a cast of history
+    /// that can be reached: older than anything else on that surface, so it
+    /// is a ghost only the lenses show.
+    // DESIGN-Q: the legacy inscription goes beneath a reachable history
+    // cast outside the starting town (not the root), in the first era's
+    // language, as an account that never acts.
+    fn add_legacy(&mut self, w: &World, fixtures: &Fixtures, start: usize, meaning: &Sentence) {
+        let root = self.root;
+        let mut options: Vec<&Text> = w
+            .texts
+            .iter()
+            .filter(|t| t.kind == Kind::Potent && Some(t.id) != root)
+            .filter(|t| w.structures[t.structure].settlement != Some(start))
+            .filter(|t| {
+                t.room
+                    .is_none_or(|r| fixtures.reachable_rooms(w, t.structure).contains(&r))
+            })
+            .collect();
+        if options.is_empty() {
+            options = w.texts.iter().filter(|t| Some(t.id) == root).collect();
+        }
+        if options.is_empty() {
+            return;
+        }
+        let host = options[(hash(&[w.seed, 0x1e9a]) % options.len() as u64) as usize];
+        let first = w.history.eras.first().map_or(0, |e| e.start);
+        let id = w.texts.len() + self.extra.len();
+        self.extra.push(Text {
+            id,
+            era: 0,
+            year: first - 100,
+            kind: Kind::Account,
+            meaning: meaning.clone(),
+            author: None,
+            event: None,
+            structure: host.structure,
+            room: host.room,
+            feature: host.feature,
+            material: host.material,
+        });
+        self.legacy = Some(id);
     }
 
     pub fn text<'a>(&'a self, w: &'a World, id: usize) -> &'a Text {

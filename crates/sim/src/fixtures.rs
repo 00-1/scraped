@@ -569,6 +569,7 @@ impl Fixtures {
             "fine_scraper",
             "old_scraper",
             "first_scraper",
+            "first_lens",
         ]
         .into_iter()
         .enumerate()
@@ -596,7 +597,8 @@ impl Fixtures {
             let reachable = |sid: usize| land.route(w, from, land.structure_pos[sid]).is_some();
             // Stronger scrapers lie farther out; the strongest with the root.
             // DESIGN-Q: the fine scraper about halfway out, the old one far,
-            // the first scraper where the root inscription lies.
+            // the first scraper where the root inscription lies, the first
+            // lens nearly as far out as anything.
             let chosen = if n < 3 {
                 (0..homes.len())
                     .map(|k| homes[(pick + k) % homes.len()])
@@ -618,6 +620,7 @@ impl Fixtures {
                     ("first_scraper", Some(r)) => Some(r),
                     ("first_scraper", None) => far.last().copied(),
                     ("old_scraper", _) => far.get(far.len() * 4 / 5).copied(),
+                    ("first_lens", _) => far.get(far.len() * 9 / 10).copied(),
                     _ => far.get(far.len() / 2).copied(),
                 }
             };

@@ -224,6 +224,7 @@ impl Game {
             self.creatures_tick(dt);
             self.state.minutes += dt;
             self.step_regions();
+            self.check_time_endings();
             left -= dt;
             if activity != Activity::Sleeping
                 && self.state.body.collapses()
@@ -1402,18 +1403,6 @@ impl Game {
     pub(crate) fn take_notes(&mut self) -> Vec<String> {
         self.interrupted = false;
         std::mem::take(&mut self.notes)
-    }
-
-    /// What the end of a run says (a stub until M11).
-    pub(crate) fn ended(&mut self) -> Output {
-        let d = self.state.dead.clone().expect("dead");
-        let c = ctx(&[
-            ("cause", Value::from(d.cause.as_str())),
-            ("days", Value::Number(i64::from(d.minutes / 1440))),
-            ("hours", Value::Number(i64::from((d.minutes - 8 * 60) / 60))),
-        ]);
-        let t = self.say("end.summary", c);
-        self.output(vec![t], None)
     }
 
     /// Coarse cues about a place for descriptions.

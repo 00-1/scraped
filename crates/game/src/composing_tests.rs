@@ -10,7 +10,7 @@ use crate::composing::agrees;
 use crate::site::Place;
 use crate::Game;
 
-fn pack() -> Pack {
+pub(crate) fn pack() -> Pack {
     let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../content");
     let mut files = Vec::new();
     for e in std::fs::read_dir(dir).unwrap().flatten() {
@@ -45,7 +45,7 @@ fn claim(verb: &str, subject: &str, negative: bool) -> Sentence {
 
 /// A blank writable surface in a reachable room, with the player beside it
 /// holding a stylus and a scraper, in daylight.
-fn at_blank_surface(seed: u64) -> Option<(Game, usize)> {
+pub(crate) fn at_blank_surface(seed: u64) -> Option<(Game, usize)> {
     let mut g = Game::new(seed, pack());
     g.forced = Some(("clear", "daylight"));
     g.start();
@@ -71,7 +71,7 @@ fn at_blank_surface(seed: u64) -> Option<(Game, usize)> {
 }
 
 /// The glyph numbers a meaning is written with, in the player's era.
-fn glyphs_for(g: &Game, m: &Sentence) -> String {
+pub(crate) fn glyphs_for(g: &Game, m: &Sentence) -> String {
     let era = g.writing_era();
     let r = g.site.world.renderer(era as u32);
     let script = &g.site.world.languages[era].script;
@@ -223,7 +223,8 @@ fn reading_records_roots_and_the_lens_reads_beneath() {
     // Find a surface with a scraped layer above an older one.
     let thing = (0..g.site.things.len()).find(|&t| {
         let layers = g.layers(t);
-        scraped_sim::writing::beneath_of(&layers, &g.state.scraped).is_some()
+        scraped_sim::writing::beneath_of(&layers, &g.state.scraped)
+            .is_some_and(|b| !g.site.writing.deep.contains(&b))
     });
     let Some(thing) = thing else { return };
     g.state.place = g.site.things[thing].home;

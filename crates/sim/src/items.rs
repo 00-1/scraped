@@ -124,6 +124,13 @@ pub const ITEMS: &[ItemKind] = &[
         tool: Some("writing"),
         ..BASE
     },
+    // The strongest deep-reading tool: reads every faint layer, and the
+    // deepest text.
+    ItemKind {
+        id: "first_lens",
+        tool: Some("writing"),
+        ..BASE
+    },
     // Portable things from the world itself.
     ItemKind {
         id: "jar",

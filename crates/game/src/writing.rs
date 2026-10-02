@@ -46,34 +46,53 @@ impl Game {
         out
     }
 
-    /// The layers a reader can see: (text, partial), oldest first. With the
-    /// deep-reading lens, the ghost layer beneath shows too, fainter.
+    /// The layers a reader can see: (text, partial), oldest first. With a
+    /// deep-reading lens, faint layers beneath show too.
     pub(crate) fn layers_seen(&self, thing: usize) -> Vec<(usize, bool)> {
         let layers = self.layers(thing);
         let mut out = visible_of(&layers, &self.state.scraped);
-        if let Some(deep) = self.deep_layer(thing) {
-            out.insert(0, (deep, true));
-        }
+        let deep = self.deep_layers(thing);
+        out.splice(0..0, deep.into_iter().map(|d| (d, true)));
         out
     }
 
-    /// The layer the lens shows, if the player carries it.
-    pub(crate) fn deep_layer(&self, thing: usize) -> Option<usize> {
-        if !self
-            .state
+    /// The strongest lens carried: 0 none, 1 the lens, 2 the first lens.
+    pub(crate) fn lens_power(&self) -> u8 {
+        self.state
             .carried
             .iter()
-            .any(|&t| self.thing(t).kind == "lens")
-        {
-            return None;
+            .map(|&t| match self.thing(t).kind {
+                "lens" => 1,
+                "first_lens" => 2,
+                _ => 0,
+            })
+            .max()
+            .unwrap_or(0)
+    }
+
+    /// The faint layers a lens shows, oldest first: the lens shows the one
+    /// just beneath the live layer, unless it is one of the deepest
+    /// accounts; the first lens shows every layer beneath.
+    // DESIGN-Q: the first lens reads all ghost layers at once.
+    pub(crate) fn deep_layers(&self, thing: usize) -> Vec<usize> {
+        let layers = self.layers(thing);
+        match self.lens_power() {
+            0 => Vec::new(),
+            1 => beneath_of(&layers, &self.state.scraped)
+                .filter(|t| !self.site.writing.deep.contains(t))
+                .into_iter()
+                .collect(),
+            _ => {
+                let ghosts = ghosts_of(&layers, &self.state.scraped);
+                layers[..ghosts].to_vec()
+            }
         }
-        beneath_of(&self.layers(thing), &self.state.scraped)
     }
 
     pub(crate) fn ghost_count(&self, thing: usize) -> usize {
         let layers = self.layers(thing);
         let ghosts = ghosts_of(&layers, &self.state.scraped);
-        ghosts - usize::from(self.deep_layer(thing).is_some())
+        ghosts - self.deep_layers(thing).len()
     }
 
     /// Whether glyph `g` of a scraped text is lost to the eye here: more
@@ -86,12 +105,16 @@ impl Game {
             .local(self.spot(), self.state.minutes, self.carried_light())
             .light;
         // DESIGN-Q: through the lens, the layer beneath shows 35% of its
-        // glyphs in daylight, 20% in dim light.
-        let shown = match (deep, light == "daylight") {
-            (false, true) => 60,
-            (false, false) => 40,
-            (true, true) => 35,
-            (true, false) => 20,
+        // glyphs in daylight, 20% in dim light; through the first lens, 80%
+        // and 60%.
+        let first = self.lens_power() >= 2;
+        let shown = match (deep, first, light == "daylight") {
+            (false, _, true) => 60,
+            (false, _, false) => 40,
+            (true, false, true) => 35,
+            (true, false, false) => 20,
+            (true, true, true) => 80,
+            (true, true, false) => 60,
         };
         hash(&[self.seed(), 0x5c4a, text as u64, g as u64]) % 100 >= shown
     }
@@ -169,12 +192,14 @@ impl Game {
             return self.output(Vec::new(), None);
         }
         let before = self.claims.clone();
+        let drivers_before = self.drivers.clone();
         self.state.scraped.insert(text);
         let power = self.power();
         if text >= base {
             self.state.released.insert(text, power);
         }
         self.recompute_claims();
+        self.record_acts(text, &drivers_before);
         self.last_scrape = Some(text);
         let backlash = text >= base && self.backlash(text - base);
         let material = label(&self.thing(thing).material);
@@ -195,6 +220,8 @@ impl Game {
             // A malformed claim in the potent frame turns on its writer.
             parts.push(self.say("write.backlash", Context::new()));
             self.hurt(1, "writing");
+        } else if text >= base {
+            self.check_self_claim(text);
         }
         self.output(parts, None)
     }
@@ -272,7 +299,13 @@ impl Game {
     pub(crate) fn tool_found(&mut self, kind: &str) -> Option<String> {
         if !matches!(
             kind,
-            "scraper" | "stylus" | "lens" | "fine_scraper" | "old_scraper" | "first_scraper"
+            "scraper"
+                | "stylus"
+                | "lens"
+                | "fine_scraper"
+                | "old_scraper"
+                | "first_scraper"
+                | "first_lens"
         ) || self.state.found.contains(kind)
         {
             return None;

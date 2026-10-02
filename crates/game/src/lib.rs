@@ -10,6 +10,9 @@ pub use scraped_sim::outdoors;
 pub mod composing;
 #[cfg(test)]
 mod composing_tests;
+pub mod ending;
+#[cfg(test)]
+mod ending_tests;
 pub mod parser;
 mod physical;
 pub mod site;
@@ -169,6 +172,15 @@ pub struct State {
     pub released: BTreeMap<usize, u8>,
     /// How each outdoor place looked when last seen: regional bands by cell.
     pub memory: BTreeMap<String, Vec<String>>,
+    /// Buildings entered.
+    #[serde(default)]
+    pub visited: BTreeSet<usize>,
+    /// Texts read (in part or whole).
+    #[serde(default)]
+    pub read: BTreeSet<usize>,
+    /// What the player's scrapes did to the regional pushes.
+    #[serde(default)]
+    pub acts: Vec<ending::Act>,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -242,6 +254,9 @@ pub struct Save {
     pub seed: u64,
     pub pack_version: String,
     pub commands: Vec<String>,
+    /// The previous run's legacy this world was made with, if any.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub legacy: Option<ending::Legacy>,
 }
 
 /// A game in progress.
@@ -278,6 +293,13 @@ pub struct Game {
     drivers: Vec<scraped_sim::region::Driver>,
     /// What moved the regions on the last day stepped (debug).
     causes: Vec<scraped_sim::region::Cause>,
+    /// The pushes acting when play began: what the world does alone.
+    initial_drivers: Vec<scraped_sim::region::Driver>,
+    /// Commands and what the game said, for the notebook.
+    transcript: Vec<(String, String)>,
+    /// Whether the end of the run has been summed up yet.
+    summarised: bool,
+    legacy: Option<ending::Legacy>,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -297,7 +319,12 @@ enum Mark {
 impl Game {
     /// A new game for `seed`, with Jb's content.
     pub fn new(seed: u64, pack: Pack) -> Self {
-        let site = Site::new(seed);
+        Self::with_legacy(seed, pack, None)
+    }
+
+    /// A new game in a world carrying a previous run's legacy.
+    pub fn with_legacy(seed: u64, pack: Pack, legacy: Option<ending::Legacy>) -> Self {
+        let site = Site::with_legacy(seed, legacy.as_ref().map(|l| &l.meaning));
         let state = State {
             place: Place::Outside,
             carried: Vec::new(),
@@ -333,6 +360,9 @@ impl Game {
             regions: site.regions.initial.clone(),
             released: BTreeMap::new(),
             memory: BTreeMap::new(),
+            visited: BTreeSet::new(),
+            read: BTreeSet::new(),
+            acts: Vec::new(),
         };
         let claims = site
             .writing
@@ -359,8 +389,13 @@ impl Game {
             scrape_felt: false,
             drivers: Vec::new(),
             causes: Vec::new(),
+            initial_drivers: Vec::new(),
+            transcript: Vec::new(),
+            summarised: false,
+            legacy,
         };
         g.recompute_drivers();
+        g.initial_drivers = g.drivers.clone();
         g
     }
 
@@ -384,6 +419,7 @@ impl Game {
             seed: self.seed(),
             pack_version: self.pack.version(),
             commands: self.log.clone(),
+            legacy: self.legacy.clone(),
         }
     }
 
@@ -391,7 +427,7 @@ impl Game {
     /// differs from the one the save was made with.
     pub fn load(save: &Save, pack: Pack) -> (Self, bool) {
         let changed = save.pack_version != pack.version();
-        let mut g = Game::new(save.seed, pack);
+        let mut g = Game::with_legacy(save.seed, pack, save.legacy.clone());
         g.start();
         for c in &save.commands {
             g.step(c);
@@ -706,6 +742,15 @@ impl Game {
     fn output(&mut self, parts: Vec<String>, truth: Option<Json>) -> Output {
         let mut parts = parts;
         parts.extend(self.take_notes());
+        if let Place::Room { structure, .. } = self.state.place {
+            self.state.visited.insert(structure);
+        }
+        let mut truth = truth;
+        if self.state.dead.is_some() && !self.summarised {
+            self.summarised = true;
+            parts.extend(self.summary_parts());
+            truth = Some(self.end_truth());
+        }
         let text = parts
             .into_iter()
             .filter(|p| !p.is_empty())
@@ -722,6 +767,11 @@ impl Game {
                 "regions": self.regions_truth(),
             }))
         });
+        if let Some(cmd) = self.log.last() {
+            if self.transcript.len() < self.log.len() {
+                self.transcript.push((cmd.clone(), text.clone()));
+            }
+        }
         Output {
             text,
             state,
@@ -1171,7 +1221,7 @@ impl Game {
     /// The glyphs of everything written on a thing, in reading order.
     fn marks(&self, thing: usize) -> Vec<Mark> {
         let mut out = Vec::new();
-        let deep = self.deep_layer(thing);
+        let deep = self.deep_layers(thing);
         for (n, (tid, partial)) in self.layers_seen(thing).into_iter().enumerate() {
             if n > 0 {
                 out.push(Mark::Break);
@@ -1185,7 +1235,7 @@ impl Game {
                     Some(k) => Mark::Glyph {
                         era: text.era,
                         index: script.index(&k),
-                        lost: partial && self.lost(tid, g, Some(tid) == deep),
+                        lost: partial && self.lost(tid, g, deep.contains(&tid)),
                     },
                     None => Mark::Gap,
                 });
@@ -1244,8 +1294,13 @@ impl Game {
                 ]);
                 extra_frames.push(self.say("read.scraped", c));
             }
-            if self.deep_layer(thing).is_some() {
-                extra_frames.insert(0, self.say("read.deep", Context::new()));
+            let deep = self.deep_layers(thing);
+            if !deep.is_empty() {
+                let c = ctx(&[("count", Value::Number(deep.len() as i64))]);
+                extra_frames.insert(0, self.say("read.deep", c));
+            }
+            if self.site.writing.legacy.is_some_and(|l| deep.contains(&l)) {
+                extra_frames.push(self.say("read.legacy", Context::new()));
             }
             let ghosts = self.ghost_count(thing);
             if ghosts > 0 {

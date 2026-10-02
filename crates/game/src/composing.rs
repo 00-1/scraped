@@ -166,6 +166,7 @@ impl Game {
     /// Notes the roots of everything the player has just read.
     pub(crate) fn encounter(&mut self, texts: &[usize]) {
         for &t in texts {
+            self.state.read.insert(t);
             let mut roots = BTreeSet::new();
             concepts_of(
                 &self.text(t).meaning.clone(),

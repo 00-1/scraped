@@ -4,12 +4,12 @@
 //! the engine can always report the true meaning of what it produced. Later,
 //! parsing player text means going the other way: surface → `Sentence`.
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub use crate::morphology::{Number, Polarity, Tense};
 
 /// What a noun phrase is about.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Head {
     /// A concept from the lexicon, by id.
@@ -19,22 +19,22 @@ pub enum Head {
 }
 
 /// A noun phrase with its modifiers.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NounPhrase {
     pub head: Head,
     pub number: Number,
     /// A counted quantity (0–999), rendered as numeral words.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u16>,
     /// A determiner concept, e.g. "this".
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub determiner: Option<String>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub adjectives: Vec<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub possessor: Option<Box<NounPhrase>>,
     /// Phrases renaming the head: titles, "child of X".
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub apposition: Vec<NounPhrase>,
 }
 
@@ -79,7 +79,7 @@ impl NounPhrase {
 }
 
 /// What part an argument plays in its clause.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Role {
     Subject,
@@ -88,14 +88,14 @@ pub enum Role {
     Recipient,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Argument {
     pub role: Role,
     pub np: NounPhrase,
 }
 
 /// Statement or command.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Mood {
     Declarative,
@@ -107,14 +107,14 @@ pub enum Mood {
 }
 
 /// A clause: one predicate and its arguments.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Clause {
     pub predicate: String,
     pub mood: Mood,
     pub tense: Tense,
     pub polarity: Polarity,
     pub args: Vec<Argument>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub adverbs: Vec<String>,
 }
 
@@ -125,7 +125,7 @@ impl Clause {
 }
 
 /// The meaning of one inscription.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "type", content = "value")]
 pub enum Sentence {
     Clause(Clause),

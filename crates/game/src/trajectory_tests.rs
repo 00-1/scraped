@@ -36,7 +36,7 @@ fn great_thing(g: &Game, text: usize) -> usize {
 
 /// Writes the opposite claim over a great inscription with the strongest
 /// scraper, and scrapes it.
-fn counter(g: &mut Game, great: usize) -> bool {
+pub(crate) fn counter(g: &mut Game, great: usize) -> bool {
     let text = g.site.greats[great].text;
     let thing = great_thing(g, text);
     g.state.place = g.site.things[thing].home;
