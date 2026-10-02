@@ -17,7 +17,7 @@ jobs:
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
       # Library crates must stay WebAssembly-compatible.
-      - run: cargo build -p scraped-lang -p scraped-content --target wasm32-unknown-unknown
+      - run: cargo build -p scraped-lang -p scraped-content -p scraped-world --target wasm32-unknown-unknown
       - run: cargo clippy -p scraped-web --target wasm32-unknown-unknown -- -D warnings
       # The browser tools build, and the authoring tool works headless.
       - run: tools/build.sh
@@ -26,6 +26,7 @@ jobs:
           node-version: 22
       - run: npm install --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
       - run: node tools/smoke/author.cjs
+      - run: node tools/smoke/bench.cjs
 
   # Fails until every required slot has Jb's own text (the M14 release gate).
   release-check:

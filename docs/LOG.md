@@ -88,3 +88,23 @@
 3. `{lang.glyphs …}` lists glyph table numbers until display modes exist (M05).
 
 **Content slots added:** `glyph.stroke`, `glyph.describe`.
+
+## 2026-10-02 — M04 World generation
+
+**Done**
+- **`world` crate**: 160×160 cells of 300 m. Island or basin per seed; value-noise terrain with light erosion and fine relief; temperature by latitude and altitude; moisture carried by a prevailing wind with rain shadows; twelve biomes.
+- **Water**: priority-flood drainage (every cell drains strictly downhill to the edge), rain accumulation, rivers, lakes in deep hollows, marsh in shallow ones, fords at gentle narrow stretches.
+- **History** over the language's eras: factions and schisms; settlements sited by water, defence and land; dynasties named in each era's language; notable people with kinship; foundings, migrations, wars, plagues, famines, abandonments, deaths; **writing events** with a potent claim and an intended effect; one **root event** in era 0 tied to the world's trajectory. Every event records place, era, actors, cause and the evidence it should leave. Roads by least-effort routing.
+- **Structures** placed by history (temples, houses, storehouses, cemeteries, archives, ruler tombs, walls and towers after wars, mines, bridges at unfordable crossings, waystations), each with an interior from authored-shape generators (house, temple, archive, tomb, tower…): rooms with purposes, exits and inscribable features with materials.
+- **Texts** placed as evidence, on the least-written suitable surface, rendered in their era's language: dedications (a king list builds up on a capital's temple), epitaphs, ledgers with totals (scarce in famines), letters, warnings, labels, milestones, and potent inscriptions, with the root text in the capital's archive vault.
+- **Present state**: decay by age, damp, material and abandonment; collapsed rooms, closed and blocked passages; ruins as traces; lingering intended effects recorded.
+- **Debug views** (spoilers): `scraped-lang world … map | history | site | json`, PNG map, and a World tab in the bench (map, clickable sites, timeline).
+- **Tests**: determinism (fingerprints for three seeds, identical in debug and release; the browser build reproduces the same histories), rivers downhill to the edge, every structure reachable from another, every text in its era's language, evidence for every event, root text present, bounds. A world takes about 0.1 s to generate in the browser.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **World size**: 48 km across rather than "a week's walk". Bigger costs browser time; revisit with movement (M06).
+2. **Claims and the root event** use the three potent verbs M02 has (open, burn, break); M08 brings the full concept-to-property table.
+3. **History density**: 5–8 first towns, 8–14 events per era, 3–6 notable people per town per era. Tune by feel once the world is walkable.
+4. Rivers on very smooth slopes can still run as straight parallel lines; a better erosion pass can come later.
+
+**Content slots added:** none (biomes, structure kinds and room purposes are data ids; their descriptions become slots in M05–M06).

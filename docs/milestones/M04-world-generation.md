@@ -55,13 +55,13 @@ None required for play yet. Names of biomes, structure types and room purposes a
 
 ## Checklist
 
-- [ ] `world` crate scaffold
-- [ ] Terrain, climate, biomes
-- [ ] Rivers, lakes, coast, crossings
-- [ ] History simulation with events and the root event
-- [ ] Structure placement and interior generators
-- [ ] Texts placed by history, in era
-- [ ] Present-state decay and lingering effects
-- [ ] Debug map, timeline and site views in CLI and bench
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] `world` crate scaffold
+- [x] Terrain, climate, biomes
+- [x] Rivers, lakes, coast, crossings
+- [x] History simulation with events and the root event
+- [x] Structure placement and interior generators
+- [x] Texts placed by history, in era
+- [x] Present-state decay and lingering effects
+- [x] Debug map, timeline and site views in CLI and bench
+- [x] Tests listed above
+- [x] LOG.md entry

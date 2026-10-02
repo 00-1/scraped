@@ -34,6 +34,16 @@ cargo run -q -p scraped-cli -- --seed 42 corpus --count 10 --json
 
 A shorter corpus is always the start of a longer one for the same seed.
 
+### Worlds
+
+```sh
+# Spoilers: the map (ASCII, or PNG), the history, one settlement's buildings and writing.
+cargo run -q -p scraped-cli -- world --seed 42 map --spoil
+cargo run -q -p scraped-cli -- world --seed 42 map --spoil --png world.png
+cargo run -q -p scraped-cli -- world --seed 42 history --spoil
+cargo run -q -p scraped-cli -- world --seed 42 site 0 --spoil
+```
+
 ### Browser tools
 
 `tools/build.sh` builds two self-contained pages into `tools/dist/`, each with
@@ -43,8 +53,8 @@ the engine (`crates/web`) compiled to WebAssembly:
   what it is for and its variables; an editor that lints as you type; live
   previews against real generated worlds; saving straight into `content/`
   (Chrome/Edge), or via zip export and copy-to-clipboard.
-- `bench.html`, the **language bench**: eras side by side, glyphs, the script
-  table and every difficulty dial.
+- `bench.html`, the **bench**: eras side by side, glyphs, the script
+  table, every difficulty dial, and the world (map, history, sites).
 
 The Pages workflow publishes both. It needs the `wasm32-unknown-unknown`
 target (`rustup target add wasm32-unknown-unknown`) and `python3`.
@@ -63,6 +73,7 @@ Every English word the player reads is written by Jb in `content/` (see
     intended change, regenerate with `UPDATE_SNAPSHOTS=1 cargo test` and review the diff.
 - `crates/cli` — the `scraped-lang` terminal tool.
 - `crates/content` — content slots, the template language, the pack, lint and coverage.
+- `crates/world` — world generation: terrain, rivers, history, structures, texts, decay.
 - `crates/web` — the engine for browsers: one WebAssembly module with a JSON interface.
 - `tools/bench`, `tools/author` — page templates for the bench and the authoring tool.
 - `content/` — Jb's content pack.
