@@ -46,15 +46,15 @@ Death narration (per cause, already partly in M07) leading into the end; leaving
 
 ## Checklist
 
-- [ ] End conditions and recording
-- [ ] Deepest text placement and content
-- [ ] Departure claim
-- [ ] Writing yourself in
-- [ ] Run record
-- [ ] Zoomed-out summary through slots
-- [ ] Chronicle in language
-- [ ] Legacy file and placement
-- [ ] Notebook export
-- [ ] Slots registered with examples
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] End conditions and recording
+- [x] Deepest text placement and content
+- [x] Departure claim
+- [x] Writing yourself in
+- [x] Run record
+- [x] Zoomed-out summary through slots
+- [x] Chronicle in language
+- [x] Legacy file and placement
+- [x] Notebook export
+- [x] Slots registered with examples
+- [x] Tests listed above
+- [x] LOG.md entry

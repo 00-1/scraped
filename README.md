@@ -44,7 +44,10 @@ cargo run -q -p scraped-play -- --seed 42
 echo '{"cmd": "look"}' | cargo run -q -p scraped-play -- --seed 42 --json
 ```
 
-In play, `save`, `load`, `transcript on|off` and `quit` handle the session;
+In play, `save`, `load`, `transcript on|off`, `export` (the notebook:
+transcript, named places and run record, once the run is over) and `quit`
+handle the session; `--legacy [FILE]` carries the last run's final
+inscription into the next world as a faint, very old layer;
 `define 3 as ka` gives a glyph your own label. Outdoors: `head north`,
 `go to the tower` (anything in view), `follow the river downstream`,
 `go back`, `name this place the gap` and later `go to the gap`. In fog or at

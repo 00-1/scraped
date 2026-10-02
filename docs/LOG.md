@@ -257,3 +257,29 @@
 7. **Evidence**: up to four shortage ledgers; no migration graffiti yet.
 
 **Content slots added:** `region.cues`, `region.changed`, `great.site`, `great.release`, `scrape.too_weak`, `time.status`; `write.refused` gained `too_great`; `tool.found` and `thing.name` gained the new scrapers.
+
+## 2026-10-02 — M11 Endings and legacy
+
+**Done**
+- **Endings**: death (as before), leaving, writing yourself in, old age (80) and being overtaken (the region you stand in collapses: stability and life both under 0.1). Each is recorded with its cause, command, time and place, and narrated through its own slot; any command after the end shows the summary.
+- **The deepest text**: the root inscription's surface becomes the deepest stack in the world. Beneath the root lie an account of the departure ("the self departed. Let the self depart."), an account of the cause ("the king scraped the tablet. The walls did not break. The self did not depart."), and repeats of the middle sentence until no other stack is as deep. Two new concepts, `self` and `depart`, occur nowhere else, so they can be learnt only here. The plain lens never shows these accounts; the new **first lens**, placed nearly as far out as anything, shows every faint layer at once (80% of glyphs in daylight, 60% dim).
+- **Leaving**: write "let the self depart" (the late era's words) and scrape it. The run ends by choice and the world's state is frozen as the outcome.
+- **Writing yourself in**: any other potent claim on the self ("let the self not depart" is the plainest), scraped, ends the run with the player as a trace in the world.
+- **Run record** (`Game::record`): buildings entered, places named, texts read, texts written, every claim released (who wrote it, who scraped it, with what power), the player's acts on the regions (day, released or silenced, scale, what it pushes), and each region's start, end and the same world left alone.
+- **Zoomed-out summary**: the regions are run a second time from the start with only history's pushes, so every change is attributed to the world, to the player, or to both. Regions that changed alike are grouped into one line, the player's doing first, then the causal chain, all through slots.
+- **Chronicle**: up to six clauses in the newest era (arrival; up to two of the largest changes the player caused, or a released claim restated; the people's verdict, honour or fear; the ending), shown as glyph numbers or the player's own labels in the same form `write` takes. Spoiler output adds the meaning, romanisation and an English gloss. It parses back to exactly its meaning on seeds 1, 42 and 9001.
+- **Legacy**: `scraped --legacy [FILE]` writes the run's final inscription (the last thing the player wrote that parses) when it ends, and places the previous one in a new world as a faint layer beneath a reachable history cast outside the starting town, older than everything on it. Saves carry the legacy they were made with. The bench has a Legacy toggle (kept in the browser).
+- **Notebook**: `export [PREFIX]` writes the transcript, the named places and the run record as JSON; the bench shows all three, with copy buttons, when a run ends. The browser API has `play_end`.
+- **Tests**: every ending reached by a scripted run; reading the deepest text through the first lens is enough to write the departure (and nothing less is); the summary matches the simulation, attributes a counter to the player, and a world left alone attributes nothing; the chronicle parses back; legacy appears only when enabled, as a ghost, and survives save and load; the notebook holds the run. The bench smoke test plays to the end of a run.
+- Adding the two concepts shifts some generated words and glyphs for existing seeds (snapshots and world fingerprints updated). Meanings now deserialise, for the legacy file.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **The departure**: "let the self depart"; writing yourself in is any other potent claim on the self. Is "self" the right idea, or should the player have a name?
+2. **The deepest text's wording** (above), and padding by repeating its middle sentence.
+3. **First lens**: reads every faint layer at once, at 80% / 60%; placed in a far archive or temple.
+4. **Old age at 80; collapse** when stability and life are both under 0.1 where you stand.
+5. **Chronicle mapping**: life falling is "the fields burned", water rising "the people drank the water", ground failing "the walls broke", warmth "the sun burned"; verdict honour or fear by the net change in life, water and stability.
+6. **Legacy placement**: beneath a reachable history cast outside the starting town (the root if none), in the first era's language; it never acts.
+7. **Chronicle display**: glyph numbers with the player's labels, "/" between words.
+
+**Content slots added:** `end.left`, `end.written_in`, `end.old_age`, `end.overtaken`, `end.region`, `end.calm`, `end.act`, `end.chronicle`, `read.legacy`, `notebook.heading`, `say.export_offer`, `say.exported`, `say.legacy_kept`. `end.summary` is reworked (ending, counts); `read.deep` gained `count`; `tool.found` gained the first lens.
