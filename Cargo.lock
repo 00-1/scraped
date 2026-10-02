@@ -83,8 +83,19 @@ checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
 name = "scraped-cli"
 version = "0.1.0"
 dependencies = [
+ "scraped-content",
  "scraped-lang",
+ "serde",
  "serde_json",
+]
+
+[[package]]
+name = "scraped-content"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "toml",
 ]
 
 [[package]]
@@ -92,6 +103,7 @@ name = "scraped-lang"
 version = "0.1.0"
 dependencies = [
  "rand_chacha",
+ "scraped-content",
  "serde",
  "serde_json",
  "toml",
