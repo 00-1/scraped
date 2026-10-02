@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/content", "crates/lang", "crates/cli"]
-exclude = ["tools/bench"]
+members = ["crates/content", "crates/lang", "crates/cli", "crates/web"]
 
 [workspace.package]
 edition = "2021"
@@ -14,3 +13,9 @@ rand_chacha = { version = "0.10", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = { version = "1", default-features = false, features = ["std", "parse", "serde"] }
+
+# Small, fast WebAssembly for the browser tools; harmless for the CLI.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1

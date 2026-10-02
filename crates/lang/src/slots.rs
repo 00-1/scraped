@@ -149,6 +149,81 @@ pub fn describe_glyph(r: &mut Renderer, g: &Glyph) -> String {
     r.render("glyph.describe", &glyph_context(strokes, g.marks.len()))
 }
 
+/// One preview rendering.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct PreviewRow {
+    pub vars: Context,
+    pub text: String,
+    /// A drawing of what the text describes, when there is one (spoiler:
+    /// the player never sees it).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub svg: Option<String>,
+}
+
+/// Sample renderings of a slot for previews. Glyph descriptions are built
+/// from real glyphs, with each stroke rendered through `glyph.stroke`,
+/// exactly as in play.
+pub fn preview(r: &mut Renderer, slot: &str, seed: u64, count: usize) -> Vec<PreviewRow> {
+    if slot == "glyph.describe" {
+        return sample_glyphs(seed)
+            .iter()
+            .take(count)
+            .map(|g| {
+                let strokes: Vec<Value> = g
+                    .marks
+                    .iter()
+                    .map(|m| Value::from(r.render("glyph.stroke", &stroke_context(m))))
+                    .collect();
+                let vars = glyph_context(strokes, g.marks.len());
+                let text = r.render(slot, &vars);
+                PreviewRow {
+                    vars,
+                    text,
+                    svg: Some(g.svg(48)),
+                }
+            })
+            .collect();
+    }
+    if slot == "glyph.stroke" {
+        let mut seen = Vec::new();
+        return sample_glyphs(seed)
+            .iter()
+            .flat_map(|g| g.marks.clone())
+            .filter(|m| {
+                let new = !seen.contains(m);
+                seen.push(*m);
+                new
+            })
+            .take(count)
+            .map(|m| {
+                let vars = stroke_context(&m);
+                let text = r.render(slot, &vars);
+                let svg = Glyph { marks: vec![m] }.svg(48);
+                PreviewRow {
+                    vars,
+                    text,
+                    svg: Some(svg),
+                }
+            })
+            .collect();
+    }
+    let Some(def) = r.registry.get(slot) else {
+        return Vec::new();
+    };
+    def.samples(&[seed])
+        .into_iter()
+        .take(count)
+        .map(|(_, vars)| {
+            let text = r.render(slot, &vars);
+            PreviewRow {
+                vars,
+                text,
+                svg: None,
+            }
+        })
+        .collect()
+}
+
 /// Language hooks for templates: `{lang.word gate}` gives the word for a
 /// concept, `{lang.text x}` passes generated text through unchanged.
 pub struct LangHooks<'a> {
