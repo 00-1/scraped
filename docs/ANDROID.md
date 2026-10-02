@@ -35,7 +35,9 @@ The app has a chat app's shape, because the game is a conversation:
   of your own for glyph tables, word lists and guesses, kept with the world.
 - **Reading comfort**: text size, light, dark or sepia, a serif or plain
   face, and Android's own font-size setting is respected. The newest text
-  stays in view as the keyboard opens and closes, and a *Latest* button
+  stays in view as the keyboard opens and closes. A reply longer than the
+  screen opens at its top, under your command, so you read it from the
+  start. A *Latest* button
   appears if you have scrolled back. Back works as expected everywhere.
 - **A backdrop**, which can be switched off: a faint reading room by
   lamplight (drifting warm light in the dark theme, mottled paper in the

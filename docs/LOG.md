@@ -402,6 +402,8 @@
 - **Build:** `android/build.sh` runs cargo-ndk (arm64, armv7, x86_64) and then Gradle.
 - **CI:** builds the APK, then plays it on an emulator (API 34). `AppTest` covers a world, typing, an agent move, HTTP with the key and the notebook. `EngineTest` checks the transcripts against every platform's.
 - `android/test-agent.sh` tests the agent server off-device.
+- **Reading:** a reply taller than the screen now opens at its top, under its command. The emulator test caught this: the list followed the end of the reply.
+- CI is green: the APK builds and all three on-device tests pass.
 
 **New content slots**
 - `app.label` id `atmosphere` (the switch for the backdrop).
