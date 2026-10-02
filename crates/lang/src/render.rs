@@ -216,23 +216,20 @@ impl Renderer<'_> {
     }
 
     /// The verb with any particles, and the potent particle before it.
+    // DESIGN-Q: the potent particle always comes directly before the verb
+    // group, whatever the word order.
     fn verb(&self, c: &Clause) -> Vec<Word> {
-        let m = &self.lang.morphology;
-        let root = self.lang.lexicon.root(&c.predicate);
-        let word = Word::plain(m.verb(root, &c.predicate, c.tense, c.polarity));
-        let mut out =
-            self.with_particles(word, m.verb_particles(c.tense, c.polarity), m.verb_position);
-        // DESIGN-Q: the potent particle always comes directly before the
-        // verb group, whatever the word order.
-        if c.mood == Mood::Potent {
-            out.insert(0, self.plain("pot"));
-        }
-        out
+        self.verb_group(&c.predicate, c.tense, c.polarity, c.mood == Mood::Potent)
     }
 
     /// Places particle words next to their host: after it in suffixing
     /// languages, before it (mirrored) in prefixing ones.
-    fn with_particles(&self, host: Word, particles: Vec<Morph>, pos: AffixPosition) -> Vec<Word> {
+    pub(crate) fn with_particles(
+        &self,
+        host: Word,
+        particles: Vec<Morph>,
+        pos: AffixPosition,
+    ) -> Vec<Word> {
         let particles = particles
             .into_iter()
             .map(|p| Word::plain(vec![Morph { is_root: true, ..p }]));
@@ -248,7 +245,12 @@ impl Renderer<'_> {
     }
 
     /// An uninflected word (adjective, numeral, determiner, adverb, particle).
-    fn plain(&self, concept: &str) -> Word {
+    /// An uninflected word, for callers outside the renderer.
+    pub fn plain_word(&self, concept: &str) -> Word {
+        self.plain(concept)
+    }
+
+    pub(crate) fn plain(&self, concept: &str) -> Word {
         Word::plain(vec![Morph {
             form: self.lang.lexicon.root(concept).clone(),
             gloss: concepts::gloss(concept),
@@ -256,18 +258,44 @@ impl Renderer<'_> {
         }])
     }
 
-    fn noun_phrase(&self, np: &NounPhrase, case: Case) -> Vec<Word> {
+    /// A noun phrase's head word with its particles.
+    pub(crate) fn head(
+        &self,
+        head: &Head,
+        number: crate::morphology::Number,
+        case: Case,
+    ) -> Vec<Word> {
         let m = &self.lang.morphology;
-        let head = match &np.head {
-            Head::Concept(id) => {
-                Word::plain(m.noun(self.lang.lexicon.root(id), id, np.number, case))
-            }
+        let word = match head {
+            Head::Concept(id) => Word::plain(m.noun(self.lang.lexicon.root(id), id, number, case)),
             Head::Name(p) => Word {
-                morphs: m.noun(&self.names[*p], &self.name(*p), np.number, case),
+                morphs: m.noun(&self.names[*p], &self.name(*p), number, case),
                 name: true,
             },
         };
-        let head = self.with_particles(head, m.noun_particles(np.number, case), m.noun_position);
+        self.with_particles(word, m.noun_particles(number, case), m.noun_position)
+    }
+
+    /// The verb group: the verb with its particles (and the potent particle).
+    pub(crate) fn verb_group(
+        &self,
+        predicate: &str,
+        tense: crate::morphology::Tense,
+        polarity: crate::morphology::Polarity,
+        potent: bool,
+    ) -> Vec<Word> {
+        let m = &self.lang.morphology;
+        let root = self.lang.lexicon.root(predicate);
+        let word = Word::plain(m.verb(root, predicate, tense, polarity));
+        let mut out = self.with_particles(word, m.verb_particles(tense, polarity), m.verb_position);
+        if potent {
+            out.insert(0, self.plain("pot"));
+        }
+        out
+    }
+
+    pub(crate) fn noun_phrase(&self, np: &NounPhrase, case: Case) -> Vec<Word> {
+        let head = self.head(&np.head, np.number, case);
 
         // Modifiers inside out: adjectives nearest the noun, then the
         // numeral, then the demonstrative. Mirrored when they follow.

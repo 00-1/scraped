@@ -23,6 +23,7 @@ pub mod lexicon;
 pub mod meaning;
 pub mod morphology;
 pub mod numerals;
+pub mod parse;
 pub mod phonology;
 pub mod render;
 pub mod rng;
