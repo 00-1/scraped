@@ -28,7 +28,7 @@ It is spring. Little grows.
 
 What's wrong, and none of it is the placeholder wording: every system adds its own line; the scene is restated ("grassland" three times, "in the morning" twice, "You stand" twice); fifteen buildings are listed one by one; two landmarks are indistinguishable; and temperature, season and the land's state are stated instead of shown.
 
-**This opening is a fixture.** After D02, the same moment on the same seed must render at most three facts with no repetition, such as (shape only; the words will be Jb's) a road through long grass, a ruined temple over a crowd of tombs, and the cold felt in the breath. Everything removed must still be reachable by `look around`, `look closer`, `listen` and so on. Commit the before and after to `docs/samples/D02/`.
+**This opening is a fixture.** After D02, the same moment on the same seed must render at most three facts with no repetition, the buildings as a single whole-place fact (at most one standout named), such as (shape only; the words will be Jb's) a road through long grass, a ruined temple over a crowd of tombs, and the cold felt in the breath. Everything removed must still be reachable by `look around`, `look closer`, `listen` and so on. Commit the before and after to `docs/samples/D02/`.
 
 Also, on the M14 build, arriving in a town on seed 42 prints the weather, the ground, a list of fourteen buildings, the horizon, the season, the state of the land and a creature, every time, and `look` repeats all of it. Each later system appended its line. D03–D11 will add much more to the world; without this milestone, every addition makes each response longer.
 
@@ -42,7 +42,24 @@ A single engine component decides what is said, used by every description path (
 - **Budget:** each kind of response has a small budget (proposed: arrival 3 facts, `look` 4, room entry 3, travel report 1–2 plus anything that stopped the journey). Only the top candidates are rendered. Everything else stays available on request.
 - **Interruptions:** things that are loud, sudden, new or dangerous may break through the budget, and only then.
 - **Memory:** the engine remembers what this player has already been told about each place and thing. Repeated looks favour what's changed or not yet mentioned; unchanged things fade to a short reminder or silence.
-- **Groups:** many similar things collapse into one fact ("tombs crowd the hillside") with the detail available by looking closer, instead of listing fourteen buildings.
+- **Groups:** see the next section; grouping is how a rich place stays a short description.
+
+### 1a. Seeing a place as a whole
+
+People take in a place as one impression first, then pick out parts. The attention model works the same way, at three levels:
+
+1. **The whole:** the place as a single fact, an impression of what kind of place it is: a ruined town, ground strewn with old structures, a city of the dead, a burnt-out quarter. Generated from what's actually there (kinds, density, condition, arrangement, era), never a list.
+2. **Groups:** similar things perceived together, with vague quantities and their arrangement: tombs in rows down the slope, a scatter of broken houses, a few standing columns. Groups form by kind, condition, material and position.
+3. **Individuals:** a single thing is mentioned on its own only when it stands out: the biggest or tallest, the only one of its kind, the nearest, something unusual, something new or changed, or something the player has interacted with or named.
+
+Rules:
+
+- Arrival and `look` start at the whole, plus at most one or two standouts. A town is never listed building by building.
+- **Digging moves down a level:** `look around` or `look closer` breaks the whole into groups; examining a group (`look at the tombs`) picks out its individuals, again by salience, a few at a time; `examine the third tomb` or `the tomb with the broken lid` gets one.
+- **Vague counts:** a few, several, many, dozens, a crowd of. Exact counts only when the player counts (`count the tombs`).
+- **The parser understands groups:** `the tombs`, `a tomb`, `another tomb`, `the nearest tomb`, `go among the tombs`, `the worn ones`; and individuals by their standout traits.
+- The same applies indoors (a hall of pillars, shelves of jars) and outdoors (a grove, a boulder field, a herd).
+- Slots: a **whole** fact kind with variables describing the mix (dominant kinds, density, condition, arrangement, era) so Jb can write impressions, plus group and individual fact kinds.
 
 ### 2. Digging in
 
@@ -91,13 +108,15 @@ Replace stated facts with evidence the player can read:
 - Budget never exceeded except by flagged interruptions.
 - Same state and history give the same selection (determinism).
 - A second `look` with no change says less than the first.
+- No arrival or `look` names more than two individual structures, whatever the settlement's size; each group can be broken down by digging until every member is reachable.
 - Every fact in the world is reachable by some digging action (nothing exists only in debug output).
 - Season can be inferred: each season produces at least three distinct evidence facts in each biome.
 - No slot renders the season name, the regional variable names, or need levels except in `check myself` or debug.
 
 ## Checklist
 
-- [ ] Attention model: candidates, salience, novelty, budgets, interruptions, memory, grouping
+- [ ] Attention model: candidates, salience, novelty, budgets, interruptions, memory
+- [ ] Seeing a place as a whole: whole, group and individual levels; vague counts; digging down; group references in the parser
 - [ ] Digging verbs and layered examine
 - [ ] Sound, smell and touch as simulated channels
 - [ ] Season, time, regional state and needs shown by evidence
