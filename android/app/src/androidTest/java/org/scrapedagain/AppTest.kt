@@ -17,7 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.net.HttpURLConnection
+import java.net.Socket
 import java.net.URL
 
 /** Plays through the real interface on a device: a world, typing, the agent, back. */
@@ -92,14 +92,22 @@ class AppTest {
         }
     }
 
+    /**
+     * A bare HTTP/1.1 request over a socket: the agent's view from outside.
+     * (Inside the app, Android refuses plain HttpURLConnection to http://.)
+     * Returns the body, or "" for an error status.
+     */
     private fun http(method: String, url: String, key: String, body: String?): String {
-        val c = URL(url).openConnection() as HttpURLConnection
-        c.requestMethod = method
-        c.setRequestProperty("Authorization", "Bearer $key")
-        if (body != null) {
-            c.doOutput = true
-            c.outputStream.use { it.write(body.toByteArray()) }
+        val u = URL(url)
+        Socket(u.host, u.port).use { s ->
+            s.soTimeout = 30_000
+            val data = (body ?: "").toByteArray()
+            val head = "$method ${u.file} HTTP/1.1\r\nHost: ${u.host}\r\nAuthorization: Bearer $key\r\n" +
+                "Content-Type: text/plain\r\nContent-Length: ${data.size}\r\nConnection: close\r\n\r\n"
+            s.getOutputStream().apply { write(head.toByteArray()); write(data); flush() }
+            val reply = s.getInputStream().readBytes().toString(Charsets.UTF_8)
+            val status = reply.substringAfter(' ').take(3).toIntOrNull() ?: 0
+            return if (status in 200..399) reply.substringAfter("\r\n\r\n") else ""
         }
-        return if (c.responseCode < 400) c.inputStream.bufferedReader().readText() else ""
     }
 }
