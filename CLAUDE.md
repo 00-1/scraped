@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**M03 — Content system and authoring tool v1** (`docs/milestones/M03-content-and-authoring.md`). M01 and M02 are done.
+**M04 — World generation** (`docs/milestones/M04-world-generation.md`). M01–M03 are done.
 
 - Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
 - Keep the browser bench (`tools/bench`, later the `web` crate) up to date with each milestone; once there is a game, it goes in the bench too.
@@ -21,7 +21,11 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 - Cargo workspace:
   - `crates/lang` — the language engine (library). Pure logic, no I/O.
   - `crates/cli` — a small terminal binary for inspecting generated output.
-  - Later crates (`content`, `world`, `sim`, `game`, `play`, `web`) and the authoring tool are listed in `docs/ROADMAP.md`. Create each only in the milestone that introduces it.
+  - `crates/content` — content slots, template language, pack, lint (library).
+  - `crates/web` — WebAssembly entry point (JSON in, JSON out) for the browser tools.
+  - `tools/` — the bench and authoring tool page templates; `tools/build.sh` builds them.
+  - Later crates (`world`, `sim`, `game`, `play`) are listed in `docs/ROADMAP.md`. Create each only in the milestone that introduces it.
+- **Content slots:** declare new player-visible text with `SlotDef` (see `crates/lang/src/slots.rs`), add it to the registry, give it a sampler, and add one `example = true` variant to the family's file in `content/`. Do not edit Jb's own (non-example) variants.
 - Keep the core crates **WebAssembly-compatible**: no threads, filesystem or OS-specific calls inside library crates. I/O belongs only in `cli` (and later `web`).
 - Randomness: a seeded RNG (`rand_chacha::ChaCha8Rng` or similar) passed explicitly. **Never** use thread-local or OS randomness in library code.
 - Serialisation: `serde` + `serde_json` for any structured output.

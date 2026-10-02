@@ -70,3 +70,21 @@
 - **All proposed defaults accepted for now**: the M01 and M02 open questions, and the design-gate defaults in `docs/ROADMAP.md`. Code keeps its `DESIGN-Q:` markers so they can be revisited.
 - **Unattended work**: carry on through the milestones without pausing at the end of each; keep the browser bench updated, and add the game to it once it exists.
 - The bench runs as WebAssembly in the claude.ai viewer (confirmed by Jb on build e31d1f0); it now shows its build commit and age.
+
+## 2026-10-02 — M03 Content system and authoring tool v1
+
+**Done**
+- **`content` crate**: slot registry (`SlotDef` with descriptions, typed variables, release requirements, samplers from real seeds); TOML pack format (`[[variant]]` blocks, one file per family) with a canonical writer and a version hash; template language (variables, inline choices, chained helpers, slot calls, `[if]`/`[else]`/`[end]`, reserved `[damaged]`, language hooks); deterministic renderer that avoids immediate repeats; loud `⟦slot: …⟧` placeholders; lint (syntax, unknown variables/helpers/slots, type and impossible-value checks, unreachable conditions, too few variants, too long, near duplicates) and coverage; release check.
+- **First slots**: `glyph.stroke` and `glyph.describe`, with example variants in `content/glyphs.toml` and a `content/README.md` for Jb.
+- **Language hooks**: `{lang.word gate}`, `{lang.text x}`, `{lang.glyphs gate}`.
+- **CLI**: `scraped-lang content lint | coverage | preview SLOT | registry | release-check`.
+- **`web` crate**: one WebAssembly module with a JSON interface (`bench`, `registry`, `parse`, `write`, `lint`, `lint_variant`, `preview`). The bench now runs on it.
+- **Authoring tool** (`tools/author`): slot browser with status, slot page (brief, variables with example values, requirements), editor with highlighting and lint as you type, live preview against any seed (spoilers show the glyph being described), save to the repo's `content/` folder (Chrome/Edge), import of files or zip, export zip, copy file, drafts kept in the browser.
+- **CI** builds both pages and runs a headless smoke test of the authoring tool; a release-check job is allowed to fail until M14. A Pages workflow publishes both tools.
+
+**Open questions for Jb**
+1. **Pages** needs a one-time switch: repository Settings → Pages → Source: "GitHub Actions".
+2. Glyph descriptions are two slots (one stroke; the whole glyph). Is that the right granularity for your writing?
+3. `{lang.glyphs …}` lists glyph table numbers until display modes exist (M05).
+
+**Content slots added:** `glyph.stroke`, `glyph.describe`.

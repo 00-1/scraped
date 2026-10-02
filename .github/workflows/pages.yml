@@ -1,0 +1,38 @@
+# Publishes the authoring tool and the language bench to GitHub Pages.
+# One-time setup: repository Settings → Pages → Source: "GitHub Actions".
+name: Pages
+
+on:
+  push:
+    branches: [claude/laughing-edison-9brdzg]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - run: tools/build.sh
+      - run: |
+          mkdir -p _site
+          cp tools/dist/author.html tools/dist/bench.html _site/
+          cp tools/site/index.html _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+      - id: deploy
+        uses: actions/deploy-pages@v4

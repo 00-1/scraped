@@ -76,15 +76,15 @@ Add these to `CLAUDE.md`:
 
 ## Checklist
 
-- [ ] Slot registry and JSON export
-- [ ] Pack format, loader and `content/README.md`
-- [ ] Template language: parser, renderer, helpers, language hooks
-- [ ] Lint and coverage
-- [ ] Existing player-facing text migrated to slots
-- [ ] CLI commands
-- [ ] `web` crate bindings; bench moved onto them
-- [ ] Authoring tool: browser, slot page, editor, preview, save via File System Access, zip fallback
-- [ ] GitHub Pages deployment from CI
-- [ ] Release-check mode
-- [ ] CLAUDE.md updated with the content rules
-- [ ] LOG.md entry
+- [x] Slot registry and JSON export
+- [x] Pack format, loader and `content/README.md`
+- [x] Template language: parser, renderer, helpers, language hooks
+- [x] Lint and coverage
+- [x] Existing player-facing text migrated to slots
+- [x] CLI commands
+- [x] `web` crate bindings; bench moved onto them
+- [x] Authoring tool: browser, slot page, editor, preview, save via File System Access, zip fallback
+- [x] GitHub Pages deployment from CI
+- [x] Release-check mode
+- [x] CLAUDE.md updated with the content rules
+- [x] LOG.md entry

@@ -19,7 +19,7 @@ The engine is agent work. The content pack is Jb's work. The authoring tool is w
 |---|---|---|---|
 | 01 | [Language slice](milestones/M01-language-slice.md) ✅ | Sounds, roots, morphology, word order, formulaic inscriptions, CLI, browser bench | decipher a corpus on paper |
 | 02 | [Language depth](milestones/M02-language-depth.md) ✅ | Script and glyph descriptions, numerals, sound-change eras, registers, difficulty dials | draw a script and compare eras |
-| 03 | [Content system and authoring tool v1](milestones/M03-content-and-authoring.md) | Content pack format, slot registry, template language, linter, browser authoring tool | write prose and see it rendered |
+| 03 | [Content system and authoring tool v1](milestones/M03-content-and-authoring.md) ✅ | Content pack format, slot registry, template language, linter, browser authoring tool | write prose and see it rendered |
 | 04 | [World generation](milestones/M04-world-generation.md) | Bounded terrain, climate, biomes, rivers, history, settlements, structures, inscriptions placed by history | inspect a generated world and its history |
 | 05 | [Game core and text interface](milestones/M05-game-core.md) | Game state, command parser, time, save/replay, terminal client, JSON agent protocol, interiors | walk around inside one generated site |
 | 06 | [Perception and movement](milestones/M06-perception-and-movement.md) | Landmarks, salience, intent movement, simulated travel, drift, bearings, naming places | cross the whole world and map it |
