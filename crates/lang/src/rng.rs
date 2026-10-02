@@ -33,6 +33,8 @@ pub enum Stream {
     /// Everything else that happens between eras: replaced words, eroded
     /// affixes, script change.
     Evolution(u32),
+    /// World generation stages, numbered by the world crate.
+    World(u32),
 }
 
 impl Stream {
@@ -50,6 +52,7 @@ impl Stream {
             Stream::Register => 9,
             Stream::SoundChange(e) => 100 + u64::from(e),
             Stream::Evolution(e) => 200 + u64::from(e),
+            Stream::World(n) => 500 + u64::from(n),
         }
     }
 }

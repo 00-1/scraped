@@ -85,6 +85,7 @@ version = "0.1.0"
 dependencies = [
  "scraped-content",
  "scraped-lang",
+ "scraped-world",
  "serde",
  "serde_json",
 ]
@@ -114,6 +115,16 @@ name = "scraped-web"
 version = "0.1.0"
 dependencies = [
  "scraped-content",
+ "scraped-lang",
+ "scraped-world",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "scraped-world"
+version = "0.1.0"
+dependencies = [
  "scraped-lang",
  "serde",
  "serde_json",
