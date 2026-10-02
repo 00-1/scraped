@@ -308,3 +308,25 @@
 5. Should "first_…" beats ever repeat? They fire once a run.
 
 **Content slots added:** one per storylet (`story.<id>`), declared from the pack. Examples: `story.opening`, `story.shrine`, `story.scraped_seen`, `story.tool`, `story.release`, `story.first_write`, `story.great`, `story.deepest`, `story.ending`.
+
+## 2026-10-02 — M13 Authoring tool v2
+
+**Done**
+- **Render traces**: the renderer records every slot it renders (which variant, which `[if]` branches, the text, and whether it was called from another slot); the game keeps each with its variables and seed, so a line can be rendered again exactly.
+- **Coverage** (`scraped_game::coverage`): two deterministic bots, a wanderer and a scholar who starts with the writing tools, play any number of worlds. Every slot gets hits per player-hour, gap renders (placeholder or example) per player-hour (the ranking), per-variant and per-branch counts, the common variable combinations that fell through to a generic variant, and repetition (how often the same variant shows in a typical run). Slots no bot reached are listed.
+- **Playtest in the tool**: the game runs beside the editor; every line links to the slot, variant, branches and variables that wrote it ("why did I see this?"), and clicking opens that variant. Edits replay the whole run at once with the new text (a run is its seed and commands, so its state never changes); rewind to any command; play from a pasted save; copy the save.
+- **Hot reload**: `Game::set_pack` swaps the text of a running game; storylet rules stay as they were when the world was made (`play_pack` in the browser API).
+- **Inspectors** (spoilers): language (glyphs, lexicon search, grammar sheet per era), world (map, history, surfaces and live claims, regions over half a year), run (understanding by root against the threshold, words not yet met, the run record, storylets, claims here, regions).
+- **Voice tools**: Jb's recurring words and phrases (his own variants only), echo warnings when a four-word phrase appears in two slots (also in lint), length and rhythm by family.
+- **Review mode**: the sidebar can list families in the order a player meets them (opening, early, late) with done counts, and "Next to write" jumps to the next slot that isn't done.
+- **Pack diff**: the Changes tab compares the pack with the committed one the tool was built with, variant by variant, and warns when storylet changes mean saves will replay differently (text changes never do).
+- **Tests**: coverage is deterministic and ranked, and accounts for every slot; every line of output comes from a render and every render re-renders exactly from its variant and variables (two bots, three seeds); a hot reload mid-run leaves the state identical and changes the text. The authoring smoke test (run in CI) now plays, follows a line to its template, edits it and sees the run update, runs the bots, and opens every tab.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Repetition**: a slot "needs more" when a player would see the same variant 4+ times a run.
+2. **Echoes**: phrases of four words or more shared between slots.
+3. **Review order**: story, say, place, thing (opening); land, travel, read, glyphs, survival, hazards, mechanisms, creatures (early); tools, scraping, writing, regions, great inscriptions, time, death, endings (late).
+4. **Saves and pack changes**: any storylet change counts as breaking saves.
+5. The bots are simple; slots behind deep play (endings, late writing) show as "never reached" until better bots exist.
+
+**Content slots added:** none.

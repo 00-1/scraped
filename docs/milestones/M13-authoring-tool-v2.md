@@ -39,14 +39,14 @@ Any AI-generated text suggestions. The tool never writes prose for Jb.
 
 ## Checklist
 
-- [ ] Coverage runner over bots and seeds
-- [ ] Ranked gaps by player-hours affected
-- [ ] Repetition analysis
-- [ ] Playtest panel with output-to-template links
-- [ ] Hot reload
-- [ ] Language, world and run inspectors
-- [ ] Voice tools
-- [ ] Review mode
-- [ ] Pack diff and save-compatibility warnings
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Coverage runner over bots and seeds
+- [x] Ranked gaps by player-hours affected
+- [x] Repetition analysis
+- [x] Playtest panel with output-to-template links
+- [x] Hot reload
+- [x] Language, world and run inspectors
+- [x] Voice tools
+- [x] Review mode
+- [x] Pack diff and save-compatibility warnings
+- [x] Tests listed above
+- [x] LOG.md entry

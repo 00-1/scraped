@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**M13 — Authoring tool v2** (`docs/milestones/M13-authoring-tool-v2.md`). M01–M12 are done.
+**M14 — Fairness, clients and release** (`docs/milestones/M14-fairness-clients-release.md`). M01–M13 are done.
 
 - Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
 - Keep the browser bench (`tools/bench`, later the `web` crate) up to date with each milestone; once there is a game, it goes in the bench too.
