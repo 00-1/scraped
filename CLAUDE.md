@@ -10,7 +10,8 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 **M03 — Content system and authoring tool v1** (`docs/milestones/M03-content-and-authoring.md`). M01 and M02 are done.
 
-- Work on one milestone per session, only within its spec. Do not start the next milestone, even if there is time left; stop and report instead.
+- Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
+- Keep the browser bench (`tools/bench`, later the `web` crate) up to date with each milestone; once there is a game, it goes in the bench too.
 - Before building, check the spec's design gates. If Jb hasn't settled one, build on the proposed default, mark it `// DESIGN-Q:`, and list it in your report.
 - When a milestone is complete, tick its checklist, write the LOG entry, and update this section to point at the next milestone.
 

@@ -64,3 +64,9 @@
 **Usage:** not measured from inside the session.
 
 **Next:** M03, content system and authoring tool v1.
+
+## 2026-10-02 — Decisions from Jb
+
+- **All proposed defaults accepted for now**: the M01 and M02 open questions, and the design-gate defaults in `docs/ROADMAP.md`. Code keeps its `DESIGN-Q:` markers so they can be revisited.
+- **Unattended work**: carry on through the milestones without pausing at the end of each; keep the browser bench updated, and add the game to it once it exists.
+- The bench runs as WebAssembly in the claude.ai viewer (confirmed by Jb on build e31d1f0); it now shows its build commit and age.
