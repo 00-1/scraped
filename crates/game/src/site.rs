@@ -90,7 +90,18 @@ impl Site {
 
     /// A site with a previous run's final inscription placed in it.
     pub fn with_legacy(seed: u64, legacy: Option<&scraped_lang::meaning::Sentence>) -> Self {
-        let world = World::generate(seed);
+        Self::create(seed, "standard", legacy)
+    }
+
+    /// A site at a difficulty preset (see `Difficulty::preset`), with a
+    /// previous run's legacy if any. Unknown presets are standard.
+    pub fn create(
+        seed: u64,
+        preset: &str,
+        legacy: Option<&scraped_lang::meaning::Sentence>,
+    ) -> Self {
+        let difficulty = scraped_lang::difficulty::Difficulty::preset(preset).unwrap_or_default();
+        let world = World::generate_with(seed, difficulty);
         let score = |s: &Settlement| {
             let texts: usize = world
                 .structures

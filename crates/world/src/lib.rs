@@ -49,7 +49,12 @@ pub struct World {
 
 impl World {
     pub fn generate(seed: u64) -> Self {
-        let languages = Language::generate(seed).eras();
+        Self::generate_with(seed, scraped_lang::difficulty::Difficulty::default())
+    }
+
+    /// A world whose language follows the given difficulty dials.
+    pub fn generate_with(seed: u64, difficulty: scraped_lang::difficulty::Difficulty) -> Self {
+        let languages = Language::generate_with(seed, difficulty).eras();
         let mut terrain = Terrain::generate(seed);
         let water = Water::generate(&mut terrain);
         let history = History::generate(seed, &terrain, &water, &languages);

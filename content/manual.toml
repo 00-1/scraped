@@ -1,0 +1,6 @@
+notes = "The player's manual: one page per section. No spoilers."
+
+[[variant]]
+slot = "manual.page"
+text = "[if section == 'contents']Manual: playing, reading, notebook, writing, survival, endings. Type 'manual' and a section.[else]({section}: Jb's page goes here.)[end]"
+example = true

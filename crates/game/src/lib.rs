@@ -16,8 +16,12 @@ mod coverage_tests;
 pub mod ending;
 #[cfg(test)]
 mod ending_tests;
+pub mod fairness;
+#[cfg(test)]
+mod fairness_tests;
 pub mod parser;
 mod physical;
+pub mod seedcode;
 pub mod site;
 pub mod slots;
 #[cfg(test)]
@@ -269,6 +273,13 @@ pub struct Save {
     /// The previous run's legacy this world was made with, if any.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub legacy: Option<ending::Legacy>,
+    /// The difficulty preset.
+    #[serde(default = "standard")]
+    pub difficulty: String,
+}
+
+fn standard() -> String {
+    "standard".to_string()
 }
 
 /// A game in progress.
@@ -319,6 +330,8 @@ pub struct Game {
     /// The storylets' rules, fixed when the world was made: a hot reload
     /// of the pack changes their text, never where or when they happen.
     storylets: Vec<scraped_content::Storylet>,
+    /// The difficulty preset the world was made at.
+    pub preset: String,
     /// Whether outputs list the slot renders that made them.
     pub trace: bool,
     /// Slot renders since the last command began (or the whole run, when
@@ -362,7 +375,18 @@ impl Game {
 
     /// A new game in a world carrying a previous run's legacy.
     pub fn with_legacy(seed: u64, pack: Pack, legacy: Option<ending::Legacy>) -> Self {
-        let mut site = Site::with_legacy(seed, legacy.as_ref().map(|l| &l.meaning));
+        Self::create(seed, pack, "standard", legacy)
+    }
+
+    /// A new game at a difficulty preset ("gentle", "standard",
+    /// "archaeologist"), with a previous run's legacy if any.
+    pub fn create(seed: u64, pack: Pack, preset: &str, legacy: Option<ending::Legacy>) -> Self {
+        let preset = if scraped_lang::difficulty::PRESETS.contains(&preset) {
+            preset
+        } else {
+            "standard"
+        };
+        let mut site = Site::create(seed, preset, legacy.as_ref().map(|l| &l.meaning));
         let placed = storylets::place(&mut site, &pack);
         let state = State {
             place: Place::Outside,
@@ -436,6 +460,7 @@ impl Game {
             placed,
             hooks_seen: BTreeSet::new(),
             storylets: Vec::new(),
+            preset: preset.to_string(),
             trace: false,
             renders: Vec::new(),
             keep_renders: false,
@@ -465,6 +490,16 @@ impl Game {
         self.output(intro, None)
     }
 
+    /// The code, said through its slot.
+    pub fn say_code(&mut self, code: &str) -> String {
+        self.say("say.seed_code", ctx(&[("code", Value::from(code))]))
+    }
+
+    /// The shareable code for this world (seed, difficulty, pack).
+    pub fn seed_code(&self) -> String {
+        seedcode::encode(self.seed(), &self.preset, &self.pack.version())
+    }
+
     /// Saves the game as its seed, pack version and commands.
     pub fn save(&self) -> Save {
         Save {
@@ -472,6 +507,7 @@ impl Game {
             pack_version: self.pack.version(),
             commands: self.log.clone(),
             legacy: self.legacy.clone(),
+            difficulty: self.preset.clone(),
         }
     }
 
@@ -479,7 +515,7 @@ impl Game {
     /// differs from the one the save was made with.
     pub fn load(save: &Save, pack: Pack) -> (Self, bool) {
         let changed = save.pack_version != pack.version();
-        let mut g = Game::with_legacy(save.seed, pack, save.legacy.clone());
+        let mut g = Game::create(save.seed, pack, &save.difficulty, save.legacy.clone());
         g.start();
         for c in &save.commands {
             g.step(c);
@@ -969,6 +1005,16 @@ impl Game {
                 self.output(vec![t], None)
             }
             "wait" => self.wait(&cmd.words),
+            "manual" => {
+                let section = cmd
+                    .words
+                    .iter()
+                    .find(|w| slots::MANUAL.contains(&w.as_str()))
+                    .map_or("contents", String::as_str)
+                    .to_string();
+                let t = self.say("manual.page", ctx(&[("section", Value::from(section))]));
+                self.output(vec![t], None)
+            }
             "help" => {
                 let t = self.say("say.help", Context::new());
                 self.output(vec![t], None)

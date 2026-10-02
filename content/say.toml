@@ -173,3 +173,8 @@ example = true
 slot = "say.legacy_kept"
 text = "Your last words will outlast you."
 example = true
+
+[[variant]]
+slot = "say.seed_code"
+text = "This world's code is {code}."
+example = true

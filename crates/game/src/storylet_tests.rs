@@ -182,7 +182,7 @@ fn a_spine_run_reaches_every_beat() {
     let scraper = g.make_item("scraper", false).unwrap();
     g.act("take", Target::Thing(scraper));
     // The deepest text through the first lens (also scraped writing).
-    let root = g.site.writing.root.unwrap();
+    let root = g.site.writing.deep[0];
     let t = (0..g.site.things.len())
         .find(|&t| g.site.things[t].texts.contains(&root))
         .unwrap();

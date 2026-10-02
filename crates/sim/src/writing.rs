@@ -460,7 +460,7 @@ impl Writing {
                 placed += 1;
             }
         }
-        out.add_deep(w);
+        out.add_deep(w, fixtures);
         if let Some(m) = legacy {
             out.add_legacy(w, fixtures, start, m);
         }
@@ -496,7 +496,7 @@ impl Writing {
     // told as "the <king|priest|scribe> scraped the tablet. The <subject>
     // did (not) <verb>. The self did not depart." Padding layers repeat
     // the middle sentence only.
-    fn add_deep(&mut self, w: &World) {
+    fn add_deep(&mut self, w: &World, fixtures: &Fixtures) {
         let Some(root) = w.texts.iter().find(|t| t.event == Some(w.history.root)) else {
             return;
         };
@@ -504,18 +504,76 @@ impl Writing {
         let Some((verb, subject, negative)) = claim_parts(root) else {
             return;
         };
+        // Where the accounts lie: beneath the root if a player can reach
+        // it; otherwise on an inscribable surface in a room of the same
+        // building they can reach, under a scraped recopy of the root.
+        // DESIGN-Q: the recopy is an account (it never acts).
+        let rooms = fixtures.reachable_rooms(w, root.structure);
+        let at_root = match root.room {
+            None => {
+                w.structures[root.structure].condition
+                    != scraped_world::structures::Condition::Buried
+            }
+            Some(r) => rooms.contains(&r),
+        };
+        let host = if at_root {
+            Some((root.structure, root.room, root.feature, root.material))
+        } else {
+            let st = &w.structures[root.structure];
+            rooms.iter().rev().find_map(|&r| {
+                st.interior.rooms[r]
+                    .features
+                    .iter()
+                    .position(|f| INSCRIBABLE.contains(&f.kind))
+                    .map(|f| {
+                        (
+                            root.structure,
+                            Some(r),
+                            Some(f),
+                            st.interior.rooms[r].features[f].material,
+                        )
+                    })
+            })
+        };
+        let Some((hs, hr, hf, material)) = host else {
+            return;
+        };
+        let on_host = |t: &&Text| (t.structure, t.room, t.feature) == (hs, hr, hf);
+        let oldest = w
+            .texts
+            .iter()
+            .chain(self.extra.iter())
+            .filter(on_host)
+            .map(|t| t.year)
+            .min()
+            .unwrap_or(root.year)
+            .min(root.year);
+        if !at_root {
+            let id = w.texts.len() + self.extra.len();
+            self.extra.push(Text {
+                id,
+                era: 0,
+                year: root.year,
+                kind: Kind::Account,
+                meaning: root.meaning.clone(),
+                author: None,
+                event: None,
+                structure: hs,
+                room: hr,
+                feature: hf,
+                material,
+            });
+            self.scraped.insert(id);
+        }
         let deepest = {
             let mut depth: BTreeMap<(usize, Option<usize>, Option<usize>), usize> = BTreeMap::new();
             for t in w.texts.iter().chain(self.extra.iter()) {
                 *depth.entry((t.structure, t.room, t.feature)).or_default() += 1;
             }
-            let own = depth
-                .get(&(root.structure, root.room, root.feature))
-                .copied()
-                .unwrap_or(0);
+            let own = depth.get(&(hs, hr, hf)).copied().unwrap_or(0);
             let other = depth
                 .iter()
-                .filter(|(k, _)| **k != (root.structure, root.room, root.feature))
+                .filter(|(k, _)| **k != (hs, hr, hf))
                 .map(|(_, &d)| d)
                 .max()
                 .unwrap_or(0);
@@ -555,15 +613,15 @@ impl Writing {
             self.extra.push(Text {
                 id,
                 era: 0,
-                year: root.year - 1 - (copies + 1 - k) as i32,
+                year: oldest - 1 - (copies + 1 - k) as i32,
                 kind: Kind::Account,
                 meaning,
                 author: None,
                 event: None,
-                structure: root.structure,
-                room: root.room,
-                feature: root.feature,
-                material: root.material,
+                structure: hs,
+                room: hr,
+                feature: hf,
+                material,
             });
             self.deep.push(id);
         }

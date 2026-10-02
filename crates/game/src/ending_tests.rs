@@ -34,9 +34,10 @@ fn self_claim(negative: bool) -> Sentence {
     })
 }
 
-/// The thing carrying the root inscription.
+/// The thing carrying the deepest text (beneath the root, or beneath its
+/// recopy where the root can't be reached).
 fn root_thing(g: &Game) -> usize {
-    let root = g.site.writing.root.expect("a root");
+    let root = g.site.writing.deep[0];
     (0..g.site.things.len())
         .find(|&t| g.site.things[t].texts.contains(&root))
         .expect("the root is on a thing")
@@ -79,7 +80,7 @@ fn the_deepest_text_is_deepest_and_needs_the_first_lens() {
         let t = root_thing(&g);
         let own = g.layers(t).len();
         for (i, s) in w.surfaces.iter().enumerate() {
-            if !s.layers.contains(&w.root.unwrap()) {
+            if !s.layers.contains(&w.deep[0]) {
                 assert!(s.layers.len() < own, "seed {seed}: surface {i} as deep");
             }
         }

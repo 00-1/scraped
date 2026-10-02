@@ -248,3 +248,8 @@ object = "required"
 id = "write"
 words = ["write", "inscribe", "carve", "paint", "write on"]
 object = "required"
+
+[[verb]]
+id = "manual"
+words = ["manual", "guide", "read manual"]
+object = "optional"

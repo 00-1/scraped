@@ -10,6 +10,10 @@ publish.workspace = true
 name = "scraped"
 path = "src/main.rs"
 
+[[bin]]
+name = "scraped-mcp"
+path = "src/bin/scraped-mcp.rs"
+
 [dependencies]
 scraped-content = { path = "../content" }
 scraped-game = { path = "../game" }

@@ -1188,6 +1188,17 @@ fn s_end_act(_: u64) -> Vec<Context> {
     ]
 }
 
+fn s_manual(_: u64) -> Vec<Context> {
+    MANUAL
+        .iter()
+        .map(|s| ctx(&[("section", Value::from(*s))]))
+        .collect()
+}
+
+fn s_code(_: u64) -> Vec<Context> {
+    vec![ctx(&[("code", Value::from("K5G0-9ZQ1"))])]
+}
+
 fn s_chronicle(_: u64) -> Vec<Context> {
     vec![ctx(&[("words", Value::Number(14))])]
 }
@@ -1957,6 +1968,15 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_time),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
+        SlotDef::new("manual.page", "The player's manual, one section per page (the 'manual' command; 'manual notebook' and so on). Contents lists the sections. Never spoil the language or the world: teach how to play and how to keep a notebook, not what anything means.")
+            .var("section", e(MANUAL), "Which section: contents, playing (commands and moving), reading (glyphs, labels, pages), notebook (how to keep one: glyph tables, word lists, guesses, places), writing (writing and scraping, without saying what writing does), survival, endings (that runs end, and how to begin again; no spoilers).")
+            .min_variants(1)
+            .max_len(3000)
+            .sampler(s_manual),
+        SlotDef::new("say.seed_code", "Shows the world's shareable code, so players can compare notebooks for the same world.")
+            .var("code", VarType::Text, "The code, e.g. K5G0-9ZQ1.")
+            .max_len(200)
+            .sampler(s_code),
         SlotDef::new("say.export_offer", "After the end of a run, in the terminal client: the player can type 'export' to save their notebook (the transcript, the places they named, and the run record) as files.").max_len(300).sampler(s_none),
         SlotDef::new("say.exported", "The notebook was saved as files.").max_len(200).sampler(s_none),
         SlotDef::new("say.legacy_kept", "Legacy is on and the run ended with an inscription of the player's: it will lie, faint and very old, somewhere in the next world.").max_len(300).sampler(s_none),
@@ -1971,6 +1991,11 @@ pub fn registry() -> Registry {
     all.extend(slots());
     Registry::new(all)
 }
+
+/// Sections of the player's manual (the `manual` command).
+pub const MANUAL: &[&str] = &[
+    "contents", "playing", "reading", "notebook", "writing", "survival", "endings",
+];
 
 /// The order for a systematic writing session: slot families in the order
 /// a player meets them, with the stage of the game each belongs to.
@@ -2011,6 +2036,7 @@ pub const REVIEW: &[(&str, &str)] = &[
     ("death", "late"),
     ("end", "late"),
     ("notebook", "late"),
+    ("manual", "reference"),
 ];
 
 /// The registry with a slot for each of the pack's storylets.

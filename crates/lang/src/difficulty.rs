@@ -62,7 +62,34 @@ impl Default for Difficulty {
     }
 }
 
+/// Named difficulty presets, easiest first.
+pub const PRESETS: &[&str] = &["gentle", "standard", "archaeologist"];
+
 impl Difficulty {
+    /// A named preset: "gentle" (an alphabet, names marked, two eras),
+    /// "standard" (the defaults) or "archaeologist" (word dividers instead
+    /// of spaces, fused inflection, four eras).
+    // DESIGN-Q: the three presets' dials.
+    pub fn preset(name: &str) -> Option<Self> {
+        let d = Difficulty::default();
+        Some(match name {
+            "gentle" => Difficulty {
+                names: NameMarking::Determinative,
+                script: Some(ScriptKind::Alphabet),
+                eras: 2,
+                ..d
+            },
+            "standard" => d,
+            "archaeologist" => Difficulty {
+                separation: Separation::Dots,
+                eras: 4,
+                regularity: Regularity::Fused,
+                ..d
+            },
+            _ => return None,
+        })
+    }
+
     /// Clamps the era count to the supported range.
     pub fn eras(&self) -> u32 {
         self.eras.clamp(1, 5)

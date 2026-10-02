@@ -6,6 +6,8 @@
 //! other line goes to the game. All text shown comes from the game's
 //! content slots.
 
+pub mod mcp;
+
 use std::path::{Path, PathBuf};
 
 use scraped_content::Pack;
@@ -71,13 +73,28 @@ impl Session {
         spoil: bool,
         legacy: Option<PathBuf>,
     ) -> (Self, Output) {
+        Self::create(seed, "standard", pack, spoil, legacy)
+    }
+
+    /// A session at a difficulty preset, with legacy if a file is given.
+    pub fn create(
+        seed: u64,
+        preset: &str,
+        pack: Pack,
+        spoil: bool,
+        legacy: Option<PathBuf>,
+    ) -> (Self, Output) {
         let carried: Option<Legacy> = legacy
             .as_ref()
             .and_then(|p| std::fs::read_to_string(p).ok())
             .and_then(|t| serde_json::from_str(&t).ok());
-        let mut game = Game::with_legacy(seed, pack.clone(), carried);
+        let mut game = Game::create(seed, pack.clone(), preset, carried);
         game.spoil = spoil;
-        let first = game.start();
+        let mut first = game.start();
+        let code = game.seed_code();
+        let note = game.say_code(&code);
+        first.text.push_str("\n\n");
+        first.text.push_str(&note);
         (
             Session {
                 game,
@@ -205,6 +222,11 @@ impl Session {
                 self.transcript = Some(path);
                 self.wrap_output(String::new())
             }
+            ["code"] => {
+                let code = self.game.seed_code();
+                let t = self.game.say_code(&code);
+                self.wrap_output(t)
+            }
             ["export", rest @ ..] => {
                 let prefix = rest
                     .first()
@@ -230,9 +252,13 @@ impl Session {
     }
 }
 
+/// The JSON-lines protocol's version. Bump it when a response changes
+/// shape in a way agents must notice (see docs/PROTOCOL.md).
+pub const PROTOCOL: u32 = 1;
+
 /// One protocol response line.
 pub fn protocol_line(o: &Output) -> String {
-    let mut v = json!({ "text": o.text, "state": o.state });
+    let mut v = json!({ "protocol": PROTOCOL, "text": o.text, "state": o.state });
     if let Some(t) = &o.truth {
         v["truth"] = t.clone();
     }
@@ -294,6 +320,18 @@ mod tests {
             assert!(!line.contains('\n'), "one line per response");
             let v: serde_json::Value = serde_json::from_str(&line).expect("valid JSON");
             assert_eq!(v["text"], o.text.as_str());
+            assert_eq!(
+                v["protocol"], PROTOCOL,
+                "every line carries the protocol version"
+            );
+            for key in [
+                "place", "things", "carried", "exits", "minutes", "body", "light", "load",
+            ] {
+                assert!(
+                    v["state"].get(key).is_some(),
+                    "state.{key} is part of protocol 1"
+                );
+            }
             assert!(v["state"].is_object());
             assert!(v.get("truth").is_none() || o.truth.is_some());
         }
