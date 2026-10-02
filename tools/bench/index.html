@@ -78,6 +78,8 @@ footer { color: var(--muted); font-size: .85rem; }
 .play pre .cmd { font-family: var(--mono); color: var(--accent); }
 .play pre .truth { font-family: var(--mono); font-size: .8rem; color: var(--gloss); }
 .play form { display: flex; gap: 8px; }
+.playmap canvas { width: min(100%, 360px); height: auto; image-rendering: pixelated; border: 1px solid var(--rule); border-radius: 4px; }
+.playmap .note { margin: 4px 0 0; }
 .play input[type=text] { flex: 1; min-width: 0; width: auto; font: 1rem var(--mono); }
 .world { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 16px; padding: 12px 16px 16px; }
 @media (max-width: 760px) { .world { grid-template-columns: 1fr; } }
@@ -208,9 +210,11 @@ function render() {
   if (state.tab === "play") {
     if (!state.play || state.play.seed !== d.seed) {
       const first = api({ cmd: "play_new", seed: d.seed, files: BUNDLED, spoil: true });
-      state.play = { seed: d.seed, log: [{ text: first.text }], history: [], back: 0 };
+      state.play = { seed: d.seed, log: [{ text: first.text, truth: first.truth }], history: [], back: 0, trail: [] };
+      track(first.truth);
     }
     p.innerHTML = `<div class="play">
+      <div class="playmap" id="playMapWrap" hidden><canvas id="playMap"></canvas><p class="note">Spoiler: where you really are (dot) and where you have been.</p></div>
       <pre id="playLog" aria-live="polite"></pre>
       <form id="playForm"><input type="text" id="playInput" autocomplete="off" spellcheck="false" placeholder="look, go temple, read stele, help…" aria-label="Command"><button type="submit" class="primary">Enter</button></form>
       <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">
@@ -267,18 +271,51 @@ function render() {
   }
 }
 
+function track(truth) {
+  if (truth && !Array.isArray(truth) && truth.cell) state.play.trail.push(truth.cell);
+}
+
+function truthText(t) {
+  if (Array.isArray(t)) return t.map(t => `[era ${t.era} ${t.kind}] ${t.text} — ${t.translation}`).join("\n");
+  if (t && t.blind_steps) return `[drifted: ${t.blind_steps} steps with nothing to steer by]`;
+  return "";
+}
+
+function renderPlayMap() {
+  const spoil = $("spoil").checked;
+  $("playMapWrap").hidden = !spoil;
+  if (!spoil) return;
+  if (!state.world || state.world.seed !== state.play.seed) state.world = api({ cmd: "world", seed: state.play.seed });
+  const w = state.world, scale = 3, c = $("playMap");
+  c.width = c.height = w.side * scale;
+  const ctx = c.getContext("2d");
+  const img = ctx.createImageData(w.side, w.side);
+  const px = Uint8Array.from(atob(w.pixels), ch => ch.charCodeAt(0));
+  for (let i = 0, j = 0; i < px.length; i += 3, j += 4) { img.data[j] = px[i]; img.data[j + 1] = px[i + 1]; img.data[j + 2] = px[i + 2]; img.data[j + 3] = 255; }
+  const tmp = document.createElement("canvas"); tmp.width = tmp.height = w.side; tmp.getContext("2d").putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = false; ctx.drawImage(tmp, 0, 0, c.width, c.height);
+  const t = state.play.trail;
+  ctx.strokeStyle = "#c0392b"; ctx.lineWidth = 2; ctx.beginPath();
+  t.forEach(([x, y], i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, (x + .5) * scale, (y + .5) * scale));
+  ctx.stroke();
+  if (t.length) { const [x, y] = t[t.length - 1]; ctx.fillStyle = "#c0392b"; ctx.beginPath(); ctx.arc((x + .5) * scale, (y + .5) * scale, 5, 0, 7); ctx.fill(); }
+}
+
 function renderPlayLog() {
   const spoil = $("spoil").checked;
-  $("playLog").innerHTML = state.play.log.map(e =>
-    (e.cmd != null ? `<span class="cmd">&gt; ${esc(e.cmd)}</span>\n` : "") + esc(e.text) +
-    (spoil && e.truth ? `\n<span class="truth">${esc(e.truth.map(t => `[era ${t.era} ${t.kind}] ${t.text} — ${t.translation}`).join("\n"))}</span>` : "")
-  ).join("\n\n");
+  $("playLog").innerHTML = state.play.log.map(e => {
+    const truth = spoil ? truthText(e.truth) : "";
+    return (e.cmd != null ? `<span class="cmd">&gt; ${esc(e.cmd)}</span>\n` : "") + esc(e.text) +
+      (truth ? `\n<span class="truth">${esc(truth)}</span>` : "");
+  }).join("\n\n");
   $("playLog").scrollTop = $("playLog").scrollHeight;
+  renderPlayMap();
 }
 
 function playLine(line) {
   const r = api({ cmd: "play", line });
   state.play.log.push({ cmd: line, text: r.error ? "[" + r.error + "]" : r.text, truth: r.truth });
+  track(r.truth);
   state.play.history.push(line); state.play.back = 0;
   renderPlayLog();
 }
@@ -322,7 +359,8 @@ document.addEventListener("click", e => {
     const save = JSON.parse(saved);
     $("seed").value = String(save.seed); generate();
     const r = api({ cmd: "play_load", files: BUNDLED, save, spoil: true });
-    state.play = { seed: String(save.seed), log: [{ text: r.text }], history: [], back: 0 };
+    state.play = { seed: String(save.seed), log: [{ text: r.text, truth: r.truth }], history: [], back: 0, trail: [] };
+    track(r.truth);
     state.tab = "play"; render();
   }
   if (t.id === "playRestart") { state.play = null; render(); }

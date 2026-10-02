@@ -169,7 +169,9 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             }
             let look = game.step("look");
             GAME.with(|g| *g.borrow_mut() = Some(game));
-            Ok(json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state }))
+            Ok(
+                json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state, "truth": look.truth }),
+            )
         }
         "site" => {
             let id: usize = field(req, "settlement")?;
