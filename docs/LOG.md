@@ -389,3 +389,25 @@
 - **Fix**: since the M14 balance pass, life could stall short of where it was heading, because a slow daily step rounded away in whole thousandths. It now moves at least one unit a day. A world left alone changes a band in about 13% of regions a month. The sim test that caught it hadn't been reached by the earlier test runs, which stop at the first failing crate; I now run with `--no-fail-fast`.
 
 **Content slots added:** `app.label` (68 ids, each described for Jb).
+
+## 2026-10-02 — Native Android app (Compose + Rust)
+
+**Done**
+- The WebView wrapper is replaced by a native app in Jetpack Compose with Material 3 (`android/app`). The engine is a JNI library (`crates/android`) holding Jb's content and is called on one thread. Everything from the web app carries over:
+  - the worlds list, the transcript as prose with your commands as bubbles, and the composer with chips and recall;
+  - tap a passage to copy it or add it to the notebook;
+  - reading settings;
+  - Google backup, file sync, and agent access (MCP or plain HTTP on the local network; it can only read and act).
+- **Backdrop** (Jb's choice: atmosphere, never game state). A faint lamplit room is painted by Rust (`crates/android/src/atmosphere.rs`) from the clock and the theme only. It is drawn tiny and scaled up, at 10 fps, and goes still with reduced motion.
+- **Build:** `android/build.sh` runs cargo-ndk (arm64, armv7, x86_64) and then Gradle.
+- **CI:** builds the APK, then plays it on an emulator (API 34). `AppTest` covers a world, typing, an agent move, HTTP with the key and the notebook. `EngineTest` checks the transcripts against every platform's.
+- `android/test-agent.sh` tests the agent server off-device.
+
+**New content slots**
+- `app.label` id `atmosphere` (the switch for the backdrop).
+
+**Open questions for Jb**
+1. **Signing secrets.** Until `ANDROID_KEYSTORE_B64` and `ANDROID_KEYSTORE_PASSWORD` are set, each CI APK has a different key, so updates need an uninstall. The native app can't update the WebView one in any case. Instructions are in `docs/ANDROID.md`.
+2. **Agent from the cloud.** It still works on the local network only; a relay service would be needed for cloud agents.
+3. **Chips.** They offer look, exits, out, read/take/examine plus the things in view, inventory, status and wait. Which verbs should they offer?
+4. **Package name** `org.scrapedagain` is permanent once published.
