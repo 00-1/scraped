@@ -1,6 +1,6 @@
 # CLAUDE.md — Scraped Again
 
-Briefing for coding agents working in this repo. Read this first, then `docs/DESIGN.md` (intent) and the current milestone doc (scope).
+Briefing for coding agents working in this repo. Read this first, then `docs/ROADMAP.md` (order of work), `docs/DESIGN.md` (intent) and the current milestone spec (scope).
 
 ## What this is
 
@@ -8,7 +8,11 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-`docs/MILESTONE-1.md` — the language engine slice. Work only within its scope. Do not start world generation, movement, survival or UI work yet.
+**M02 — Language depth** (`docs/milestones/M02-language-depth.md`). M01 is done.
+
+- Work on one milestone per session, only within its spec. Do not start the next milestone, even if there is time left; stop and report instead.
+- Before building, check the spec's design gates. If Jb hasn't settled one, build on the proposed default, mark it `// DESIGN-Q:`, and list it in your report.
+- When a milestone is complete, tick its checklist, write the LOG entry, and update this section to point at the next milestone.
 
 ## Tech stack
 
@@ -16,7 +20,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 - Cargo workspace:
   - `crates/lang` — the language engine (library). Pure logic, no I/O.
   - `crates/cli` — a small terminal binary for inspecting generated output.
-  - Later: `crates/world`, `crates/game`, `crates/web` (WebAssembly front end). Don't create these yet.
+  - Later crates (`content`, `world`, `sim`, `game`, `play`, `web`) and the authoring tool are listed in `docs/ROADMAP.md`. Create each only in the milestone that introduces it.
 - Keep the core crates **WebAssembly-compatible**: no threads, filesystem or OS-specific calls inside library crates. I/O belongs only in `cli` (and later `web`).
 - Randomness: a seeded RNG (`rand_chacha::ChaCha8Rng` or similar) passed explicitly. **Never** use thread-local or OS randomness in library code.
 - Serialisation: `serde` + `serde_json` for any structured output.
@@ -28,7 +32,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 2. **Meaning first, then form.** Text is generated from a structured meaning representation and rendered through the grammar. The engine must always be able to report the true meaning of anything it generated.
 3. **Real rules, not random strings.** Phonology, morphology and grammar follow consistent, discoverable rules. If a patient human with a notebook couldn't work a rule out from enough examples, it's wrong.
 4. **Two outputs.** Anything player-facing should be producible as (a) human text and (b) structured JSON for agents/debugging. The JSON may include ground truth (meanings, glosses) behind a debug/spoiler flag; the human text never does.
-5. **No runtime AI prose.** All prose is hand-authored templates or procedural language output. Placeholder English templates are fine for now; mark them `// PLACEHOLDER-PROSE`.
+5. **No runtime AI prose, and no prose in code.** All player-visible text is either Jb's hand-authored templates or generated language. Before M03 lands, placeholder English is allowed if marked `// PLACEHOLDER-PROSE`. From M03 onwards, every new piece of player-visible text must be a declared content slot (see `docs/milestones/M03-content-and-authoring.md`): a clear description written for Jb, well-named variables, and one short example variant marked `example = true`. Never write the real prose yourself; that is Jb's job. Debug and spoiler output are exempt.
 
 ## Conventions
 
@@ -36,7 +40,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 - `cargo test` must pass. Prefer many small unit tests plus a few seed-snapshot tests.
 - Public items get short doc comments explaining *why*, not just *what*.
 - Commit in small, coherent steps with clear messages.
-- When finishing a session, update the checklist in the milestone doc and add a short entry to `docs/LOG.md` (create it if missing): date, what was done, open questions.
+- When finishing a session, update the checklist in the milestone spec and add a short entry to `docs/LOG.md`: date, what was done, open questions, new content slots added, and approximate usage cost if known.
 
 ## Working with Jb
 
