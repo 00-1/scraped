@@ -23,7 +23,7 @@ The engine is agent work. The content pack is Jb's work. The authoring tool is w
 | 04 | [World generation](milestones/M04-world-generation.md) ✅ | Bounded terrain, climate, biomes, rivers, history, settlements, structures, inscriptions placed by history | inspect a generated world and its history |
 | 05 ✅ | [Game core and text interface](milestones/M05-game-core.md) | Game state, command parser, time, save/replay, terminal client, JSON agent protocol, interiors | walk around inside one generated site |
 | 06 ✅ | [Perception and movement](milestones/M06-perception-and-movement.md) | Landmarks, salience, intent movement, simulated travel, drift, bearings, naming places | cross the whole world and map it |
-| 07 | [Physical world and survival](milestones/M07-physical-world-and-survival.md) | Local properties and their interactions, mechanisms, items, needs, threats, death | survive, or not |
+| 07 ✅ | [Physical world and survival](milestones/M07-physical-world-and-survival.md) | Local properties and their interactions, mechanisms, items, needs, threats, death | survive, or not |
 | 08 | [Writing that acts](milestones/M08-writing-that-acts.md) | The three laws, layers, partial reading, effects engine, scraping tool | notice effects, then trigger a spell by scraping |
 | 09 | [Player writing](milestones/M09-player-writing.md) | Writing tool, player text parsed to meaning, understanding gate, layer constraints, deep reading, misfires | compose and cast new inscriptions |
 | 10 | [A world on a trajectory](milestones/M10-world-trajectory.md) | Regional simulation, time passing, great active inscriptions, scraping that scales, change seen on revisit | change the fate of a region |

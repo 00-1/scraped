@@ -157,3 +157,30 @@
 **Content slots added:** `land.weather`, `land.area`, `land.edge_name`, `land.edge`, `land.name`, `land.landmark`, `land.horizon`, `land.region`, `travel.report`, `travel.lost`, `travel.arrive`, `travel.not_there`, `travel.interrupt`, `travel.blocked`, `travel.edge_end`, `travel.already`, `travel.no_route`, `travel.unseen`, `travel.no_edge`, `travel.indoors`, `travel.back_none`, `say.named`, `say.name_bad`.
 
 **Also:** the authoring tool on claude.ai now saves edits to its own project store as you type (folder pickers and downloads are blocked inside the viewer); Claude reads them from there into `content/`.
+
+## 2026-10-02 — M07 Physical world and survival
+
+**Done**
+- **`sim` crate** (the land and perception code from M06 moved here): local properties of every spot and room, meaning temperature (yearly mean, a daily swing, day-to-day spells, weather; buildings buffer it, cellars hold the mean), light, wetness, air, stability and fire. They come from the world, the time, and what the player has changed.
+- **Rule table** (`crates/sim/data/rules.toml`): cold freezes still water (and flowing water in harder frost), thaw melts it, ice bears weight from 8 cm; fire and dry air dry things; fires burn fuel and starve; wet wood won't catch; flow turns wheels; darkness hides features; noise brings down unstable stone and disturbs creatures; fire deters them. M08 can trigger the same effects.
+- **Mechanisms**: wells (dry in some ruins); sluices that, opened, divert a river so the crossing below can be waded, with water conserved into a side channel and the mill wheel below stopping; drain levers that empty flooded cellars; bridge levers; braziers; hearths; barred doors that a pry bar forces.
+- **Items** with weight (carry limit 15): torch, lamp, oil, firesteel, wood, waterskin, cloak, provisions, berries, pry bar, and the three writing tools, which are inert until M08–M09. Making: torches from wood, rough shelters, filling a lamp.
+- **Body**: warmth (clothing, fire, shelter, wetness, wind, activity), thirst, hunger, rest, wetness and injury, felt over hours, in coarse states announced when they change; healing over days; exhaustion drops you where you stand.
+- **Creatures**: scavengers steal food and fear fire and noise; grazers charge if you come close; predators strike only from hiding and fear fire; deep things in dark tomb and mine rooms stir first, then strike unless there is light. Creatures that come into view stop a journey.
+- **Hazards and death**: falls on dark stairs, falling stone, thin ice, deep water, cold, thirst, hunger, wounds and creatures. The cause is recorded with what you were doing, and an end-of-run stub follows (M11).
+- **Obstacles**: barred doors, flooded cellars, raised bridges and deep crossings near towns; dark stairs and cold uplands come from the world itself. The starting town always holds a firesteel, a water container, provisions, wood and a pry bar.
+- **Commands**: light, extinguish, drink, fill, eat, sleep, forage, gather (wood), make (fire, torch, shelter), feed (the fire), pull/push/operate, open/close (sluices, bridges), wear, remove, use, pry, shout, cross (ice, wade, swim), status.
+- **Bench**: with spoilers on, the Play tab shows the body's states, light and load after each command.
+- **Tests**: each rule; ice; body balance; creatures never strike from view and a torch keeps them off; a careful bot survives 4 days on all 5 test seeds; a reckless walker dies in 27–42 hours of cold or thirst; obstacles have ordinary answers (pry bar in town, drains at dry entrances, levers on dry land); opening a sluice makes the crossing wadable and conserves water; fire needs fuel; light reveals dark rooms.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Pace of needs**: thirsty after 8 h, dead after 60; hungry after 16, dead after 240; tired after 18 h awake; cold below a felt 12 °C, dead after 130 degree-hours.
+2. **Weather and temperature**: a fixed 13° daily swing, ±3° spells, no seasons; indoor and cellar temperatures as above.
+3. **Items and numbers**: a torch burns an hour, wood two hours of fire, provisions last 12 h, berries 4; carry limit 15.
+4. **Placement odds**: barred doors 30%, flooded cellars 35%, raised bridges 40%, unstable rooms in damaged/ruined buildings; the starting town's guaranteed basics.
+5. **Creatures**: four archetypes, about two dozen outdoors (none within 2 km of the start), deep things in 40% of dry tomb and mine cellars (none in the starting town); deep things give one warning before striking.
+6. **Risky crossings**: wading below twice river strength (one in ten swept), swimming deeper water drowns one in three, lakes too wide to swim, ice bears from 8 cm.
+7. **Foraging odds** by biome; fires only outdoors or at a hearth or brazier indoors.
+8. **Where the writing tools lie**: one each in an archive or temple outside the starting town.
+
+**Content slots added:** `prop.cues`, `place.dark`, `read.dark`, `mech.name`, `mech.examine`, `mech.operate`, `mech.already`, `mech.cannot`, `fire.name`, `fire.lit`, `fire.fail`, `fire.fed`, `fire.out`, `fire.doused`, `item.examine`, `item.lit`, `item.out`, `item.doused`, `item.made`, `item.make_fail`, `item.too_heavy`, `item.wear`, `item.remove`, `item.cannot_use`, `drink.done`, `drink.none`, `fill.done`, `fill.none`, `eat.done`, `eat.none`, `sleep.done`, `forage.found`, `forage.none`, `gather.found`, `gather.none`, `body.change`, `body.status`, `body.collapse`, `hazard.fall`, `hazard.collapse`, `hazard.flooded`, `hazard.barred`, `door.pried`, `shout.done`, `cross.done`, `cross.fail`, `cross.fell_through`, `cross.swept`, `creature.name`, `creature.seen`, `creature.near`, `creature.sighted`, `creature.struck`, `creature.stole`, `creature.fled`, `death.narrate`, `end.summary`. `thing.name` and `thing.examine` gained an `item` variable.

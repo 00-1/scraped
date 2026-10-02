@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**M07 — Physical world and survival** (`docs/milestones/M07-physical-world-and-survival.md`). M01–M06 are done.
+**M08 — Writing that acts** (`docs/milestones/M08-writing-that-acts.md`). M01–M07 are done.
 
 - Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
 - Keep the browser bench (`tools/bench`, later the `web` crate) up to date with each milestone; once there is a game, it goes in the bench too.
@@ -23,6 +23,8 @@ A text-only, procedurally generated exploration/survival game about deciphering 
   - `crates/cli` — a small terminal binary for inspecting generated output.
   - `crates/content` — content slots, template language, pack, lint (library).
   - `crates/world` — world generation: terrain, water, history, structures, texts, decay (library).
+  - `crates/sim` — the physical world: perception, local properties, rule table, mechanisms, items, body, creatures (library).
+  - `crates/game` — game state, parser, commands, travel; `crates/play` — terminal client and JSON protocol.
   - `crates/web` — WebAssembly entry point (JSON in, JSON out) for the browser tools.
   - `tools/` — the bench and authoring tool page templates; `tools/build.sh` builds them.
   - Later crates (`sim`, `game`, `play`) are listed in `docs/ROADMAP.md`. Create each only in the milestone that introduces it.

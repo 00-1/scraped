@@ -51,6 +51,12 @@ In play, `save`, `load`, `transcript on|off` and `quit` handle the session;
 night you drift without knowing it; the bench's Play tab shows where you
 really are when spoilers are on.
 
+Staying alive: `drink` (from a well, river or lake), `fill waterskin`, `eat`,
+`sleep`, `forage`, `gather wood`, `make fire` (firesteel and wood), `make
+torch`, `light torch`, `wear cloak`, `status`. Mechanisms: `open sluice`,
+`pull lever`, `pry door`. `shout` scares some creatures off and brings down
+loose stone; `cross` tries ice, wading or swimming.
+
 ### Worlds
 
 ```sh
@@ -70,7 +76,7 @@ the engine (`crates/web`) compiled to WebAssembly:
   what it is for and its variables; an editor that lints as you type; live
   previews against real generated worlds; saving straight into `content/`
   (Chrome/Edge), or via zip export and copy-to-clipboard.
-- `bench.html`, the **bench**: the game (Play tab), eras side by side, glyphs, the script
+- `bench.html`, the **bench**: the game (Play tab; spoilers show your true position and body), eras side by side, glyphs, the script
   table, every difficulty dial, and the world (map, history, sites).
 
 The Pages workflow publishes both. It needs the `wasm32-unknown-unknown`
@@ -91,6 +97,10 @@ Every English word the player reads is written by Jb in `content/` (see
 - `crates/cli` — the `scraped-lang` terminal tool.
 - `crates/content` — content slots, the template language, the pack, lint and coverage.
 - `crates/world` — world generation: terrain, rivers, history, structures, texts, decay.
+- `crates/sim` — the physical world: sight, landmarks, travel costs, local properties,
+  the rule table (`data/rules.toml`), mechanisms, items, the body, creatures.
+- `crates/game` — game state, the parser (`data/verbs.toml`), commands and travel.
+- `crates/play` — the `scraped` terminal client and JSON-lines agent protocol.
 - `crates/web` — the engine for browsers: one WebAssembly module with a JSON interface.
 - `tools/bench`, `tools/author` — page templates for the bench and the authoring tool.
 - `content/` — Jb's content pack.

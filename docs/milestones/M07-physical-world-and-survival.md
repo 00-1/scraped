@@ -53,14 +53,14 @@ Property cues in descriptions (cold, damp, draughty, dark, unstable); mechanism 
 
 ## Checklist
 
-- [ ] `sim` crate: local properties, sources and sinks
-- [ ] Interaction rule table
-- [ ] Mechanisms
-- [ ] Items and inventory weight
-- [ ] Needs, body, injury, healing
-- [ ] Creatures and behaviours
-- [ ] Death and cause recording
-- [ ] Obstacles placed in the world
-- [ ] Slots registered with examples
-- [ ] Survival bots and balance tests
-- [ ] LOG.md entry
+- [x] `sim` crate: local properties, sources and sinks
+- [x] Interaction rule table
+- [x] Mechanisms
+- [x] Items and inventory weight
+- [x] Needs, body, injury, healing
+- [x] Creatures and behaviours
+- [x] Death and cause recording
+- [x] Obstacles placed in the world
+- [x] Slots registered with examples
+- [x] Survival bots and balance tests
+- [x] LOG.md entry
