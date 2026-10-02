@@ -1,0 +1,11 @@
+notes = "How glyphs of the ancient script are described. The player never sees a glyph, only these words, so they must be exact enough to draw."
+
+[[variant]]
+slot = "glyph.stroke"
+text = "{a stroke}[if turn != 'none'] turned {turn}[end], {spot}"
+example = true
+
+[[variant]]
+slot = "glyph.describe"
+text = "{cap list strokes}."
+example = true

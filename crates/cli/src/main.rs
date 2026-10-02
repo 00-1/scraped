@@ -3,6 +3,8 @@
 //! All I/O lives here; the engine itself stays pure so it can run in a
 //! browser later.
 
+mod content;
+
 use std::process::ExitCode;
 
 use scraped_lang::concepts;
@@ -32,7 +34,9 @@ difficulty dials:
   --separation S         spaces | dots | none (default spaces)
   --mark-names           put a determinative sign before names
   --script-kind K        alphabet | abjad | syllabary (default: by seed)
-  --fused                fuse a few affix combinations";
+  --fused                fuse a few affix combinations
+
+see also: scraped-lang content (content pack tools)";
 
 #[derive(Debug, PartialEq)]
 enum Command {
@@ -260,6 +264,21 @@ fn main() -> ExitCode {
     if raw.is_empty() || raw.iter().any(|a| a == "-h" || a == "--help") {
         println!("{USAGE}");
         return ExitCode::SUCCESS;
+    }
+    if raw.first().map(String::as_str) == Some("content") {
+        return match content::run(&raw[1..]) {
+            Ok(out) => {
+                print!("{out}");
+                ExitCode::SUCCESS
+            }
+            Err(e) => {
+                eprint!("{e}");
+                if !e.ends_with('\n') {
+                    eprintln!();
+                }
+                ExitCode::FAILURE
+            }
+        };
     }
     match parse(&raw).and_then(|a| run(&a)) {
         Ok(out) => {

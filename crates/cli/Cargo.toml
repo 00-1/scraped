@@ -13,3 +13,5 @@ path = "src/main.rs"
 [dependencies]
 scraped-lang = { path = "../lang" }
 serde_json.workspace = true
+scraped-content = { path = "../content" }
+serde.workspace = true

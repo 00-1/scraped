@@ -28,6 +28,7 @@ pub mod render;
 pub mod rng;
 pub mod script;
 pub mod sheet;
+pub mod slots;
 pub mod syntax;
 
 use std::collections::{BTreeMap, BTreeSet};
