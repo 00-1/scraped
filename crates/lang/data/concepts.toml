@@ -3,12 +3,14 @@
 # Every language generated from a seed gets one root per concept here.
 # Fields:
 #   id        unique gloss used in interlinear glosses (lowercase, no spaces)
-#   domain    people | nature | places | objects | actions | qualities | deixis | numbers
-#   pos       noun | verb | adj | num | det | adv
+#   domain    people | nature | places | objects | actions | qualities | deixis | numbers | grammar
+#   pos       noun | verb | adj | num | det | adv | particle
 #   tags      (nouns) semantic tags used by inscription templates to pick sensible words
 #   objects   (verbs) tags an object noun must carry (any one); empty = intransitive
 #   applies   (adjectives) tags a noun must carry (any one) for the adjective to modify it
 #   value     (numbers) numeric value
+#   needs     (numbers) only in languages whose numeral base is listed:
+#             decimal | duodecimal | vigesimal | quinary. Empty = always.
 #   en_*      English forms for the placeholder translation, only where the regular rule fails
 #
 # Tags are a stand-in for real semantics until world generation exists.
@@ -490,6 +492,13 @@ domain = "actions"
 pos = "verb"
 objects = ["honoured"]
 
+[[concept]]
+id = "say"
+domain = "actions"
+pos = "verb"
+objects = []
+en_past = "said"
+
 # --- qualities --------------------------------------------------------------
 [[concept]]
 id = "great"
@@ -603,24 +612,28 @@ value = 5
 id = "six"
 domain = "numbers"
 pos = "num"
+needs = ["decimal", "duodecimal", "vigesimal"]
 value = 6
 
 [[concept]]
 id = "seven"
 domain = "numbers"
 pos = "num"
+needs = ["decimal", "duodecimal", "vigesimal"]
 value = 7
 
 [[concept]]
 id = "eight"
 domain = "numbers"
 pos = "num"
+needs = ["decimal", "duodecimal", "vigesimal"]
 value = 8
 
 [[concept]]
 id = "nine"
 domain = "numbers"
 pos = "num"
+needs = ["decimal", "duodecimal", "vigesimal"]
 value = 9
 
 [[concept]]
@@ -628,3 +641,83 @@ id = "ten"
 domain = "numbers"
 pos = "num"
 value = 10
+
+[[concept]]
+id = "zero"
+domain = "numbers"
+pos = "num"
+value = 0
+
+[[concept]]
+id = "eleven"
+domain = "numbers"
+pos = "num"
+value = 11
+needs = ["duodecimal"]
+
+[[concept]]
+id = "dozen"
+domain = "numbers"
+pos = "num"
+value = 12
+needs = ["duodecimal"]
+
+[[concept]]
+id = "score"
+domain = "numbers"
+pos = "num"
+value = 20
+needs = ["vigesimal"]
+
+[[concept]]
+id = "hundred"
+domain = "numbers"
+pos = "num"
+value = 100
+needs = ["decimal", "quinary"]
+
+[[concept]]
+id = "gross"
+domain = "numbers"
+pos = "num"
+value = 144
+needs = ["duodecimal"]
+
+[[concept]]
+id = "fourhundred"
+domain = "numbers"
+pos = "num"
+value = 400
+needs = ["vigesimal"]
+
+# Joins the parts of a number ("twenty and one"). Only in languages whose
+# numerals need it; see numerals.rs.
+[[concept]]
+id = "and"
+domain = "numbers"
+pos = "particle"
+
+# The sum line at the foot of a ledger.
+[[concept]]
+id = "total"
+domain = "numbers"
+pos = "noun"
+tags = []
+
+# --- grammar ----------------------------------------------------------------
+# Fixed words of the potent register (see DESIGN.md, "Writing holds power").
+# Their meaning is deliberately unknown until M08; only their form exists.
+[[concept]]
+id = "pot.open"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "pot.close"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "pot"
+domain = "grammar"
+pos = "particle"

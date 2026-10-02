@@ -1,0 +1,164 @@
+GRAMMAR SHEET — seed 9001 (era 1 of 2)
+
+SOUNDS (ipa = spelling)
+  consonants (16): p  t  k  b  d  g  ʔ='  m  n  ɲ=ñ  s  h  l  ɬ=ł  j=y  w
+  vowels (5): e  i  o  u  ə=ë
+  syllable: CV(C)
+  codas: m n l ł
+
+SOUND CHANGES SINCE ERA 0
+  era 1: p > b / V_V
+  era 1: t > d / V_V
+  era 1: k > g / V_V
+  era 1: a > ə
+  era 1: ʃ > s
+  new words this era: rain, oil, take, eat
+
+MORPHOLOGY
+  PL   -'o          (noun)
+  ACC  -hën         (noun)
+  GEN  -pë          (noun)
+  DAT  -ne          (noun)
+  PST  së-          (verb)
+  NEG  yo-          (verb)
+  nouns: root-NUMBER-CASE
+  verbs: NEG-TENSE-root
+  unmarked: singular, subject case, non-past, positive
+  adjectives, numerals, 'this' and 'here' never inflect
+  a counted noun is plural when the number is above one
+
+SYNTAX
+  clause order: SOV
+  dative (beneficiary): just before the object
+  adverbs: just before the verb
+  commands: plain non-past verb with no subject
+  noun phrase: noun – adjectives – number – this
+  possessor before possessed noun
+  appositions (titles, 'child of X') follow the name
+
+NUMERALS
+  base: duodecimal (dozen, gross)
+  order: biggest part first
+  one dozen: 'dozen' alone
+  linker between parts: no
+  numeral signs: positional (one digit per place, with zero)
+
+SCRIPT: alphabet, right to left, 35 glyphs (see `script --spoil`)
+
+LEXICON
+  [people]
+    person      sëge
+    man         hunën
+    woman       yuyo
+    child       yil
+    son         timmem
+    daughter    su
+    mother      sesisi
+    father      wumpëlin
+    wife        tëlnëmku
+    husband     nu'ël
+    brother     busom
+    sister      ki
+    king        wëso
+    queen       kumëmë
+    priest      tinlën
+    scribe      łenë
+    smith       pugëyi
+    servant     penmin
+    god         bunsihë
+  [nature]
+    water       kinlosëm
+    river       hesi
+    stone       soyun
+    tree        winyën
+    fire        pëgi
+    sun         kël
+    moon        singë
+    rain        wem
+    mountain    wulyu
+    sea         pul'i
+    sheep       logimi
+    ox          bimginhu
+    goat        tëdo
+    fish        lim
+    grain       sun
+  [places]
+    house       gin
+    temple      gimñun
+    city        këbu
+    gate        segë
+    door        yësë
+    road        sogi
+    field       lulpi
+    tomb        nul
+    well        husin
+    wall        pen
+    tower       wintelyu
+    shrine      yidi
+  [objects]
+    bowl        pumwu
+    jar         numke
+    tablet      kem
+    statue      komum
+    altar       kebu
+    oil         wumo
+    wine        sedo
+    cloth       kësëmu
+    loaf        łilwe
+    knife       gëm
+    lamp        bel
+    box         wulki
+    seal        këmu'u
+  [actions]
+    lie         sol
+    make        pelsum
+    bring       som
+    give        bënhën
+    open        yise
+    enter       selpimyen
+    take        tusinse
+    burn        sumë
+    drink       kumom
+    cross       midubu
+    touch       mum
+    break       sugonmun
+    scrape      kumpin
+    eat         tëhol
+    fear        mi'imtëm
+    honour      ñëlki
+    say         bon
+  [qualities]
+    great       sëgon
+    small       bëmson
+    old         tël'isen
+    new         gëmlë
+    holy        nënpe
+    dark        ginken
+    good        yebil
+    white       mese
+    red         ninwo
+    cold        tugul
+    deep        numnë
+  [deixis]
+    this        sił
+    here        hoł
+  [numbers]
+    one         gemu
+    two         sobë
+    three       sëmkë
+    four        nolwu
+    five        bidë
+    six         bësun
+    seven       gen'u
+    eight       wësem
+    nine        huyë
+    ten         lellum
+    zero        lison
+    eleven      tisë
+    dozen       kensu
+    gross       'omko
+    total       lingilëm
+  [grammar]
+    pot.open    kobem
+    pot.close   nenu
+    pot         lemë

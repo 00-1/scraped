@@ -22,6 +22,17 @@ pub enum Stream {
     Cast,
     /// One stream per inscription, so `--count 10` is a prefix of `--count 40`.
     Inscription(u32),
+    Script,
+    Numerals,
+    /// Fused affix forms (a difficulty dial).
+    Fusion,
+    /// Fixed words of the potent register.
+    Register,
+    /// The sound changes leading to an era.
+    SoundChange(u32),
+    /// Everything else that happens between eras: replaced words, eroded
+    /// affixes, script change.
+    Evolution(u32),
 }
 
 impl Stream {
@@ -33,6 +44,12 @@ impl Stream {
             Stream::Lexicon => 5,
             Stream::Cast => 6,
             Stream::Inscription(i) => 1_000 + u64::from(i),
+            Stream::Script => 7,
+            Stream::Fusion => 10,
+            Stream::Numerals => 8,
+            Stream::Register => 9,
+            Stream::SoundChange(e) => 100 + u64::from(e),
+            Stream::Evolution(e) => 200 + u64::from(e),
         }
     }
 }

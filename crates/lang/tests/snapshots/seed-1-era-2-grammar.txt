@@ -1,0 +1,165 @@
+GRAMMAR SHEET — seed 1 (era 2 of 2)
+
+SOUNDS (ipa = spelling)
+  consonants (20): p  t  k  b  d  g  ʔ='  m  n  ŋ  f  v  s  h  ɣ=ğ  θ=þ  tʃ=ch  l  j=y  w
+  vowels (3): i  o  u
+  syllable: CV
+  codas: none
+
+SOUND CHANGES SINCE ERA 0
+  era 1: p > f / V_V
+  era 1: t > θ / V_V
+  era 1: k > x / V_V
+  era 1: b > v / V_V
+  era 1: g > ɣ / V_V
+  era 1: ʃ > s
+  era 2: x > h
+  era 2: p > b / V_V
+  era 2: t > d / V_V
+  era 2: k > g / V_V
+  era 2: a > o
+  new words this era: man, fire, shrine, burn, old, holy, and
+
+MORPHOLOGY
+  PL   -ti          (noun)
+  ACC  -no          (noun)
+  GEN  -pi          (noun)
+  DAT  -su          (noun)
+  PST  -so          (verb)
+  NEG  -bi          (verb)
+  nouns: root-NUMBER-CASE
+  verbs: root-TENSE-NEG
+  unmarked: singular, subject case, non-past, positive
+  adjectives, numerals, 'this' and 'here' never inflect
+  a counted noun is plural when the number is above one
+
+SYNTAX
+  clause order: SVO
+  dative (beneficiary): after the object
+  adverbs: at the end of the clause
+  commands: plain non-past verb with no subject
+  noun phrase: noun – adjectives – number – this
+  possessor before possessed noun
+  appositions (titles, 'child of X') follow the name
+
+NUMERALS
+  base: quinary (ten, hundred)
+  order: smallest part first
+  one ten: 'one ten'
+  linker between parts: yes ('and')
+  numeral signs: positional (one digit per place, with zero)
+
+SCRIPT: alphabet, left to right, 35 glyphs (see `script --spoil`)
+
+LEXICON
+  [people]
+    person      nisono
+    man         bunu
+    woman       toğiso
+    child       toŋu
+    son         pifohi
+    daughter    chulu
+    mother      ŋuyo
+    father      poni
+    wife        nosu
+    husband     sivisi
+    brother     wusu
+    sister      yufiŋo
+    king        sohovi
+    queen       kuhi
+    priest      buwonu
+    scribe      yilu
+    smith       hiho
+    servant     noŋi
+    god         tili
+  [nature]
+    water       miwo
+    river       yoholo
+    stone       woli
+    tree        nuþi
+    fire        toti
+    sun         bo'o
+    moon        kiŋu
+    rain        nusoği
+    mountain    sohuho
+    sea         yo'i
+    sheep       li'i
+    ox          suŋoŋi
+    goat        lifu
+    fish        lumi
+    grain       sihi
+  [places]
+    house       loŋo
+    temple      mohiğo
+    city        bihu
+    gate        figo
+    door        loþimo
+    road        yuso
+    field       wuvi
+    tomb        gisi
+    well        piso
+    wall        tono
+    tower       loyi
+    shrine      yotu
+  [objects]
+    bowl        ŋosi
+    jar         chuhi
+    tablet      suvo
+    statue      suyuvo
+    altar       toyichu
+    oil         yuwi
+    wine        guhu
+    cloth       chiŋi
+    loaf        luwu
+    knife       ninimo
+    lamp        sofo
+    box         povu
+    seal        wuþo
+  [actions]
+    lie         gomo
+    make        bobu
+    bring       yiþi
+    give        wiŋofu
+    open        susi
+    enter       mochu
+    take        kisoŋo
+    burn        wiyu
+    drink       'uno
+    cross       'ovo
+    touch       tofocho
+    break       ŋoho
+    scrape      siwu
+    eat         kiþo
+    fear        misu
+    honour      yohu
+    say         luho
+  [qualities]
+    great       sisohu
+    small       pi'u
+    old         dopu
+    new         polo
+    holy        sido
+    dark        husi
+    good        ŋino
+    white       hihu
+    red         biso
+    cold        huwuwo
+    deep        ŋiþu
+  [deixis]
+    this        gifo
+    here        nuso
+  [numbers]
+    one         kichi
+    two         nimi
+    three       koğu
+    four        homu
+    five        tufu
+    ten         chivo
+    zero        gohi
+    hundred     buğu
+    and         guto
+    total       yuhomo
+  [grammar]
+    pot.open    misi
+    pot.close   suğo
+    pot         'iğo

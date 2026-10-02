@@ -79,6 +79,20 @@ pub enum Kind {
     Warning,
     /// "[Person] made this [object] for [person/place]."
     Dedication,
+    /// An owner's or contents label: "[Name]'s jar".
+    Label,
+    /// "[Name] said to [Name]:" followed by a message.
+    Letter,
+    /// A claim in the potent register. Rare.
+    Potent,
+}
+
+/// Everyday writing does nothing; potent writing can act once scraped (M08).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Register {
+    Everyday,
+    Potent,
 }
 
 impl Kind {
@@ -88,6 +102,17 @@ impl Kind {
             Kind::Ledger => "ledger",
             Kind::Warning => "warning",
             Kind::Dedication => "dedication",
+            Kind::Label => "label",
+            Kind::Letter => "letter",
+            Kind::Potent => "potent",
+        }
+    }
+
+    pub fn register(self) -> Register {
+        if self == Kind::Potent {
+            Register::Potent
+        } else {
+            Register::Everyday
         }
     }
 }
@@ -180,6 +205,22 @@ impl<'a> Corpus<'a> {
         out
     }
 
+    /// Width of a glyph line on a surface, in glyphs.
+    // DESIGN-Q: a fixed line width until surfaces have real sizes (M04/M08).
+    pub const GLYPH_LINE: usize = 16;
+
+    /// Every inscription as numbered glyphs, laid out in lines in physical
+    /// order (the script's direction applied), separated by blank lines.
+    /// Numbers refer to the `script` table.
+    pub fn to_glyph_text(&self) -> String {
+        let r = self.renderer();
+        self.inscriptions
+            .iter()
+            .map(|i| r.glyph_lines(&i.rendered, Self::GLYPH_LINE).join("\n") + "\n")
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
     /// JSON array of inscriptions. Ground truth only with `spoil`.
     pub fn to_json(&self, spoil: bool) -> Value {
         let r = self.renderer();
@@ -188,9 +229,14 @@ impl<'a> Corpus<'a> {
             .iter()
             .enumerate()
             .map(|(n, i)| {
-                let mut v = json!({ "index": n + 1, "text": self.text(i) });
+                let mut v = json!({
+                    "index": n + 1,
+                    "text": self.text(i),
+                    "glyph_lines": r.glyph_lines(&i.rendered, Self::GLYPH_LINE),
+                });
                 if spoil {
                     v["kind"] = json!(i.kind);
+                    v["register"] = json!(i.kind.register());
                     v["translation"] = json!(self.translation(i));
                     v["words"] = i
                         .rendered
@@ -209,7 +255,8 @@ impl<'a> Corpus<'a> {
                 v
             })
             .collect();
-        let mut out = json!({ "seed": self.lang.seed, "inscriptions": items });
+        let mut out =
+            json!({ "seed": self.lang.seed, "era": self.lang.era, "inscriptions": items });
         if spoil {
             let people: Vec<Value> = self
                 .cast
@@ -245,16 +292,22 @@ fn align(top: &[String], bottom: &[String]) -> (String, String) {
 
 fn compose(rng: &mut Rng, cast: &Cast) -> (Kind, Sentence) {
     let kind = rng.weighted(&[
-        (Kind::Tomb, 30),
-        (Kind::Ledger, 25),
-        (Kind::Warning, 25),
-        (Kind::Dedication, 20),
+        (Kind::Tomb, 22),
+        (Kind::Ledger, 20),
+        (Kind::Warning, 18),
+        (Kind::Dedication, 15),
+        (Kind::Label, 10),
+        (Kind::Letter, 9),
+        (Kind::Potent, 6),
     ]);
     let s = match kind {
         Kind::Tomb => tomb(rng, cast),
         Kind::Ledger => ledger(rng, cast),
         Kind::Warning => warning(rng, cast),
         Kind::Dedication => dedication(rng, cast),
+        Kind::Label => label(rng, cast),
+        Kind::Letter => letter(rng, cast),
+        Kind::Potent => potent(rng),
     };
     (kind, s)
 }
@@ -319,14 +372,23 @@ fn tomb(rng: &mut Rng, cast: &Cast) -> Sentence {
     Sentence::Clause(c)
 }
 
-// DESIGN-Q: quantities stop at ten because the lexicon only has 1–10. Larger
-// numbers need a numeral system (base, compounding), a later milestone.
+/// A count of goods: mostly small, sometimes in the tens or hundreds.
+fn quantity(rng: &mut Rng) -> u16 {
+    let n = match rng.weighted(&[(0, 55), (1, 33), (2, 12)]) {
+        0 => rng.range(1, 10),
+        1 => rng.range(11, 99),
+        // At most three items of at most 300 keeps every total under 1000.
+        _ => rng.range(100, 300),
+    };
+    n as u16
+}
+
 fn goods(rng: &mut Rng, avoid: &[String]) -> NounPhrase {
     let options: Vec<&Concept> = concepts::nouns_tagged("good")
         .into_iter()
         .filter(|c| !avoid.contains(&c.id))
         .collect();
-    let n = rng.range(1, 10) as u8;
+    let n = quantity(rng);
     NounPhrase::concept(&rng.pick(&options).id).counted(n)
 }
 
@@ -344,6 +406,15 @@ fn ledger(rng: &mut Rng, cast: &Cast) -> Sentence {
                 .collect();
             items.push(goods(rng, &used));
         }
+        // A total line under two or more items lets readers check numbers
+        // by arithmetic. It is always correct.
+        if items.len() >= 2 {
+            let sum: u16 = items.iter().filter_map(|np| np.quantity).sum();
+            let mut total = NounPhrase::concept("total");
+            debug_assert!(sum <= crate::numerals::MAX);
+            total.quantity = Some(sum);
+            items.push(total);
+        }
         return Sentence::List(items);
     }
     let verb = if rng.chance(50) { "bring" } else { "give" };
@@ -356,6 +427,75 @@ fn ledger(rng: &mut Rng, cast: &Cast) -> Sentence {
         args.push((Role::Recipient, place_or_god(rng)));
     }
     Sentence::Clause(statement(verb, Tense::Past, args))
+}
+
+fn label(rng: &mut Rng, cast: &Cast) -> Sentence {
+    let made = concepts::nouns_tagged("made");
+    let mut thing = NounPhrase::concept(&rng.pick(&made).id);
+    let owner = if rng.chance(60) {
+        NounPhrase::name(rng.index(cast.people.len()))
+    } else {
+        NounPhrase::concept(rng.pick(&["king", "queen", "god", "priest", "scribe"]))
+    };
+    thing = thing.with_possessor(owner);
+    Sentence::List(vec![thing])
+}
+
+fn letter(rng: &mut Rng, cast: &Cast) -> Sentence {
+    let from = rng.index(cast.people.len());
+    let others: Vec<usize> = (0..cast.people.len()).filter(|&i| i != from).collect();
+    let to = *rng.pick(&others);
+    let opening = statement(
+        "say",
+        Tense::Past,
+        vec![
+            (Role::Subject, titled(rng, cast, from, 40)),
+            (Role::Recipient, titled(rng, cast, to, 40)),
+        ],
+    );
+    let body = if rng.chance(50) {
+        warning(rng, cast)
+    } else {
+        ledger_clause(rng, cast)
+    };
+    Sentence::Text(vec![Sentence::Clause(opening), body])
+}
+
+fn ledger_clause(rng: &mut Rng, cast: &Cast) -> Sentence {
+    loop {
+        if let s @ Sentence::Clause(_) = ledger(rng, cast) {
+            return s;
+        }
+    }
+}
+
+/// A potent claim: "let the gate not open". Only the form exists in M02.
+// DESIGN-Q: claims use a few verbs that read naturally without an object
+// (open, burn, break), with the thing as subject. M08 decides what claims
+// can say and what they do.
+fn potent(rng: &mut Rng) -> Sentence {
+    let verb = concepts::get(rng.pick(&["open", "burn", "break"]));
+    let subjects: Vec<&Concept> = concepts::with_pos(Pos::Noun)
+        .filter(|n| verb.accepts_object(n))
+        .collect();
+    let mut subject = NounPhrase::concept(&rng.pick(&subjects).id);
+    maybe_adjective(rng, &mut subject, 25);
+    let polarity = if rng.chance(50) {
+        Polarity::Negative
+    } else {
+        Polarity::Positive
+    };
+    Sentence::Clause(Clause {
+        predicate: verb.id.clone(),
+        mood: Mood::Potent,
+        tense: Tense::NonPast,
+        polarity,
+        args: vec![Argument {
+            role: Role::Subject,
+            np: subject,
+        }],
+        adverbs: Vec::new(),
+    })
 }
 
 fn place_or_god(rng: &mut Rng) -> NounPhrase {

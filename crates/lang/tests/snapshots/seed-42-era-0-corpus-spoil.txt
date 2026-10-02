@@ -1,0 +1,200 @@
+niro botini mïhu peme nengi
+    #1 tomb · Niro, mother of Boti, lies here.
+    niro  boti-ni   mïhu    peme  nengi
+    Niro  Boti-GEN  mother  here  lie
+
+ta'a linga rïne tsala mipe
+    #2 potent · [potent] let the grain burn.
+    ta'a      linga  rïne  tsala  mipe
+    POT.OPEN  grain  POT   burn   POT.CLOSE
+
+latifï la'uheni lelo peme nengi
+    #3 tomb · Latifï, sister of La'uhe, lies here.
+    latifï  la'uhe-ni   lelo    peme  nengi
+    Latifï  La'uhe-GEN  sister  here  lie
+
+timoku 'alïdu
+    #4 warning · Eat the fish.
+    timo-ku   'alïdu
+    fish-ACC  eat
+
+niro foyeyi xidono tsakuni pirekaku bilamu
+    #5 letter · Niro said to Foye: Do not touch the temple of the king.
+    niro  foye-yi   xi-dono  tsaku-ni  pireka-ku   bi-lamu
+    Niro  Foye-DAT  PST-say  king-GEN  temple-ACC  NEG-touch
+
+tifu 'apapa mafoyi muyoyi kofe'o xidono boti kumuyi diyungaku ngaxi ngongi boda yoki xikanaba
+    #6 letter · Tifu, scribe, said to Mafo, old servant,: Boti brought 54 oxen for the god.
+    tifu  'apapa  mafo-yi   muyo-yi      kofe'o  xi-dono  boti  kumu-yi  diyu-nga-ku  ngaxi  ngongi  boda  yoki  xi-kanaba
+    Tifu  scribe  Mafo-DAT  servant-DAT  old     PST-say  Boti  god-DAT  ox-PL-ACC    four   AND     five  ten   PST-bring
+
+nika latifïni fu'a peme nengi
+    #7 tomb · Nika, wife of Latifï, lies here.
+    nika  latifï-ni   fu'a  peme  nengi
+    Nika  Latifï-GEN  wife  here  lie
+
+poluku ngama
+    #8 warning · Break the statue.
+    polu-ku     ngama
+    statue-ACC  break
+
+de'uku binge'oba
+    #9 warning · Do not scrape the seal.
+    de'u-ku   bi-nge'oba
+    seal-ACC  NEG-scrape
+
+batafa 'eyu la'uheyi memaku pali hike xikula
+    #10 dedication · Batafa, smith, made this small altar for La'uhe.
+    batafa  'eyu   la'uhe-yi   mema-ku    pali   hike  xi-kula
+    Batafa  smith  La'uhe-DAT  altar-ACC  small  this  PST-make
+
+rati'o likini kinake peme nengi
+    #11 tomb · Rati'o, husband of Liki, lies here.
+    rati'o  liki-ni   kinake   peme  nengi
+    Rati'o  Liki-GEN  husband  here  lie
+
+bene pirekayi xemï tupaku hike xikula
+    #12 dedication · Bene made this knife for the new temple.
+    bene  pireka-yi   xemï  tupa-ku    hike  xi-kula
+    Bene  temple-DAT  new   knife-ACC  this  PST-make
+
+kotitï batilayi rirï tukiku hike xikula
+    #13 dedication · Kotitï made this lamp for the dark shrine.
+    kotitï  batila-yi   rirï  tuki-ku   hike  xi-kula
+    Kotitï  shrine-DAT  dark  lamp-ACC  this  PST-make
+
+la'uhe rati'oyi xidono helaku rirï bilamu
+    #14 letter · La'uhe said to Rati'o: Do not touch the dark tomb.
+    la'uhe  rati'o-yi   xi-dono  hela-ku   rirï  bi-lamu
+    La'uhe  Rati'o-DAT  PST-say  tomb-ACC  dark  NEG-touch
+
+la'uhe yapeyi xidono kotitïni hataku bitsala
+    #15 letter · La'uhe said to Yape: Do not burn the field of Kotitï.
+    la'uhe  yape-yi   xi-dono  kotitï-ni   hata-ku    bi-tsala
+    La'uhe  Yape-DAT  PST-say  Kotitï-GEN  field-ACC  NEG-burn
+
+metema la'uheni ho muyo peme nengi
+    #16 tomb · Metema, child of La'uhe, servant, lies here.
+    metema  la'uhe-ni   ho     muyo     peme  nengi
+    Metema  La'uhe-GEN  child  servant  here  lie
+
+yape kotitïni kuri peme nengi
+    #17 tomb · Yape, brother of Kotitï, lies here.
+    yape  kotitï-ni   kuri     peme  nengi
+    Yape  Kotitï-GEN  brother  here  lie
+
+poninga fangi ngongi feyi yoki ngongi fangi kïda
+    #18 ledger · 181 sheep.
+    poni-nga  fangi  ngongi  feyi   yoki  ngongi  fangi  kïda
+    sheep-PL  one    AND     eight  ten   AND     one    hundred
+
+nubongini matsuku derï
+    #19 warning · Enter the city of Nubongi.
+    nubongi-ni   matsu-ku  derï
+    Nubongi-GEN  city-ACC  enter
+
+'alungaku rapiti
+    #20 warning · Open the doors.
+    'alu-nga-ku  rapiti
+    door-PL-ACC  open
+
+ngïbini donguku ngale tako
+    #21 warning · Take the red bowl of the queen.
+    ngïbi-ni   dongu-ku  ngale  tako
+    queen-GEN  bowl-ACC  red    take
+
+tahe kumuyi luyengaku kara ngongi kara yoki xikanaba
+    #22 ledger · Tahe brought 77 loaves for the god.
+    tahe  kumu-yi  luye-nga-ku  kara   ngongi  kara   yoki  xi-kanaba
+    Tahe  god-DAT  loaf-PL-ACC  seven  AND     seven  ten   PST-bring
+
+mïhuku tsati
+    #23 warning · Honour the mother.
+    mïhu-ku     tsati
+    mother-ACC  honour
+
+yi'ï hanabungaku fangi yoki xikanaba
+    #24 ledger · Yi'ï brought ten jars.
+    yi'ï  hanabu-nga-ku  fangi  yoki  xi-kanaba
+    Yi'ï  jar-PL-ACC     one    ten   PST-bring
+
+kotitï la'uheni mï peme nengi
+    #25 tomb · Kotitï, father of La'uhe, lies here.
+    kotitï  la'uhe-ni   mï      peme  nengi
+    Kotitï  La'uhe-GEN  father  here  lie
+
+latifï fuyuyi tsakuyi xidono mïhuku tsati
+    #26 letter · Latifï said to Fuyu, king,: Honour the mother.
+    latifï  fuyu-yi   tsaku-yi  xi-dono  mïhu-ku     tsati
+    Latifï  Fuyu-DAT  king-DAT  PST-say  mother-ACC  honour
+
+latifï penoyi xidono kenaku rapa
+    #27 letter · Latifï said to Peno: Drink the wine.
+    latifï  peno-yi   xi-dono  kena-ku   rapa
+    Latifï  Peno-DAT  PST-say  wine-ACC  drink
+
+foye yi'ïni kuri ngïbi peme nengi
+    #28 tomb · Foye, brother of Yi'ï, queen, lies here.
+    foye  yi'ï-ni   kuri     ngïbi  peme  nengi
+    Foye  Yi'ï-GEN  brother  queen  here  lie
+
+foru yapeni nïdupi peme nengi
+    #29 tomb · Foru, son of Yape, lies here.
+    foru  yape-ni   nïdupi  peme  nengi
+    Foru  Yape-GEN  son     here  lie
+
+bene kumuyi mabe donguku hike xikula
+    #30 dedication · Bene made this bowl for the great god.
+    bene  kumu-yi  mabe   dongu-ku  hike  xi-kula
+    Bene  god-DAT  great  bowl-ACC  this  PST-make
+
+tahe luyengaku yobu xingotsa
+    #31 ledger · Tahe gave two loaves.
+    tahe  luye-nga-ku  yobu  xi-ngotsa
+    Tahe  loaf-PL-ACC  two   PST-give
+
+buruku hebefa rapiti
+    #32 warning · Open the white gate.
+    buru-ku   hebefa  rapiti
+    gate-ACC  white   open
+
+yape kotitïni kuri peme nengi
+    #33 tomb · Yape, brother of Kotitï, lies here.
+    yape  kotitï-ni   kuri     peme  nengi
+    Yape  Kotitï-GEN  brother  here  lie
+
+nubongi nironi mï 'eyu peme nengi
+    #34 tomb · Nubongi, father of Niro, smith, lies here.
+    nubongi  niro-ni   mï      'eyu   peme  nengi
+    Nubongi  Niro-GEN  father  smith  here  lie
+
+depingoni batilaku biderï
+    #35 warning · Do not enter the shrine of Depingo.
+    depingo-ni   batila-ku   bi-derï
+    Depingo-GEN  shrine-ACC  NEG-enter
+
+lipate penoni kuri 'apapa peme nengi
+    #36 tomb · Lipate, brother of Peno, scribe, lies here.
+    lipate  peno-ni   kuri     'apapa  peme  nengi
+    Lipate  Peno-GEN  brother  scribe  here  lie
+
+ta'a yabi kofe'o rïne ngama mipe
+    #37 potent · [potent] let the old tablet break.
+    ta'a      yabi    kofe'o  rïne  ngama  mipe
+    POT.OPEN  tablet  old     POT   break  POT.CLOSE
+
+foru yapeni nïdupi peme nengi
+    #38 tomb · Foru, son of Yape, lies here.
+    foru  yape-ni   nïdupi  peme  nengi
+    Foru  Yape-GEN  son     here  lie
+
+lipate batilayi tupaku hike xikula
+    #39 dedication · Lipate made this knife for the shrine.
+    lipate  batila-yi   tupa-ku    hike  xi-kula
+    Lipate  shrine-DAT  knife-ACC  this  PST-make
+
+bene hanabungaku boda ngongi ngaxi yoki xingotsa
+    #40 ledger · Bene gave 45 jars.
+    bene  hanabu-nga-ku  boda  ngongi  ngaxi  yoki  xi-ngotsa
+    Bene  jar-PL-ACC     five  AND     four   ten   PST-give
+

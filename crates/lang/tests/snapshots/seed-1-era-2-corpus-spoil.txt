@@ -1,0 +1,200 @@
+mochu mohiğotino
+    #1 warning · Enter the temples.
+    mochu  mohiğo-ti-no
+    enter  temple-PL-ACC
+
+lidosi bobuso povuno gifo tilisu
+    #2 dedication · Lidosi made this box for the god.
+    lidosi  bobu-so   povu-no  gifo  tili-su
+    Lidosi  make-PST  box-ACC  this  god-DAT
+
+puki winopipi yufiŋo sohovi gomo nuso
+    #3 tomb · Puki, sister of Winopi, king, lies here.
+    puki  winopi-pi   yufiŋo  sohovi  gomo  nuso
+    Puki  Winopi-GEN  sister  king    lie   here
+
+ŋohobi pukipi figono
+    #4 warning · Do not break the gate of Puki.
+    ŋoho-bi    puki-pi   figo-no
+    break-NEG  Puki-GEN  gate-ACC
+
+ŋuchumi bobuso suvono gifo kumomisu
+    #5 dedication · Ŋuchumi made this tablet for Kumomi.
+    ŋuchumi  bobu-so   suvo-no     gifo  kumomi-su
+    Ŋuchumi  make-PST  tablet-ACC  this  Kumomi-DAT
+
+winopi wobopi nosu buwonu gomo nuso
+    #6 tomb · Winopi, wife of Wobo, priest, lies here.
+    winopi  wobo-pi   nosu  buwonu  gomo  nuso
+    Winopi  Wobo-GEN  wife  priest  lie   here
+
+ninimoti tufu koğu
+    #7 ledger · Eight knives.
+    ninimo-ti  tufu  koğu
+    knife-PL   five  three
+
+lumiti tufu koğu
+    #8 ledger · Eight fish.
+    lumi-ti  tufu  koğu
+    fish-PL  five  three
+
+fikutu fidipi yufiŋo gomo nuso
+    #9 tomb · Fikutu, sister of Fidi, lies here.
+    fikutu  fidi-pi   yufiŋo  gomo  nuso
+    Fikutu  Fidi-GEN  sister  lie   here
+
+mupi fidipi ŋuyo gomo nuso
+    #10 tomb · Mupi, mother of Fidi, lies here.
+    mupi  fidi-pi   ŋuyo    gomo  nuso
+    Mupi  Fidi-GEN  mother  lie   here
+
+mikohu kochopi pifohi gomo nuso
+    #11 tomb · Mikohu, son of Kocho, lies here.
+    mikohu  kocho-pi   pifohi  gomo  nuso
+    Mikohu  Kocho-GEN  son     lie   here
+
+ŋuchumi luhoso 'ipotusu mochu loŋono
+    #12 letter · Ŋuchumi said to 'Ipotu: Enter the house.
+    ŋuchumi  luho-so  'ipotu-su   mochu  loŋo-no
+    Ŋuchumi  say-PST  'Ipotu-DAT  enter  house-ACC
+
+ŋuchumi bobuso povuno gifo tilipi mohiğosu husi
+    #13 dedication · Ŋuchumi made this box for the dark temple of the god.
+    ŋuchumi  bobu-so   povu-no  gifo  tili-pi  mohiğo-su   husi
+    Ŋuchumi  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+
+kocho luhoso dugisu mupi yiþiso suŋoŋitino tufu yotusu
+    #14 letter · Kocho said to Dugi: Mupi brought five oxen for the shrine.
+    kocho  luho-so  dugi-su   mupi  yiþi-so    suŋoŋi-ti-no  tufu  yotu-su
+    Kocho  say-PST  Dugi-DAT  Mupi  bring-PST  ox-PL-ACC     five  shrine-DAT
+
+þimuvo luhoso chimusu chimu wiŋofuso lifutino tufu kichi
+    #15 letter · Þimuvo said to Chimu: Chimu gave six goats.
+    þimuvo  luho-so  chimu-su   chimu  wiŋofu-so  lifu-ti-no   tufu  kichi
+    Þimuvo  say-PST  Chimu-DAT  Chimu  give-PST   goat-PL-ACC  five  one
+
+puki winopipi yufiŋo sohovi gomo nuso
+    #16 tomb · Puki, sister of Winopi, king, lies here.
+    puki  winopi-pi   yufiŋo  sohovi  gomo  nuso
+    Puki  Winopi-GEN  sister  king    lie   here
+
+ŋuchumi modopi chulu gomo nuso
+    #17 tomb · Ŋuchumi, daughter of Modo, lies here.
+    ŋuchumi  modo-pi   chulu     gomo  nuso
+    Ŋuchumi  Modo-GEN  daughter  lie   here
+
+buwonupi povu
+    #18 label · The box of the priest.
+    buwonu-pi   povu
+    priest-GEN  box
+
+dugi luhoso mupisu kudo yiþiso sofotino koğu
+    #19 letter · Dugi said to Mupi: Kudo brought three lamps.
+    dugi  luho-so  mupi-su   kudo  yiþi-so    sofo-ti-no   koğu
+    Dugi  say-PST  Mupi-DAT  Kudo  bring-PST  lamp-PL-ACC  three
+
+chimu kochopi ŋuyo hiho gomo nuso
+    #20 tomb · Chimu, mother of Kocho, smith, lies here.
+    chimu  kocho-pi   ŋuyo    hiho   gomo  nuso
+    Chimu  Kocho-GEN  mother  smith  lie   here
+
+misi wuþo 'iğo ŋohobi suğo
+    #21 potent · [potent] let the seal not break.
+    misi      wuþo  'iğo  ŋoho-bi    suğo
+    POT.OPEN  seal  POT   break-NEG  POT.CLOSE
+
+voyo wikopi wusu yilu gomo nuso
+    #22 tomb · Voyo, brother of Wiko, scribe, lies here.
+    voyo  wiko-pi   wusu     yilu    gomo  nuso
+    Voyo  Wiko-GEN  brother  scribe  lie   here
+
+chimu kochopi ŋuyo gomo nuso
+    #23 tomb · Chimu, mother of Kocho, lies here.
+    chimu  kocho-pi   ŋuyo    gomo  nuso
+    Chimu  Kocho-GEN  mother  lie   here
+
+'ipotu bobuso toyichuno sido gifo fidisu
+    #24 dedication · 'Ipotu made this holy altar for Fidi.
+    'ipotu  bobu-so   toyichu-no  sido  gifo  fidi-su
+    'Ipotu  make-PST  altar-ACC   holy  this  Fidi-DAT
+
+'ipotu bobuso suvono gifo bihusu
+    #25 dedication · 'Ipotu made this tablet for the city.
+    'ipotu  bobu-so   suvo-no     gifo  bihu-su
+    'Ipotu  make-PST  tablet-ACC  this  city-DAT
+
+sohovipi ŋosi
+    #26 label · The bowl of the king.
+    sohovi-pi  ŋosi
+    king-GEN   bowl
+
+kudo hiho bobuso ŋosino gifo nivusu
+    #27 dedication · Kudo, smith, made this bowl for Nivu.
+    kudo  hiho   bobu-so   ŋosi-no   gifo  nivu-su
+    Kudo  smith  make-PST  bowl-ACC  this  Nivu-DAT
+
+puki winopipi yufiŋo sohovi gomo nuso
+    #28 tomb · Puki, sister of Winopi, king, lies here.
+    puki  winopi-pi   yufiŋo  sohovi  gomo  nuso
+    Puki  Winopi-GEN  sister  king    lie   here
+
+mikohu luhoso kumomisu kisoŋo luwuno
+    #29 letter · Mikohu said to Kumomi: Take the loaf.
+    mikohu  luho-so  kumomi-su   kisoŋo  luwu-no
+    Mikohu  say-PST  Kumomi-DAT  take    loaf-ACC
+
+modo yiþiso luwutino koğu yotusu
+    #30 ledger · Modo brought three loaves for the shrine.
+    modo  yiþi-so    luwu-ti-no   koğu   yotu-su
+    Modo  bring-PST  loaf-PL-ACC  three  shrine-DAT
+
+wiyubi loþimono
+    #31 warning · Do not burn the door.
+    wiyu-bi   loþimo-no
+    burn-NEG  door-ACC
+
+puki winopipi yufiŋo gomo nuso
+    #32 tomb · Puki, sister of Winopi, lies here.
+    puki  winopi-pi   yufiŋo  gomo  nuso
+    Puki  Winopi-GEN  sister  lie   here
+
+lumiti tufu nimi guto nimi chivo guto nimi buğu sofoti nimi chiŋiti nimi guto tufu kichi chivo guto kichi buğu yuhomo kichi guto tufu homu chivo guto koğu buğu
+    #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
+    lumi-ti  tufu  nimi  guto  nimi  chivo  guto  nimi  buğu     sofo-ti  nimi  chiŋi-ti  nimi  guto  tufu  kichi  chivo  guto  kichi  buğu     yuhomo  kichi  guto  tufu  homu  chivo  guto  koğu   buğu
+    fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
+
+mupi fidipi ŋuyo gomo nuso
+    #34 tomb · Mupi, mother of Fidi, lies here.
+    mupi  fidi-pi   ŋuyo    gomo  nuso
+    Mupi  Fidi-GEN  mother  lie   here
+
+mofipi chuhi
+    #35 label · The jar of Mofi.
+    mofi-pi   chuhi
+    Mofi-GEN  jar
+
+mikohu luhoso wikosu 'uno kudopi miwono
+    #36 letter · Mikohu said to Wiko: Drink the water of Kudo.
+    mikohu  luho-so  wiko-su   'uno   kudo-pi   miwo-no
+    Mikohu  say-PST  Wiko-DAT  drink  Kudo-GEN  water-ACC
+
+lumiti koğu guto tufu chivo
+    #37 ledger · 53 fish.
+    lumi-ti  koğu   guto  tufu  chivo
+    fish-PL  three  AND   five  ten
+
+nivu luhoso chimusu misu yo'itino
+    #38 letter · Nivu said to Chimu: Fear the seas.
+    nivu  luho-so  chimu-su   misu  yo'i-ti-no
+    Nivu  say-PST  Chimu-DAT  fear  sea-PL-ACC
+
+misubi yo'ino
+    #39 warning · Do not fear the sea.
+    misu-bi   yo'i-no
+    fear-NEG  sea-ACC
+
+modo þimuvopi yufiŋo gomo nuso
+    #40 tomb · Modo, sister of Þimuvo, lies here.
+    modo  þimuvo-pi   yufiŋo  gomo  nuso
+    Modo  Þimuvo-GEN  sister  lie   here
+

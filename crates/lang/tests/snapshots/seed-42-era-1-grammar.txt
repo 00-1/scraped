@@ -1,0 +1,160 @@
+GRAMMAR SHEET — seed 42 (era 1 of 2)
+
+SOUNDS (ipa = spelling)
+  consonants (16): p  t  k  b  d  ʔ='  m  n  ŋ=ng  f  h  x  ts  l  r  j=y
+  vowels (5): e  i  o  u  ɨ=ï
+  syllable: CV(C)
+  codas: p t k b d ' m n ng f h x ts l r y
+
+SOUND CHANGES SINCE ERA 0
+  era 1: final V > ∅ / VC_# in words of 2+ syllables
+  era 1: a > o
+  new words this era: servant, tomb, eat, fear, small, new, one, two
+
+MORPHOLOGY
+  PL   -ngo         (noun)
+  ACC  -ku          (noun)
+  GEN  -ni          (noun)
+  DAT  -yi          (noun)
+  PST  xi-          (verb)
+  NEG  bi-          (verb)
+  nouns: root-NUMBER-CASE
+  verbs: NEG-TENSE-root
+  unmarked: singular, subject case, non-past, positive
+  adjectives, numerals, 'this' and 'here' never inflect
+  a counted noun is plural when the number is above one
+
+SYNTAX
+  clause order: SOV
+  dative (beneficiary): just before the object
+  adverbs: just before the verb
+  commands: plain non-past verb with no subject
+  noun phrase: noun – adjectives – number – this
+  possessor before possessed noun
+  appositions (titles, 'child of X') follow the name
+
+NUMERALS
+  base: decimal (ten, hundred)
+  order: smallest part first
+  one ten: 'one ten'
+  linker between parts: yes ('and')
+  numeral signs: positional (one digit per place, with zero)
+
+SCRIPT: alphabet, left to right, 33 glyphs (see `script --spoil`)
+
+LEXICON
+  [people]
+    person      tot
+    man         pe
+    woman       ying
+    child       ho
+    son         nïdup
+    daughter    rol
+    mother      mïh
+    father      mï
+    wife        fu'
+    husband     kinok
+    brother     kur
+    sister      lel
+    king        tsok
+    queen       ngïb
+    priest      yotïp
+    scribe      'opop
+    smith       'ey
+    servant     ritslom
+    god         kum
+  [nature]
+    water       bix
+    river       hut
+    stone       pip
+    tree        tsutsom
+    fire        'odot
+    sun         yor
+    moon        dut
+    rain        lun
+    mountain    bom
+    sea         yop
+    sheep       pon
+    ox          diy
+    goat        xon
+    fish        tim
+    grain       ling
+  [places]
+    house       tïm
+    temple      pirek
+    city        mots
+    gate        bur
+    door        'ol
+    road        mok
+    field       hot
+    tomb        purilmo
+    well        lituy
+    wall        huhod
+    tower       hit
+    shrine      botil
+  [objects]
+    bowl        dong
+    jar         honob
+    tablet      yob
+    statue      pol
+    altar       mem
+    oil         duk
+    wine        ken
+    cloth       tep
+    loaf        luy
+    knife       tup
+    lamp        tuk
+    box         foyup
+    seal        de'
+  [actions]
+    lie         neng
+    make        kul
+    bring       konob
+    give        ngots
+    open        ropit
+    enter       der
+    take        tok
+    burn        tsol
+    drink       rop
+    cross       fop
+    touch       lom
+    break       ngom
+    scrape      nge'ob
+    eat         puhubot
+    fear        nïf
+    honour      tsot
+    say         don
+  [qualities]
+    great       mob
+    small       mutxu
+    old         kofe'
+    new         yipi
+    holy        mey
+    dark        rir
+    good        yeh
+    white       hebef
+    red         ngol
+    cold        heb
+    deep        pu'
+  [deixis]
+    this        hik
+    here        pem
+  [numbers]
+    one         ret
+    two         fehi
+    three       nep
+    four        ngox
+    five        bod
+    six         moy
+    seven       kor
+    eight       fey
+    nine        por
+    ten         yok
+    zero        nit
+    hundred     kïd
+    and         ngong
+    total       riy
+  [grammar]
+    pot.open    to'
+    pot.close   mip
+    pot         rïn

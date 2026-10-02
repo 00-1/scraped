@@ -10,6 +10,7 @@ use std::collections::BTreeSet;
 use serde::Serialize;
 
 use crate::concepts::Pos;
+use crate::difficulty::Regularity;
 use crate::phonology::{Phonemes, Phonology};
 use crate::rng::{Rng, Stream};
 
@@ -68,6 +69,18 @@ pub enum AffixPosition {
 pub struct Affix {
     pub gloss: &'static str,
     pub form: Phonemes,
+    /// A separate word next to its host instead of part of it. Affixes
+    /// erode into particles when sound change wears them down (M02).
+    pub particle: bool,
+}
+
+/// Several affixes merged into one unanalysable form, as in Latin `-orum`
+/// for genitive plural. Only with the `Fused` difficulty dial.
+#[derive(Debug, Clone, Serialize)]
+pub struct Fusion {
+    /// The affixes it replaces, from the root outward.
+    pub glosses: Vec<&'static str>,
+    pub form: Phonemes,
 }
 
 /// The affixes of one language and where they go.
@@ -81,6 +94,7 @@ pub struct Morphology {
     pub dative: Affix,
     pub past: Affix,
     pub negative: Affix,
+    pub fusions: Vec<Fusion>,
 }
 
 /// One piece of a word: a root or an affix, with its gloss.
@@ -94,7 +108,7 @@ pub struct Morph {
 impl Morphology {
     /// Generates affixes for a language. Affixes are distinct, and every
     /// combination within a paradigm spells out differently.
-    pub fn generate(seed: u64, phonology: &Phonology) -> Self {
+    pub fn generate(seed: u64, phonology: &Phonology, regularity: Regularity) -> Self {
         let mut rng = Rng::new(seed, Stream::Morphology);
         let noun_position = position(&mut rng);
         let verb_position = position(&mut rng);
@@ -102,8 +116,9 @@ impl Morphology {
             let mut make = |gloss| Affix {
                 gloss,
                 form: phonology.random_affix(&mut rng),
+                particle: false,
             };
-            let m = Morphology {
+            let mut m = Morphology {
                 noun_position,
                 verb_position,
                 plural: make("PL"),
@@ -112,16 +127,74 @@ impl Morphology {
                 dative: make("DAT"),
                 past: make("PST"),
                 negative: make("NEG"),
+                fusions: Vec::new(),
             };
             if m.affixes_are_distinct() {
+                if regularity == Regularity::Fused {
+                    m.fuse_some(seed, phonology);
+                }
                 return m;
             }
         }
     }
 
-    /// All six affix forms.
+    /// Adds one fused noun form and one fused verb form. Drawn from a
+    /// separate stream, so turning the dial leaves the rest of the language
+    /// alone (bar the rare root that would collide with a fused form).
+    fn fuse_some(&mut self, seed: u64, phonology: &Phonology) {
+        let mut rng = Rng::new(seed, Stream::Fusion);
+        let case = *rng.pick(&["ACC", "GEN", "DAT"]);
+        loop {
+            self.fusions = [vec!["PL", case], vec!["PST", "NEG"]]
+                .into_iter()
+                .map(|glosses| Fusion {
+                    glosses,
+                    form: phonology.random_affix(&mut rng),
+                })
+                .collect();
+            if self.affixes_are_distinct() {
+                return;
+            }
+        }
+    }
+
+    /// Forms of affixes that attach to words (not particles), and fusions.
     pub fn affixes(&self) -> Vec<&Phonemes> {
-        self.affix_list().into_iter().map(|a| &a.form).collect()
+        self.affix_list()
+            .into_iter()
+            .filter(|a| !a.particle)
+            .map(|a| &a.form)
+            .chain(self.fusions.iter().map(|f| &f.form))
+            .collect()
+    }
+
+    /// Forms of the regular attached affixes, without fusions.
+    pub fn plain_affixes(&self) -> Vec<&Phonemes> {
+        self.affix_list()
+            .into_iter()
+            .filter(|a| !a.particle)
+            .map(|a| &a.form)
+            .collect()
+    }
+
+    /// Affixes that have become separate words.
+    pub fn particles(&self) -> Vec<&Affix> {
+        self.affix_list()
+            .into_iter()
+            .filter(|a| a.particle)
+            .collect()
+    }
+
+    /// Mutable access to all six affixes, in the same order as `affix_list`.
+    pub fn affix_list_mut(&mut self) -> [&mut Affix; 6] {
+        [
+            &mut self.plural,
+            &mut self.object,
+            &mut self.genitive,
+            &mut self.dative,
+            &mut self.past,
+            &mut self.negative,
+        ]
     }
 
     /// All six affixes with glosses, in a fixed order.
@@ -136,17 +209,41 @@ impl Morphology {
         ]
     }
 
-    fn affixes_are_distinct(&self) -> bool {
-        let forms: BTreeSet<&Phonemes> = self.affixes().into_iter().collect();
-        if forms.len() != 6 {
+    /// Whether every affix is distinct and every combination in a paradigm
+    /// spells out differently (particles aside: they are separate words).
+    pub fn affixes_are_distinct(&self) -> bool {
+        let forms = self.affixes();
+        let set: BTreeSet<&Phonemes> = forms.iter().copied().collect();
+        if set.len() != forms.len() {
             return false;
         }
-        // Every inflection of a dummy root must be unique within its class.
+        // Within each word class, cells with different attached affixes must
+        // spell differently. Cells that differ only by a particle may share a
+        // word form: the particle word tells them apart.
         let dummy: Phonemes = vec![];
-        let nouns = self.all_forms(&dummy, Pos::Noun);
-        let verbs = self.all_forms(&dummy, Pos::Verb);
-        nouns.iter().collect::<BTreeSet<_>>().len() == nouns.len()
-            && verbs.iter().collect::<BTreeSet<_>>().len() == verbs.len()
+        let mut cells: Vec<(Phonemes, String)> = Vec::new();
+        for number in [Number::Singular, Number::Plural] {
+            for case in Case::ALL {
+                let m = self.noun(&dummy, "", number, case);
+                cells.push((join(&m), format!("n:{}", gloss_labels(&m))));
+            }
+        }
+        for tense in [Tense::NonPast, Tense::Past] {
+            for pol in [Polarity::Positive, Polarity::Negative] {
+                let m = self.verb(&dummy, "", tense, pol);
+                cells.push((join(&m), format!("v:{}", gloss_labels(&m))));
+            }
+        }
+        let mut seen: std::collections::BTreeMap<(char, Phonemes), String> = Default::default();
+        for (form, label) in cells {
+            let class = label.chars().next().expect("class");
+            if let Some(prev) = seen.insert((class, form), label.clone()) {
+                if prev != label {
+                    return false;
+                }
+            }
+        }
+        true
     }
 
     fn case_affix(&self, case: Case) -> Option<&Affix> {
@@ -158,13 +255,29 @@ impl Morphology {
         }
     }
 
-    /// Inflects a noun. Number sits next to the root, case outside it.
-    pub fn noun(&self, root: &Phonemes, gloss: &str, number: Number, case: Case) -> Vec<Morph> {
+    fn noun_markers(&self, number: Number, case: Case) -> Vec<&Affix> {
         let mut inner = Vec::new();
         if number == Number::Plural {
             inner.push(&self.plural);
         }
         inner.extend(self.case_affix(case));
+        inner
+    }
+
+    fn verb_markers(&self, tense: Tense, polarity: Polarity) -> Vec<&Affix> {
+        let mut inner = Vec::new();
+        if tense == Tense::Past {
+            inner.push(&self.past);
+        }
+        if polarity == Polarity::Negative {
+            inner.push(&self.negative);
+        }
+        inner
+    }
+
+    /// Inflects a noun. Number sits next to the root, case outside it.
+    pub fn noun(&self, root: &Phonemes, gloss: &str, number: Number, case: Case) -> Vec<Morph> {
+        let inner = self.fuse(self.noun_markers(number, case));
         assemble(root, gloss, &inner, self.noun_position)
     }
 
@@ -176,14 +289,32 @@ impl Morphology {
         tense: Tense,
         polarity: Polarity,
     ) -> Vec<Morph> {
-        let mut inner = Vec::new();
-        if tense == Tense::Past {
-            inner.push(&self.past);
-        }
-        if polarity == Polarity::Negative {
-            inner.push(&self.negative);
-        }
+        let inner = self.fuse(self.verb_markers(tense, polarity));
         assemble(root, gloss, &inner, self.verb_position)
+    }
+
+    /// Particle words that go with a noun form, nearest first.
+    pub fn noun_particles(&self, number: Number, case: Case) -> Vec<Morph> {
+        particle_morphs(self.noun_markers(number, case))
+    }
+
+    /// Particle words that go with a verb form, nearest first.
+    pub fn verb_particles(&self, tense: Tense, polarity: Polarity) -> Vec<Morph> {
+        particle_morphs(self.verb_markers(tense, polarity))
+    }
+
+    /// Drops particles and replaces fused combinations with their form.
+    /// Returns (form, gloss label) pairs from the root outward.
+    fn fuse(&self, markers: Vec<&Affix>) -> Vec<(Phonemes, String)> {
+        let attached: Vec<&Affix> = markers.into_iter().filter(|a| !a.particle).collect();
+        let glosses: Vec<&str> = attached.iter().map(|a| a.gloss).collect();
+        if let Some(f) = self.fusions.iter().find(|f| f.glosses == glosses) {
+            return vec![(f.form.clone(), f.glosses.join("."))];
+        }
+        attached
+            .into_iter()
+            .map(|a| (a.form.clone(), a.gloss.to_string()))
+            .collect()
     }
 
     /// Every inflected form of a root, as morphs.
@@ -223,17 +354,34 @@ fn position(rng: &mut Rng) -> AffixPosition {
     rng.weighted(&[(AffixPosition::Suffix, 70), (AffixPosition::Prefix, 30)])
 }
 
-/// Places affixes around a root. `inner` lists affixes from the root outward,
-/// so prefixing languages mirror suffixing ones.
-fn assemble(root: &Phonemes, gloss: &str, inner: &[&Affix], pos: AffixPosition) -> Vec<Morph> {
+fn particle_morphs(markers: Vec<&Affix>) -> Vec<Morph> {
+    markers
+        .into_iter()
+        .filter(|a| a.particle)
+        .map(|a| Morph {
+            form: a.form.clone(),
+            gloss: a.gloss.to_string(),
+            is_root: false,
+        })
+        .collect()
+}
+
+/// Places affixes around a root. `inner` lists (form, gloss) pairs from the
+/// root outward, so prefixing languages mirror suffixing ones.
+fn assemble(
+    root: &Phonemes,
+    gloss: &str,
+    inner: &[(Phonemes, String)],
+    pos: AffixPosition,
+) -> Vec<Morph> {
     let root = Morph {
         form: root.clone(),
         gloss: gloss.to_string(),
         is_root: true,
     };
-    let affixes = inner.iter().map(|a| Morph {
-        form: a.form.clone(),
-        gloss: a.gloss.to_string(),
+    let affixes = inner.iter().map(|(form, gloss)| Morph {
+        form: form.clone(),
+        gloss: gloss.clone(),
         is_root: false,
     });
     match pos {
@@ -245,6 +393,16 @@ fn assemble(root: &Phonemes, gloss: &str, inner: &[&Affix], pos: AffixPosition) 
             v
         }
     }
+}
+
+/// The affix labels of a word, root excluded.
+fn gloss_labels(morphs: &[Morph]) -> String {
+    morphs
+        .iter()
+        .filter(|m| !m.is_root)
+        .map(|m| m.gloss.as_str())
+        .collect::<Vec<_>>()
+        .join("-")
 }
 
 /// Concatenates morphs into one phoneme sequence.
@@ -260,7 +418,7 @@ mod tests {
     fn affixes_never_collide() {
         for seed in 0..100 {
             let p = Phonology::generate(seed);
-            let m = Morphology::generate(seed, &p);
+            let m = Morphology::generate(seed, &p, Regularity::Regular);
             assert!(m.affixes_are_distinct(), "seed {seed}");
             for a in m.affixes() {
                 assert!(p.is_valid(a), "seed {seed}");
@@ -271,7 +429,7 @@ mod tests {
     #[test]
     fn suffix_order_is_root_number_case() {
         let p = Phonology::generate(3);
-        let mut m = Morphology::generate(3, &p);
+        let mut m = Morphology::generate(3, &p, Regularity::Regular);
         m.noun_position = AffixPosition::Suffix;
         let root = vec![0, p.inventory.vowels().next().unwrap()];
         let glosses: Vec<String> = m
@@ -292,7 +450,7 @@ mod tests {
     #[test]
     fn unmarked_forms_are_bare_roots() {
         let p = Phonology::generate(5);
-        let m = Morphology::generate(5, &p);
+        let m = Morphology::generate(5, &p, Regularity::Regular);
         let root = vec![0, p.inventory.vowels().next().unwrap()];
         assert_eq!(
             join(&m.noun(&root, "x", Number::Singular, Case::Subject)),

@@ -1,0 +1,200 @@
+kësi gëbtëne łikpune sëbòn kòmi lògimhòhën wësem sësòm
+    #1 letter · Kësi said to Gëbtë, scribe,: Kòmi brought eight sheep.
+    kësi  gëbtë-ne   łikpu-ne    së-bòn   kòmi  lògim-hò-hën  wësem  së-sòm
+    Kësi  Gëbtë-DAT  scribe-DAT  PST-say  Kòmi  sheep-PL-ACC  eight  PST-bring
+
+bimginhuhën tusinse
+    #2 warning · Take the ox.
+    bimginhu-hën  tusinse
+    ox-ACC        take
+
+hubëtikpë numke
+    #3 label · The jar of Hubëtik.
+    hubëtik-pë   numke
+    Hubëtik-GEN  jar
+
+kòmumhën yòmum
+    #4 warning · Do not touch the statue.
+    kòmum-hën   yò-mum
+    statue-ACC  NEG-touch
+
+biwu kòtespë su hòł sòl
+    #5 tomb · Biwu, daughter of Kòtes, lies here.
+    biwu  kòtes-pë   su        hòł   sòl
+    Biwu  Kòtes-GEN  daughter  here  lie
+
+teyut bihòne sëbòn kësëmhën sum
+    #6 letter · Teyut said to Bihò: Burn the cloth.
+    teyut  bihò-ne   së-bòn   kësëm-hën  sum
+    Teyut  Bihò-DAT  PST-say  cloth-ACC  burn
+
+tiddi kòmipë yil hòł sòl
+    #7 tomb · Tiddi, child of Kòmi, lies here.
+    tiddi  kòmi-pë   yil    hòł   sòl
+    Tiddi  Kòmi-GEN  child  here  lie
+
+limhò huy
+    #8 ledger · Nine fish.
+    lim-hò   huy
+    fish-PL  nine
+
+numkehën sugònmun
+    #9 warning · Break the jar.
+    numke-hën  sugònmun
+    jar-ACC    break
+
+hubëtik kòmipë sesis hòł sòl
+    #10 tomb · Hubëtik, mother of Kòmi, lies here.
+    hubëtik  kòmi-pë   sesis   hòł   sòl
+    Hubëtik  Kòmi-GEN  mother  here  lie
+
+luptuypë kòmum
+    #11 label · The statue of Luptuy.
+    luptuy-pë   kòmum
+    Luptuy-GEN  statue
+
+biwu deyòne numkehën sił sëpelsum
+    #12 dedication · Biwu made this jar for Deyò.
+    biwu  deyò-ne   numke-hën  sił   së-pelsum
+    Biwu  Deyò-DAT  jar-ACC    this  PST-make
+
+kinu nikëykepë yil hòł sòl
+    #13 tomb · Kinu, child of Nikëyke, lies here.
+    kinu  nikëyke-pë   yil    hòł   sòl
+    Kinu  Nikëyke-GEN  child  here  lie
+
+luptuy bihòne sëbòn nulhën yis
+    #14 letter · Luptuy said to Bihò: Open the tomb.
+    luptuy  bihò-ne   së-bòn   nul-hën   yis
+    Luptuy  Bihò-DAT  PST-say  tomb-ACC  open
+
+hisu këbne pumwuhòhën bësun sëbënhën
+    #15 ledger · Hisu gave six bowls for the city.
+    hisu  këb-ne    pumwu-hò-hën  bësun  së-bënhën
+    Hisu  city-DAT  bowl-PL-ACC   six    PST-give
+
+heshën yòmidub
+    #16 warning · Do not cross the river.
+    hes-hën    yò-midub
+    river-ACC  NEG-cross
+
+hisu mubutepë timmem hòł sòl
+    #17 tomb · Hisu, son of Mubute, lies here.
+    hisu  mubute-pë   timmem  hòł   sòl
+    Hisu  Mubute-GEN  son     here  lie
+
+sunhën yòsum
+    #18 warning · Do not burn the grain.
+    sun-hën    yò-sum
+    grain-ACC  NEG-burn
+
+biwupë kem
+    #19 label · The tablet of Biwu.
+    biwu-pë   kem
+    Biwu-GEN  tablet
+
+tëyumu hubëtikne kemhën sił sëpelsum
+    #20 dedication · Tëyumu made this tablet for Hubëtik.
+    tëyumu  hubëtik-ne   kem-hën     sił   së-pelsum
+    Tëyumu  Hubëtik-DAT  tablet-ACC  this  PST-make
+
+bihò hubëtikpë ki hòł sòl
+    #21 tomb · Bihò, sister of Hubëtik, lies here.
+    bihò  hubëtik-pë   ki      hòł   sòl
+    Bihò  Hubëtik-GEN  sister  here  lie
+
+penhën yòmidub
+    #22 warning · Do not cross the wall.
+    pen-hën   yò-midub
+    wall-ACC  NEG-cross
+
+nuluye sënipne sëbòn penhën yòsugònmun
+    #23 letter · Nuluye said to Sënip: Do not break the wall.
+    nuluye  sënip-ne   së-bòn   pen-hën   yò-sugònmun
+    Nuluye  Sënip-DAT  PST-say  wall-ACC  NEG-break
+
+łilwehò genhu kensu lellum belhò genhu kensu genhu lingilëm hòmkò sëmkë kensu bid
+    #24 ledger · 94 loaves, 91 lamps, 185 in all.
+    łilwe-hò  genhu  kensu  lellum  bel-hò   genhu  kensu  genhu  lingilëm  hòmkò  sëmkë  kensu  bid
+    loaf-PL   seven  dozen  ten     lamp-PL  seven  dozen  seven  total     gross  three  dozen  five
+
+hubëtikpë gëm
+    #25 label · The knife of Hubëtik.
+    hubëtik-pë   gëm
+    Hubëtik-GEN  knife
+
+hubëtikpë sòyunhën yòsugònmun
+    #26 warning · Do not break the stone of Hubëtik.
+    hubëtik-pë   sòyun-hën  yò-sugònmun
+    Hubëtik-GEN  stone-ACC  NEG-break
+
+hisupë këmuh
+    #27 label · The seal of Hisu.
+    hisu-pë   këmuh
+    Hisu-GEN  seal
+
+tebebiypë wulkihën yòsugònmun
+    #28 warning · Do not break the box of Tebebiy.
+    tebebiy-pë   wulki-hën  yò-sugònmun
+    Tebebiy-GEN  box-ACC    NEG-break
+
+hubëtik kòmipë sesis hòł sòl
+    #29 tomb · Hubëtik, mother of Kòmi, lies here.
+    hubëtik  kòmi-pë   sesis   hòł   sòl
+    Hubëtik  Kòmi-GEN  mother  here  lie
+
+tiddi kòmipë yil hòł sòl
+    #30 tomb · Tiddi, child of Kòmi, lies here.
+    tiddi  kòmi-pë   yil    hòł   sòl
+    Tiddi  Kòmi-GEN  child  here  lie
+
+sënip bunsihne nënpe numkehën sił sëpelsum
+    #31 dedication · Sënip made this jar for the holy god.
+    sënip  bunsih-ne  nënpe  numke-hën  sił   së-pelsum
+    Sënip  god-DAT    holy   jar-ACC    this  PST-make
+
+hubëtik kinune penminne kòmumhën sił sëpelsum
+    #32 dedication · Hubëtik made this statue for Kinu, servant.
+    hubëtik  kinu-ne   penmin-ne    kòmum-hën   sił   së-pelsum
+    Hubëtik  Kinu-DAT  servant-DAT  statue-ACC  this  PST-make
+
+tiddi kòmipë yil hòł sòl
+    #33 tomb · Tiddi, child of Kòmi, lies here.
+    tiddi  kòmi-pë   yil    hòł   sòl
+    Tiddi  Kòmi-GEN  child  here  lie
+
+tëyumu kësine belhën sił sëpelsum
+    #34 dedication · Tëyumu made this lamp for Kësi.
+    tëyumu  kësi-ne   bel-hën   sił   së-pelsum
+    Tëyumu  Kësi-DAT  lamp-ACC  this  PST-make
+
+penhën midub
+    #35 warning · Cross the wall.
+    pen-hën   midub
+    wall-ACC  cross
+
+numkehò kensu huy
+    #36 ledger · 21 jars.
+    numke-hò  kensu  huy
+    jar-PL    dozen  nine
+
+mubute tëyumupë sesis hòł sòl
+    #37 tomb · Mubute, mother of Tëyumu, lies here.
+    mubute  tëyumu-pë   sesis   hòł   sòl
+    Mubute  Tëyumu-GEN  mother  here  lie
+
+nuluye nikëykene kemhën sił sëpelsum
+    #38 dedication · Nuluye made this tablet for Nikëyke.
+    nuluye  nikëyke-ne   kem-hën     sił   së-pelsum
+    Nuluye  Nikëyke-DAT  tablet-ACC  this  PST-make
+
+biwu yetòlnesne gëmhën ninwò sił sëpelsum
+    #39 dedication · Biwu made this red knife for Yetòlnes.
+    biwu  yetòlnes-ne   gëm-hën    ninwò  sił   së-pelsum
+    Biwu  Yetòlnes-DAT  knife-ACC  red    this  PST-make
+
+tiddipë numke
+    #40 label · The jar of Tiddi.
+    tiddi-pë   numke
+    Tiddi-GEN  jar
+

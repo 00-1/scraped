@@ -1,0 +1,156 @@
+GRAMMAR SHEET — seed 9001 (era 0 of 2)
+
+SOUNDS (ipa = spelling)
+  consonants (16): p  t  k  b  g  ʔ='  m  n  ɲ=ñ  s  ʃ=x  h  l  ɬ=ł  j=y  w
+  vowels (5): a  e  i  o  u
+  syllable: CV(C)
+  codas: m n l ł
+
+MORPHOLOGY
+  PL   -'o          (noun)
+  ACC  -han         (noun)
+  GEN  -pa          (noun)
+  DAT  -ne          (noun)
+  PST  xa-          (verb)
+  NEG  yo-          (verb)
+  nouns: root-NUMBER-CASE
+  verbs: NEG-TENSE-root
+  unmarked: singular, subject case, non-past, positive
+  adjectives, numerals, 'this' and 'here' never inflect
+  a counted noun is plural when the number is above one
+
+SYNTAX
+  clause order: SOV
+  dative (beneficiary): just before the object
+  adverbs: just before the verb
+  commands: plain non-past verb with no subject
+  noun phrase: noun – adjectives – number – this
+  possessor before possessed noun
+  appositions (titles, 'child of X') follow the name
+
+NUMERALS
+  base: duodecimal (dozen, gross)
+  order: biggest part first
+  one dozen: 'dozen' alone
+  linker between parts: no
+  numeral signs: positional (one digit per place, with zero)
+
+SCRIPT: alphabet, right to left, 35 glyphs (see `script --spoil`)
+
+LEXICON
+  [people]
+    person      xake
+    man         hunan
+    woman       yuyo
+    child       yil
+    son         timmem
+    daughter    su
+    mother      sexixi
+    father      wumpalin
+    wife        talnamku
+    husband     nu'al
+    brother     busom
+    sister      ki
+    king        waso
+    queen       kumama
+    priest      tinlan
+    scribe      łena
+    smith       pukayi
+    servant     penmin
+    god         bunxiha
+  [nature]
+    water       kinlosam
+    river       hesi
+    stone       xoyun
+    tree        winyan
+    fire        pagi
+    sun         kal
+    moon        xinga
+    rain        lambum
+    mountain    wulyu
+    sea         pul'i
+    sheep       lokimi
+    ox          bimginhu
+    goat        tato
+    fish        lim
+    grain       xun
+  [places]
+    house       gin
+    temple      gimñun
+    city        kabu
+    gate        xega
+    door        yasa
+    road        soki
+    field       lulpi
+    tomb        nul
+    well        husin
+    wall        pen
+    tower       wintelyu
+    shrine      yiti
+  [objects]
+    bowl        pumwu
+    jar         numke
+    tablet      kem
+    statue      komum
+    altar       kepu
+    oil         tunte
+    wine        seto
+    cloth       kasamu
+    loaf        łilwe
+    knife       gam
+    lamp        bel
+    box         wulki
+    seal        kamu'u
+  [actions]
+    lie         xol
+    make        pelxum
+    bring       som
+    give        banhan
+    open        yise
+    enter       selpimyen
+    take        sunpa
+    burn        suma
+    drink       kumom
+    cross       mitupu
+    touch       mum
+    break       xugonmun
+    scrape      kumpin
+    eat         sał
+    fear        mi'imtam
+    honour      ñalki
+    say         bon
+  [qualities]
+    great       sagon
+    small       bamson
+    old         tal'isen
+    new         gamla
+    holy        nanpe
+    dark        ginken
+    good        yepil
+    white       mese
+    red         ninwo
+    cold        tugul
+    deep        numna
+  [deixis]
+    this        xił
+    here        hoł
+  [numbers]
+    one         gemu
+    two         sopa
+    three       samka
+    four        nolwu
+    five        bita
+    six         basun
+    seven       gen'u
+    eight       waxem
+    nine        huya
+    ten         lellum
+    zero        lixon
+    eleven      tisa
+    dozen       kensu
+    gross       'omko
+    total       lingilam
+  [grammar]
+    pot.open    kopem
+    pot.close   nenu
+    pot         lema

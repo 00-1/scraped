@@ -1,0 +1,200 @@
+machu mahigatina
+    #1 warning · Enter the temples.
+    machu  mahiga-ti-na
+    enter  temple-PL-ACC
+
+ŋugi pumusa pabuna gipa tilisu
+    #2 dedication · Ŋugi made this box for the god.
+    ŋugi  pumu-sa   pabu-na  gipa  tili-su
+    Ŋugi  make-PST  box-ACC  this  god-DAT
+
+mapi sulipi yupiŋa gama nuxa
+    #3 tomb · Mapi, sister of Suli, lies here.
+    mapi  suli-pi   yupiŋa  gama  nuxa
+    Mapi  Suli-GEN  sister  lie   here
+
+ŋakabi mapipi sawukuna
+    #4 warning · Do not break the gate of Mapi.
+    ŋaka-bi    mapi-pi   sawuku-na
+    break-NEG  Mapi-GEN  gate-ACC
+
+halapi pumusa subana gipa manihasu
+    #5 dedication · Halapi made this tablet for Maniha.
+    halapi  pumu-sa   suba-na     gipa  maniha-su
+    Halapi  make-PST  tablet-ACC  this  Maniha-DAT
+
+xanu kuchupi pani yilu gama nuxa
+    #6 tomb · Xanu, father of Kuchu, scribe, lies here.
+    xanu  kuchu-pi   pani    yilu    gama  nuxa
+    Xanu  Kuchu-GEN  father  scribe  lie   here
+
+ninimati tupu kagu
+    #7 ledger · Eight knives.
+    ninima-ti  tupu  kagu
+    knife-PL   five  three
+
+lumiti tupu kagu
+    #8 ledger · Eight fish.
+    lumi-ti  tupu  kagu
+    fish-PL  five  three
+
+tuyi lituhupi yupiŋa gama nuxa
+    #9 tomb · Tuyi, sister of Lituhu, lies here.
+    tuyi  lituhu-pi   yupiŋa  gama  nuxa
+    Tuyi  Lituhu-GEN  sister  lie   here
+
+wila kuchupi wusu gama nuxa
+    #10 tomb · Wila, brother of Kuchu, lies here.
+    wila  kuchu-pi   wusu     gama  nuxa
+    Wila  Kuchu-GEN  brother  lie   here
+
+buchi ŋugipi sibisi gama nuxa
+    #11 tomb · Buchi, husband of Ŋugi, lies here.
+    buchi  ŋugi-pi   sibisi   gama  nuxa
+    Buchi  Ŋugi-GEN  husband  lie   here
+
+halapi luhasa kachachisu yilusu kuchu wiŋapusa liputina tupu yawa tupu kagu chiba yawa kichi bugu bikusu
+    #12 letter · Halapi said to Kachachi, scribe,: Kuchu gave 185 goats for the city.
+    halapi  luha-sa  kachachi-su   yilu-su     kuchu  wiŋapu-sa  lipu-ti-na   tupu  yawa  tupu  kagu   chiba  yawa  kichi  bugu     biku-su
+    Halapi  say-PST  Kachachi-DAT  scribe-DAT  Kuchu  give-PST   goat-PL-ACC  five  AND   five  three  ten    AND   one    hundred  city-DAT
+
+halapi pumusa pabuna gipa tilipi mahigasu husi
+    #13 dedication · Halapi made this box for the dark temple of the god.
+    halapi  pumu-sa   pabu-na  gipa  tili-pi  mahiga-su   husi
+    Halapi  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+
+kuchu luhasa ŋinapasu kixaŋabi suyubana
+    #14 letter · Kuchu said to Ŋinapa: Do not take the statue.
+    kuchu  luha-sa  ŋinapa-su   kixaŋa-bi  suyuba-na
+    Kuchu  say-PST  Ŋinapa-DAT  take-NEG   statue-ACC
+
+lituhu luhasa 'axisu 'axi wiŋapusa chukitina hamu
+    #15 letter · Lituhu said to 'Axi: 'Axi gave four jars.
+    lituhu  luha-sa  'axi-su   'axi  wiŋapu-sa  chuki-ti-na  hamu
+    Lituhu  say-PST  'Axi-DAT  'Axi  give-PST   jar-PL-ACC   four
+
+mapi sulipi yupiŋa gama nuxa
+    #16 tomb · Mapi, sister of Suli, lies here.
+    mapi  suli-pi   yupiŋa  gama  nuxa
+    Mapi  Suli-GEN  sister  lie   here
+
+halapi wilapi wusu gama nuxa
+    #17 tomb · Halapi, brother of Wila, lies here.
+    halapi  wila-pi   wusu     gama  nuxa
+    Halapi  Wila-GEN  brother  lie   here
+
+buwanupi pabu
+    #18 label · The box of the priest.
+    buwanu-pi   pabu
+    priest-GEN  box
+
+ŋinapa luhasa wilasu tigu wiŋapusa xapatina kagu
+    #19 letter · Ŋinapa said to Wila: Tigu gave three lamps.
+    ŋinapa  luha-sa  wila-su   tigu  wiŋapu-sa  xapa-ti-na   kagu
+    Ŋinapa  say-PST  Wila-DAT  Tigu  give-PST   lamp-PL-ACC  three
+
+'axi tigupi sibisi gama nuxa
+    #20 tomb · 'Axi, husband of Tigu, lies here.
+    'axi  tigu-pi   sibisi   gama  nuxa
+    'Axi  Tigu-GEN  husband  lie   here
+
+mixi wuta 'iga ŋakabi xuga
+    #21 potent · [potent] let the seal not break.
+    mixi      wuta  'iga  ŋaka-bi    xuga
+    POT.OPEN  seal  POT   break-NEG  POT.CLOSE
+
+katibu mulapi sunu kuhi gama nuxa
+    #22 tomb · Katibu, son of Mula, queen, lies here.
+    katibu  mula-pi   sunu  kuhi   gama  nuxa
+    Katibu  Mula-GEN  son   queen  lie   here
+
+'axi tigupi sibisi gama nuxa
+    #23 tomb · 'Axi, husband of Tigu, lies here.
+    'axi  tigu-pi   sibisi   gama  nuxa
+    'Axi  Tigu-GEN  husband  lie   here
+
+kachachi yilu ŋina pumusa tayichuna tima gipa kanutusu
+    #24 dedication · Kachachi, good scribe, made this holy altar for Kanutu.
+    kachachi  yilu    ŋina  pumu-sa   tayichu-na  tima  gipa  kanutu-su
+    Kachachi  scribe  good  make-PST  altar-ACC   holy  this  Kanutu-DAT
+
+kachachi pumusa subana gipa bikusu
+    #25 dedication · Kachachi made this tablet for the city.
+    kachachi  pumu-sa   suba-na     gipa  biku-su
+    Kachachi  make-PST  tablet-ACC  this  city-DAT
+
+sakabipi ŋasi
+    #26 label · The bowl of the king.
+    sakabi-pi  ŋasi
+    king-GEN   bowl
+
+ŋapu pumusa ŋasina gipa wiyisu kuhisu
+    #27 dedication · Ŋapu made this bowl for Wiyi, queen.
+    ŋapu  pumu-sa   ŋasi-na   gipa  wiyi-su   kuhi-su
+    Ŋapu  make-PST  bowl-ACC  this  Wiyi-DAT  queen-DAT
+
+mapi sulipi yupiŋa gama nuxa
+    #28 tomb · Mapi, sister of Suli, lies here.
+    mapi  suli-pi   yupiŋa  gama  nuxa
+    Mapi  Suli-GEN  sister  lie   here
+
+buchi luhasa manihasu kixaŋa luwuna
+    #29 letter · Buchi said to Maniha: Take the loaf.
+    buchi  luha-sa  maniha-su   kixaŋa  luwu-na
+    Buchi  say-PST  Maniha-DAT  take    loaf-ACC
+
+yapapu sakabi yitisa ŋasitina hamu chiba
+    #30 ledger · Yapapu, king, brought 40 bowls.
+    yapapu  sakabi  yiti-sa    ŋasi-ti-na   hamu  chiba
+    Yapapu  king    bring-PST  bowl-PL-ACC  four  ten
+
+winubi latimana
+    #31 warning · Do not burn the door.
+    winu-bi   latima-na
+    burn-NEG  door-ACC
+
+mapi sulipi yupiŋa gama nuxa
+    #32 tomb · Mapi, sister of Suli, lies here.
+    mapi  suli-pi   yupiŋa  gama  nuxa
+    Mapi  Suli-GEN  sister  lie   here
+
+lumiti tupu nimi yawa nimi chiba yawa nimi bugu xapati nimi chiŋiti nimi yawa tupu kichi chiba yawa kichi bugu yukama kichi yawa tupu hamu chiba yawa kagu bugu
+    #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
+    lumi-ti  tupu  nimi  yawa  nimi  chiba  yawa  nimi  bugu     xapa-ti  nimi  chiŋi-ti  nimi  yawa  tupu  kichi  chiba  yawa  kichi  bugu     yukama  kichi  yawa  tupu  hamu  chiba  yawa  kagu   bugu
+    fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
+
+wila kuchupi wusu gama nuxa
+    #34 tomb · Wila, brother of Kuchu, lies here.
+    wila  kuchu-pi   wusu     gama  nuxa
+    Wila  Kuchu-GEN  brother  lie   here
+
+tigupi chuki
+    #35 label · The jar of Tigu.
+    tigu-pi   chuki
+    Tigu-GEN  jar
+
+buchi luhasa mulasu yilusu 'ababi kachachipi yakalatina
+    #36 letter · Buchi said to Mula, scribe,: Do not cross the rivers of Kachachi.
+    buchi  luha-sa  mula-su   yilu-su     'aba-bi    kachachi-pi   yakala-ti-na
+    Buchi  say-PST  Mula-DAT  scribe-DAT  cross-NEG  Kachachi-GEN  river-PL-ACC
+
+lumiti kagu yawa tupu chiba
+    #37 ledger · 53 fish.
+    lumi-ti  kagu   yawa  tupu  chiba
+    fish-PL  three  AND   five  ten
+
+wiyi luhasa 'axisu misu ya'itina
+    #38 letter · Wiyi said to 'Axi: Fear the seas.
+    wiyi  luha-sa  'axi-su   misu  ya'i-ti-na
+    Wiyi  say-PST  'Axi-DAT  fear  sea-PL-ACC
+
+misubi ya'ina
+    #39 warning · Do not fear the sea.
+    misu-bi   ya'i-na
+    fear-NEG  sea-ACC
+
+yapapu mulapi sunu gama nuxa
+    #40 tomb · Yapapu, son of Mula, lies here.
+    yapapu  mula-pi   sunu  gama  nuxa
+    Yapapu  Mula-GEN  son   lie   here
+

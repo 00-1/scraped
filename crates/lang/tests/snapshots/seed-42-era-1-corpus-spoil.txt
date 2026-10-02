@@ -1,0 +1,200 @@
+tsiru 'ingini nïdup pem neng
+    #1 tomb · Tsiru, son of 'Ingi, lies here.
+    tsiru  'ingi-ni   nïdup  pem   neng
+    Tsiru  'Ingi-GEN  son    here  lie
+
+to' ling rïn tsol mip
+    #2 potent · [potent] let the grain burn.
+    to'       ling   rïn  tsol  mip
+    POT.OPEN  grain  POT  burn  POT.CLOSE
+
+tsenimu 'ingini ho pem neng
+    #3 tomb · Tsenimu, child of 'Ingi, lies here.
+    tsenimu  'ingi-ni   ho     pem   neng
+    Tsenimu  'Ingi-GEN  child  here  lie
+
+timku puhubot
+    #4 warning · Eat the fish.
+    tim-ku    puhubot
+    fish-ACC  eat
+
+tsiru fenteyyi xidon tsokni pirekku bilom
+    #5 letter · Tsiru said to Fentey: Do not touch the temple of the king.
+    tsiru  fentey-yi   xi-don   tsok-ni   pirek-ku    bi-lom
+    Tsiru  Fentey-DAT  PST-say  king-GEN  temple-ACC  NEG-touch
+
+ngipmi ngu'ïyi xidon luyngoku ngol bipuhubot
+    #6 letter · Ngipmi said to Ngu'ï: Do not eat the red loaves.
+    ngipmi  ngu'ï-yi   xi-don   luy-ngo-ku   ngol  bi-puhubot
+    Ngipmi  Ngu'ï-DAT  PST-say  loaf-PL-ACC  red   NEG-eat
+
+yi'kir toh'oni rol pem neng
+    #7 tomb · Yi'kir, daughter of Toh'o, lies here.
+    yi'kir  toh'o-ni   rol       pem   neng
+    Yi'kir  Toh'o-GEN  daughter  here  lie
+
+polku ngom
+    #8 warning · Break the statue.
+    pol-ku      ngom
+    statue-ACC  break
+
+de'ku binge'ob
+    #9 warning · Do not scrape the seal.
+    de'-ku    bi-nge'ob
+    seal-ACC  NEG-scrape
+
+mengenxet 'ingiyi memku mutxu hik xikul
+    #10 dedication · Mengenxet made this small altar for 'Ingi.
+    mengenxet  'ingi-yi   mem-ku     mutxu  hik   xi-kul
+    Mengenxet  'Ingi-DAT  altar-ACC  small  this  PST-make
+
+timoy kokepini rol pem neng
+    #11 tomb · Timoy, daughter of Kokepi, lies here.
+    timoy  kokepi-ni   rol       pem   neng
+    Timoy  Kokepi-GEN  daughter  here  lie
+
+keyi pirekyi yipi tupku hik xikul
+    #12 dedication · Keyi made this knife for the new temple.
+    keyi  pirek-yi    yipi  tup-ku     hik   xi-kul
+    Keyi  temple-DAT  new   knife-ACC  this  PST-make
+
+kokepi botilyi rir tukku hik xikul
+    #13 dedication · Kokepi made this lamp for the dark shrine.
+    kokepi  botil-yi    rir   tuk-ku    hik   xi-kul
+    Kokepi  shrine-DAT  dark  lamp-ACC  this  PST-make
+
+'ingi timoyyi xidon xopi tukngoku fey ngong bod yok xingots
+    #14 letter · 'Ingi said to Timoy: Xopi gave 58 lamps.
+    'ingi  timoy-yi   xi-don   xopi  tuk-ngo-ku   fey    ngong  bod   yok  xi-ngots
+    'Ingi  Timoy-DAT  PST-say  Xopi  lamp-PL-ACC  eight  AND    five  ten  PST-give
+
+'ingi huhilikyi xidon ngepel'o tupngoku ret yok xikonob
+    #15 letter · 'Ingi said to Huhilik: Ngepel'o brought ten knives.
+    'ingi  huhilik-yi   xi-don   ngepel'o  tup-ngo-ku    ret  yok  xi-konob
+    'Ingi  Huhilik-DAT  PST-say  Ngepel'o  knife-PL-ACC  one  ten  PST-bring
+
+tubiben tsenimuni mïh pem neng
+    #16 tomb · Tubiben, mother of Tsenimu, lies here.
+    tubiben  tsenimu-ni   mïh     pem   neng
+    Tubiben  Tsenimu-GEN  mother  here  lie
+
+huhilik tsenimuni nïdup pem neng
+    #17 tomb · Huhilik, son of Tsenimu, lies here.
+    huhilik  tsenimu-ni   nïdup  pem   neng
+    Huhilik  Tsenimu-GEN  son    here  lie
+
+ponngo ret ngong fey yok ngong ret kïd
+    #18 ledger · 181 sheep.
+    pon-ngo   ret  ngong  fey    yok  ngong  ret  kïd
+    sheep-PL  one  AND    eight  ten  AND    one  hundred
+
+toh'oni motsku der
+    #19 warning · Enter the city of Toh'o.
+    toh'o-ni   mots-ku   der
+    Toh'o-GEN  city-ACC  enter
+
+'olngoku ropit
+    #20 warning · Open the doors.
+    'ol-ngo-ku   ropit
+    door-PL-ACC  open
+
+ngïbni dongku ngol tok
+    #21 warning · Take the red bowl of the queen.
+    ngïb-ni    dong-ku   ngol  tok
+    queen-GEN  bowl-ACC  red   take
+
+lutuk kumyi luyngoku kor ngong kor yok xikonob
+    #22 ledger · Lutuk brought 77 loaves for the god.
+    lutuk  kum-yi   luy-ngo-ku   kor    ngong  kor    yok  xi-konob
+    Lutuk  god-DAT  loaf-PL-ACC  seven  AND    seven  ten  PST-bring
+
+mïhku tsot
+    #23 warning · Honour the mother.
+    mïh-ku      tsot
+    mother-ACC  honour
+
+tso'en tukngoku bod xikonob
+    #24 ledger · Tso'en brought five lamps.
+    tso'en  tuk-ngo-ku   bod   xi-konob
+    Tso'en  lamp-PL-ACC  five  PST-bring
+
+kokepi 'ingini mï pem neng
+    #25 tomb · Kokepi, father of 'Ingi, lies here.
+    kokepi  'ingi-ni   mï      pem   neng
+    Kokepi  'Ingi-GEN  father  here  lie
+
+tsenimu biri'oyi xidon purilmoku bilom
+    #26 letter · Tsenimu said to Biri'o: Do not touch the tomb.
+    tsenimu  biri'o-yi   xi-don   purilmo-ku  bi-lom
+    Tsenimu  Biri'o-DAT  PST-say  tomb-ACC    NEG-touch
+
+tsenimu notuyi xidon tsiru tukngoku fey ngong fehi yok xingots
+    #27 letter · Tsenimu said to Notu: Tsiru gave 28 lamps.
+    tsenimu  notu-yi   xi-don   tsiru  tuk-ngo-ku   fey    ngong  fehi  yok  xi-ngots
+    Tsenimu  Notu-DAT  PST-say  Tsiru  lamp-PL-ACC  eight  AND    two   ten  PST-give
+
+fentey ngu'ïni mï ngïb pem neng
+    #28 tomb · Fentey, father of Ngu'ï, queen, lies here.
+    fentey  ngu'ï-ni   mï      ngïb   pem   neng
+    Fentey  Ngu'ï-GEN  father  queen  here  lie
+
+nuyid huhilikni kur pem neng
+    #29 tomb · Nuyid, brother of Huhilik, lies here.
+    nuyid  huhilik-ni   kur      pem   neng
+    Nuyid  Huhilik-GEN  brother  here  lie
+
+keyi kumyi mob dongku hik xikul
+    #30 dedication · Keyi made this bowl for the great god.
+    keyi  kum-yi   mob    dong-ku   hik   xi-kul
+    Keyi  god-DAT  great  bowl-ACC  this  PST-make
+
+lutuk luyngoku fehi xingots
+    #31 ledger · Lutuk gave two loaves.
+    lutuk  luy-ngo-ku   fehi  xi-ngots
+    Lutuk  loaf-PL-ACC  two   PST-give
+
+burku hebef ropit
+    #32 warning · Open the white gate.
+    bur-ku    hebef  ropit
+    gate-ACC  white  open
+
+huhilik tsenimuni nïdup pem neng
+    #33 tomb · Huhilik, son of Tsenimu, lies here.
+    huhilik  tsenimu-ni   nïdup  pem   neng
+    Huhilik  Tsenimu-GEN  son    here  lie
+
+toh'o notuni nïdup pem neng
+    #34 tomb · Toh'o, son of Notu, lies here.
+    toh'o  notu-ni   nïdup  pem   neng
+    Toh'o  Notu-GEN  son    here  lie
+
+debyïmetni botilku bider
+    #35 warning · Do not enter the shrine of Debyïmet.
+    debyïmet-ni   botil-ku    bi-der
+    Debyïmet-GEN  shrine-ACC  NEG-enter
+
+nïfukï nuyidni mïh pem neng
+    #36 tomb · Nïfukï, mother of Nuyid, lies here.
+    nïfukï  nuyid-ni   mïh     pem   neng
+    Nïfukï  Nuyid-GEN  mother  here  lie
+
+to' yob kofe' rïn ngom mip
+    #37 potent · [potent] let the old tablet break.
+    to'       yob     kofe'  rïn  ngom   mip
+    POT.OPEN  tablet  old    POT  break  POT.CLOSE
+
+nuyid huhilikni kur pem neng
+    #38 tomb · Nuyid, brother of Huhilik, lies here.
+    nuyid  huhilik-ni   kur      pem   neng
+    Nuyid  Huhilik-GEN  brother  here  lie
+
+nïfukï botilyi tupku hik xikul
+    #39 dedication · Nïfukï made this knife for the shrine.
+    nïfukï  botil-yi    tup-ku     hik   xi-kul
+    Nïfukï  shrine-DAT  knife-ACC  this  PST-make
+
+keyi kumyi tukngoku por yok xingots
+    #40 ledger · Keyi gave 90 lamps for the god.
+    keyi  kum-yi   tuk-ngo-ku   por   yok  xi-ngots
+    Keyi  god-DAT  lamp-PL-ACC  nine  ten  PST-give
+

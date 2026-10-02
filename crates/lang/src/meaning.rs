@@ -23,9 +23,9 @@ pub enum Head {
 pub struct NounPhrase {
     pub head: Head,
     pub number: Number,
-    /// A counted quantity (1–10), rendered as a numeral.
+    /// A counted quantity (0–999), rendered as numeral words.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub quantity: Option<u8>,
+    pub quantity: Option<u16>,
     /// A determiner concept, e.g. "this".
     #[serde(skip_serializing_if = "Option::is_none")]
     pub determiner: Option<String>,
@@ -62,7 +62,7 @@ impl NounPhrase {
     }
 
     /// Sets a counted quantity; plural follows from it.
-    pub fn counted(mut self, n: u8) -> Self {
+    pub fn counted(mut self, n: u16) -> Self {
         self.quantity = Some(n);
         self.number = if n > 1 {
             Number::Plural
@@ -101,6 +101,9 @@ pub enum Mood {
     Declarative,
     /// Addressed to the reader; has no subject.
     Imperative,
+    /// A claim in the potent register: framed by fixed formulae and marked
+    /// with a particle. What it does is decided in M08.
+    Potent,
 }
 
 /// A clause: one predicate and its arguments.
@@ -126,6 +129,8 @@ impl Clause {
 #[serde(rename_all = "lowercase", tag = "type", content = "value")]
 pub enum Sentence {
     Clause(Clause),
-    /// A verbless list of items, as on a ledger.
+    /// A verbless list of items, as on a ledger or label.
     List(Vec<NounPhrase>),
+    /// Several sentences in a row, as in a letter.
+    Text(Vec<Sentence>),
 }

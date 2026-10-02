@@ -1,0 +1,200 @@
+mutin yënemne sëbon këmu'uhën yotusinse
+    #1 letter · Mutin said to Yënem: Do not take the seal.
+    mutin  yënem-ne   së-bon   këmu'u-hën  yo-tusinse
+    Mutin  Yënem-DAT  PST-say  seal-ACC    NEG-take
+
+bimginhuhën tusinse
+    #2 warning · Take the ox.
+    bimginhu-hën  tusinse
+    ox-ACC        take
+
+nimenëmpë numke
+    #3 label · The jar of Nimenëm.
+    nimenëm-pë   numke
+    Nimenëm-GEN  jar
+
+komumhën yomum
+    #4 warning · Do not touch the statue.
+    komum-hën   yo-mum
+    statue-ACC  NEG-touch
+
+hëmin ñotipë sesisi kumëmë hoł sol
+    #5 tomb · Hëmin, mother of Ñoti, queen, lies here.
+    hëmin  ñoti-pë   sesisi  kumëmë  hoł   sol
+    Hëmin  Ñoti-GEN  mother  queen   here  lie
+
+lultem 'ipene sëbon yemnon këbune pumwu'ohën bidë kensu sobë sëbënhën
+    #6 letter · Lultem said to 'Ipe: Yemnon gave 62 bowls for the city.
+    lultem  'ipe-ne   së-bon   yemnon  këbu-ne   pumwu-'o-hën  bidë  kensu  sobë  së-bënhën
+    Lultem  'Ipe-DAT  PST-say  Yemnon  city-DAT  bowl-PL-ACC   five  dozen  two   PST-give
+
+konyobun nimenëmpë sesisi hoł sol
+    #7 tomb · Konyobun, mother of Nimenëm, lies here.
+    konyobun  nimenëm-pë   sesisi  hoł   sol
+    Konyobun  Nimenëm-GEN  mother  here  lie
+
+lim'o huyë
+    #8 ledger · Nine fish.
+    lim-'o   huyë
+    fish-PL  nine
+
+numkehën sugonmun
+    #9 warning · Break the jar.
+    numke-hën  sugonmun
+    jar-ACC    break
+
+nimenëm netipë sesisi hoł sol
+    #10 tomb · Nimenëm, mother of Neti, lies here.
+    nimenëm  neti-pë   sesisi  hoł   sol
+    Nimenëm  Neti-GEN  mother  here  lie
+
+lëkuhëpë komum
+    #11 label · The statue of Lëkuhë.
+    lëkuhë-pë   komum
+    Lëkuhë-GEN  statue
+
+hëmin ñotine numkehën sił sëpelsum
+    #12 dedication · Hëmin made this jar for Ñoti.
+    hëmin  ñoti-ne   numke-hën  sił   së-pelsum
+    Hëmin  Ñoti-DAT  jar-ACC    this  PST-make
+
+yemnon supimipë yil hoł sol
+    #13 tomb · Yemnon, child of Supimi, lies here.
+    yemnon  supimi-pë   yil    hoł   sol
+    Yemnon  Supimi-GEN  child  here  lie
+
+lëkuhë 'ipene sëbon nulhën yise
+    #14 letter · Lëkuhë said to 'Ipe: Open the tomb.
+    lëkuhë  'ipe-ne   së-bon   nul-hën   yise
+    Lëkuhë  'Ipe-DAT  PST-say  tomb-ACC  open
+
+yëmo tinlën yebil kësëmu'ohën nolwu sëbënhën
+    #15 ledger · Yëmo, good priest, gave four cloths.
+    yëmo  tinlën  yebil  kësëmu-'o-hën  nolwu  së-bënhën
+    Yëmo  priest  good   cloth-PL-ACC   four   PST-give
+
+hesihën yomidubu
+    #16 warning · Do not cross the river.
+    hesi-hën   yo-midubu
+    river-ACC  NEG-cross
+
+yëmo nomuhenpë su hoł sol
+    #17 tomb · Yëmo, daughter of Nomuhen, lies here.
+    yëmo  nomuhen-pë   su        hoł   sol
+    Yëmo  Nomuhen-GEN  daughter  here  lie
+
+sunhën yosumë
+    #18 warning · Do not burn the grain.
+    sun-hën    yo-sumë
+    grain-ACC  NEG-burn
+
+hëminpë kem
+    #19 label · The tablet of Hëmin.
+    hëmin-pë   kem
+    Hëmin-GEN  tablet
+
+bebili nimenëmne kemhën sił sëpelsum
+    #20 dedication · Bebili made this tablet for Nimenëm.
+    bebili  nimenëm-ne   kem-hën     sił   së-pelsum
+    Bebili  Nimenëm-DAT  tablet-ACC  this  PST-make
+
+'ipe bebilipë tëlnëmku hoł sol
+    #21 tomb · 'Ipe, wife of Bebili, lies here.
+    'ipe  bebili-pë   tëlnëmku  hoł   sol
+    'Ipe  Bebili-GEN  wife      here  lie
+
+penhën yomidubu
+    #22 warning · Do not cross the wall.
+    pen-hën   yo-midubu
+    wall-ACC  NEG-cross
+
+hełbu yiñomne sëbon penhën yosugonmun
+    #23 letter · Hełbu said to Yiñom: Do not break the wall.
+    hełbu  yiñom-ne   së-bon   pen-hën   yo-sugonmun
+    Hełbu  Yiñom-DAT  PST-say  wall-ACC  NEG-break
+
+łilwe'o gen'u kensu lellum bel'o gen'u kensu gen'u lingilëm 'omko sëmkë kensu bidë
+    #24 ledger · 94 loaves, 91 lamps, 185 in all.
+    łilwe-'o  gen'u  kensu  lellum  bel-'o   gen'u  kensu  gen'u  lingilëm  'omko  sëmkë  kensu  bidë
+    loaf-PL   seven  dozen  ten     lamp-PL  seven  dozen  seven  total     gross  three  dozen  five
+
+nimenëmpë gëm
+    #25 label · The knife of Nimenëm.
+    nimenëm-pë   gëm
+    Nimenëm-GEN  knife
+
+nimenëmpë soyunhën yosugonmun
+    #26 warning · Do not break the stone of Nimenëm.
+    nimenëm-pë   soyun-hën  yo-sugonmun
+    Nimenëm-GEN  stone-ACC  NEG-break
+
+yëmopë këmu'u
+    #27 label · The seal of Yëmo.
+    yëmo-pë   këmu'u
+    Yëmo-GEN  seal
+
+nomuhenpë wulkihën yosugonmun
+    #28 warning · Do not break the box of Nomuhen.
+    nomuhen-pë   wulki-hën  yo-sugonmun
+    Nomuhen-GEN  box-ACC    NEG-break
+
+nimenëm netipë sesisi hoł sol
+    #29 tomb · Nimenëm, mother of Neti, lies here.
+    nimenëm  neti-pë   sesisi  hoł   sol
+    Nimenëm  Neti-GEN  mother  here  lie
+
+konyobun nimenëmpë sesisi hoł sol
+    #30 tomb · Konyobun, mother of Nimenëm, lies here.
+    konyobun  nimenëm-pë   sesisi  hoł   sol
+    Konyobun  Nimenëm-GEN  mother  here  lie
+
+yiñom bunsihëne nënpe numkehën sił sëpelsum
+    #31 dedication · Yiñom made this jar for the holy god.
+    yiñom  bunsihë-ne  nënpe  numke-hën  sił   së-pelsum
+    Yiñom  god-DAT     holy   jar-ACC    this  PST-make
+
+nimenëm yemnonne kumëmëne komumhën sił sëpelsum
+    #32 dedication · Nimenëm made this statue for Yemnon, queen.
+    nimenëm  yemnon-ne   kumëmë-ne  komum-hën   sił   së-pelsum
+    Nimenëm  Yemnon-DAT  queen-DAT  statue-ACC  this  PST-make
+
+konyobun nimenëmpë sesisi pugëyi hoł sol
+    #33 tomb · Konyobun, mother of Nimenëm, smith, lies here.
+    konyobun  nimenëm-pë   sesisi  pugëyi  hoł   sol
+    Konyobun  Nimenëm-GEN  mother  smith   here  lie
+
+bebili mutinne belhën sił sëpelsum
+    #34 dedication · Bebili made this lamp for Mutin.
+    bebili  mutin-ne   bel-hën   sił   së-pelsum
+    Bebili  Mutin-DAT  lamp-ACC  this  PST-make
+
+penhën midubu
+    #35 warning · Cross the wall.
+    pen-hën   midubu
+    wall-ACC  cross
+
+numke'o kensu huyë
+    #36 ledger · 21 jars.
+    numke-'o  kensu  huyë
+    jar-PL    dozen  nine
+
+yipogë bebilipë timmem kumëmë hoł sol
+    #37 tomb · Yipogë, son of Bebili, queen, lies here.
+    yipogë  bebili-pë   timmem  kumëmë  hoł   sol
+    Yipogë  Bebili-GEN  son     queen   here  lie
+
+hełbu milinlone kemhën sił sëpelsum
+    #38 dedication · Hełbu made this tablet for Milinlo.
+    hełbu  milinlo-ne   kem-hën     sił   së-pelsum
+    Hełbu  Milinlo-DAT  tablet-ACC  this  PST-make
+
+hëmin kumëmë ye'une gëmhën ninwo sił sëpelsum
+    #39 dedication · Hëmin, queen, made this red knife for Ye'u.
+    hëmin  kumëmë  ye'u-ne   gëm-hën    ninwo  sił   së-pelsum
+    Hëmin  queen   Ye'u-DAT  knife-ACC  red    this  PST-make
+
+konyobunpë numke
+    #40 label · The jar of Konyobun.
+    konyobun-pë   numke
+    Konyobun-GEN  jar
+

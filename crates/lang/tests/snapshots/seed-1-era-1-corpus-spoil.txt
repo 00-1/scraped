@@ -1,0 +1,200 @@
+machu mahiğatina
+    #1 warning · Enter the temples.
+    machu  mahiğa-ti-na
+    enter  temple-PL-ACC
+
+bamawu babusa pavuna gifa tilisu
+    #2 dedication · Bamawu made this box for the god.
+    bamawu  babu-sa   pavu-na  gifa  tili-su
+    Bamawu  make-PST  box-ACC  this  god-DAT
+
+tati kuchapi sivisi gama nusa
+    #3 tomb · Tati, husband of Kucha, lies here.
+    tati  kucha-pi   sivisi   gama  nusa
+    Tati  Kucha-GEN  husband  lie   here
+
+ŋaĥabi tatipi figana
+    #4 warning · Do not break the gate of Tati.
+    ŋaĥa-bi    tati-pi   figa-na
+    break-NEG  Tati-GEN  gate-ACC
+
+manuwi babusa suvana gifa kuchasu
+    #5 dedication · Manuwi made this tablet for Kucha.
+    manuwi  babu-sa   suva-na     gifa  kucha-su
+    Manuwi  make-PST  tablet-ACC  this  Kucha-DAT
+
+ŋituna lahupi pifaĥi kuhi gama nusa
+    #6 tomb · Ŋituna, son of Lahu, queen, lies here.
+    ŋituna  lahu-pi   pifaĥi  kuhi   gama  nusa
+    Ŋituna  Lahu-GEN  son     queen  lie   here
+
+ninimati tufu kağu
+    #7 ledger · Eight knives.
+    ninima-ti  tufu  kağu
+    knife-PL   five  three
+
+lumiti tufu kağu
+    #8 ledger · Eight fish.
+    lumi-ti  tufu  kağu
+    fish-PL  five  three
+
+mata sisipapi chulu gama nusa
+    #9 tomb · Mata, daughter of Sisipa, lies here.
+    mata  sisipa-pi   chulu     gama  nusa
+    Mata  Sisipa-GEN  daughter  lie   here
+
+fuma ĥahapi sivisi gama nusa
+    #10 tomb · Fuma, husband of Ĥaha, lies here.
+    fuma  ĥaha-pi   sivisi   gama  nusa
+    Fuma  Ĥaha-GEN  husband  lie   here
+
+muti sisipapi sivisi gama nusa
+    #11 tomb · Muti, husband of Sisipa, lies here.
+    muti  sisipa-pi   sivisi   gama  nusa
+    Muti  Sisipa-GEN  husband  lie   here
+
+manuwi saĥavi luhasa yitasu ŋaku wiŋafusa lifutina tufu yawa tufu kağu chiva yawa kichi buğu biĥusu
+    #12 letter · Manuwi, king, said to Yita: Ŋaku gave 185 goats for the city.
+    manuwi  saĥavi  luha-sa  yita-su   ŋaku  wiŋafu-sa  lifu-ti-na   tufu  yawa  tufu  kağu   chiva  yawa  kichi  buğu     biĥu-su
+    Manuwi  king    say-PST  Yita-DAT  Ŋaku  give-PST   goat-PL-ACC  five  AND   five  three  ten    AND   one    hundred  city-DAT
+
+manuwi saĥavi bivi babusa pavuna gifa tilipi mahiğasu husi
+    #13 dedication · Manuwi, old king, made this box for the dark temple of the god.
+    manuwi  saĥavi  bivi  babu-sa   pavu-na  gifa  tili-pi  mahiğa-su   husi
+    Manuwi  king    old   make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+
+ŋaku luhasa ĥugasu kisaŋabi suyuvana
+    #14 letter · Ŋaku said to Ĥuga: Do not take the statue.
+    ŋaku  luha-sa  ĥuga-su   kisaŋa-bi  suyuva-na
+    Ŋaku  say-PST  Ĥuga-DAT  take-NEG   statue-ACC
+
+lahu luhasa watusu watu wiŋafusa chuĥitina hamu
+    #15 letter · Lahu said to Watu: Watu gave four jars.
+    lahu  luha-sa  watu-su   watu  wiŋafu-sa  chuĥi-ti-na  hamu
+    Lahu  say-PST  Watu-DAT  Watu  give-PST   jar-PL-ACC   four
+
+tati kuchapi sivisi gama nusa
+    #16 tomb · Tati, husband of Kucha, lies here.
+    tati  kucha-pi   sivisi   gama  nusa
+    Tati  Kucha-GEN  husband  lie   here
+
+manuwi ŋitunapi taŋu gama nusa
+    #17 tomb · Manuwi, child of Ŋituna, lies here.
+    manuwi  ŋituna-pi   taŋu   gama  nusa
+    Manuwi  Ŋituna-GEN  child  lie   here
+
+buwanupi pavu
+    #18 label · The box of the priest.
+    buwanu-pi   pavu
+    priest-GEN  box
+
+ĥuga luhasa fumasu puta wiŋafusa safatina kağu
+    #19 letter · Ĥuga said to Fuma: Puta gave three lamps.
+    ĥuga  luha-sa  fuma-su   puta  wiŋafu-sa  safa-ti-na   kağu
+    Ĥuga  say-PST  Fuma-DAT  Puta  give-PST   lamp-PL-ACC  three
+
+watu ŋitunapi sivisi gama nusa
+    #20 tomb · Watu, husband of Ŋituna, lies here.
+    watu  ŋituna-pi   sivisi   gama  nusa
+    Watu  Ŋituna-GEN  husband  lie   here
+
+misi wuþa 'iğa ŋaĥabi suğa
+    #21 potent · [potent] let the seal not break.
+    misi      wuþa  'iğa  ŋaĥa-bi    suğa
+    POT.OPEN  seal  POT   break-NEG  POT.CLOSE
+
+hacha putapi sivisi kuhi gama nusa
+    #22 tomb · Hacha, husband of Puta, queen, lies here.
+    hacha  puta-pi   sivisi   kuhi   gama  nusa
+    Hacha  Puta-GEN  husband  queen  lie   here
+
+watu ŋitunapi sivisi gama nusa
+    #23 tomb · Watu, husband of Ŋituna, lies here.
+    watu  ŋituna-pi   sivisi   gama  nusa
+    Watu  Ŋituna-GEN  husband  lie   here
+
+yita babusa tayichuna tima gifa sanabisu
+    #24 dedication · Yita made this holy altar for Sanabi.
+    yita  babu-sa   tayichu-na  tima  gifa  sanabi-su
+    Yita  make-PST  altar-ACC   holy  this  Sanabi-DAT
+
+yita babusa suvana gifa biĥusu
+    #25 dedication · Yita made this tablet for the city.
+    yita  babu-sa   suva-na     gifa  biĥu-su
+    Yita  make-PST  tablet-ACC  this  city-DAT
+
+saĥavipi ŋasi
+    #26 label · The bowl of the king.
+    saĥavi-pi  ŋasi
+    king-GEN   bowl
+
+sila saĥavi babusa ŋasina gifa pufisu
+    #27 dedication · Sila, king, made this bowl for Pufi.
+    sila  saĥavi  babu-sa   ŋasi-na   gifa  pufi-su
+    Sila  king    make-PST  bowl-ACC  this  Pufi-DAT
+
+tati kuchapi sivisi gama nusa
+    #28 tomb · Tati, husband of Kucha, lies here.
+    tati  kucha-pi   sivisi   gama  nusa
+    Tati  Kucha-GEN  husband  lie   here
+
+muti luhasa kuchasu 'ava ya'ina
+    #29 letter · Muti said to Kucha: Cross the sea.
+    muti  luha-sa  kucha-su   'ava   ya'i-na
+    Muti  say-PST  Kucha-DAT  cross  sea-ACC
+
+ğimu yiþisa luwutina kağu tuĥasu
+    #30 ledger · Ğimu brought three loaves for the shrine.
+    ğimu  yiþi-sa    luwu-ti-na   kağu   tuĥa-su
+    Ğimu  bring-PST  loaf-PL-ACC  three  shrine-DAT
+
+winubi laþimana
+    #31 warning · Do not burn the door.
+    winu-bi   laþima-na
+    burn-NEG  door-ACC
+
+tati kuchapi sivisi gama nusa
+    #32 tomb · Tati, husband of Kucha, lies here.
+    tati  kucha-pi   sivisi   gama  nusa
+    Tati  Kucha-GEN  husband  lie   here
+
+lumiti tufu nimi yawa nimi chiva yawa nimi buğu safati nimi chiŋiti nimi yawa tufu kichi chiva yawa kichi buğu yuĥama kichi yawa tufu hamu chiva yawa kağu buğu
+    #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
+    lumi-ti  tufu  nimi  yawa  nimi  chiva  yawa  nimi  buğu     safa-ti  nimi  chiŋi-ti  nimi  yawa  tufu  kichi  chiva  yawa  kichi  buğu     yuĥama  kichi  yawa  tufu  hamu  chiva  yawa  kağu   buğu
+    fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
+
+fuma ĥahapi sivisi gama nusa
+    #34 tomb · Fuma, husband of Ĥaha, lies here.
+    fuma  ĥaha-pi   sivisi   gama  nusa
+    Fuma  Ĥaha-GEN  husband  lie   here
+
+putapi chuĥi
+    #35 label · The jar of Puta.
+    puta-pi   chuĥi
+    Puta-GEN  jar
+
+muti luhasa ĥahasu 'una silapi miwana
+    #36 letter · Muti said to Ĥaha: Drink the water of Sila.
+    muti  luha-sa  ĥaha-su   'una   sila-pi   miwa-na
+    Muti  say-PST  Ĥaha-DAT  drink  Sila-GEN  water-ACC
+
+lumiti kağu yawa tufu chiva
+    #37 ledger · 53 fish.
+    lumi-ti  kağu   yawa  tufu  chiva
+    fish-PL  three  AND   five  ten
+
+pufi luhasa watusu kafi yiþisa luwutina tufu hamu
+    #38 letter · Pufi said to Watu: Kafi brought nine loaves.
+    pufi  luha-sa  watu-su   kafi  yiþi-sa    luwu-ti-na   tufu  hamu
+    Pufi  say-PST  Watu-DAT  Kafi  bring-PST  loaf-PL-ACC  five  four
+
+misubi ya'ina
+    #39 warning · Do not fear the sea.
+    misu-bi   ya'i-na
+    fear-NEG  sea-ACC
+
+ğimu ŋakupi pifaĥi gama nusa
+    #40 tomb · Ğimu, son of Ŋaku, lies here.
+    ğimu  ŋaku-pi   pifaĥi  gama  nusa
+    Ğimu  Ŋaku-GEN  son     lie   here
+

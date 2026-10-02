@@ -21,6 +21,8 @@ pub enum Domain {
     Qualities,
     Deixis,
     Numbers,
+    /// Function words: particles with no lexical meaning of their own.
+    Grammar,
 }
 
 /// Part of speech: decides which inflections and positions a word takes.
@@ -33,6 +35,8 @@ pub enum Pos {
     Num,
     Det,
     Adv,
+    /// An uninflected function word, glossed in capitals.
+    Particle,
 }
 
 /// One meaning the language has a root for.
@@ -48,7 +52,9 @@ pub struct Concept {
     #[serde(default)]
     pub applies: Vec<String>,
     #[serde(default)]
-    pub value: Option<u8>,
+    pub value: Option<u16>,
+    #[serde(default)]
+    pub needs: Vec<String>,
     #[serde(default)]
     pub en_plural: Option<String>,
     #[serde(default)]
@@ -106,11 +112,20 @@ pub fn nouns_tagged(tag: &str) -> Vec<&'static Concept> {
     with_pos(Pos::Noun).filter(|c| c.has_tag(tag)).collect()
 }
 
-/// The numeral concept for `n` (1–10).
-pub fn numeral(n: u8) -> &'static Concept {
+/// The numeral concept with value `n` (0–11 and the powers).
+pub fn numeral(n: u16) -> &'static Concept {
     with_pos(Pos::Num)
         .find(|c| c.value == Some(n))
         .unwrap_or_else(|| panic!("no numeral {n}"))
+}
+
+/// The gloss shown for a concept: particles in capitals, Leipzig style.
+pub fn gloss(id: &str) -> String {
+    if get(id).pos == Pos::Particle {
+        id.to_uppercase()
+    } else {
+        id.to_string()
+    }
 }
 
 #[cfg(test)]
@@ -121,7 +136,7 @@ mod tests {
     #[test]
     fn list_loads_with_expected_size() {
         let n = all().len();
-        assert!((60..=100).contains(&n), "{n} concepts");
+        assert!((60..=120).contains(&n), "{n} concepts");
     }
 
     #[test]
@@ -129,7 +144,10 @@ mod tests {
         let ids: BTreeSet<&str> = all().iter().map(|c| c.id.as_str()).collect();
         assert_eq!(ids.len(), all().len());
         for id in ids {
-            assert!(id.chars().all(|c| c.is_ascii_lowercase()), "{id}");
+            assert!(
+                id.chars().all(|c| c.is_ascii_lowercase() || c == '.'),
+                "{id}"
+            );
         }
     }
 

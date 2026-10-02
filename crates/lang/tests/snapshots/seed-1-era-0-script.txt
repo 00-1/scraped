@@ -1,0 +1,34 @@
+SCRIPT — seed 1 era 0: alphabet written left to right
+  voiced sounds add: ring on the right
+  fricative sounds add: dot on the right
+  #0   p                p        arc left in the middle; cross in the middle
+  #1   t                t        hook up at the top; wedge left on the right
+  #2   k                k        hook up in the middle; arc left at the top; cross at the bottom
+  #3   b                b        ring on the right; arc left in the middle; cross in the middle
+  #4   g                g        hook up in the middle; ring on the right; arc left at the top; cross at the bottom
+  #5   ʔ                '        arc right on the right; arc left at the bottom; tail left on the right
+  #6   m                m        tail down at the bottom; tail left in the middle; zigzag up at the bottom
+  #7   n                n        ring on the right
+  #8   ŋ                ŋ        ring at the top; wedge up at the top; zigzag left at the bottom
+  #9   s                s        hook up at the top; dot on the right; wedge left on the right
+  #10  ʃ                x        arc left on the left; wedge up at the bottom
+  #11  h                h        dot on the right; arc right on the right; arc left at the bottom; tail left on the right
+  #12  tʃ               ch       hook down at the bottom; hook down on the left
+  #13  l                l        hook down on the right; wedge down in the middle
+  #14  j                y        tail up in the middle
+  #15  w                w        hook down on the left; arc up on the right
+  #16  a                a        bar level in the middle; cross at the top
+  #17  i                i        dot in the middle; ring on the left; tail down on the right
+  #18  u                u        bar level on the left; wedge left on the right; cross in the middle
+  #19  numeral 0        0        arc down on the right; tail up on the right
+  #20  numeral 1        1        dot at the top; tail up on the left
+  #21  numeral 2        2        bar upright on the left; cross at the bottom
+  #22  numeral 3        3        ring in the middle; ring on the right; arc up on the left
+  #23  numeral 4        4        dot on the right; tail up in the middle
+  #24  numeral 5        5        dot on the right; arc right at the top
+  #25  numeral 6        6        bar level on the left; arc right on the right
+  #26  numeral 7        7        hook left on the left
+  #27  numeral 8        8        arc down on the left
+  #28  numeral 9        9        dot on the right; ring on the left; wedge right in the middle
+  #29  (word divider)   ·        arc down in the middle; arc left on the right; cross on the right
+  #30  (name marker)    °        bar upright on the right; wedge right at the top

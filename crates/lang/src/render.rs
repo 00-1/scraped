@@ -3,9 +3,11 @@
 use serde::Serialize;
 
 use crate::concepts;
+use crate::difficulty::{NameMarking, Separation};
 use crate::meaning::{Clause, Head, Mood, NounPhrase, Role, Sentence};
-use crate::morphology::{Case, Morph};
+use crate::morphology::{AffixPosition, Case, Morph};
 use crate::phonology::Phonemes;
+use crate::script::GlyphKey;
 use crate::syntax::{Side, WordOrder};
 use crate::Language;
 
@@ -13,9 +15,19 @@ use crate::Language;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Word {
     pub morphs: Vec<Morph>,
+    /// Personal names can be flagged by a determinative sign.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub name: bool,
 }
 
 impl Word {
+    fn plain(morphs: Vec<Morph>) -> Self {
+        Word {
+            morphs,
+            name: false,
+        }
+    }
+
     pub fn phonemes(&self) -> Phonemes {
         crate::morphology::join(&self.morphs)
     }
@@ -41,6 +53,23 @@ pub struct Rendered {
     pub words: Vec<Word>,
 }
 
+/// Romanised word separators for each separation dial.
+fn separator(s: Separation) -> &'static str {
+    match s {
+        Separation::Spaces => " ",
+        Separation::Dots => "·",
+        Separation::None => "",
+    }
+}
+
+/// Romanised word divider.
+pub fn separator_glyph() -> &'static str {
+    separator(Separation::Dots)
+}
+
+/// Romanised name determinative.
+pub const DETERMINATIVE: &str = "°";
+
 /// Renders meanings in one language, with a table of personal names.
 pub struct Renderer<'a> {
     pub lang: &'a Language,
@@ -49,26 +78,79 @@ pub struct Renderer<'a> {
 
 impl Renderer<'_> {
     pub fn render(&self, s: &Sentence) -> Rendered {
-        let words = match s {
+        Rendered {
+            words: self.sentence(s),
+        }
+    }
+
+    fn sentence(&self, s: &Sentence) -> Vec<Word> {
+        match s {
             Sentence::Clause(c) => self.clause(c),
             Sentence::List(items) => items
                 .iter()
                 .flat_map(|np| self.noun_phrase(np, Case::Subject))
                 .collect(),
-        };
-        Rendered { words }
+            Sentence::Text(parts) => parts.iter().flat_map(|p| self.sentence(p)).collect(),
+        }
     }
 
-    /// Romanised text, words separated by spaces.
-    // DESIGN-Q: words are space-separated and names are not marked (no
-    // capitals, no determinative). Real inscriptions often run words together
-    // or flag names; either would change difficulty noticeably.
+    /// Romanised text, with words separated and names marked according to
+    /// the difficulty dials.
     pub fn surface(&self, r: &Rendered) -> String {
+        let d = &self.lang.difficulty;
         r.words
             .iter()
-            .map(|w| self.lang.romanise(&w.phonemes()))
+            .map(|w| {
+                let text = self.lang.romanise(&w.phonemes());
+                if w.name && d.names == NameMarking::Determinative {
+                    format!("{DETERMINATIVE}{text}")
+                } else {
+                    text
+                }
+            })
             .collect::<Vec<_>>()
-            .join(" ")
+            .join(separator(d.separation))
+    }
+
+    /// The text as glyphs, in reading order. `None` marks a gap between
+    /// words when words are separated by spaces.
+    pub fn glyphs(&self, r: &Rendered) -> Vec<Option<GlyphKey>> {
+        let d = &self.lang.difficulty;
+        let mut out = Vec::new();
+        for (i, w) in r.words.iter().enumerate() {
+            if i > 0 {
+                match d.separation {
+                    Separation::Spaces => out.push(None),
+                    Separation::Dots => out.push(Some(GlyphKey::Divider)),
+                    Separation::None => {}
+                }
+            }
+            if w.name && d.names == NameMarking::Determinative {
+                out.push(Some(GlyphKey::Determinative));
+            }
+            let ipa = self.lang.phonology.to_ipa(&w.phonemes());
+            out.extend(self.lang.script.spell(&ipa).into_iter().map(Some));
+        }
+        out
+    }
+
+    /// The text as numbered glyphs laid out on the surface: one string per
+    /// line, physical left-to-right order, `/` for a gap between words.
+    pub fn glyph_lines(&self, r: &Rendered, width: usize) -> Vec<String> {
+        self.lang
+            .script
+            .layout(&self.glyphs(r), width)
+            .into_iter()
+            .map(|line| {
+                line.iter()
+                    .map(|t| match t {
+                        Some(k) => self.lang.script.index(k).to_string(),
+                        None => "/".to_string(),
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            })
+            .collect()
     }
 
     /// Romanised words with morph boundaries marked by hyphens.
@@ -109,82 +191,110 @@ impl Renderer<'_> {
                 out.extend(recipient);
                 out.extend(object);
                 out.extend(adverbs);
-                out.push(verb);
+                out.extend(verb);
             }
             WordOrder::Svo => {
                 out.extend(subject);
-                out.push(verb);
+                out.extend(verb);
                 out.extend(object);
                 out.extend(recipient);
                 out.extend(adverbs);
             }
             WordOrder::Vso => {
-                out.push(verb);
+                out.extend(verb);
                 out.extend(subject);
                 out.extend(object);
                 out.extend(recipient);
                 out.extend(adverbs);
             }
         }
+        if c.mood == Mood::Potent {
+            out.insert(0, self.plain("pot.open"));
+            out.push(self.plain("pot.close"));
+        }
         out
     }
 
-    fn verb(&self, c: &Clause) -> Word {
+    /// The verb with any particles, and the potent particle before it.
+    fn verb(&self, c: &Clause) -> Vec<Word> {
+        let m = &self.lang.morphology;
         let root = self.lang.lexicon.root(&c.predicate);
-        Word {
-            morphs: self
-                .lang
-                .morphology
-                .verb(root, &c.predicate, c.tense, c.polarity),
+        let word = Word::plain(m.verb(root, &c.predicate, c.tense, c.polarity));
+        let mut out =
+            self.with_particles(word, m.verb_particles(c.tense, c.polarity), m.verb_position);
+        // DESIGN-Q: the potent particle always comes directly before the
+        // verb group, whatever the word order.
+        if c.mood == Mood::Potent {
+            out.insert(0, self.plain("pot"));
+        }
+        out
+    }
+
+    /// Places particle words next to their host: after it in suffixing
+    /// languages, before it (mirrored) in prefixing ones.
+    fn with_particles(&self, host: Word, particles: Vec<Morph>, pos: AffixPosition) -> Vec<Word> {
+        let particles = particles
+            .into_iter()
+            .map(|p| Word::plain(vec![Morph { is_root: true, ..p }]));
+        match pos {
+            AffixPosition::Suffix => std::iter::once(host).chain(particles).collect(),
+            AffixPosition::Prefix => {
+                let mut v: Vec<Word> = particles.collect();
+                v.reverse();
+                v.push(host);
+                v
+            }
         }
     }
 
-    /// An uninflected word (adjective, numeral, determiner, adverb).
+    /// An uninflected word (adjective, numeral, determiner, adverb, particle).
     fn plain(&self, concept: &str) -> Word {
-        Word {
-            morphs: vec![Morph {
-                form: self.lang.lexicon.root(concept).clone(),
-                gloss: concept.to_string(),
-                is_root: true,
-            }],
-        }
+        Word::plain(vec![Morph {
+            form: self.lang.lexicon.root(concept).clone(),
+            gloss: concepts::gloss(concept),
+            is_root: true,
+        }])
     }
 
     fn noun_phrase(&self, np: &NounPhrase, case: Case) -> Vec<Word> {
+        let m = &self.lang.morphology;
         let head = match &np.head {
-            Head::Concept(id) => Word {
-                morphs: self
-                    .lang
-                    .morphology
-                    .noun(self.lang.lexicon.root(id), id, np.number, case),
-            },
+            Head::Concept(id) => {
+                Word::plain(m.noun(self.lang.lexicon.root(id), id, np.number, case))
+            }
             Head::Name(p) => Word {
-                morphs: self
-                    .lang
-                    .morphology
-                    .noun(&self.names[*p], &self.name(*p), np.number, case),
+                morphs: m.noun(&self.names[*p], &self.name(*p), np.number, case),
+                name: true,
             },
         };
+        let head = self.with_particles(head, m.noun_particles(np.number, case), m.noun_position);
 
         // Modifiers inside out: adjectives nearest the noun, then the
         // numeral, then the demonstrative. Mirrored when they follow.
-        let mut inner: Vec<Word> = Vec::new();
-        inner.extend(np.adjectives.iter().map(|a| self.plain(a)));
+        let mut inner: Vec<Vec<Word>> = Vec::new();
+        inner.extend(np.adjectives.iter().map(|a| vec![self.plain(a)]));
         if let Some(n) = np.quantity {
-            inner.push(self.plain(&concepts::numeral(n).id));
+            inner.push(
+                self.lang
+                    .numerals
+                    .words(n)
+                    .iter()
+                    .map(|w| self.plain(w))
+                    .collect(),
+            );
         }
         if let Some(d) = &np.determiner {
-            inner.push(self.plain(d));
+            inner.push(vec![self.plain(d)]);
         }
         let mut core = Vec::new();
         match self.lang.syntax.modifiers {
             Side::Before => {
-                core.extend(inner.into_iter().rev());
-                core.push(head);
+                core.extend(inner.into_iter().rev().flatten());
+                core.extend(head);
             }
             Side::After => {
-                core.push(head);
-                core.extend(inner);
+                core.extend(head);
+                core.extend(inner.into_iter().flatten());
             }
         }
 

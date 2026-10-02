@@ -1,0 +1,162 @@
+GRAMMAR SHEET — seed 42 (era 2 of 2)
+
+SOUNDS (ipa = spelling)
+  consonants (17): p  t  k  b  d  ʔ='  m  n  ŋ=ng  f  h  x  ts  tʃ=ch  l  r  j=y
+  vowels (4): e  i  u  ɨ=ï
+  syllable: CV(C)
+  codas: p t k b d ' m n ng f h x ts l r y
+
+SOUND CHANGES SINCE ERA 0
+  era 1: final V > ∅ / VC_# in words of 2+ syllables
+  era 1: a > o
+  era 2: k > tʃ / _[front vowel]
+  era 2: o > u
+  new words this era: priest, field, tower, take, one, seven, pot.open
+
+MORPHOLOGY
+  PL   -ngu         (noun)
+  ACC  -ku          (noun)
+  GEN  -ni          (noun)
+  DAT  -yi          (noun)
+  PST  xi-          (verb)
+  NEG  bi-          (verb)
+  nouns: root-NUMBER-CASE
+  verbs: NEG-TENSE-root
+  unmarked: singular, subject case, non-past, positive
+  adjectives, numerals, 'this' and 'here' never inflect
+  a counted noun is plural when the number is above one
+
+SYNTAX
+  clause order: SOV
+  dative (beneficiary): just before the object
+  adverbs: just before the verb
+  commands: plain non-past verb with no subject
+  noun phrase: noun – adjectives – number – this
+  possessor before possessed noun
+  appositions (titles, 'child of X') follow the name
+
+NUMERALS
+  base: decimal (ten, hundred)
+  order: smallest part first
+  one ten: 'one ten'
+  linker between parts: yes ('and')
+  numeral signs: positional (one digit per place, with zero)
+
+SCRIPT: alphabet, left to right, 33 glyphs (see `script --spoil`)
+
+LEXICON
+  [people]
+    person      tut
+    man         pe
+    woman       ying
+    child       hu
+    son         nïdup
+    daughter    rul
+    mother      mïh
+    father      mï
+    wife        fu'
+    husband     chinuk
+    brother     kur
+    sister      lel
+    king        tsuk
+    queen       ngïb
+    priest      ted
+    scribe      'upup
+    smith       'ey
+    servant     ritslum
+    god         kum
+  [nature]
+    water       bix
+    river       hut
+    stone       pip
+    tree        tsutsum
+    fire        'udut
+    sun         yur
+    moon        dut
+    rain        lun
+    mountain    bum
+    sea         yup
+    sheep       pun
+    ox          diy
+    goat        xun
+    fish        tim
+    grain       ling
+  [places]
+    house       tïm
+    temple      pirek
+    city        muts
+    gate        bur
+    door        'ul
+    road        muk
+    field       chungru
+    tomb        purilmu
+    well        lituy
+    wall        huhud
+    tower       dem
+    shrine      butil
+  [objects]
+    bowl        dung
+    jar         hunub
+    tablet      yub
+    statue      pul
+    altar       mem
+    oil         duk
+    wine        chen
+    cloth       tep
+    loaf        luy
+    knife       tup
+    lamp        tuk
+    box         fuyup
+    seal        de'
+  [actions]
+    lie         neng
+    make        kul
+    bring       kunub
+    give        nguts
+    open        rupit
+    enter       der
+    take        bidi
+    burn        tsul
+    drink       rup
+    cross       fup
+    touch       lum
+    break       ngum
+    scrape      nge'ub
+    eat         puhubut
+    fear        nïf
+    honour      tsut
+    say         dun
+  [qualities]
+    great       mub
+    small       mutxu
+    old         kufe'
+    new         yipi
+    holy        mey
+    dark        rir
+    good        yeh
+    white       hebef
+    red         ngul
+    cold        heb
+    deep        pu'
+  [deixis]
+    this        hik
+    here        pem
+  [numbers]
+    one         muti
+    two         fehi
+    three       nep
+    four        ngux
+    five        bud
+    six         muy
+    seven       xihpu
+    eight       fey
+    nine        pur
+    ten         yuk
+    zero        nit
+    hundred     kïd
+    and         ngung
+    total       riy
+  [grammar]
+    pot.open    bïng
+    pot.close   mip
+    pot         rïn

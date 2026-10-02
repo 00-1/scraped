@@ -4,7 +4,7 @@
 //! common phonemes with simple implicational rules (no /b/ without /p/), so
 //! inventories look like real ones rather than random letter bags.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Serialize;
 
@@ -29,11 +29,30 @@ pub enum Manner {
     Glide,
 }
 
+/// Where in the mouth a consonant is made. Scripts use it to give related
+/// sounds related glyphs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Place {
+    Labial,
+    Dental,
+    Alveolar,
+    Postalveolar,
+    Palatal,
+    Velar,
+    Uvular,
+    Glottal,
+}
+
 /// Consonant or vowel, with the features rules need.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "lowercase", tag = "kind")]
 pub enum PhonemeKind {
-    Consonant { manner: Manner, voiced: bool },
+    Consonant {
+        place: Place,
+        manner: Manner,
+        voiced: bool,
+    },
     Vowel,
 }
 
@@ -55,16 +74,31 @@ impl Phoneme {
         self.kind == PhonemeKind::Vowel
     }
 
-    fn manner(&self) -> Option<Manner> {
+    pub fn manner(&self) -> Option<Manner> {
         match self.kind {
             PhonemeKind::Consonant { manner, .. } => Some(manner),
             PhonemeKind::Vowel => None,
+        }
+    }
+
+    pub fn place(&self) -> Option<Place> {
+        match self.kind {
+            PhonemeKind::Consonant { place, .. } => Some(place),
+            PhonemeKind::Vowel => None,
+        }
+    }
+
+    pub fn voiced(&self) -> bool {
+        match self.kind {
+            PhonemeKind::Consonant { voiced, .. } => voiced,
+            PhonemeKind::Vowel => true,
         }
     }
 }
 
 struct ConsonantSpec {
     ipa: &'static str,
+    place: Place,
     manner: Manner,
     voiced: bool,
     /// Likelihood of appearing in an inventory, and of use within words.
@@ -78,6 +112,7 @@ struct ConsonantSpec {
 
 const fn c(
     ipa: &'static str,
+    place: Place,
     manner: Manner,
     voiced: bool,
     weight: u32,
@@ -86,6 +121,7 @@ const fn c(
 ) -> ConsonantSpec {
     ConsonantSpec {
         ipa,
+        place,
         manner,
         voiced,
         weight,
@@ -95,39 +131,80 @@ const fn c(
 }
 
 use Manner::*;
+use Place::*;
 
 const CONSONANTS: &[ConsonantSpec] = &[
-    c("p", Stop, false, 90, None, &["p"]),
-    c("t", Stop, false, 98, None, &["t"]),
-    c("k", Stop, false, 98, None, &["k"]),
-    c("b", Stop, true, 60, Some("p"), &["b"]),
-    c("d", Stop, true, 60, Some("t"), &["d"]),
-    c("g", Stop, true, 50, Some("k"), &["g"]),
-    c("q", Stop, false, 12, Some("k"), &["q"]),
-    c("ʔ", Stop, false, 35, None, &["'"]),
-    c("m", Nasal, true, 96, None, &["m"]),
-    c("n", Nasal, true, 97, None, &["n"]),
-    c("ŋ", Nasal, true, 45, Some("k"), &["ng", "ŋ"]),
-    c("ɲ", Nasal, true, 25, None, &["ny", "ñ"]),
-    c("f", Fricative, false, 45, None, &["f"]),
-    c("v", Fricative, true, 30, Some("f"), &["v"]),
-    c("s", Fricative, false, 88, None, &["s"]),
-    c("z", Fricative, true, 30, Some("s"), &["z"]),
-    c("ʃ", Fricative, false, 45, None, &["sh", "x", "š"]),
-    c("ʒ", Fricative, true, 15, Some("ʃ"), &["zh", "ž"]),
-    c("h", Fricative, false, 60, None, &["h"]),
-    c("x", Fricative, false, 25, None, &["kh", "x", "ĥ"]),
-    c("ɣ", Fricative, true, 10, Some("x"), &["gh", "ğ"]),
-    c("θ", Fricative, false, 10, None, &["th", "þ"]),
-    c("ð", Fricative, true, 8, Some("θ"), &["dh", "ð"]),
-    c("ts", Affricate, false, 20, None, &["ts", "c", "ċ"]),
-    c("tʃ", Affricate, false, 40, None, &["ch", "c", "č"]),
-    c("dʒ", Affricate, true, 30, Some("tʃ"), &["j", "dj", "ǰ"]),
-    c("l", Lateral, true, 85, None, &["l"]),
-    c("ɬ", Lateral, false, 8, Some("l"), &["lh", "ł"]),
-    c("r", Rhotic, true, 70, None, &["r"]),
-    c("j", Glide, true, 80, None, &["y"]),
-    c("w", Glide, true, 70, None, &["w"]),
+    c("p", Labial, Stop, false, 90, None, &["p"]),
+    c("t", Alveolar, Stop, false, 98, None, &["t"]),
+    c("k", Velar, Stop, false, 98, None, &["k"]),
+    c("b", Labial, Stop, true, 60, Some("p"), &["b"]),
+    c("d", Alveolar, Stop, true, 60, Some("t"), &["d"]),
+    c("g", Velar, Stop, true, 50, Some("k"), &["g"]),
+    c("q", Uvular, Stop, false, 12, Some("k"), &["q"]),
+    c("ʔ", Glottal, Stop, false, 35, None, &["'"]),
+    c("m", Labial, Nasal, true, 96, None, &["m"]),
+    c("n", Alveolar, Nasal, true, 97, None, &["n"]),
+    c("ŋ", Velar, Nasal, true, 45, Some("k"), &["ng", "ŋ"]),
+    c("ɲ", Palatal, Nasal, true, 25, None, &["ny", "ñ"]),
+    c("f", Labial, Fricative, false, 45, None, &["f"]),
+    c("v", Labial, Fricative, true, 30, Some("f"), &["v"]),
+    c("s", Alveolar, Fricative, false, 88, None, &["s"]),
+    c("z", Alveolar, Fricative, true, 30, Some("s"), &["z"]),
+    c(
+        "ʃ",
+        Postalveolar,
+        Fricative,
+        false,
+        45,
+        None,
+        &["sh", "x", "š"],
+    ),
+    c(
+        "ʒ",
+        Postalveolar,
+        Fricative,
+        true,
+        15,
+        Some("ʃ"),
+        &["zh", "ž"],
+    ),
+    c("h", Glottal, Fricative, false, 60, None, &["h"]),
+    c("x", Velar, Fricative, false, 25, None, &["kh", "x", "ĥ"]),
+    c("ɣ", Velar, Fricative, true, 10, Some("x"), &["gh", "ğ"]),
+    c("θ", Dental, Fricative, false, 10, None, &["th", "þ"]),
+    c("ð", Dental, Fricative, true, 8, Some("θ"), &["dh", "ð"]),
+    c(
+        "ts",
+        Alveolar,
+        Affricate,
+        false,
+        20,
+        None,
+        &["ts", "c", "ċ"],
+    ),
+    c(
+        "tʃ",
+        Postalveolar,
+        Affricate,
+        false,
+        40,
+        None,
+        &["ch", "c", "č"],
+    ),
+    c(
+        "dʒ",
+        Postalveolar,
+        Affricate,
+        true,
+        30,
+        Some("tʃ"),
+        &["j", "dj", "ǰ"],
+    ),
+    c("l", Alveolar, Lateral, true, 85, None, &["l"]),
+    c("ɬ", Alveolar, Lateral, false, 8, Some("l"), &["lh", "ł"]),
+    c("r", Alveolar, Rhotic, true, 70, None, &["r"]),
+    c("j", Palatal, Glide, true, 80, None, &["y"]),
+    c("w", Labial, Glide, true, 70, None, &["w"]),
 ];
 
 /// Always present: every language has at least these.
@@ -223,7 +300,7 @@ impl Inventory {
         self.ids().find(|&id| self.get(id).ipa == ipa)
     }
 
-    fn ids(&self) -> impl Iterator<Item = PhonemeId> {
+    pub fn ids(&self) -> impl Iterator<Item = PhonemeId> {
         (0..self.phonemes.len()).map(|i| i as PhonemeId)
     }
 }
@@ -272,28 +349,12 @@ impl Phonology {
             [rng.weighted_index(&VOWEL_SYSTEMS.iter().map(|&(_, w)| w).collect::<Vec<_>>())]
         .0;
 
-        let mut phonemes: Vec<Phoneme> = consonant_specs
-            .iter()
-            .map(|s| Phoneme {
-                ipa: s.ipa,
-                roman: String::new(),
-                kind: PhonemeKind::Consonant {
-                    manner: s.manner,
-                    voiced: s.voiced,
-                },
-                weight: s.weight,
-            })
-            .collect();
+        let mut phonemes: Vec<Phoneme> = consonant_specs.iter().map(|s| phoneme(s.ipa)).collect();
         phonemes.extend(
             VOWELS
                 .iter()
                 .filter(|v| vowel_system.contains(&v.ipa))
-                .map(|v| Phoneme {
-                    ipa: v.ipa,
-                    roman: v.roman.to_string(),
-                    kind: PhonemeKind::Vowel,
-                    weight: v.weight,
-                }),
+                .map(|v| phoneme(v.ipa)),
         );
         assign_spellings(&mut phonemes);
         let inventory = Inventory { phonemes };
@@ -468,6 +529,128 @@ impl Phonology {
             .map(|&id| self.inventory.get(id).weight)
             .collect();
         from[rng.weighted_index(&weights)]
+    }
+}
+
+/// Builds a phoneme from its IPA symbol, using the pool's features. Panics on
+/// symbols outside the pool: sound changes only ever target pool sounds.
+pub fn phoneme(ipa: &str) -> Phoneme {
+    if let Some(s) = CONSONANTS.iter().find(|s| s.ipa == ipa) {
+        return Phoneme {
+            ipa: s.ipa,
+            roman: String::new(),
+            kind: PhonemeKind::Consonant {
+                place: s.place,
+                manner: s.manner,
+                voiced: s.voiced,
+            },
+            weight: s.weight,
+        };
+    }
+    let v = VOWELS
+        .iter()
+        .find(|v| v.ipa == ipa)
+        .unwrap_or_else(|| panic!("unknown phoneme {ipa:?}"));
+    Phoneme {
+        ipa: v.ipa,
+        roman: v.roman.to_string(),
+        kind: PhonemeKind::Vowel,
+        weight: v.weight,
+    }
+}
+
+/// Position of a sound in the pool, so inventories always list sounds in
+/// the same order whatever era they come from.
+fn pool_rank(ipa: &str) -> usize {
+    CONSONANTS
+        .iter()
+        .position(|s| s.ipa == ipa)
+        .or_else(|| VOWELS.iter().position(|v| v.ipa == ipa).map(|i| 100 + i))
+        .unwrap_or_else(|| panic!("unknown phoneme {ipa:?}"))
+}
+
+/// Spellings for a set of sounds, chosen together so that the whole set is
+/// uniquely decodable. A language family shares one table across its eras,
+/// so a sound is spelled the same way in every era.
+pub fn spelling_for(ipas: &BTreeSet<&'static str>) -> BTreeMap<&'static str, String> {
+    let mut list: Vec<&'static str> = ipas.iter().copied().collect();
+    list.sort_by_key(|i| pool_rank(i));
+    let mut phonemes: Vec<Phoneme> = list.iter().map(|i| phoneme(i)).collect();
+    assign_spellings(&mut phonemes);
+    phonemes.into_iter().map(|p| (p.ipa, p.roman)).collect()
+}
+
+/// A phonology described by IPA symbols instead of ids. Sound changes work
+/// at this level, since ids are only meaningful within one inventory.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Sets {
+    pub sounds: BTreeSet<&'static str>,
+    pub template: Template,
+    pub onsets: BTreeSet<Vec<&'static str>>,
+    pub codas: BTreeSet<&'static str>,
+}
+
+impl Phonology {
+    /// This phonology as IPA sets.
+    pub fn sets(&self) -> Sets {
+        let ipa = |id: &PhonemeId| self.inventory.get(*id).ipa;
+        Sets {
+            sounds: self.inventory.phonemes.iter().map(|p| p.ipa).collect(),
+            template: self.template,
+            onsets: self
+                .onsets
+                .iter()
+                .map(|o| o.iter().map(ipa).collect())
+                .collect(),
+            codas: self.codas.iter().map(ipa).collect(),
+        }
+    }
+
+    /// Rebuilds a phonology from IPA sets, spelled with `spelling`.
+    pub fn from_sets(sets: &Sets, spelling: &BTreeMap<&'static str, String>) -> Self {
+        let mut list: Vec<&'static str> = sets.sounds.iter().copied().collect();
+        list.sort_by_key(|i| pool_rank(i));
+        let phonemes = list
+            .iter()
+            .map(|i| {
+                let mut p = phoneme(i);
+                p.roman = spelling[i].clone();
+                p
+            })
+            .collect();
+        let inventory = Inventory { phonemes };
+        let id = |i: &&'static str| inventory.by_ipa(i).expect("sound in inventory");
+        let mut onsets: Vec<Phonemes> = sets
+            .onsets
+            .iter()
+            .map(|o| o.iter().map(id).collect())
+            .collect();
+        onsets.sort();
+        let mut codas: Vec<PhonemeId> = sets.codas.iter().map(id).collect();
+        codas.sort();
+        Phonology {
+            template: sets.template,
+            onsets,
+            codas,
+            inventory,
+        }
+    }
+
+    /// Respells every phoneme from a shared table.
+    pub fn respell(&mut self, spelling: &BTreeMap<&'static str, String>) {
+        for p in &mut self.inventory.phonemes {
+            p.roman = spelling[p.ipa].clone();
+        }
+    }
+
+    /// A word as IPA symbols.
+    pub fn to_ipa(&self, word: &[PhonemeId]) -> Vec<&'static str> {
+        word.iter().map(|&id| self.inventory.get(id).ipa).collect()
+    }
+
+    /// A word from IPA symbols, if every sound is in the inventory.
+    pub fn from_ipa(&self, word: &[&str]) -> Option<Phonemes> {
+        word.iter().map(|i| self.inventory.by_ipa(i)).collect()
     }
 }
 

@@ -8,20 +8,47 @@ use crate::meaning::{Clause, Head, Mood, NounPhrase, Number, Polarity, Role, Sen
 
 /// Renders a meaning as an English sentence. `name` gives display names.
 pub fn translate(s: &Sentence, name: &dyn Fn(usize) -> String) -> String {
-    let text = match s {
-        Sentence::Clause(c) => clause(c, name),
-        Sentence::List(items) => items
+    match s {
+        Sentence::Text(parts) => parts
             .iter()
-            .map(|np| noun_phrase(np, name))
+            .map(|p| translate(p, name))
             .collect::<Vec<_>>()
-            .join(", "),
-    };
-    format!("{}.", upper_first(text.trim_end_matches(',')))
+            .join(" "),
+        _ => {
+            let text = match s {
+                Sentence::Clause(c) => clause(c, name),
+                Sentence::List(items) => items
+                    .iter()
+                    .map(|np| noun_phrase(np, name))
+                    .collect::<Vec<_>>()
+                    .join(", "),
+                Sentence::Text(_) => unreachable!(),
+            };
+            let text = upper_first(text.trim_end_matches(','));
+            if text.ends_with(':') {
+                text
+            } else {
+                format!("{text}.")
+            }
+        }
+    }
+}
+
+/// Number in English: words up to ten, digits beyond.
+fn number(n: u16) -> String {
+    if n <= 10 {
+        concepts::numeral(n).id.clone()
+    } else {
+        n.to_string()
+    }
 }
 
 fn clause(c: &Clause, name: &dyn Fn(usize) -> String) -> String {
     let verb = concepts::get(&c.predicate);
     let mut parts = Vec::new();
+    if c.mood == Mood::Potent {
+        parts.push("[potent] let".to_string());
+    }
     match c.mood {
         Mood::Imperative => {
             if c.polarity == Polarity::Negative {
@@ -34,15 +61,29 @@ fn clause(c: &Clause, name: &dyn Fn(usize) -> String) -> String {
             parts.push(noun_phrase(subject, name));
             parts.push(finite(verb, c.tense, c.polarity, subject.number));
         }
+        Mood::Potent => {
+            let subject = c.arg(Role::Subject).expect("claims have subjects");
+            parts.push(noun_phrase(subject, name));
+            if c.polarity == Polarity::Negative {
+                parts.push("not".to_string());
+            }
+            parts.push(verb.id.clone());
+        }
     }
     if let Some(o) = c.arg(Role::Object) {
         parts.push(noun_phrase(o, name));
     }
     if let Some(r) = c.arg(Role::Recipient) {
-        parts.push(format!("for {}", noun_phrase(r, name)));
+        let to = if c.predicate == "say" { "to" } else { "for" };
+        parts.push(format!("{to} {}", noun_phrase(r, name)));
     }
     parts.extend(c.adverbs.iter().cloned());
-    parts.join(" ")
+    let s = parts.join(" ");
+    if c.predicate == "say" {
+        format!("{s}:")
+    } else {
+        s
+    }
 }
 
 fn finite(verb: &Concept, tense: Tense, polarity: Polarity, subject: Number) -> String {
@@ -64,6 +105,9 @@ fn finite(verb: &Concept, tense: Tense, polarity: Polarity, subject: Number) -> 
 }
 
 fn noun_phrase(np: &NounPhrase, name: &dyn Fn(usize) -> String) -> String {
+    if np.head == Head::Concept("total".to_string()) {
+        return format!("{} in all", number(np.quantity.unwrap_or(0)));
+    }
     let mut words = Vec::new();
     let is_name = matches!(np.head, Head::Name(_));
     match (&np.determiner, np.quantity) {
@@ -80,7 +124,7 @@ fn noun_phrase(np: &NounPhrase, name: &dyn Fn(usize) -> String) -> String {
         _ => {}
     }
     if let Some(n) = np.quantity {
-        words.push(concepts::numeral(n).id.clone());
+        words.push(number(n));
     }
     words.extend(np.adjectives.iter().cloned());
     words.push(match &np.head {

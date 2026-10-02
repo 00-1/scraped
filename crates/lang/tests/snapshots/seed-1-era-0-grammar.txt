@@ -1,0 +1,151 @@
+GRAMMAR SHEET — seed 1 (era 0 of 2)
+
+SOUNDS (ipa = spelling)
+  consonants (16): p  t  k  b  g  ʔ='  m  n  ŋ  s  ʃ=x  h  tʃ=ch  l  j=y  w
+  vowels (3): a  i  u
+  syllable: CV
+  codas: none
+
+MORPHOLOGY
+  PL   -ti          (noun)
+  ACC  -na          (noun)
+  GEN  -pi          (noun)
+  DAT  -su          (noun)
+  PST  -sa          (verb)
+  NEG  -bi          (verb)
+  nouns: root-NUMBER-CASE
+  verbs: root-TENSE-NEG
+  unmarked: singular, subject case, non-past, positive
+  adjectives, numerals, 'this' and 'here' never inflect
+  a counted noun is plural when the number is above one
+
+SYNTAX
+  clause order: SVO
+  dative (beneficiary): after the object
+  adverbs: at the end of the clause
+  commands: plain non-past verb with no subject
+  noun phrase: noun – adjectives – number – this
+  possessor before possessed noun
+  appositions (titles, 'child of X') follow the name
+
+NUMERALS
+  base: quinary (ten, hundred)
+  order: smallest part first
+  one ten: 'one ten'
+  linker between parts: yes ('and')
+  numeral signs: positional (one digit per place, with zero)
+
+SCRIPT: alphabet, left to right, 31 glyphs (see `script --spoil`)
+
+LEXICON
+  [people]
+    person      nisana
+    man         sagi
+    woman       tagisa
+    child       taŋu
+    son         sunu
+    daughter    chulu
+    mother      ŋuya
+    father      pani
+    wife        nasu
+    husband     sibisi
+    brother     wusu
+    sister      yupiŋa
+    king        sakabi
+    queen       kuhi
+    priest      buwanu
+    scribe      yilu
+    smith       hika
+    servant     naŋi
+    god         tili
+  [nature]
+    water       miwa
+    river       yakala
+    stone       wali
+    tree        nuti
+    fire        kasa
+    sun         ba'a
+    moon        kiŋu
+    rain        nusagi
+    mountain    xahuka
+    sea         ya'i
+    sheep       li'i
+    ox          xuŋaŋi
+    goat        lipu
+    fish        lumi
+    grain       sihi
+  [places]
+    house       laŋa
+    temple      mahiga
+    city        biku
+    gate        sawuku
+    door        latima
+    road        yusa
+    field       wubi
+    tomb        gisi
+    well        pixa
+    wall        tana
+    tower       layi
+    shrine      tuka
+  [objects]
+    bowl        ŋasi
+    jar         chuki
+    tablet      suba
+    statue      suyuba
+    altar       tayichu
+    oil         yuwi
+    wine        guhu
+    cloth       chiŋi
+    loaf        luwu
+    knife       ninima
+    lamp        xapa
+    box         pabu
+    seal        wuta
+  [actions]
+    lie         gama
+    make        pumu
+    bring       yiti
+    give        wiŋapu
+    open        xuxi
+    enter       machu
+    take        kixaŋa
+    burn        winu
+    drink       'una
+    cross       'aba
+    touch       tapacha
+    break       ŋaka
+    scrape      siwu
+    eat         kita
+    fear        misu
+    honour      yaku
+    say         luha
+  [qualities]
+    great       sixahu
+    small       pi'u
+    old         bibi
+    new         pala
+    holy        tima
+    dark        husi
+    good        ŋina
+    white       hihu
+    red         bisa
+    cold        huwuwa
+    deep        ŋitu
+  [deixis]
+    this        gipa
+    here        nuxa
+  [numbers]
+    one         kichi
+    two         nimi
+    three       kagu
+    four        hamu
+    five        tupu
+    ten         chiba
+    zero        gahi
+    hundred     bugu
+    and         yawa
+    total       yukama
+  [grammar]
+    pot.open    mixi
+    pot.close   xuga
+    pot         'iga

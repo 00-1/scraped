@@ -24,6 +24,12 @@ pub struct Lexicon {
 }
 
 impl Lexicon {
+    /// Whether the language has a word for this concept (number words
+    /// depend on the numeral base).
+    pub fn has(&self, concept: &str) -> bool {
+        self.roots.contains_key(concept)
+    }
+
     /// Root for a concept. Panics if the concept is unknown.
     pub fn root(&self, concept: &str) -> &Phonemes {
         self.roots
@@ -50,10 +56,34 @@ impl<'a> WordMaker<'a> {
         };
         // Affixes are words of their own on the page only as part of a word,
         // but a root identical to an affix would still confuse a reader.
-        for affix in morphology.affixes() {
+        // Fused forms are left out so the Fused dial does not reshuffle the
+        // lexicon; exact collisions with them are still caught below.
+        for affix in morphology.plain_affixes() {
             maker.taken_roots.push(affix.clone());
         }
+        // Eroded affixes are separate words; an empty form is one not yet
+        // coined.
+        for p in morphology.particles() {
+            if !p.form.is_empty() {
+                maker.reserve(&p.form, Pos::Particle);
+            }
+        }
         maker
+    }
+
+    /// Takes an existing word (e.g. one derived by sound change) if none of
+    /// its forms collide with anything taken. Unlike `make`, no minimum
+    /// distance applies: sound change may bring words close together.
+    pub fn try_reserve(&mut self, w: &Phonemes, pos: Pos) -> bool {
+        let forms = self.morphology.all_forms(w, pos);
+        let ok = !w.is_empty()
+            && forms
+                .iter()
+                .all(|f| !self.taken_forms.contains(f) && self.phonology.is_valid(f));
+        if ok {
+            self.reserve(w, pos);
+        }
+        ok
     }
 
     /// Registers an existing root so later words avoid it.
@@ -93,15 +123,26 @@ impl<'a> WordMaker<'a> {
     }
 }
 
-/// Builds a root for every concept in the starter list.
-pub fn generate(rng: &mut Rng, maker: &mut WordMaker) -> Lexicon {
+/// Typical length of a fresh word: function words and numbers are short in
+/// most languages; content words vary.
+pub fn syllables_for(rng: &mut Rng, pos: Pos) -> u32 {
+    match pos {
+        Pos::Particle => 1,
+        Pos::Num | Pos::Det | Pos::Adv => rng.weighted(&[(1, 55), (2, 45)]),
+        _ => rng.weighted(&[(1, 25), (2, 55), (3, 20)]),
+    }
+}
+
+/// Builds a root for every concept in the starter list that `include`
+/// accepts.
+pub fn generate(
+    rng: &mut Rng,
+    maker: &mut WordMaker,
+    include: &dyn Fn(&concepts::Concept) -> bool,
+) -> Lexicon {
     let mut roots = BTreeMap::new();
-    for concept in concepts::all() {
-        // Numbers and deictics are short in most languages; content words vary.
-        let syllables = match concept.pos {
-            Pos::Num | Pos::Det | Pos::Adv => rng.weighted(&[(1, 55), (2, 45)]),
-            _ => rng.weighted(&[(1, 25), (2, 55), (3, 20)]),
-        };
+    for concept in concepts::all().iter().filter(|c| include(c)) {
+        let syllables = syllables_for(rng, concept.pos);
         let root = maker.make(rng, syllables, concept.pos);
         roots.insert(concept.id.clone(), root);
     }

@@ -30,33 +30,49 @@ fn check(name: &str, actual: &str) {
 }
 
 #[test]
-fn grammar_sheets() {
+fn grammar_sheets_and_scripts() {
     for seed in SEEDS {
-        let lang = Language::generate(seed);
-        check(
-            &format!("seed-{seed}-grammar.txt"),
-            &GrammarSheet::new(&lang).to_text(),
-        );
+        for lang in Language::generate(seed).eras() {
+            let sheet = GrammarSheet::new(&lang);
+            let era = lang.era;
+            check(
+                &format!("seed-{seed}-era-{era}-grammar.txt"),
+                &sheet.to_text(),
+            );
+            check(
+                &format!("seed-{seed}-era-{era}-script.txt"),
+                &sheet.script_text(),
+            );
+        }
     }
 }
 
 #[test]
 fn corpora() {
     for seed in SEEDS {
-        let lang = Language::generate(seed);
-        let corpus = Corpus::generate(&lang, 40);
-        check(&format!("seed-{seed}-corpus.txt"), &corpus.to_text(false));
-        check(
-            &format!("seed-{seed}-corpus-spoil.txt"),
-            &corpus.to_text(true),
-        );
+        for lang in Language::generate(seed).eras() {
+            let corpus = Corpus::generate(&lang, 40);
+            let era = lang.era;
+            check(
+                &format!("seed-{seed}-era-{era}-corpus.txt"),
+                &corpus.to_text(false),
+            );
+            check(
+                &format!("seed-{seed}-era-{era}-corpus-spoil.txt"),
+                &corpus.to_text(true),
+            );
+            check(
+                &format!("seed-{seed}-era-{era}-corpus-glyphs.txt"),
+                &corpus.to_glyph_text(),
+            );
+        }
     }
 }
 
 #[test]
 fn json_corpus() {
-    let lang = Language::generate(42);
+    let lang = Language::generate(42).at_era(1);
     let corpus = Corpus::generate(&lang, 10);
     let json = serde_json::to_string_pretty(&corpus.to_json(true)).unwrap();
-    check("seed-42-corpus.json", &json);
+    check("seed-42-era-1-corpus.json", &json);
 }

@@ -1,0 +1,155 @@
+GRAMMAR SHEET — seed 42 (era 0 of 2)
+
+SOUNDS (ipa = spelling)
+  consonants (16): p  t  k  b  d  ʔ='  m  n  ŋ=ng  f  h  x  ts  l  r  j=y
+  vowels (6): a  e  i  o  u  ɨ=ï
+  syllable: CV
+  codas: none
+
+MORPHOLOGY
+  PL   -nga         (noun)
+  ACC  -ku          (noun)
+  GEN  -ni          (noun)
+  DAT  -yi          (noun)
+  PST  xi-          (verb)
+  NEG  bi-          (verb)
+  nouns: root-NUMBER-CASE
+  verbs: NEG-TENSE-root
+  unmarked: singular, subject case, non-past, positive
+  adjectives, numerals, 'this' and 'here' never inflect
+  a counted noun is plural when the number is above one
+
+SYNTAX
+  clause order: SOV
+  dative (beneficiary): just before the object
+  adverbs: just before the verb
+  commands: plain non-past verb with no subject
+  noun phrase: noun – adjectives – number – this
+  possessor before possessed noun
+  appositions (titles, 'child of X') follow the name
+
+NUMERALS
+  base: decimal (ten, hundred)
+  order: smallest part first
+  one ten: 'one ten'
+  linker between parts: yes ('and')
+  numeral signs: positional (one digit per place, with zero)
+
+SCRIPT: alphabet, left to right, 34 glyphs (see `script --spoil`)
+
+LEXICON
+  [people]
+    person      tatu
+    man         pe
+    woman       yinge
+    child       ho
+    son         nïdupi
+    daughter    ralo
+    mother      mïhu
+    father      mï
+    wife        fu'a
+    husband     kinake
+    brother     kuri
+    sister      lelo
+    king        tsaku
+    queen       ngïbi
+    priest      yatïpi
+    scribe      'apapa
+    smith       'eyu
+    servant     muyo
+    god         kumu
+  [nature]
+    water       bixa
+    river       hutu
+    stone       pipa
+    tree        tsutsoma
+    fire        'odati
+    sun         yora
+    moon        duta
+    rain        luna
+    mountain    bome
+    sea         yopo
+    sheep       poni
+    ox          diyu
+    goat        xonu
+    fish        timo
+    grain       linga
+  [places]
+    house       tïme
+    temple      pireka
+    city        matsu
+    gate        buru
+    door        'alu
+    road        maka
+    field       hata
+    tomb        hela
+    well        lituya
+    wall        huhade
+    tower       hitï
+    shrine      batila
+  [objects]
+    bowl        dongu
+    jar         hanabu
+    tablet      yabi
+    statue      polu
+    altar       mema
+    oil         duko
+    wine        kena
+    cloth       tepï
+    loaf        luye
+    knife       tupa
+    lamp        tuki
+    box         fayupa
+    seal        de'u
+  [actions]
+    lie         nengi
+    make        kula
+    bring       kanaba
+    give        ngotsa
+    open        rapiti
+    enter       derï
+    take        tako
+    burn        tsala
+    drink       rapa
+    cross       fopa
+    touch       lamu
+    break       ngama
+    scrape      nge'oba
+    eat         'alïdu
+    fear        nayo
+    honour      tsati
+    say         dono
+  [qualities]
+    great       mabe
+    small       pali
+    old         kofe'o
+    new         xemï
+    holy        meye
+    dark        rirï
+    good        yehi
+    white       hebefa
+    red         ngale
+    cold        hebï
+    deep        pu'i
+  [deixis]
+    this        hike
+    here        peme
+  [numbers]
+    one         fangi
+    two         yobu
+    three       nepa
+    four        ngaxi
+    five        boda
+    six         moyi
+    seven       kara
+    eight       feyi
+    nine        parï
+    ten         yoki
+    zero        niti
+    hundred     kïda
+    and         ngongi
+    total       riyi
+  [grammar]
+    pot.open    ta'a
+    pot.close   mipe
+    pot         rïne
