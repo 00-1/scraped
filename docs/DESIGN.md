@@ -247,5 +247,5 @@ Idea: present that assessment as a chronicle in the world's own language, writte
 
 - [ ] Hand-write a handful of rooms and fragments, as if the language already existed, to find the game's voice.
 - [ ] Settle what "influence" means, since most other rules follow from it.
-- [ ] Prototype a thin slice of the language engine (see `MILESTONE-1.md`).
+- [ ] Prototype a thin slice of the language engine (see `milestones/M01-language-slice.md`).
 - [ ] Try deciphering the prototype's output with only a notebook, and judge whether it's fun.

@@ -26,3 +26,14 @@
 
 **Next**
 - Jb's notebook decipherment session (deliverable checks in the milestone doc).
+
+## 2026-10-02 — Roadmap to a finished game
+
+**Done**
+- Added `docs/ROADMAP.md` and milestone specs M02–M14 in `docs/milestones/`; moved the M01 spec there.
+- The finished game is defined as a complete engine plus Jb's complete content pack, joined by a slot registry and an authoring tool (M03, M13). A release gate (M14) refuses to ship any placeholder text.
+- Design gates listed per milestone, each with a proposed default.
+- Cost estimates calibrated on M01 (about $6).
+
+**Next**
+- Jb: decide on the M01 open questions above (or accept the defaults in M02), then start M02.

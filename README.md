@@ -3,7 +3,7 @@
 A text-only game about deciphering a lost, procedurally generated language in a world where writing has power — and scraping it away releases that power.
 
 - Design: [`docs/DESIGN.md`](docs/DESIGN.md)
-- Current milestone: [`docs/MILESTONE-1.md`](docs/MILESTONE-1.md)
+- Roadmap and milestones: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - Agent briefing: [`CLAUDE.md`](CLAUDE.md)
 - Work log: [`docs/LOG.md`](docs/LOG.md)
 
