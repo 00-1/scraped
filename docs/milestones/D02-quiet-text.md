@@ -8,7 +8,7 @@
 
 ## Why
 
-On the M14 build, arriving in a town on seed 42 prints the weather, the ground, a list of fourteen buildings, the horizon, the season, the state of the land and a creature, every time, and `look` repeats all of it. Each later system appended its line. D03–D10 will add much more to the world; without this milestone, every addition makes each response longer.
+On the M14 build, arriving in a town on seed 42 prints the weather, the ground, a list of fourteen buildings, the horizon, the season, the state of the land and a creature, every time, and `look` repeats all of it. Each later system appended its line. D03–D11 will add much more to the world; without this milestone, every addition makes each response longer.
 
 ## Scope
 

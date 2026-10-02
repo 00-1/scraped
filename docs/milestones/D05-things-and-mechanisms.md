@@ -1,10 +1,10 @@
-# D04 — Things and mechanisms
+# D05 — Things and mechanisms
 
 **Goal:** fill the world with things worth finding and machines worth working out, and give players puzzles that need no language at all: symbols, numbers and the calendar. These are the "other intriguing things" a player can pursue for hours, and they quietly train the skills that writing will later need.
 
-**Depends on:** D03.
+**Depends on:** D04 (machines and caches live inside the new interiors).
 
-**Done when:** the D04 targets are met, a non-reading player has several non-writing puzzles to pursue on every seed, and the explorer samples show objects and machines being found, examined and used for their own sake.
+**Done when:** the D05 targets are met, a non-reading player has several non-writing puzzles to pursue on every seed, and the explorer samples show objects and machines being found, examined and used for their own sake.
 
 ## Scope
 
@@ -39,7 +39,7 @@ Generated consistently from history, so that understanding them is real:
 
 - **Symbols:** each faction, family, temple and era has emblems that appear on seals, coins, banners, doors and tombs. A player can learn who built or owned what without reading a word.
 - **Measures:** weights and measuring vessels with marks; ledgers (which the player can't read yet) sit next to weighed goods. The numeral signs are learnable from objects alone.
-- **Calendar and sky:** the culture's calendar (months, festivals) shown on calendar devices, temple alignments and sundials, linked to the sky (D05).
+- **Calendar and sky:** the culture's calendar (months, festivals) shown on calendar devices, temple alignments and sundials, linked to the sky (D06).
 
 These are puzzles in their own right with payoffs (a cache only the right emblem leads to; a door that opens on the festival day; a set of weights that reveals a hidden storeroom), and they give later language work its first anchors.
 

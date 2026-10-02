@@ -26,7 +26,7 @@ Each metric has a short definition in `docs/DEPTH.md` and a baseline recorded th
 
 ### 2. Bots
 
-- **Curious explorer** (never scrapes deliberately, never writes): plays like a new player who finds the world interesting. It goes towards unvisited landmarks, enters buildings, examines and reads things, operates mechanisms, follows edges, keeps itself alive, and sometimes cleans or scrapes surfaces for ordinary reasons once that's possible (D09). It records a **novelty curve**: new things perceived per in-game hour, and the time between new kinds of thing.
+- **Curious explorer** (never scrapes deliberately, never writes): plays like a new player who finds the world interesting. It goes towards unvisited landmarks, enters buildings, examines and reads things, operates mechanisms, follows edges, keeps itself alive, and sometimes cleans or scrapes surfaces for ordinary reasons once that's possible (D10). It records a **novelty curve**: new things perceived per in-game hour, and the time between new kinds of thing.
 - **Scholar:** has spoiler access to the grammar but not the map. It reads, finds tools, scrapes and writes, and must reach the great inscriptions and the deepest text on most seeds. This fixes the coverage gap: today 103 of 172 slots are never reached by the bots.
 - Both bots run headless in the CLI (`scraped-lang bots --seeds … --hours N`) and in the authoring tool's Gaps mode.
 

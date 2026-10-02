@@ -1,10 +1,10 @@
-# D05 — A living world
+# D06 — A living world
 
 **Goal:** the world moves without the player. Plants and animals live by their own rules, weather and seasons have consequences, and the sky is worth looking at. Some of what's strange in the world is natural, so magic is not the only explanation for oddities.
 
-**Depends on:** D04. **Design gate:** is anyone else here? (Proposed default: no living people; traces of earlier explorers may appear as storylets in Jb's words.)
+**Depends on:** D05. **Design gate:** is anyone else here? (Proposed default: no living people; traces of earlier explorers may appear as storylets in Jb's words.)
 
-**Done when:** the D05 targets are met, and the explorer samples show a player noticing animals, signs, weather and sky as part of exploring, through the D02 attention model (mostly found by listening, looking up, waiting and examining, not announced).
+**Done when:** the D06 targets are met, and the explorer samples show a player noticing animals, signs, weather and sky as part of exploring, through the D02 attention model (mostly found by listening, looking up, waiting and examining, not announced).
 
 ## Scope
 
@@ -26,7 +26,7 @@
 ### 3. The sky
 
 - Generated stars and constellations (named in the language, eventually readable in texts), a moon or moons with phases, planets with motion, occasional eclipses, comets and meteor showers on a schedule.
-- Usable for navigation at night (a pole star or equivalent) and for the calendar: the culture's festivals, temple alignments and calendar devices (D04) follow the sky.
+- Usable for navigation at night (a pole star or equivalent) and for the calendar: the culture's festivals, temple alignments and calendar devices (D05) follow the sky.
 - `look up` is a real activity: the night sky rewards attention.
 
 ### 4. Natural phenomena

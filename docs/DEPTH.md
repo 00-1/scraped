@@ -11,6 +11,7 @@ Measured on the M14 build (seed 42 unless noted).
 | Area | Now | Problem |
 |---|---|---|
 | Building types | 11 | Every town is the same handful of temples, houses, tombs and storehouses |
+| Interiors | 3–6 rooms joined by compass exits, no geometry | Nothing large or intricate to explore inside; maps can't be checked |
 | Room purposes | about 7 | Interiors feel interchangeable |
 | Natural features | rivers, lakes, coast, summits | Nothing between towns worth walking to |
 | Landmark identity | "the mountain", "the town" | Five identical names in one view; maps can't tell them apart |
@@ -32,16 +33,17 @@ Measured on the M14 build (seed 42 unless noted).
 | D01 | [Instruments](milestones/D01-instruments.md) | Depth and brevity metrics, a curious-explorer bot and a scholar bot that reach the late game, sample transcripts, a decisions list, distinct landmarks |
 | D02 | [Quiet text](milestones/D02-quiet-text.md) | An attention budget for every response, senses and digging as actions, facts shown by evidence instead of stated, slots reshaped into short combinable pieces |
 | D03 | [Places with character](milestones/D03-places.md) | Natural features, many more building and settlement types, deeper interiors with secrets, scenes that tell what happened |
-| D04 | [Things and mechanisms](milestones/D04-things-and-mechanisms.md) | A rich object model, keys and caches, old maps, multi-step machines, and non-linguistic puzzles: symbols, measures, calendars |
-| D05 | [A living world](milestones/D05-living-world.md) | Ecology with signs and rhythms, weather and seasons with consequences, the sky, natural phenomena |
-| D06 | [A language for long texts](milestones/D06-language.md) | Clause combining, subordinate and relative clauses, moods and aspects, derivation and compounds, a cultural lexicon of hundreds of words, meaningful place names |
-| D07 | [History and what the writing says](milestones/D07-history-and-texts.md) | Deeper history with people, institutions and projects; twenty-plus text genres; story arcs told across many sites, matching physical evidence |
-| D08 | [The magic, deepened](milestones/D08-magic.md) | A broad concept-to-power table, targeted and conditional spells, writing as the old civilisation's technology, a world saturated with old spells |
-| D09 | [The slow realisation](milestones/D09-slow-realisation.md) | Ordinary tools, accidental discovery, evidence to notice, rewarding play without writing, a non-writing way to leave |
-| D10 | [Problems only writing solves](milestones/D10-writing-payoff.md) | Late-game places and composition puzzles that reward real fluency, layered constraints, the great inscriptions as destinations |
-| D11 | [Integration and tuning](milestones/D11-integration.md) | All clients and tools updated, fairness re-checked, targets met together, performance, a playtest pack and content plan for Jb |
+| D04 | [Great interiors](milestones/D04-great-interiors.md) | Vast, intricate buildings and cave systems on a real spatial model: hundreds of spaces, many levels, loops, shortcuts, secrets; architecture that grew through history; navigation and mapping as a pleasure |
+| D05 | [Things and mechanisms](milestones/D05-things-and-mechanisms.md) | A rich object model, keys and caches, old maps, multi-step machines, and non-linguistic puzzles: symbols, measures, calendars |
+| D06 | [A living world](milestones/D06-living-world.md) | Ecology with signs and rhythms, weather and seasons with consequences, the sky, natural phenomena |
+| D07 | [A language for long texts](milestones/D07-language.md) | Clause combining, subordinate and relative clauses, moods and aspects, derivation and compounds, a cultural lexicon of hundreds of words, meaningful place names |
+| D08 | [History and what the writing says](milestones/D08-history-and-texts.md) | Deeper history with people, institutions and projects; twenty-plus text genres; story arcs told across many sites, matching physical evidence |
+| D09 | [The magic, deepened](milestones/D09-magic.md) | A broad concept-to-power table, targeted and conditional spells, writing as the old civilisation's technology, a world saturated with old spells |
+| D10 | [The slow realisation](milestones/D10-slow-realisation.md) | Ordinary tools, accidental discovery, evidence to notice, rewarding play without writing, a non-writing way to leave |
+| D11 | [Problems only writing solves](milestones/D11-writing-payoff.md) | Late-game places and composition puzzles that reward real fluency, layered constraints, the great inscriptions as destinations |
+| D12 | [Integration and tuning](milestones/D12-integration.md) | All clients and tools updated, fairness re-checked, targets met together, performance, a playtest pack and content plan for Jb |
 
-Order of priority is deliberate: first the instruments and quiet text (D01–D02), so every later addition is measured and adds to what can be found rather than to what is read; then the world (D03–D05); then what it says (D06–D07); then the magic and how it's discovered (D08–D09); then the late-game payoff (D10).
+Order of priority is deliberate: first the instruments and quiet text (D01–D02), so every later addition is measured and adds to what can be found rather than to what is read; then the world, outside and in (D03–D06); then what it says (D07–D08); then the magic and how it's discovered (D09–D10); then the late-game payoff (D11).
 
 ## Rules for every depth milestone
 
@@ -62,8 +64,8 @@ Each spec lists its gates with a proposed default, as before.
 
 | Gate | Needed by | Proposed default |
 |---|---|---|
-| Is anyone else here? | D05 | No living people. Traces of earlier explorers (camps, belongings, notes) can appear as storylets in Jb's words |
-| Can a player leave without writing? | D09 | Yes, by a long, hard physical journey to the world's edge, found through exploration. Writing offers other, stranger ways out |
-| How common is old magic? | D08 | Every settlement has several small live spells, most places between have a few, and each region has at least one large one |
-| Is writing the old civilisation's technology? | D08 | Yes: everyday writing kept larders cold, lamps lit, mills turning. The ruins of that infrastructure are much of the world's strangeness |
-| How long before a typical player realises? | D09 | Many hours. Target: the naive bot has its first accidental release after 3–10 hours of play, and nothing in the first hour points at writing |
+| Is anyone else here? | D06 | No living people. Traces of earlier explorers (camps, belongings, notes) can appear as storylets in Jb's words |
+| Can a player leave without writing? | D10 | Yes, by a long, hard physical journey to the world's edge, found through exploration. Writing offers other, stranger ways out |
+| How common is old magic? | D09 | Every settlement has several small live spells, most places between have a few, and each region has at least one large one |
+| Is writing the old civilisation's technology? | D09 | Yes: everyday writing kept larders cold, lamps lit, mills turning. The ruins of that infrastructure are much of the world's strangeness |
+| How long before a typical player realises? | D10 | Many hours. Target: the naive bot has its first accidental release after 3–10 hours of play, and nothing in the first hour points at writing |

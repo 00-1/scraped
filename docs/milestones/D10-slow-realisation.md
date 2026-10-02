@@ -1,8 +1,8 @@
-# D09 — The slow realisation
+# D10 — The slow realisation
 
 **Goal:** make the discovery of writing's power the player's own, slow and unannounced, as `docs/DESIGN.md` ("Writing is background, at first") requires. Remove everything that points at the mechanic, make the tools ordinary, let the realisation come from evidence and accident, and make sure a run without it is still a full and rewarding run.
 
-**Depends on:** D08. **Design gate:** can a player leave without writing? (Proposed default: yes, by a long, hard physical journey found through exploration.)
+**Depends on:** D09. **Design gate:** can a player leave without writing? (Proposed default: yes, by a long, hard physical journey found through exploration.)
 
 **Done when:** in bot play, nothing in the first hour points at writing; the naive explorer's first accidental release comes after hours, not minutes; and a player who never writes still has goals, payoffs and a meaningful ending.
 
@@ -25,15 +25,15 @@
 
 ### 2. Discovery from evidence
 
-- Remove the pivot placement. Unscraped potent texts are placed by history (D08), not beside a tool.
+- Remove the pivot placement. Unscraped potent texts are placed by history (D09), not beside a tool.
 - **Accidental release:** cleaning a surface fully, scraping for an ordinary purpose, or a creature, flood or collapse removing writing can release a spell. The first a player meets is likely to be accidental, and its effect may be small, delayed, or out of sight.
-- **Patterns to notice:** strange places tend to have scraped writing nearby; similar strangeness goes with similar fragments; old maps (D04) mark places that are now strange; texts (D07) talk about writing that did things, in the language. The evidence is there to find, not delivered.
+- **Patterns to notice:** strange places tend to have scraped writing nearby; similar strangeness goes with similar fragments; old maps (D05) mark places that are now strange; texts (D08) talk about writing that did things, in the language. The evidence is there to find, not delivered.
 - **No narrator knowledge.** Slots never connect effect to text. Storylet hooks may mark moments (first accidental release, first deliberate one) for Jb's writing, but the engine's descriptions don't explain.
 - Different players should realise at different points; the bots measure the spread.
 
 ### 3. A rewarding run without writing
 
-- Goals that need no writing: explore and map the world; find every kind of place; solve machines and non-linguistic puzzles (D04); follow the history through scenes, objects and emblems; learn the sky; survive seasons; reach remote places (summits, islands, deep caves); find the old explorers' traces (D05 gate).
+- Goals that need no writing: explore and map the world; find every kind of place; solve machines and non-linguistic puzzles (D05); follow the history through scenes, objects and emblems; learn the sky; survive seasons; reach remote places (summits, islands, deep caves); find the old explorers' traces (D06 gate).
 - **A non-writing way to leave:** a long, hard physical journey to the world's edge, found through exploration (a pass, a crossing, a ship), as the gate proposes.
 - The end-of-run summary (M11) values exploration as well as writing: places found, mysteries understood, how far the player got, what they left behind.
 

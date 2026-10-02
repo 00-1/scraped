@@ -1,10 +1,10 @@
-# D06 — A language for long texts
+# D07 — A language for long texts
 
 **Goal:** give the language the grammar and vocabulary that real, varied texts need: sentences that join, subordinate and qualify; words built from other words; a lexicon that comes from the culture; and place names that mean something.
 
-**Depends on:** D05 (so the lexicon can name the world's species, sky, crafts and places).
+**Depends on:** D06 (so the lexicon can name the world's species, sky, crafts and places).
 
-**Done when:** the language can express every meaning D07's texts need, the renderer and parser still round-trip everything, and a skilled player can still decipher it: every new construction is regular and attested often enough to learn.
+**Done when:** the language can express every meaning D08's texts need, the renderer and parser still round-trip everything, and a skilled player can still decipher it: every new construction is regular and attested often enough to learn.
 
 ## Scope
 
@@ -28,9 +28,9 @@
 
 ### 3. Lexicon from culture
 
-- The concept list grows from about 110 fixed concepts to a **generated lexicon of 400–700 concepts**: a core of universal concepts (body, kin, numbers, basic verbs) plus domains drawn from this world's culture, crafts, religion, law, trade, ecology (D05 species), sky, and places.
+- The concept list grows from about 110 fixed concepts to a **generated lexicon of 400–700 concepts**: a core of universal concepts (body, kin, numbers, basic verbs) plus domains drawn from this world's culture, crafts, religion, law, trade, ecology (D06 species), sky, and places.
 - The culture decides which domains are rich (a seafaring people has many words for wind and boats).
-- Semantic fields and relations (part of, kind of, opposite) are recorded so texts, place names and the magic (D08) can use them.
+- Semantic fields and relations (part of, kind of, opposite) are recorded so texts, place names and the magic (D09) can use them.
 
 ### 4. Names
 
@@ -39,7 +39,7 @@
 
 ### 5. Dates, numbers and the calendar
 
-Dates by the culture's calendar (D04, D05): regnal years, festivals, months. Ordinals and fractions where trade needs them.
+Dates by the culture's calendar (D05, D06): regnal years, festivals, months. Ordinals and fractions where trade needs them.
 
 ### 6. Keep everything that works
 
@@ -51,7 +51,7 @@ Dates by the culture's calendar (D04, D05): regnal years, festivals, months. Ord
 ## Tests
 
 - Round trip (meaning → text → meaning) on a large random sample per seed, all eras.
-- Each construction attested at least N times in a world's readable texts (with D07), checked by the fairness checker.
+- Each construction attested at least N times in a world's readable texts (with D08), checked by the fairness checker.
 - Derivations and compounds are fully regular per seed.
 - Place names match their landmarks' traits in meaning.
 - Snapshots for three seeds updated and reviewed.

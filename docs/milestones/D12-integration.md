@@ -1,8 +1,8 @@
-# D11 — Integration and tuning
+# D12 — Integration and tuning
 
 **Goal:** bring every client, tool and check up to date with the deepened engine, tune it as a whole, and hand Jb a playtest pack.
 
-**Depends on:** D10.
+**Depends on:** D11.
 
 **Done when:** all depth targets are met together on a seed batch, every client and tool works with the new systems, and Jb has what he needs to playtest and to write the content pack.
 
