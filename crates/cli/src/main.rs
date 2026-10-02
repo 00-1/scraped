@@ -4,6 +4,10 @@
 //! browser later.
 
 mod content;
+mod world;
+
+/// A subcommand: arguments in, text out (or an error message).
+type Subcommand = fn(&[String]) -> Result<String, String>;
 
 use std::process::ExitCode;
 
@@ -36,7 +40,7 @@ difficulty dials:
   --script-kind K        alphabet | abjad | syllabary (default: by seed)
   --fused                fuse a few affix combinations
 
-see also: scraped-lang content (content pack tools)";
+see also: scraped-lang content (content pack tools), scraped-lang world (world views)";
 
 #[derive(Debug, PartialEq)]
 enum Command {
@@ -265,8 +269,13 @@ fn main() -> ExitCode {
         println!("{USAGE}");
         return ExitCode::SUCCESS;
     }
-    if raw.first().map(String::as_str) == Some("content") {
-        return match content::run(&raw[1..]) {
+    let sub: Option<Subcommand> = match raw.first().map(String::as_str) {
+        Some("content") => Some(content::run),
+        Some("world") => Some(world::run),
+        _ => None,
+    };
+    if let Some(sub) = sub {
+        return match sub(&raw[1..]) {
             Ok(out) => {
                 print!("{out}");
                 ExitCode::SUCCESS
