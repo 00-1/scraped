@@ -55,11 +55,11 @@ Design the types so these can be added later (e.g. leave room for an `Era` on th
 - [ ] Feed findings back into DESIGN.md / next milestone.
 
 ## Checklist (agent updates this)
-- [ ] Workspace scaffold (`crates/lang`, `crates/cli`), CI-style checks pass
-- [ ] Phonology + romanisation
-- [ ] Concept list as data + root generation
-- [ ] Morphology
-- [ ] Syntax + meaning representation + renderer + gloss
-- [ ] Inscription templates
-- [ ] CLI commands
-- [ ] Tests listed above
+- [x] Workspace scaffold (`crates/lang`, `crates/cli`), CI-style checks pass
+- [x] Phonology + romanisation
+- [x] Concept list as data + root generation
+- [x] Morphology
+- [x] Syntax + meaning representation + renderer + gloss
+- [x] Inscription templates
+- [x] CLI commands
+- [x] Tests listed above
