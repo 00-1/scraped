@@ -173,6 +173,12 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state, "truth": look.truth }),
             )
         }
+        "writing" => {
+            let site = scraped_game::site::Site::new(seed(req));
+            Ok(
+                json!({ "text": scraped_sim::writing::debug(&site.world, &site.land, &site.writing, &site.writing.scraped) }),
+            )
+        }
         "site" => {
             let id: usize = field(req, "settlement")?;
             Ok(with_world(

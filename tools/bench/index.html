@@ -253,6 +253,7 @@ function render() {
       <div class="map"><canvas id="mapCanvas" width="${w.side}" height="${w.side}"></canvas>
         ${w.settlements.map(s => `<button type="button" data-site="${s.id}" class="${s.abandoned ? "gone" : ""}" style="left:${(s.x + .5) / w.side * 100}%;top:${(s.y + .5) / w.side * 100}%" title="${esc(s.name)}, era ${s.era}">${esc(s.name)}</button>`).join("")}
       </div>
+      <div><button type="button" id="writingView">Writing: why each place is strange</button> <button type="button" id="timelineView">Timeline</button></div>
       <pre id="worldText">${esc(state.site ? state.site : w.timeline)}</pre>
     </div>`;
     const ctx = $("mapCanvas").getContext("2d");
@@ -366,6 +367,8 @@ document.addEventListener("click", e => {
     state.tab = "play"; render();
   }
   if (t.id === "playRestart") { state.play = null; render(); }
+  if (t.id === "writingView") { state.site = api({ cmd: "writing", seed: state.world.seed }).text; render(); return; }
+  if (t.id === "timelineView") { state.site = null; render(); return; }
   if (t.dataset.site) { state.site = api({ cmd: "site", seed: state.data.seed, settlement: +t.dataset.site }).text; $("worldText").textContent = state.site; }
 });
 $("copy").addEventListener("click", () => {

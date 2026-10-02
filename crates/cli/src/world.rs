@@ -7,6 +7,7 @@ world commands (all spoilers, so --spoil is required):
   scraped-lang world --seed N map --spoil [--png FILE] [--scale K]
   scraped-lang world --seed N history --spoil
   scraped-lang world --seed N site S --spoil      (S = settlement number)
+  scraped-lang world --seed N writing --spoil   (surfaces, live claims, why places are strange)
   scraped-lang world --seed N json --spoil";
 
 /// Runs a world command; `Err` carries the message to print.
@@ -67,6 +68,15 @@ pub fn run(args: &[String]) -> Result<String, String> {
                 ));
             }
             Ok(debug::site(&w, s))
+        }
+        Some("writing") => {
+            let site = scraped_game::site::Site::new(seed);
+            Ok(scraped_sim::writing::debug(
+                &site.world,
+                &site.land,
+                &site.writing,
+                &site.writing.scraped,
+            ))
         }
         Some("json") => {
             let mut s = serde_json::to_string(&w).expect("world serialises");
