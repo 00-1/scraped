@@ -434,21 +434,52 @@ impl Game {
             ("released", Value::Number(released as i64)),
         ]);
         out.push(self.say("end.summary", c));
-        let mut any = false;
+        // Regions that changed alike are told together; the player's doing
+        // first.
+        let mut groups: Vec<(&Change, Vec<&RegionOutcome>)> = Vec::new();
         for r in &rec.regions {
             for ch in &r.changes {
-                any = true;
-                let c = ctx(&[
-                    ("biome", Value::from(r.biome.as_str())),
-                    ("bearing", Value::from(r.bearing.as_str())),
+                let same = |c: &Change| {
+                    (&c.aspect, &c.before, &c.after, &c.without, &c.cause)
+                        == (&ch.aspect, &ch.before, &ch.after, &ch.without, &ch.cause)
+                };
+                match groups.iter_mut().find(|(c, _)| same(c)) {
+                    Some((_, rs)) => rs.push(r),
+                    None => groups.push((ch, vec![r])),
+                }
+            }
+        }
+        groups.sort_by_key(|(c, rs)| (c.cause == "world", std::cmp::Reverse(rs.len())));
+        let any = !groups.is_empty();
+        let lines: Vec<Context> = groups
+            .iter()
+            .map(|(ch, rs)| {
+                let mut bearings: Vec<&str> = rs.iter().map(|r| r.bearing.as_str()).collect();
+                bearings.sort_by_key(|b| BEARINGS.iter().position(|x| x == b).unwrap_or(8));
+                bearings.dedup();
+                let mut biomes: Vec<&str> = rs.iter().map(|r| r.biome.as_str()).collect();
+                biomes.sort_unstable();
+                biomes.dedup();
+                ctx(&[
+                    ("count", Value::Number(rs.len() as i64)),
+                    (
+                        "bearings",
+                        Value::List(bearings.into_iter().map(Value::from).collect()),
+                    ),
+                    (
+                        "biomes",
+                        Value::List(biomes.into_iter().map(Value::from).collect()),
+                    ),
                     ("aspect", Value::from(ch.aspect.as_str())),
                     ("before", Value::from(ch.before.as_str())),
                     ("after", Value::from(ch.after.as_str())),
                     ("without", Value::from(ch.without.as_str())),
                     ("cause", Value::from(ch.cause.as_str())),
-                ]);
-                out.push(self.say("end.region", c));
-            }
+                ])
+            })
+            .collect();
+        for c in lines {
+            out.push(self.say("end.region", c));
         }
         if !any {
             out.push(self.say("end.calm", Context::new()));

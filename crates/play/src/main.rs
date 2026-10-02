@@ -8,7 +8,7 @@ use scraped_play::{load_pack, protocol_line, wrap, Session};
 
 // DEBUG-TEXT: command-line usage is for developers and agents, not players.
 const USAGE: &str = "\
-usage: scraped [--seed N] [--content DIR] [--json] [--spoil] [--width W] [--load FILE]
+usage: scraped [--seed N] [--content DIR] [--json] [--spoil] [--width W] [--load FILE] [--legacy [FILE]]
 
   --seed N       world seed (default 1)
   --content DIR  content pack folder (default ./content)
@@ -17,8 +17,11 @@ usage: scraped [--seed N] [--content DIR] [--json] [--spoil] [--width W] [--load
   --spoil        include ground truth in --json output
   --width W      wrap terminal text at W columns (default 80, 0 = off)
   --load FILE    resume a saved game
+  --legacy FILE  carry the last run's final inscription into this world, and
+                 keep this run's when it ends (default scraped.legacy.json)
 
-in play: save [FILE], load [FILE], transcript on [FILE], transcript off, quit";
+in play: save [FILE], load [FILE], transcript on [FILE], transcript off,
+         export [PREFIX] (notebook: transcript, named places, run record), quit";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -28,9 +31,10 @@ fn main() -> ExitCode {
     let mut spoil = false;
     let mut width = 80usize;
     let mut load: Option<String> = None;
-    let mut it = args.iter();
+    let mut legacy: Option<PathBuf> = None;
+    let mut it = args.iter().peekable();
     while let Some(a) = it.next() {
-        let value = |it: &mut std::slice::Iter<String>| it.next().cloned();
+        let value = |it: &mut std::iter::Peekable<std::slice::Iter<String>>| it.next().cloned();
         match a.as_str() {
             "--seed" => match value(&mut it).and_then(|v| v.parse().ok()) {
                 Some(s) => seed = s,
@@ -45,6 +49,15 @@ fn main() -> ExitCode {
                 None => return fail("--width needs a number"),
             },
             "--load" => load = value(&mut it),
+            "--legacy" => {
+                let file = match it.peek() {
+                    Some(v) if !v.starts_with("--") => value(&mut it),
+                    _ => None,
+                };
+                legacy = Some(PathBuf::from(
+                    file.unwrap_or_else(|| "scraped.legacy.json".to_string()),
+                ));
+            }
             "--json" => json = true,
             "--spoil" => spoil = true,
             "-h" | "--help" => {
@@ -58,7 +71,7 @@ fn main() -> ExitCode {
         Ok(p) => p,
         Err(e) => return fail(&e),
     };
-    let (mut session, first) = Session::new(seed, pack, spoil);
+    let (mut session, first) = Session::with_legacy(seed, pack, spoil, legacy);
     let mut out = std::io::stdout();
     let show = |out: &mut std::io::Stdout, o: &scraped_game::Output| {
         if json {

@@ -1130,8 +1130,9 @@ fn s_ending(_: u64) -> Vec<Context> {
 fn s_end_region(_: u64) -> Vec<Context> {
     let row = |biome: &str, bearing: &str, aspect: &str, b: &str, a: &str, w: &str, c: &str| {
         ctx(&[
-            ("biome", Value::from(biome)),
-            ("bearing", Value::from(bearing)),
+            ("count", Value::Number(if c == "world" { 4 } else { 1 })),
+            ("biomes", Value::List(vec![Value::from(biome)])),
+            ("bearings", Value::List(vec![Value::from(bearing)])),
             ("aspect", Value::from(aspect)),
             ("before", Value::from(b)),
             ("after", Value::from(a)),
@@ -1834,9 +1835,10 @@ pub fn slots() -> Vec<SlotDef> {
             .var("years", VarType::Number, "The player's age.")
             .max_len(600)
             .sampler(s_ending),
-        SlotDef::new("end.region", "One line of the end summary: one aspect of one region, at the start of the run and at its end, and whether that was the player's doing. 'without' is how it would be had the player done nothing (equal to 'after' when cause is world; when the player held a region steady, before equals after).")
-            .var("biome", e(BIOMES), "The region's commonest land.")
-            .var("bearing", e(&[&BEARINGS[..], &["here"]].concat()), "Which way it lies from where the run began, or here.")
+        SlotDef::new("end.region", "One line of the end summary: one aspect of the land, as it was at the start of the run and at its end, in one or more regions that changed alike, and whether that was the player's doing. 'without' is how it would be had the player done nothing (equal to 'after' when cause is world; when the player held a region steady, before equals after). The player's doing comes first.")
+            .var("count", VarType::Number, "How many regions changed this way.")
+            .var("bearings", VarType::List, "Which ways they lie from where the run began (compass points, or 'here'), each once.")
+            .var("biomes", VarType::List, "Their commonest lands (biome ids), each once.")
             .var("aspect", e(&VARIABLES), "What: life, water, stability, climate.")
             .var("before", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it was at the start.")
             .var("after", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it is at the end.")
@@ -1955,6 +1957,9 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_time),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
+        SlotDef::new("say.export_offer", "After the end of a run, in the terminal client: the player can type 'export' to save their notebook (the transcript, the places they named, and the run record) as files.").max_len(300).sampler(s_none),
+        SlotDef::new("say.exported", "The notebook was saved as files.").max_len(200).sampler(s_none),
+        SlotDef::new("say.legacy_kept", "Legacy is on and the run ended with an inscription of the player's: it will lie, faint and very old, somewhere in the next world.").max_len(300).sampler(s_none),
         SlotDef::new("say.pack_changed", "A loaded save was made with different text (content pack) than now: the story replays the same, but wording may differ.")
             .sampler(s_none),
     ]

@@ -209,9 +209,18 @@ fn the_summary_agrees_with_the_simulation() {
             .iter()
             .flat_map(|r| &r.changes)
             .all(|c| c.cause == "world"));
-        // One summary line per change, or the calm line; one per act; the
-        // chronicle's frame and glyphs; the frame.
-        let changes: usize = g.record().regions.iter().map(|r| r.changes.len()).sum();
+        // One summary line per kind of change, or the calm line; one per
+        // act; the chronicle's frame and glyphs; the frame.
+        let rec = g.record();
+        let mut kinds: Vec<_> = rec
+            .regions
+            .iter()
+            .flat_map(|r| &r.changes)
+            .map(|c| (&c.aspect, &c.before, &c.after, &c.without, &c.cause))
+            .collect();
+        kinds.sort();
+        kinds.dedup();
+        let changes = kinds.len();
         let parts = g.summary_parts();
         assert_eq!(
             parts.len(),

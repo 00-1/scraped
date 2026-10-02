@@ -140,7 +140,8 @@ fn dispatch(req: &Value) -> Result<Value, String> {
         })),
         "play_new" => {
             let (pack, _) = pack(req)?;
-            let mut game = scraped_game::Game::new(seed(req), pack);
+            let legacy: Option<scraped_game::ending::Legacy> = opt(req, "legacy", None);
+            let mut game = scraped_game::Game::with_legacy(seed(req), pack, legacy);
             game.spoil = opt(req, "spoil", false);
             let first = game.start();
             GAME.with(|g| *g.borrow_mut() = Some(game));
@@ -153,6 +154,20 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 None => Err("no game started".to_string()),
             })
         }
+        // After the end of a run: its legacy (if any) and the notebook.
+        "play_end" => GAME.with(|g| match g.borrow_mut().as_mut() {
+            Some(game) => {
+                let (transcript, places) = game.notebook_files();
+                Ok(json!({
+                    "ended": game.ending(),
+                    "legacy": game.legacy(),
+                    "transcript": transcript,
+                    "places": places,
+                    "record": game.record(),
+                }))
+            }
+            None => Err("no game started".to_string()),
+        }),
         "play_save" => GAME.with(|g| match g.borrow().as_ref() {
             Some(game) => Ok(json!(game.save())),
             None => Err("no game started".to_string()),
@@ -420,6 +435,9 @@ mod tests {
         assert!(!first["text"].as_str().unwrap().is_empty());
         let r = call(json!({"cmd": "play", "line": "i"}));
         assert!(r["text"].as_str().unwrap().contains("nothing"));
+        let end = call(json!({"cmd": "play_end"}));
+        assert!(end["ended"].is_null(), "{end}");
+        assert!(end["record"]["regions"].is_array());
         let save = call(json!({"cmd": "play_save"}));
         assert_eq!(save["commands"][0], "i");
     }

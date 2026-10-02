@@ -25,6 +25,15 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   await page.fill('#playInput', 'status');
   await page.press('#playInput', 'Enter');
   await page.waitForFunction(() => document.querySelector('#playLog').textContent.includes('[body '));
+  // A run that ends: the notebook appears, and the spoiler shows the ending.
+  await page.check('#playLegacy');
+  for (let i = 0; i < 40 && !(await page.$('#notebook h2')); i++) {
+    await page.fill('#playInput', 'wait 3 days');
+    await page.press('#playInput', 'Enter');
+    await page.waitForTimeout(100);
+  }
+  await page.waitForSelector('#notebook h2', { timeout: 60000 });
+  await page.waitForFunction(() => document.querySelector('#playLog').textContent.includes('[ending: death'));
   await page.click('[data-tab=world]');
   await page.waitForSelector('[data-site]', { timeout: 20000 });
   await page.click('[data-site="0"]');

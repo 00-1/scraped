@@ -27,7 +27,7 @@ example = true
 
 [[variant]]
 slot = "end.region"
-text = "To the {bearing}, the {biome}'s {aspect}: {before} then, {after} now[if cause == 'you'], by your hand[end][if cause == 'both'], partly your doing[end]."
+text = "[if count > 1]In {count} regions[else]In one region[end] ({list bearings}), {aspect}: {before} then, {after} now[if cause == 'you'], by your hand[end][if cause == 'both'], partly your doing[end]."
 example = true
 
 [[variant]]

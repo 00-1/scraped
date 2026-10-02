@@ -158,3 +158,18 @@ example = true
 slot = "say.name_bad"
 text = "Name it what? Try: name this place the gap."
 example = true
+
+[[variant]]
+slot = "say.export_offer"
+text = "(Type 'export' to keep your notebook.)"
+example = true
+
+[[variant]]
+slot = "say.exported"
+text = "Your notebook is saved."
+example = true
+
+[[variant]]
+slot = "say.legacy_kept"
+text = "Your last words will outlast you."
+example = true

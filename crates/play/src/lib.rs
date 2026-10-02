@@ -1,13 +1,15 @@
 //! The player's side of the game: a line-based session that the terminal
 //! client and the JSON-lines agent protocol both drive.
 //!
-//! Session commands (save, load, transcript, quit) are handled here; every
+//! Session commands (save, load, transcript, export, quit) and the legacy
+//! file are handled here; every
 //! other line goes to the game. All text shown comes from the game's
 //! content slots.
 
 use std::path::{Path, PathBuf};
 
 use scraped_content::Pack;
+use scraped_game::ending::Legacy;
 use scraped_game::{Game, Output, Save};
 use serde_json::json;
 
@@ -43,6 +45,11 @@ pub struct Session {
     pack: Pack,
     transcript: Option<PathBuf>,
     pub done: bool,
+    /// Where the legacy file lives, when legacy is enabled.
+    legacy: Option<PathBuf>,
+    /// Whether the end of the run has been dealt with (legacy kept, export
+    /// offered).
+    ended: bool,
 }
 
 /// What a line produced.
@@ -52,7 +59,23 @@ pub struct Reply {
 
 impl Session {
     pub fn new(seed: u64, pack: Pack, spoil: bool) -> (Self, Output) {
-        let mut game = Game::new(seed, pack.clone());
+        Self::with_legacy(seed, pack, spoil, None)
+    }
+
+    /// A session with legacy enabled: the world carries the final
+    /// inscription in `legacy` (if the file exists), and this run's final
+    /// inscription replaces it when the run ends.
+    pub fn with_legacy(
+        seed: u64,
+        pack: Pack,
+        spoil: bool,
+        legacy: Option<PathBuf>,
+    ) -> (Self, Output) {
+        let carried: Option<Legacy> = legacy
+            .as_ref()
+            .and_then(|p| std::fs::read_to_string(p).ok())
+            .and_then(|t| serde_json::from_str(&t).ok());
+        let mut game = Game::with_legacy(seed, pack.clone(), carried);
         game.spoil = spoil;
         let first = game.start();
         (
@@ -61,9 +84,45 @@ impl Session {
                 pack,
                 transcript: None,
                 done: false,
+                legacy,
+                ended: false,
             },
             first,
         )
+    }
+
+    /// Writes the notebook: transcript, named places and the run record.
+    fn export(&mut self, prefix: &str) -> Output {
+        let (transcript, places) = self.game.notebook_files();
+        let record = serde_json::to_string_pretty(&self.game.record()).expect("record serialises");
+        let files = [
+            (format!("{prefix}.transcript.txt"), transcript),
+            (format!("{prefix}.places.txt"), places),
+            (format!("{prefix}.record.json"), record),
+        ];
+        for (path, body) in &files {
+            if let Err(e) = std::fs::write(path, body) {
+                return self.wrap_output(format!("[{path}: {e}]"));
+            }
+        }
+        self.note("say.exported")
+    }
+
+    /// Once a run ends: keep its legacy, and offer the notebook.
+    fn at_end(&mut self, out: &mut Output) {
+        if self.ended || self.game.ending().is_none() {
+            return;
+        }
+        self.ended = true;
+        if let (Some(path), Some(l)) = (&self.legacy, self.game.legacy()) {
+            let body = serde_json::to_string_pretty(&l).expect("legacy serialises");
+            if std::fs::write(path, body).is_ok() {
+                out.text.push_str("\n\n");
+                out.text.push_str(&self.game.message("say.legacy_kept"));
+            }
+        }
+        out.text.push_str("\n\n");
+        out.text.push_str(&self.game.message("say.export_offer"));
     }
 
     fn default_save(&self) -> PathBuf {
@@ -116,6 +175,7 @@ impl Session {
                         let spoil = self.game.spoil;
                         let (game, changed) = Game::load(&save, self.pack.clone());
                         self.game = game;
+                        self.ended = self.game.ending().is_some();
                         self.game.spoil = spoil;
                         let mut text = self.game.message("say.loaded");
                         if changed {
@@ -145,8 +205,17 @@ impl Session {
                 self.transcript = Some(path);
                 self.wrap_output(String::new())
             }
+            ["export", rest @ ..] => {
+                let prefix = rest
+                    .first()
+                    .map(|p| p.to_string())
+                    .unwrap_or_else(|| format!("scraped-{}", self.game.seed()));
+                self.export(&prefix)
+            }
             _ => self.game.step(input),
         };
+        let mut out = out;
+        self.at_end(&mut out);
         if let Some(path) = &self.transcript {
             use std::io::Write;
             if let Ok(mut f) = std::fs::OpenOptions::new()
@@ -231,5 +300,36 @@ mod tests {
         assert!(!s.done);
         s.line("quit");
         assert!(s.done);
+    }
+
+    #[test]
+    fn legacy_files_and_the_notebook() {
+        let dir = std::env::temp_dir().join(format!("scraped-play-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("legacy.json");
+        let carried = r#"{"from_seed":1,"ending":"left","meaning":{"type":"clause","value":{"predicate":"depart","mood":"potent","tense":"nonpast","polarity":"positive","args":[{"role":"subject","np":{"head":{"concept":"self"},"number":"singular"}}]}}}"#;
+        std::fs::write(&file, carried).unwrap();
+        let (mut s, _) = Session::with_legacy(42, content(), false, Some(file.clone()));
+        assert!(s.game.site.writing.legacy.is_some(), "legacy placed");
+        let (plain, _) = Session::new(42, content(), false);
+        assert!(plain.game.site.writing.legacy.is_none());
+        // Run out of water; the end offers the notebook once.
+        let mut offered = 0;
+        for _ in 0..20 {
+            let o = s.line("wait 1 day");
+            if o.text.contains(&s.game.message("say.export_offer")) {
+                offered += 1;
+            }
+        }
+        assert_eq!(offered, 1);
+        // Nothing written: the old legacy stays.
+        assert_eq!(std::fs::read_to_string(&file).unwrap(), carried);
+        let prefix = dir.join("notebook");
+        s.line(&format!("export {}", prefix.display()));
+        for ext in ["transcript.txt", "places.txt", "record.json"] {
+            let p = format!("{}.{ext}", prefix.display());
+            assert!(std::fs::metadata(&p).is_ok(), "{p}");
+        }
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

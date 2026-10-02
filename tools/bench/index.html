@@ -209,8 +209,10 @@ function render() {
   const needSpoil = what => `<p class="note">The ${what} is all spoilers. Turn on “Show spoilers” to see it.</p>`;
   if (state.tab === "play") {
     if (!state.play || state.play.seed !== d.seed) {
-      const first = api({ cmd: "play_new", seed: d.seed, files: BUNDLED, spoil: true });
-      state.play = { seed: d.seed, log: [{ text: first.text, truth: first.truth }], history: [], back: 0, trail: [] };
+      const legacyOn = load("play.legacyOn") === "1";
+      const carried = legacyOn && load("play.legacy") ? JSON.parse(load("play.legacy")) : null;
+      const first = api({ cmd: "play_new", seed: d.seed, files: BUNDLED, spoil: true, legacy: carried });
+      state.play = { seed: d.seed, log: [{ text: first.text, truth: first.truth }], history: [], back: 0, trail: [], ended: null };
       track(first.truth);
     }
     p.innerHTML = `<div class="play">
@@ -221,7 +223,9 @@ function render() {
         <button type="button" id="playSave">Save in this browser</button>
         <button type="button" id="playLoad">Load saved game</button>
         <button type="button" id="playRestart">Restart</button>
+        <label class="toggle" for="playLegacy" title="Carry the last run's final inscription into the next world you start"><input type="checkbox" id="playLegacy"${load("play.legacyOn") === "1" ? " checked" : ""}> Legacy${load("play.legacy") ? " (one kept)" : ""}</label>
       </div>
+      <div id="notebook"></div>
     </div>`;
     renderPlayLog();
     $("playInput").focus();
@@ -280,6 +284,8 @@ function truthText(t, st) {
   const out = [];
   if (Array.isArray(t)) out.push(t.map(t => `[era ${t.era} ${t.kind}] ${t.text} — ${t.translation}`).join("\n"));
   if (t && t.blind_steps) out.push(`[drifted: ${t.blind_steps} steps with nothing to steer by]`);
+  if (t && t.chronicle) out.push(`[chronicle: ${t.chronicle.romanised}\n  gloss: ${t.chronicle.gloss}]`);
+  if (t && t.record && t.record.ending) out.push(`[ending: ${t.record.ending} (${t.record.cause}) · ${t.record.acts.length} acts · ${t.record.releases.filter(r => r.scraped_by === "you").length} releases]`);
   if (st && st.body) out.push(`[body ${Object.entries(st.body).map(([k, v]) => `${k}=${v}`).join(" ")} · light=${st.light} · load ${st.load[0]}/${st.load[1]}${st.dead ? " · dead: " + st.dead : ""}]`);
   return out.join("\n");
 }
@@ -313,6 +319,7 @@ function renderPlayLog() {
   }).join("\n\n");
   $("playLog").scrollTop = $("playLog").scrollHeight;
   renderPlayMap();
+  renderNotebook();
 }
 
 function playLine(line) {
@@ -320,7 +327,20 @@ function playLine(line) {
   state.play.log.push({ cmd: line, text: r.error ? "[" + r.error + "]" : r.text, truth: r.truth, state: r.state });
   track(r.truth);
   state.play.history.push(line); state.play.back = 0;
+  if (r.state && r.state.dead && !state.play.ended) {
+    state.play.ended = api({ cmd: "play_end" });
+    if (load("play.legacyOn") === "1" && state.play.ended.legacy) store("play.legacy", JSON.stringify(state.play.ended.legacy));
+  }
   renderPlayLog();
+}
+
+// The notebook, once a run is over: transcript, named places, run record.
+function renderNotebook() {
+  const nb = $("notebook"); if (!nb) return;
+  const e = state.play && state.play.ended;
+  if (!e) { nb.innerHTML = ""; return; }
+  const part = (title, id, body) => `<details><summary>${title} <button type="button" data-copy="${id}">Copy</button></summary><pre id="${id}">${esc(body)}</pre></details>`;
+  nb.innerHTML = `<h2>Notebook</h2>${part("Transcript", "nbTranscript", e.transcript)}${part("Named places", "nbPlaces", e.places)}${part("Run record (JSON)", "nbRecord", JSON.stringify(e.record, null, 2))}`;
 }
 
 function ruleText(r) {
@@ -349,6 +369,7 @@ document.addEventListener("keydown", e => {
   e.preventDefault();
 });
 $("random").addEventListener("click", () => { $("seed").value = String(Math.floor(Math.random() * 1e9)); generate(); });
+document.addEventListener("change", e => { if (e.target.id === "playLegacy") store("play.legacyOn", e.target.checked ? "1" : "0"); });
 $("spoil").addEventListener("change", () => { store("spoil", $("spoil").checked ? "1" : "0"); if (state.tab === "play") renderPlayLog(); else render(); });
 document.addEventListener("click", e => {
   const t = e.target.closest("button"); if (!t) return;
@@ -362,11 +383,12 @@ document.addEventListener("click", e => {
     const save = JSON.parse(saved);
     $("seed").value = String(save.seed); generate();
     const r = api({ cmd: "play_load", files: BUNDLED, save, spoil: true });
-    state.play = { seed: String(save.seed), log: [{ text: r.text, truth: r.truth }], history: [], back: 0, trail: [] };
+    state.play = { seed: String(save.seed), log: [{ text: r.text, truth: r.truth }], history: [], back: 0, trail: [], ended: null };
     track(r.truth);
     state.tab = "play"; render();
   }
   if (t.id === "playRestart") { state.play = null; render(); }
+  if (t.dataset.copy) { e.preventDefault(); navigator.clipboard.writeText($(t.dataset.copy).textContent).then(() => { $("status").textContent = "Copied."; }, () => { $("status").textContent = "Copy failed."; }); }
   if (t.id === "writingView") { state.site = api({ cmd: "writing", seed: state.world.seed }).text; render(); return; }
   if (t.id === "regionsView") { state.site = api({ cmd: "regions", seed: state.world.seed, days: 180 }).text; render(); return; }
   if (t.id === "timelineView") { state.site = null; render(); return; }
