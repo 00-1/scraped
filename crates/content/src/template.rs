@@ -12,8 +12,9 @@
 //! - `[damaged]…[end]` marks text that can be damaged (reserved for M08).
 //! - `{{`, `}}` and `[[` write a literal `{`, `}` or `[`.
 //!
-//! Conditions use `==`, `!=`, `<`, `>`, `<=`, `>=`, `and`, `or`, `not`,
-//! parentheses, variable names, numbers and quoted text.
+//! Conditions use `==`, `!=`, `<`, `>`, `<=`, `>=`, `has` (a list holds a
+//! value), `and`, `or`, `not`, parentheses, variable names, numbers and
+//! quoted text.
 
 use serde::Serialize;
 
@@ -265,6 +266,8 @@ pub enum Op {
     Gt,
     Le,
     Ge,
+    /// List membership: `carrying has 'torch'`.
+    Has,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -326,6 +329,7 @@ fn tokenize(s: &str) -> Result<Vec<(usize, Tok)>, ParseError> {
                 let word: String = chars[start..i].iter().collect();
                 let t = match word.as_str() {
                     "and" => Tok::And,
+                    "has" => Tok::Op(Op::Has),
                     "or" => Tok::Or,
                     "not" => Tok::Not,
                     _ => match word.parse::<i64>() {
@@ -528,5 +532,7 @@ mod tests {
         assert!(parse_expr("a ==").is_err());
         assert!(parse_expr("a b").is_err());
         assert!(parse_expr("(a").is_err());
+        let h = parse_expr("carrying has 'torch'").unwrap();
+        assert!(matches!(h, Expr::Cmp { op: Op::Has, .. }));
     }
 }

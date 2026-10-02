@@ -565,6 +565,7 @@ mod tests {
                         example: *ex,
                     })
                     .collect(),
+                storylets: Vec::new(),
             }],
         }
     }

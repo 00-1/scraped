@@ -370,6 +370,10 @@ pub fn eval(e: &Expr, ctx: &Context) -> Result<bool, RenderError> {
         Expr::Cmp { left, op, right } => {
             let (l, r) = (val(left)?, val(right)?);
             match (op, l.number(), r.number()) {
+                (Op::Has, _, _) => match &l {
+                    Value::List(items) => items.iter().any(|i| i == &r || i.text() == r.text()),
+                    _ => return Err(RenderError("'has' needs a list on its left".into())),
+                },
                 (Op::Eq, _, _) => l == r || l.text() == r.text(),
                 (Op::Ne, _, _) => !(l == r || l.text() == r.text()),
                 (op, Some(a), Some(b)) => match op {
@@ -427,6 +431,7 @@ mod tests {
                         example: false,
                     })
                     .collect(),
+                storylets: Vec::new(),
             }],
         };
         (reg, pack)
@@ -483,6 +488,7 @@ mod tests {
                     weight: 1,
                     example: false,
                 }],
+                storylets: Vec::new(),
             }],
         };
         let c: Context = [(

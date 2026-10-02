@@ -32,6 +32,89 @@ fn is_one(n: &u32) -> bool {
     *n == 1
 }
 
+/// A hand-written event or place that the game weaves into generated
+/// worlds (M12). Its text is the slot `story.<id>`, written as ordinary
+/// variants, so the authoring tool, lint and coverage treat it like any
+/// other text.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Storylet {
+    pub id: String,
+    /// What happens, for Jb and as the description of its slot.
+    pub about: String,
+    /// Where it happens: "anywhere" (whenever its condition holds), "structure"
+    /// (on entering a building chosen at world generation), "outdoors" (on
+    /// coming near a spot chosen at world generation) or "hook" (at a beat of
+    /// the spine, named by `hook`).
+    #[serde(default = "anywhere")]
+    pub at: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hook: Option<String>,
+    /// A condition on the storylet variables, in the template language.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub when: Option<String>,
+    /// A storylet that must have happened first.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub after: Option<String>,
+    /// Where it may be placed, for "structure" and "outdoors".
+    #[serde(default, skip_serializing_if = "Placement::is_any")]
+    pub place: Placement,
+    /// What it does: "give <item>", "flag <name>", "unflag <name>", "open"
+    /// (unbars and clears the ways through its building).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub effects: Vec<String>,
+    /// Generated writing it brings into the world, on a surface where it is
+    /// placed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inscription: Option<InscriptionRequest>,
+    /// Whether it may happen more than once.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub repeat: bool,
+    /// Agent-written, to show the format.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub example: bool,
+}
+
+fn anywhere() -> String {
+    "anywhere".to_string()
+}
+
+/// Placement rules for a storylet. Empty lists allow anything.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Placement {
+    /// Kinds of building, e.g. "temple", "well".
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub structure: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub biome: Vec<String>,
+    /// "old", "middle" or "new": when the building was raised.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub era: Option<String>,
+    /// Within a few hundred metres of a river or lake.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub near_water: bool,
+    /// Never in the town where play begins.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub away: bool,
+}
+
+impl Placement {
+    pub fn is_any(&self) -> bool {
+        *self == Placement::default()
+    }
+}
+
+/// A request for writing in the world's own language.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InscriptionRequest {
+    /// "potent" (a claim, which can be released) or "everyday" (a warning).
+    pub register: String,
+    /// A concept, or a tag of concepts, it is about: "water", "gate".
+    pub about: String,
+    /// "old", "middle" or "new" (default: the building's own era).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub era: Option<String>,
+}
+
 /// One file of the pack.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PackFile {
@@ -41,6 +124,8 @@ pub struct PackFile {
     pub notes: Option<String>,
     #[serde(default)]
     pub variants: Vec<Variant>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub storylets: Vec<Storylet>,
 }
 
 /// A problem reading a pack file.
@@ -56,6 +141,13 @@ struct FileToml {
     notes: Option<String>,
     #[serde(default)]
     variant: Vec<Variant>,
+    #[serde(default)]
+    storylet: Vec<Storylet>,
+}
+
+#[derive(Serialize)]
+struct StoryletsToml<'a> {
+    storylet: &'a [Storylet],
 }
 
 impl PackFile {
@@ -69,6 +161,7 @@ impl PackFile {
             path: path.to_string(),
             notes: parsed.notes,
             variants: parsed.variant,
+            storylets: parsed.storylet,
         })
     }
 
@@ -94,6 +187,17 @@ impl PackFile {
             if v.example {
                 out.push_str("example = true\n");
             }
+        }
+        if !self.storylets.is_empty() {
+            if !out.is_empty() {
+                out.push('\n');
+            }
+            out.push_str(
+                &toml::to_string(&StoryletsToml {
+                    storylet: &self.storylets,
+                })
+                .expect("storylets serialise"),
+            );
         }
         out
     }
@@ -139,6 +243,11 @@ impl Pack {
             .flat_map(|f| f.variants.iter())
             .filter(|v| v.slot == slot)
             .collect()
+    }
+
+    /// Every storylet, in file order.
+    pub fn storylets(&self) -> impl Iterator<Item = &Storylet> {
+        self.files.iter().flat_map(|f| f.storylets.iter())
     }
 
     /// Every variant with the file it lives in.
@@ -211,11 +320,48 @@ example = true
                 weight: 1,
                 example: false,
             }],
+            storylets: Vec::new(),
         };
         assert_eq!(PackFile::parse("x.toml", &f.to_toml()).unwrap(), f);
         let mut odd = f.clone();
         odd.variants[0].text = "ends with quote'\nand '''triple'''".into();
         assert_eq!(PackFile::parse("x.toml", &odd.to_toml()).unwrap(), odd);
+    }
+
+    #[test]
+    fn storylets_round_trip() {
+        let text = r#"
+[[variant]]
+slot = "story.well"
+text = "A well."
+example = true
+
+[[storylet]]
+id = "well"
+about = "An old well, its rope long gone."
+at = "structure"
+when = "carrying has 'torch'"
+effects = ["give waterskin", "flag well_seen"]
+example = true
+
+[storylet.place]
+structure = ["well"]
+era = "old"
+away = true
+
+[storylet.inscription]
+register = "everyday"
+about = "water"
+"#;
+        let f = PackFile::parse("story.toml", text).unwrap();
+        assert_eq!(f.storylets.len(), 1);
+        assert_eq!(f.storylets[0].place.structure, ["well"]);
+        assert_eq!(f.storylets[0].inscription.as_ref().unwrap().about, "water");
+        let again = PackFile::parse("story.toml", &f.to_toml()).unwrap();
+        assert_eq!(again, f);
+        let bare = PackFile::parse("b.toml", "[[storylet]]\nid = \"x\"\nabout = \"y\"\n").unwrap();
+        assert_eq!(bare.storylets[0].at, "anywhere");
+        assert!(bare.storylets[0].place.is_any());
     }
 
     #[test]

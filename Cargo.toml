@@ -12,7 +12,7 @@ publish = false
 rand_chacha = { version = "0.10", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = { version = "1", default-features = false, features = ["std", "parse", "serde"] }
+toml = { version = "1", default-features = false, features = ["std", "parse", "display", "serde"] }
 
 # Small, fast WebAssembly for the browser tools; harmless for the CLI.
 [profile.release]

@@ -314,6 +314,7 @@ mod tests {
                     v("glyph.stroke", "{a stroke} at the {spot}"),
                     v("glyph.describe", "{cap list strokes}"),
                 ],
+                storylets: Vec::new(),
             }],
         };
         let lang = Language::generate(42);
