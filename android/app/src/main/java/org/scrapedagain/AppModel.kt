@@ -379,7 +379,7 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         atmosphere = prefs.getBoolean("atmosphere", true),
     )
 
-    fun setLook(l: Look) {
+    fun changeLook(l: Look) {
         look = l
         prefs.edit().putInt("size", l.size).putString("theme", l.theme).putString("font", l.font)
             .putBoolean("atmosphere", l.atmosphere).apply()

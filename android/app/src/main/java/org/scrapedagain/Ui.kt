@@ -361,7 +361,7 @@ private fun AppearanceSheet(model: AppModel, onClose: () -> Unit) {
             Text(model.label("text_size"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Slider(
                 value = look.size.toFloat(),
-                onValueChange = { model.setLook(look.copy(size = it.toInt())) },
+                onValueChange = { model.changeLook(look.copy(size = it.toInt())) },
                 valueRange = 14f..28f,
                 steps = 13,
             )
@@ -370,15 +370,15 @@ private fun AppearanceSheet(model: AppModel, onClose: () -> Unit) {
             Spacer(Modifier.height(16.dp))
             Text(model.label("theme"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(6.dp))
-            Segments(listOf("system", "light", "dark", "sepia"), look.theme, { model.label(it) }) { model.setLook(look.copy(theme = it)) }
+            Segments(listOf("system", "light", "dark", "sepia"), look.theme, { model.label(it) }) { model.changeLook(look.copy(theme = it)) }
             Spacer(Modifier.height(16.dp))
             Text(model.label("font"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(6.dp))
-            Segments(listOf("serif", "sans"), look.font, { model.label(it) }) { model.setLook(look.copy(font = it)) }
+            Segments(listOf("serif", "sans"), look.font, { model.label(it) }) { model.changeLook(look.copy(font = it)) }
             Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(model.label("atmosphere"), Modifier.weight(1f))
-                Switch(checked = look.atmosphere, onCheckedChange = { model.setLook(look.copy(atmosphere = it)) })
+                Switch(checked = look.atmosphere, onCheckedChange = { model.changeLook(look.copy(atmosphere = it)) })
             }
         }
     }
