@@ -88,6 +88,25 @@ table.preview svg { width: 40px; height: 40px; color: var(--ink); }
 .checks label { font: .8rem var(--mono); display: inline-flex; gap: 4px; align-items: center; }
 @media (max-width: 560px) { .form { grid-template-columns: 1fr; } }
 .beats { display: flex; flex-wrap: wrap; gap: 6px; }
+nav.modes { display: flex; flex-wrap: wrap; gap: 6px; }
+nav.modes button[aria-pressed=true], [data-inspect][aria-pressed=true], [data-insp-era][aria-pressed=true] { background: var(--accent); color: var(--sheet); border-color: var(--accent); }
+.playgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 900px) { .playgrid { grid-template-columns: 1fr; } }
+.editorcol { display: grid; gap: 14px; min-width: 0; }
+.playlog { max-height: 60vh; overflow: auto; border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; background: var(--bg); }
+.playlog pre { margin: 0 0 10px; white-space: pre-wrap; font: .92rem/1.5 var(--body); }
+.playlog .cmd { display: flex; justify-content: space-between; font: .82rem var(--mono); color: var(--accent); }
+.playlog button.line { all: unset; cursor: pointer; border-radius: 2px; }
+.playlog button.line:hover, .playlog button.line:focus-visible { background: var(--accent-soft); outline: 1px solid var(--accent); }
+.whybox { border: 1px solid var(--accent); border-radius: 4px; padding: 6px 10px; background: var(--accent-soft); font-size: .9rem; }
+.whybox p { margin: 2px 0; }
+.variant.flash { outline: 3px solid var(--accent); }
+.glyphs { display: flex; flex-wrap: wrap; gap: 6px; }
+.glyphs figure { margin: 0; text-align: center; width: 56px; }
+.glyphs svg { width: 40px; height: 40px; color: var(--ink); }
+.glyphs figcaption { font: .7rem var(--mono); color: var(--muted); }
+pre.sheet { white-space: pre-wrap; font: .78rem/1.4 var(--mono); max-height: 50vh; overflow: auto; }
+ins { color: var(--accent); text-decoration: none; } del { color: var(--bad); }
 .help { font-size: .88rem; color: var(--muted); }
 .help code { font-family: var(--mono); font-size: .82rem; color: var(--ink); }
 footer { color: var(--muted); font-size: .85rem; }
@@ -106,14 +125,17 @@ footer { color: var(--muted); font-size: .85rem; }
     <button type="button" id="copyFile" title="Copy the open slot's file as TOML, to paste into GitHub">Copy file</button>
     <span class="grow status" id="packStatus">Loading engine…</span>
   </div>
-  <div class="layout">
+  <nav class="modes" aria-label="Mode"><button type="button" data-mode="write" aria-pressed="true">Write</button><button type="button" data-mode="play" aria-pressed="false">Playtest</button><button type="button" data-mode="gaps" aria-pressed="false">Gaps</button><button type="button" data-mode="voice" aria-pressed="false">Voice</button><button type="button" data-mode="inspect" aria-pressed="false">Inspect</button><button type="button" data-mode="changes" aria-pressed="false">Changes</button></nav>
+  <div class="layout" id="writeLayout">
     <aside>
       <input type="search" id="search" placeholder="Find a slot" aria-label="Find a slot">
+      <div class="row" style="gap:6px"><label class="mono" style="font-size:.78rem;display:inline-flex;gap:4px;align-items:center"><input type="checkbox" id="reviewMode"> Review order</label><button type="button" id="nextToWrite" title="The next slot, in review order, that isn't done">Next to write</button></div>
       <form id="newStorylet" class="row" style="gap:6px"><input type="text" id="newStoryletId" placeholder="new_storylet_id" aria-label="New storylet id" style="flex:1;min-width:0;font:.85rem var(--mono);padding:4px 6px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)"><button type="submit">New storylet</button></form>
       <div id="slotList"></div>
     </aside>
     <main id="main"><div class="card"><p class="empty">Loading…</p></div></main>
   </div>
+  <div id="modeView" hidden></div>
   <footer>Drafts are kept in this browser until saved (on claude.ai they save to the project as you type). Template language: see <code>content/README.md</code>. The engine runs here as WebAssembly, so previews are real generated worlds.</footer>
 </div>
 <script>
@@ -156,7 +178,7 @@ function setPack(pack, markSaved) {
   persist();
   relint();
 }
-function persist() { store("author.pack", packKey()); store("author.saved", state.saved); scheduleSync(); }
+function persist() { store("author.pack", packKey()); store("author.saved", state.saved); scheduleSync(); hotReload(); }
 
 // ---------- project database (claude.ai) ----------
 const docId = path => path.replace(/\.toml$/, "").replace(/[^A-Za-z0-9_.~:@+-]/g, "_");
@@ -230,8 +252,15 @@ const STATUS = { "empty": ["bad", "empty"], "example-only": ["warn", "example on
 function covOf(id) { return (state.lint.coverage || []).find(c => c.slot === id); }
 function renderList() {
   const q = state.search.toLowerCase();
-  const fams = {};
+  let fams = {};
   registry.slots.filter(s => !q || s.id.includes(q) || s.description.toLowerCase().includes(q)).forEach(s => (fams[s.family] ||= []).push(s));
+  if (state.review) {
+    const stage = Object.fromEntries((registry.review || []).map(r => [r.family, r.stage]));
+    fams = Object.fromEntries(reviewOrder().filter(f => fams[f]).map(f => {
+      const done = fams[f].filter(s => { const c = covOf(s.id); return c && c.status === "ok" && !c.errors; }).length;
+      return [`${f} · ${stage[f] || "other"} · ${done}/${fams[f].length} done`, fams[f]];
+    }));
+  }
   $("slotList").innerHTML = Object.entries(fams).map(([fam, slots]) => `<div class="family">${esc(fam)}</div>` + slots.map(s => {
     const c = covOf(s.id);
     const [cls, label] = c ? (c.errors ? ["bad", `${c.errors} error${c.errors > 1 ? "s" : ""}`] : STATUS[c.status]) : ["warn", "…"];
@@ -247,10 +276,11 @@ function highlight(text) {
 }
 function renderSlot() {
   const s = registry.slots.find(x => x.id === state.slot);
-  if (!s) { $("main").innerHTML = `<div class="card"><p class="empty">Choose a slot on the left.</p></div>`; return; }
+  const target = currentMain(); if (!target) return;
+  if (!s) { target.innerHTML = `<div class="card"><p class="empty">Choose a slot${state.mode === "play" ? ": click a line of the playtest" : " on the left"}.</p></div>`; return; }
   const vs = variantsOf(s.id);
   const c = covOf(s.id);
-  $("main").innerHTML = `
+  target.innerHTML = `
     <section class="card">
       <h2>${esc(s.id)} ${c ? `<span class="chip ${STATUS[c.status][0]}">${STATUS[c.status][1]}</span>` : ""}</h2>
       <p class="brief">${esc(s.description)}</p>
@@ -407,6 +437,35 @@ document.addEventListener("input", e => {
   persist(); updateStatus(); relint(); renderPreview();
 });
 document.addEventListener("click", async e => {
+  const mode = e.target.closest("[data-mode]");
+  if (mode) { setMode(mode.dataset.mode); return; }
+  const go = e.target.closest("[data-goto]");
+  if (go) { state.slot = go.dataset.goto; store("author.slot", state.slot); setMode("write"); renderList(); document.querySelector(`[data-slot="${CSS.escape(state.slot)}"]`)?.scrollIntoView({ block: "center" }); return; }
+  const line = e.target.closest("[data-line]");
+  if (line) { const [n, r] = line.dataset.line.split(":").map(Number); showWhy(n, r); return; }
+  const rew = e.target.closest("[data-rewind]");
+  if (rew) { state.play.history = state.play.history.slice(0, +rew.dataset.rewind - 1); replayPlay(); return; }
+  const insp = e.target.closest("[data-inspect]");
+  if (insp) { state.inspect = insp.dataset.inspect; renderInspect(); return; }
+  const ie = e.target.closest("[data-insp-era]");
+  if (ie) { state.inspEra = +ie.dataset.inspEra; renderInspect(); return; }
+  if (e.target.id === "playNew") { playStart(); return; }
+  if (e.target.id === "playCopy") { const sv = api({ cmd: "play_save" }); navigator.clipboard.writeText(JSON.stringify(sv)).then(() => { $("playNote").textContent = "Save copied."; }, () => { $("playNote").textContent = "Copying was blocked here."; }); return; }
+  if (e.target.id === "playFromSave") {
+    try { const sv = JSON.parse($("playSave").value); state.play = { seed: String(sv.seed), history: sv.commands || [], log: [] }; replayPlay(); }
+    catch (err) { $("playNote").textContent = "That isn't a save: " + err.message; }
+    return;
+  }
+  if (e.target.id === "runGaps") {
+    state.gapSeeds = $("gapSeeds").value; state.gapSteps = $("gapSteps").value;
+    $("gapOut").innerHTML = `<p class="empty">The bots are playing…</p>`;
+    setTimeout(() => {
+      state.gaps = api({ cmd: "coverage", pack: state.pack, seeds: state.gapSeeds.split(/[\s,]+/).filter(Boolean), steps: +state.gapSteps || 120 });
+      $("gapOut").innerHTML = state.gaps.error ? `<p class="empty">${esc(state.gaps.error)}</p>` : gapTables(state.gaps);
+    }, 30);
+    return;
+  }
+  if (e.target.id === "nextToWrite") { const id = nextToWrite(state.slot); if (id) { state.slot = id; store("author.slot", id); renderList(); renderSlot(); document.querySelector(`[data-slot="${CSS.escape(id)}"]`)?.scrollIntoView({ block: "center" }); } return; }
   const link = e.target.closest("[data-slot]");
   if (link) { state.slot = link.dataset.slot; store("author.slot", state.slot); renderList(); renderSlot(); return; }
   const act = e.target.closest("[data-act]");
@@ -439,6 +498,18 @@ document.addEventListener("change", e => {
   if (e.target.id === "spoil") { state.spoil = e.target.checked; renderPreview(); }
 });
 $("search").addEventListener("input", e => { state.search = e.target.value; renderList(); });
+$("reviewMode").addEventListener("change", e => { state.review = e.target.checked; store("author.review", state.review ? "1" : "0"); renderList(); });
+document.addEventListener("submit", e => {
+  if (e.target.id !== "playForm") return;
+  e.preventDefault();
+  const line = $("playInput").value.trim(); $("playInput").value = "";
+  if (!line || !state.play) return;
+  const r = api({ cmd: "play", line });
+  state.play.history.push(line);
+  state.play.log.push({ cmd: line, text: r.error ? "[" + r.error + "]" : r.text, renders: r.renders || [], truth: r.truth });
+  renderPlayLog();
+});
+document.addEventListener("input", e => { if (e.target.id === "lexSearch") { state.lexQ = e.target.value; const pos = e.target.selectionStart; renderInspect(); const el = $("lexSearch"); el.focus(); el.setSelectionRange(pos, pos); } });
 $("newStorylet").addEventListener("submit", e => {
   e.preventDefault();
   const id = $("newStoryletId").value.trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
@@ -452,6 +523,187 @@ $("newStorylet").addEventListener("submit", e => {
   registry = api({ cmd: "registry", pack: state.pack });
   persist(); relint(); renderList(); renderSlot();
 });
+
+// ---------- modes (M13) ----------
+const MODES = [["write", "Write"], ["play", "Playtest"], ["gaps", "Gaps"], ["voice", "Voice"], ["inspect", "Inspect"], ["changes", "Changes"]];
+function currentMain() { return state.mode === "play" ? $("playEditor") : $("main"); }
+function setMode(m) {
+  state.mode = m; store("author.mode", m);
+  document.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+  $("writeLayout").hidden = m !== "write";
+  $("modeView").hidden = m === "write";
+  if (m === "write") { $("modeView").innerHTML = ""; renderSlot(); return; }
+  $("main").innerHTML = "";
+  ({ play: renderPlay, gaps: renderGaps, voice: renderVoice, inspect: renderInspect, changes: renderChanges })[m]();
+}
+function slotButton(id, label) { return `<button type="button" class="ghost mono" data-goto="${esc(id)}">${esc(label || id)}</button>`; }
+
+// ---------- review order ----------
+function reviewOrder() {
+  const order = (registry.review || []).map(r => r.family);
+  const fams = [...new Set(registry.slots.map(s => s.family))];
+  return [...order.filter(f => fams.includes(f)), ...fams.filter(f => !order.includes(f)).sort()];
+}
+function reviewSlots() { return reviewOrder().flatMap(f => registry.slots.filter(s => s.family === f).map(s => s.id)); }
+function nextToWrite(from) {
+  const ids = reviewSlots(), start = Math.max(0, ids.indexOf(from));
+  for (let k = 1; k <= ids.length; k++) { const id = ids[(start + k) % ids.length]; const c = covOf(id); if (!c || c.status !== "ok" || c.errors) return id; }
+  return null;
+}
+
+// ---------- playtest ----------
+function playStart() {
+  const seed = $("playSeed") ? $("playSeed").value || "42" : state.seed;
+  state.play = { seed, history: [], log: [] };
+  replayPlay();
+}
+/** Replays the whole run with the current pack: state is identical (a game is its seed and commands), every line shows the new text. */
+function replayPlay() {
+  const p = state.play; if (!p) return;
+  const first = api({ cmd: "play_new", seed: p.seed, pack: state.pack, trace: true, spoil: state.spoil });
+  if (first.error) { p.log = [{ text: "[" + first.error + "]", renders: [] }]; renderPlayLog(); return; }
+  p.log = [{ cmd: null, text: first.text, renders: first.renders || [], truth: first.truth }];
+  for (const c of p.history) { const r = api({ cmd: "play", line: c }); p.log.push({ cmd: c, text: r.text || "", renders: r.renders || [], truth: r.truth }); }
+  renderPlayLog();
+}
+let replayTimer;
+function hotReload() {
+  if (state.mode !== "play" || !state.play) return;
+  clearTimeout(replayTimer);
+  replayTimer = setTimeout(() => {
+    if (state.play.history.length > 300) api({ cmd: "play_pack", pack: state.pack }); else replayPlay();
+    $("playNote").textContent = "Text updated from your edit.";
+  }, 500);
+}
+/** The render that made a line: the shortest text that contains it. */
+function renderFor(entry, line) {
+  let best = -1;
+  entry.renders.forEach((r, i) => { if (r.text && r.text.includes(line) && (best < 0 || r.text.length < entry.renders[best].text.length)) best = i; });
+  return best;
+}
+function renderPlayLog() {
+  const box = $("playLog"); if (!box) return;
+  box.innerHTML = state.play.log.map((e, n) => {
+    const lines = e.text.split("\n").map(line => {
+      const t = line.trim(); if (!t) return "";
+      const r = renderFor(e, t);
+      return r < 0 ? `<span>${esc(line)}</span>` : `<button type="button" class="line" data-line="${n}:${r}" title="Why did I see this?">${esc(line)}</button>`;
+    }).join("\n");
+    return `<div class="entry">${e.cmd != null ? `<div class="cmd"><span>&gt; ${esc(e.cmd)}</span><button type="button" class="ghost" data-rewind="${n}" title="Go back to just before this command">↶</button></div>` : ""}<pre>${lines}</pre></div>`;
+  }).join("");
+  box.scrollTop = box.scrollHeight;
+}
+function renderPlay() {
+  $("modeView").innerHTML = `<div class="playgrid">
+    <section class="card">
+      <div class="row" style="justify-content:space-between"><h3>Playtest</h3>
+        <div class="row"><label for="playSeed">World <input type="number" id="playSeed" value="${esc(state.play ? state.play.seed : state.seed)}" min="0"></label><button type="button" id="playNew">New game</button><button type="button" id="playCopy" title="Copy this run's save">Copy save</button></div></div>
+      <div id="playLog" class="playlog" aria-live="polite"></div>
+      <form id="playForm" class="row"><input type="text" id="playInput" autocomplete="off" spellcheck="false" placeholder="look, read stele, go temple…" aria-label="Command" style="flex:1;min-width:0;font:.9rem var(--mono);padding:6px 8px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)"><button type="submit" class="primary">Enter</button></form>
+      <details><summary class="help">Start from a save</summary><textarea id="playSave" placeholder='Paste a save: {"seed": …, "commands": […]}' style="width:100%;min-height:4em;font:.8rem var(--mono)"></textarea><button type="button" id="playFromSave">Play from this save</button></details>
+      <p class="help" id="playNote">Click any line to see which slot and variant wrote it, and edit it on the right. Edits replay the run at once; the run itself never changes.</p>
+      <div id="why"></div>
+    </section>
+    <div id="playEditor" class="editorcol"></div>
+  </div>`;
+  if (!state.play) playStart(); else renderPlayLog();
+  renderSlot();
+}
+function showWhy(n, r) {
+  const e = state.play.log[n], x = e.renders[r];
+  state.slot = x.slot; store("author.slot", state.slot);
+  const vars = Object.entries(x.vars || {}).map(([k, v]) => `${k}=${Array.isArray(v) ? `[${v.join(", ")}]` : v}`).join("  ");
+  $("why").innerHTML = `<div class="whybox"><p><strong class="mono">${esc(x.slot)}</strong> · ${x.file != null ? `variant ${x.variant + 1} of <code>${esc(x.file)}</code>${x.example ? " (an example)" : ""}` : "no variant applied: a placeholder"}${x.branches.length ? ` · [if] branches: ${x.branches.map(b => b ? "first" : "else").join(", ")}` : ""}${x.depth ? " · called from another slot" : ""}</p><p class="ex">${esc(vars) || "no variables"}</p></div>`;
+  renderSlot();
+  if (x.file != null) {
+    const el = document.querySelector(`.variant[data-file="${CSS.escape(x.file)}"][data-index="${x.variant}"]`);
+    if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600); }
+  }
+}
+
+// ---------- gaps ----------
+function renderGaps() {
+  const g = state.gaps;
+  $("modeView").innerHTML = `<section class="card">
+    <div class="row" style="justify-content:space-between"><h3>Gaps players will meet</h3>
+      <div class="row"><label for="gapSeeds">Worlds <input type="text" id="gapSeeds" value="${esc(state.gapSeeds || "1 42 7 99")}"></label><label for="gapSteps">Commands each <input type="number" id="gapSteps" value="${esc(state.gapSteps || "120")}" min="10" max="1000"></label><button type="button" id="runGaps" class="primary">Run bots</button></div></div>
+    <p class="help">Two bots (a wanderer, and a scholar who starts with the writing tools) play each world. Slots are ranked by how often a player meets a placeholder or an example per hour of play: write the top ones first.</p>
+    <div id="gapOut">${g ? gapTables(g) : `<p class="empty">Not run yet.</p>`}</div>
+  </section>`;
+}
+function gapTables(g) {
+  const gaps = g.slots.filter(s => s.gaps > 0);
+  const more = g.slots.filter(s => s.needs_more);
+  const fall = g.slots.filter(s => s.fallbacks.length);
+  return `<p class="help">${g.runs} runs, ${g.hours.toFixed(1)} hours of play, ${g.slots.length} slots met, ${g.never.length} never.</p>
+    <h3>Most-met gaps</h3><div class="scroll"><table class="vars"><thead><tr><th>Slot</th><th>Gaps / hour</th><th>Seen / hour</th><th>Variants used</th><th>Branches</th></tr></thead><tbody>
+    ${gaps.slice(0, 40).map(s => `<tr><td>${slotButton(s.slot)}</td><td>${s.gap_hours.toFixed(2)}</td><td>${s.per_hour.toFixed(2)}</td><td class="ex">${esc(Object.entries(s.variants).map(([k, n]) => `${k} ×${n}`).join(", "))}</td><td class="ex">${esc(Object.entries(s.branches).filter(([, b]) => b.length).map(([k, b]) => `${k}: ${b.map(([t, f]) => `${t}/${f}`).join(" ")}`).join("; "))}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">No gaps met.</td></tr>`}</tbody></table></div>
+    <h3>Seen too often</h3><p class="help">In a typical run the same variant shows this many times; add variants.</p>
+    <ul class="issues">${more.map(s => `<li class="warning">${slotButton(s.slot)} the same variant ${s.same_per_run.toFixed(1)}× a run, out of ${s.renders_per_run.toFixed(1)}</li>`).join("") || `<li class="empty">Nothing repeats too much.</li>`}</ul>
+    <h3>Common situations getting generic text</h3><p class="help">These slots have conditional variants, but these situations fell through to a general one.</p>
+    <ul class="issues">${fall.map(s => `<li class="warning">${slotButton(s.slot)} ${s.fallbacks.map(([c, n]) => `<code>${esc(c)}</code> ×${n}`).join(" · ")}</li>`).join("") || `<li class="empty">None.</li>`}</ul>
+    <h3>Never reached</h3><p class="help">No bot met these; check whether players can, or whether the slot can go.</p>
+    <p class="beats">${g.never.map(id => slotButton(id)).join("")}</p>`;
+}
+
+// ---------- voice ----------
+function renderVoice() {
+  const v = api({ cmd: "voice", pack: state.pack, min: 2 });
+  $("modeView").innerHTML = `<section class="card"><h3>Your recurring words and phrases</h3>
+    <p class="help">From your own variants only (examples don't count).</p>
+    <div class="scroll"><table class="vars"><thead><tr><th>Phrase</th><th>Uses</th><th>Where</th></tr></thead><tbody>
+    ${v.glossary.slice(0, 80).map(p => `<tr><td>${esc(p.text)}</td><td>${p.count}</td><td>${p.slots.map(s => slotButton(s)).join(" ")}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">Nothing written yet.</td></tr>`}</tbody></table></div></section>
+    <section class="card"><h3>Echoes</h3><ul class="issues">${v.echoes.map(i => `<li class="warning">${slotButton(i.slot)} ${esc(i.message)}</li>`).join("") || `<li class="empty">No phrase repeats across slots.</li>`}</ul></section>
+    <section class="card"><h3>Length and rhythm by family</h3><div class="scroll"><table class="vars"><thead><tr><th>Family</th><th>Variants</th><th>Mean length</th><th>Median</th><th>Words per sentence</th></tr></thead><tbody>
+    ${v.stats.map(s => `<tr><td>${esc(s.family)}</td><td>${s.variants}</td><td>${s.mean_chars.toFixed(0)}</td><td>${s.median_chars}</td><td>${s.words_per_sentence.toFixed(1)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nothing written yet.</td></tr>`}</tbody></table></div></section>`;
+}
+
+// ---------- inspect ----------
+function renderInspect() {
+  const tab = state.inspect || "language";
+  $("modeView").innerHTML = `<section class="card"><div class="row" style="justify-content:space-between"><h3>Inspect (spoilers)</h3>
+    <div class="row">${["language", "world", "run"].map(t => `<button type="button" data-inspect="${t}" aria-pressed="${t === tab}">${t[0].toUpperCase() + t.slice(1)}</button>`).join("")}<label for="inspSeed">World <input type="number" id="inspSeed" value="${esc(state.play ? state.play.seed : state.seed)}" min="0"></label></div></div>
+    <div id="inspectOut"></div></section>`;
+  const seed = $("inspSeed").value || "42", out = $("inspectOut");
+  if (tab === "language") {
+    const b = api({ cmd: "bench", seed, count: 12 });
+    const era = b.eras[Math.min(state.inspEra || 0, b.eras.length - 1)];
+    out.innerHTML = `<div class="row">${b.eras.map((e, i) => `<button type="button" data-insp-era="${i}" aria-pressed="${e === era}">Era ${e.era}</button>`).join("")}<input type="search" id="lexSearch" placeholder="Find a word or meaning" value="${esc(state.lexQ || "")}"></div>
+      <div class="glyphs">${era.sheet.script.glyphs.map(g => `<figure title="${esc(g.description)}">${g.svg}<figcaption>${g.number} ${esc(g.roman)}</figcaption></figure>`).join("")}</div>
+      <div class="scroll"><table class="vars" id="lexTable"><thead><tr><th>Meaning</th><th>Root</th><th>Domain</th></tr></thead><tbody>${era.sheet.lexicon.filter(l => !state.lexQ || (l.concept + " " + l.root).includes(state.lexQ)).map(l => `<tr><td>${esc(l.concept)}</td><td class="mono">${esc(l.root)}</td><td class="ex">${esc(l.domain)}</td></tr>`).join("")}</tbody></table></div>
+      <details><summary class="help">Full grammar sheet</summary><pre class="sheet">${esc(era.sheetText)}</pre></details>`;
+  } else if (tab === "world") {
+    const w = api({ cmd: "world", seed });
+    out.innerHTML = `<canvas id="inspMap" style="max-width:100%;image-rendering:pixelated"></canvas>
+      <details open><summary class="help">History</summary><pre class="sheet">${esc(w.timeline)}</pre></details>
+      <details><summary class="help">Surfaces and live claims</summary><pre class="sheet">${esc(api({ cmd: "writing", seed }).text)}</pre></details>
+      <details><summary class="help">Regions over half a year</summary><pre class="sheet">${esc(api({ cmd: "regions", seed, days: 180 }).text)}</pre></details>`;
+    const c = $("inspMap"), scale = 3; c.width = c.height = w.side * scale;
+    const ctx = c.getContext("2d"), img = ctx.createImageData(w.side, w.side), px = Uint8Array.from(atob(w.pixels), ch => ch.charCodeAt(0));
+    for (let i = 0, j = 0; i < px.length; i += 3, j += 4) { img.data[j] = px[i]; img.data[j + 1] = px[i + 1]; img.data[j + 2] = px[i + 2]; img.data[j + 3] = 255; }
+    const tmp = document.createElement("canvas"); tmp.width = tmp.height = w.side; tmp.getContext("2d").putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false; ctx.drawImage(tmp, 0, 0, c.width, c.height);
+  } else {
+    if (!state.play) { out.innerHTML = `<p class="empty">Start a playtest first; this shows what that run knows and has done.</p>`; return; }
+    const r = api({ cmd: "play_inspect" });
+    const u = Object.entries(r.understanding || {}).sort((a, b) => b[1] - a[1]);
+    out.innerHTML = `<p class="help">Words can be written once met in ${r.threshold} texts.</p>
+      <div class="scroll"><table class="vars"><thead><tr><th>Root</th><th>Texts met in</th></tr></thead><tbody>${u.map(([k, n]) => `<tr><td>${esc(k)}</td><td>${n}${n >= r.threshold ? " ✓" : ""}</td></tr>`).join("") || `<tr><td colspan="2" class="empty">Nothing read yet.</td></tr>`}</tbody></table></div>
+      <details><summary class="help">Not met yet (${r.unmet.length})</summary><p class="ex">${esc(r.unmet.join(", "))}</p></details>
+      <details><summary class="help">Run record</summary><pre class="sheet">${esc(JSON.stringify(r.record, null, 2))}</pre></details>
+      <details><summary class="help">Storylets, claims here, regions</summary><pre class="sheet">${esc(JSON.stringify({ storylets: r.storylets, claims_here: r.claims_here, regions: r.regions }, null, 2))}</pre></details>`;
+  }
+}
+
+// ---------- changes ----------
+function renderChanges() {
+  const d = api({ cmd: "diff", pack: state.pack, old_files: BUNDLED });
+  const row = (c, kind) => `<li class="${kind === "removed" ? "error" : "warning"}">${slotButton(c.slot)} ${kind}${c.before != null && kind !== "added" ? `<br><del>${esc(c.before)}</del>` : ""}${c.after != null && kind !== "removed" ? `<br><ins>${esc(c.after)}</ins>` : ""}</li>`;
+  const n = d.added.length + d.removed.length + d.changed.length;
+  $("modeView").innerHTML = `<section class="card"><h3>Changes since the committed pack</h3>
+    ${d.breaks_saves ? `<p class="issues"><span class="chip bad">saves</span> Storylets changed (${d.storylets.map(esc).join(", ")}): saved games will replay differently, because where and when storylets happen has changed.</p>` : `<p class="help">${n ? "Only text has changed: saved games replay exactly, with the new wording." : "Nothing has changed."}</p>`}
+    <ul class="issues">${d.changed.map(c => row(c, "changed")).join("")}${d.added.map(c => row(c, "added")).join("")}${d.removed.map(c => row(c, "removed")).join("")}</ul></section>`;
+}
 
 // ---------- files ----------
 function packFromTexts(files) {
@@ -578,10 +830,12 @@ async function boot() {
     }
   }
   state.slot = load("author.slot") || registry.slots[0]?.id;
+  state.review = load("author.review") === "1"; $("reviewMode").checked = state.review;
   state.lint = api({ cmd: "lint", pack: state.pack });
   registry = api({ cmd: "registry", pack: state.pack });
   if (!registry.slots.some(s => s.id === state.slot)) state.slot = registry.slots[0]?.id;
-  renderList(); renderSlot(); updateStatus();
+  renderList(); updateStatus();
+  setMode(load("author.mode") || "write");
 }
 boot().catch(err => { $("packStatus").textContent = "The engine failed to load: " + err.message; });
 </script>
