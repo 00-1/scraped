@@ -33,7 +33,7 @@ jobs:
       - run: tools/build.sh
       - run: |
           mkdir -p _site
-          cp tools/dist/author.html tools/dist/bench.html _site/
+          cp tools/dist/author.html tools/dist/bench.html tools/dist/play.html _site/
           cp tools/site/index.html _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

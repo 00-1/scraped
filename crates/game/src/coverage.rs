@@ -184,6 +184,34 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, steps: usize) -> (Vec<Re
     (g.renders, hours.max(0.1))
 }
 
+/// A fingerprint of a whole scripted run: every command, everything the
+/// player was told, and the final state. The same on every platform, or
+/// determinism is broken.
+pub fn transcript_hash(pack: &Pack, seed: u64, preset: &str, steps: usize) -> String {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+    let mut feed = |s: &str| {
+        for b in s.bytes().chain([0xff]) {
+            h ^= u64::from(b);
+            h = h.wrapping_mul(0x0100_0000_01b3);
+        }
+    };
+    let mut g = Game::create(seed, pack.clone(), preset, None);
+    let mut out = g.start();
+    feed(&out.text);
+    let mut bot = Bot::new("wanderer", seed);
+    for _ in 0..steps {
+        if g.state.dead.is_some() {
+            break;
+        }
+        let cmd = bot.next(&g, &out);
+        out = g.step(&cmd);
+        feed(&cmd);
+        feed(&out.text);
+    }
+    feed(&serde_json::to_string(&g.state).expect("state serialises"));
+    format!("{h:016x}")
+}
+
 fn combo(vars: &scraped_content::Context) -> String {
     vars.iter()
         .filter(|(_, v)| {

@@ -377,12 +377,34 @@ impl Regions {
                     [
                         r.natural[0] * wear / 1000,
                         r.natural[1] * wear / 1000,
-                        800,
+                        // DESIGN-Q (M14 balance): ground starts in the
+                        // middle of "high" (0.7), not on the edge of
+                        // "very high", so a little drift isn't news.
+                        700,
                         0,
                     ]
                 })
                 .collect(),
         }
+    }
+
+    /// The state play begins in, settled: history's great inscriptions have
+    /// acted for centuries, so water, ground and climate start where they
+    /// have long pushed them. Life stays as worn as the trajectory left it;
+    /// its slow drift is the story a run sees.
+    // DESIGN-Q (M14 balance): two years of settling.
+    pub fn settle(&self, drivers: &[Driver], days: u32) -> RegionState {
+        let mut st = self.initial.clone();
+        let life: Vec<i32> = st.vars.iter().map(|v| v[LIFE]).collect();
+        for _ in 0..days {
+            st.day += 1;
+            self.step(&mut st, drivers);
+            for (v, l) in st.vars.iter_mut().zip(&life) {
+                v[LIFE] = *l;
+            }
+        }
+        st.day = 0;
+        st
     }
 
     /// Steps the regions forward to `day`, one day at a time.
@@ -465,8 +487,10 @@ impl Regions {
                     .sum::<f64>()
                     / reg.neighbours.len() as f64
             };
-            let growth = if season == 3 { 0.01 } else { 0.02 };
-            let life2 = life + (life_target - life) * growth + (nb_life - life) * 0.01;
+            // DESIGN-Q (M14 balance): life moves half a percent of the way
+            // a day (a quarter in winter), so it takes seasons, not weeks.
+            let growth = if season == 3 { 0.0025 } else { 0.005 };
+            let life2 = life + (life_target - life) * growth + (nb_life - life) * 0.0025;
             // Stability falls with drought and spreads its cracks.
             let weakest = reg
                 .neighbours

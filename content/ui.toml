@@ -1,0 +1,6 @@
+notes = "Labels of the browser player's interface."
+
+[[variant]]
+slot = "ui.label"
+text = "[if id == 'title']Scraped Again[end][if id == 'new_game']New game[end][if id == 'seed']Seed[end][if id == 'code']Code[end][if id == 'difficulty']Difficulty[end][if id == 'gentle']Gentle[end][if id == 'standard']Standard[end][if id == 'archaeologist']Archaeologist[end][if id == 'start']Begin[end][if id == 'cancel']Cancel[end][if id == 'save']Save[end][if id == 'load']Load[end][if id == 'save_slot']Slot[end][if id == 'empty_slot']empty[end][if id == 'export_save']Export save[end][if id == 'import_save']Import save[end][if id == 'transcript']Transcript[end][if id == 'notebook']Notebook[end][if id == 'text_size']Text size[end][if id == 'smaller']Smaller[end][if id == 'larger']Larger[end][if id == 'contrast']High contrast[end][if id == 'theme']Theme[end][if id == 'dark']Dark[end][if id == 'light']Light[end][if id == 'legacy']Carry my last inscription into the next world[end][if id == 'command']Command[end][if id == 'enter']Enter[end][if id == 'keys']Enter sends · Up/Down recall · Alt+S save · Alt+M menu[end][if id == 'saved']Saved.[end][if id == 'loaded']Loaded.[end][if id == 'world_code']World[end][if id == 'menu']Menu[end][if id == 'close']Close[end]"
+example = true

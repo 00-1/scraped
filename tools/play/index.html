@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scraped Again</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* A quiet reading room: the story in a single column of readable type, the
+   controls tucked into a menu, everything reachable from the keyboard. */
+:root {
+  --bg: #f3f1ea; --sheet: #fbfaf6; --ink: #24221e; --muted: #625d53; --rule: #d6d1c4; --accent: #7a4b1e; --focus: #1d5fbf;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --size: 18px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15140f; --sheet: #1d1b16; --ink: #ece7dc; --muted: #a8a193; --rule: #3a362d; --accent: #e0a868; --focus: #7fb0ff; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #15140f; --sheet: #1d1b16; --ink: #ece7dc; --muted: #a8a193; --rule: #3a362d; --accent: #e0a868; --focus: #7fb0ff; color-scheme: dark }
+:root[data-contrast="high"] { --bg: #fff; --sheet: #fff; --ink: #000; --muted: #000; --rule: #000; --accent: #000; --focus: #0040ff }
+:root[data-contrast="high"][data-theme="dark"], :root[data-contrast="high"]:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) { :root[data-contrast="high"]:not([data-theme="light"]) { --bg: #000; --sheet: #000; --ink: #fff; --muted: #fff; --rule: #fff; --accent: #fff; --focus: #ffd400 } }
+:root[data-contrast="high"][data-theme="dark"] { --bg: #000; --sheet: #000; --ink: #fff; --muted: #fff; --rule: #fff; --accent: #fff; --focus: #ffd400 }
+* { box-sizing: border-box }
+html { font-size: var(--size); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); line-height: 1.6; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 16px; top: 8px; background: var(--sheet); padding: 6px 10px; z-index: 9; }
+.wrap { max-width: 46rem; margin: 0 auto; padding: 16px 16px 40px; display: grid; gap: 12px; min-height: 100vh; grid-template-rows: auto 1fr auto; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+h1 { font-size: 1.25rem; font-weight: 600; letter-spacing: .04em; margin: 0; }
+.code { font: .75rem var(--mono); color: var(--muted); }
+button, select, input { font: inherit; font-size: .85rem; color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); color: var(--sheet); border-color: var(--accent); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+#log { overflow-y: auto; max-height: calc(100vh - 12rem); padding-right: 4px; }
+#log article { margin: 0 0 1.1rem; }
+#log .said { font: .85rem var(--mono); color: var(--accent); margin: 0 0 .2rem; }
+#log .text { white-space: pre-wrap; margin: 0; }
+form#command { display: flex; gap: 8px; position: sticky; bottom: 0; background: var(--bg); padding-top: 8px; }
+form#command input { flex: 1; min-width: 0; font: 1rem var(--mono); padding: 10px 12px; }
+.hint { font-size: .75rem; color: var(--muted); margin: 4px 0 0; }
+dialog { border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); color: var(--ink); max-width: min(34rem, calc(100vw - 32px)); width: 100%; padding: 16px 18px; }
+dialog::backdrop { background: rgb(0 0 0 / .4); }
+dialog h2 { font-size: 1.05rem; margin: 0 0 10px; }
+fieldset { border: 1px solid var(--rule); border-radius: 6px; margin: 0 0 12px; padding: 8px 12px; display: grid; gap: 8px; }
+legend { font-size: .8rem; color: var(--muted); padding: 0 4px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+label { font-size: .9rem; }
+.slots { display: grid; gap: 6px; }
+.slots .row span { font: .75rem var(--mono); color: var(--muted); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<a class="skip" href="#input" id="skipLink">Command</a>
+<div class="wrap">
+  <header>
+    <h1 id="title">Scraped Again</h1>
+    <div class="row"><span class="code" id="worldCode"></span><button type="button" id="menuBtn" aria-haspopup="dialog" aria-controls="menu">Menu</button></div>
+  </header>
+  <main id="log" role="log" aria-live="polite" aria-relevant="additions" tabindex="-1"></main>
+  <div>
+    <form id="command" autocomplete="off">
+      <label for="input" class="visually-hidden" id="commandLabel">Command</label>
+      <input id="input" type="text" spellcheck="false" autocapitalize="off" enterkeyhint="send">
+      <button type="submit" class="primary" id="enterBtn">Enter</button>
+    </form>
+    <p class="hint" id="keys"></p>
+  </div>
+</div>
+
+<dialog id="menu" aria-labelledby="menuTitle">
+  <h2 id="menuTitle">Menu</h2>
+  <fieldset><legend id="newLegend">New game</legend>
+    <div class="row"><label for="newSeed" id="seedLabel">Seed</label><input id="newSeed" type="number" min="0" inputmode="numeric">
+      <label for="newCode" id="codeLabel">Code</label><input id="newCode" type="text" size="11" spellcheck="false"></div>
+    <div class="row"><label for="newDifficulty" id="difficultyLabel">Difficulty</label><select id="newDifficulty"></select>
+      <label><input type="checkbox" id="legacyOn"> <span id="legacyLabel"></span></label></div>
+    <div class="row"><button type="button" class="primary" id="startBtn">Begin</button></div>
+  </fieldset>
+  <fieldset><legend id="saveLegend">Save</legend>
+    <div class="slots" id="slots"></div>
+    <div class="row"><button type="button" id="exportBtn">Export save</button><button type="button" id="importBtn">Import save</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+  </fieldset>
+  <fieldset><legend id="downloadLegend">Notebook</legend>
+    <div class="row"><button type="button" id="transcriptBtn">Transcript</button><button type="button" id="notebookBtn">Notebook</button></div>
+  </fieldset>
+  <fieldset><legend id="sizeLegend">Text size</legend>
+    <div class="row"><button type="button" id="smaller">Smaller</button><button type="button" id="larger">Larger</button>
+      <label><input type="checkbox" id="contrast"> <span id="contrastLabel"></span></label>
+      <label for="theme" id="themeLabel"></label><select id="theme"><option value="">—</option><option value="light" id="lightOpt"></option><option value="dark" id="darkOpt"></option></select></div>
+  </fieldset>
+  <div class="row"><button type="button" id="closeBtn">Close</button></div>
+</dialog>
+
+<script>
+const BUILD = __BUILD__;
+const BUNDLED = __CONTENT__;
+const ENGINE_B64 =
+"__ENGINE__";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+let engine, L = {};
+const state = { history: [], back: 0, transcript: [], seed: null, ended: null };
+function api(req) {
+  const bytes = new TextEncoder().encode(JSON.stringify(req));
+  const ptr = engine.alloc(bytes.length);
+  new Uint8Array(engine.memory.buffer, ptr, bytes.length).set(bytes);
+  const out = engine.call(ptr, bytes.length);
+  return JSON.parse(new TextDecoder().decode(new Uint8Array(engine.memory.buffer, out, engine.output_len())));
+}
+
+// ---------- appearance ----------
+function applyLook() {
+  const size = +(load("play.size") || 18);
+  document.documentElement.style.setProperty("--size", size + "px");
+  const theme = load("play.theme") || "";
+  if (theme) document.documentElement.dataset.theme = theme; else delete document.documentElement.dataset.theme;
+  if (load("play.contrast") === "1") document.documentElement.dataset.contrast = "high"; else delete document.documentElement.dataset.contrast;
+  $("contrast").checked = load("play.contrast") === "1";
+  $("theme").value = theme;
+}
+
+// ---------- the story ----------
+function show(cmd, text) {
+  const a = document.createElement("article");
+  if (cmd != null) { const p = document.createElement("p"); p.className = "said"; p.textContent = "> " + cmd; a.append(p); }
+  const t = document.createElement("p"); t.className = "text"; t.textContent = text; a.append(t);
+  $("log").append(a);
+  $("log").scrollTop = $("log").scrollHeight;
+  state.transcript.push({ cmd, text });
+}
+function begin(first) {
+  $("log").replaceChildren();
+  state.transcript = []; state.history = []; state.ended = null;
+  show(null, first.text);
+  const c = api({ cmd: "play_code" });
+  $("worldCode").textContent = c.code ? `${L.world_code} ${c.code}` : "";
+  store("play.current", JSON.stringify(api({ cmd: "play_save" })));
+}
+function newGame(seed, difficulty, isCode) {
+  const s = isCode ? seed : api({ cmd: "fair_seed", seed: String(seed), difficulty }).seed;
+  const legacy = $("legacyOn").checked && load("play.legacy") ? JSON.parse(load("play.legacy")) : null;
+  const r = api({ cmd: "play_new", seed: s, difficulty, files: BUNDLED, legacy });
+  if (r.error) { show(null, "[" + r.error + "]"); return; }
+  begin(r);
+}
+function send(line) {
+  const r = api({ cmd: "play", line });
+  if (r.error) return;
+  state.history.push(line); state.back = 0;
+  show(line, r.text);
+  store("play.current", JSON.stringify(api({ cmd: "play_save" })));
+  if (r.state && r.state.dead && !state.ended) {
+    state.ended = api({ cmd: "play_end" });
+    if ($("legacyOn").checked && state.ended.legacy) store("play.legacy", JSON.stringify(state.ended.legacy));
+  }
+}
+function loadSave(save) {
+  const r = api({ cmd: "play_load", files: BUNDLED, save });
+  if (r.error) { show(null, "[" + r.error + "]"); return; }
+  begin(r);
+  state.history = [...(save.commands || [])];
+}
+
+// ---------- files ----------
+function download(name, text, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: type || "text/plain" }));
+  a.download = name; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+function transcriptText() { return state.transcript.map(e => (e.cmd != null ? "> " + e.cmd + "\n" : "") + e.text).join("\n\n") + "\n"; }
+
+// ---------- menu ----------
+const SLOTS = 3;
+function renderSlots() {
+  $("slots").innerHTML = Array.from({ length: SLOTS }, (_, i) => {
+    const raw = load("play.slot" + i); let note = L.empty_slot;
+    if (raw) { try { const s = JSON.parse(raw); note = `${s.when || ""} · ${s.save.commands.length}`; } catch (e) {} }
+    return `<div class="row"><strong>${esc(L.save_slot)} ${i + 1}</strong> <span>${esc(note)}</span>
+      <button type="button" data-save="${i}">${esc(L.save)}</button><button type="button" data-load="${i}" ${raw ? "" : "disabled"}>${esc(L.load)}</button></div>`;
+  }).join("");
+}
+function openMenu() { renderSlots(); $("menu").showModal(); $("newSeed").focus(); }
+function labelAll() {
+  const set = (id, key) => { if ($(id)) $(id).textContent = L[key]; };
+  document.title = L.title; set("title", "title"); set("menuBtn", "menu"); set("menuTitle", "menu"); set("skipLink", "command");
+  set("commandLabel", "command"); set("enterBtn", "enter"); set("keys", "keys"); set("newLegend", "new_game"); set("seedLabel", "seed");
+  set("codeLabel", "code"); set("difficultyLabel", "difficulty"); set("legacyLabel", "legacy"); set("startBtn", "start");
+  set("saveLegend", "save"); set("exportBtn", "export_save"); set("importBtn", "import_save"); set("downloadLegend", "notebook");
+  set("transcriptBtn", "transcript"); set("notebookBtn", "notebook"); set("sizeLegend", "text_size"); set("smaller", "smaller");
+  set("larger", "larger"); set("contrastLabel", "contrast"); set("themeLabel", "theme"); set("lightOpt", "light"); set("darkOpt", "dark"); set("closeBtn", "close");
+  $("newDifficulty").innerHTML = ["gentle", "standard", "archaeologist"].map(d => `<option value="${d}" ${d === "standard" ? "selected" : ""}>${esc(L[d])}</option>`).join("");
+  $("input").setAttribute("aria-describedby", "keys");
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.id === "menuBtn") openMenu();
+  if (t.id === "closeBtn") { $("menu").close(); $("input").focus(); }
+  if (t.id === "startBtn") {
+    const code = $("newCode").value.trim();
+    if (code) {
+      const d = api({ cmd: "seed_decode", code });
+      if (d.error) { $("newCode").setAttribute("aria-invalid", "true"); $("newCode").focus(); return; }
+      $("newCode").removeAttribute("aria-invalid");
+      newGame(d.seed, d.difficulty, true);
+    } else newGame($("newSeed").value || String(Math.floor(Math.random() * 1e9)), $("newDifficulty").value, false);
+    $("menu").close(); $("input").focus();
+  }
+  if (t.dataset.save != null) { store("play.slot" + t.dataset.save, JSON.stringify({ when: new Date().toLocaleString(), save: api({ cmd: "play_save" }) })); renderSlots(); announce(L.saved); }
+  if (t.dataset.load != null) { const raw = load("play.slot" + t.dataset.load); if (raw) { loadSave(JSON.parse(raw).save); $("menu").close(); $("input").focus(); announce(L.loaded); } }
+  if (t.id === "exportBtn") download("scraped-save.json", JSON.stringify(api({ cmd: "play_save" }), null, 2), "application/json");
+  if (t.id === "importBtn") $("importFile").click();
+  if (t.id === "transcriptBtn") download("scraped-transcript.txt", transcriptText());
+  if (t.id === "notebookBtn") {
+    const n = api({ cmd: "play_end" });
+    download("scraped-notebook.txt", n.transcript + "\n" + n.places);
+    download("scraped-record.json", JSON.stringify(n.record, null, 2), "application/json");
+  }
+  if (t.id === "smaller" || t.id === "larger") { const s = Math.max(14, Math.min(30, +(load("play.size") || 18) + (t.id === "larger" ? 2 : -2))); store("play.size", String(s)); applyLook(); }
+});
+$("importFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try { loadSave(JSON.parse(await f.text())); $("menu").close(); $("input").focus(); announce(L.loaded); } catch (err) { show(null, "[" + err.message + "]"); }
+});
+$("contrast").addEventListener("change", e => { store("play.contrast", e.target.checked ? "1" : "0"); applyLook(); });
+$("theme").addEventListener("change", e => { store("play.theme", e.target.value); applyLook(); });
+$("legacyOn").addEventListener("change", e => store("play.legacyOn", e.target.checked ? "1" : "0"));
+function announce(text) { const a = document.createElement("article"); a.innerHTML = `<p class="said">${esc(text)}</p>`; $("log").append(a); $("log").scrollTop = $("log").scrollHeight; }
+
+$("command").addEventListener("submit", e => {
+  e.preventDefault();
+  const line = $("input").value.trim(); $("input").value = "";
+  if (line) send(line);
+});
+document.addEventListener("keydown", e => {
+  if (e.altKey && (e.key === "s" || e.key === "S")) { e.preventDefault(); store("play.slot0", JSON.stringify({ when: new Date().toLocaleString(), save: api({ cmd: "play_save" }) })); announce(L.saved); }
+  if (e.altKey && (e.key === "m" || e.key === "M")) { e.preventDefault(); openMenu(); }
+  if (e.target.id !== "input" || !["ArrowUp", "ArrowDown"].includes(e.key)) return;
+  const h = state.history; if (!h.length) return;
+  state.back = Math.max(0, Math.min(h.length, state.back + (e.key === "ArrowUp" ? 1 : -1)));
+  e.target.value = state.back ? h[h.length - state.back] : "";
+  e.preventDefault();
+});
+
+async function boot() {
+  applyLook();
+  const bytes = Uint8Array.from(atob(ENGINE_B64), c => c.charCodeAt(0));
+  engine = (await WebAssembly.instantiate(bytes, {})).instance.exports;
+  L = api({ cmd: "ui_labels", files: BUNDLED });
+  labelAll();
+  $("legacyOn").checked = load("play.legacyOn") === "1";
+  // A link may carry a world: play.html#code=K5G0-9ZQ1
+  const hash = new URLSearchParams(location.hash.slice(1));
+  const current = load("play.current");
+  if (hash.get("code")) {
+    const d = api({ cmd: "seed_decode", code: hash.get("code") });
+    if (!d.error) { newGame(d.seed, d.difficulty, true); $("input").focus(); return; }
+  }
+  if (current) { try { loadSave(JSON.parse(current)); $("input").focus(); return; } catch (e) {} }
+  newGame(String(Math.floor(Math.random() * 1e9)), "standard", false);
+  $("input").focus();
+}
+boot().catch(err => { $("log").textContent = "The engine failed to load: " + err.message; }); // DEBUG-TEXT
+</script>
+</body>
+</html>

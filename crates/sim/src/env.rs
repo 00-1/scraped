@@ -151,7 +151,9 @@ impl<'a> Env<'a> {
         let (regions, st) = self.regional?;
         let r = regions.at(p)?;
         let start = regions.initial.vars.get(r)?[v].max(1);
-        Some(st.vars[r][v] * 1000 / start)
+        // Both floored at 1, so a variable that starts at nothing reads as
+        // unchanged until it changes.
+        Some(st.vars[r][v].max(1) * 1000 / start)
     }
 
     /// Coarse regional cues at a point: (life, water, stability, climate).

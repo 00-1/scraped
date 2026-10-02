@@ -4,6 +4,7 @@
 //! browser later.
 
 mod content;
+mod fair;
 mod world;
 
 /// A subcommand: arguments in, text out (or an error message).
@@ -40,7 +41,8 @@ difficulty dials:
   --script-kind K        alphabet | abjad | syllabary (default: by seed)
   --fused                fuse a few affix combinations
 
-see also: scraped-lang content (content pack tools), scraped-lang world (world views)";
+see also: scraped-lang content (content pack tools), scraped-lang world (world views),
+          scraped-lang fair (solvability)";
 
 #[derive(Debug, PartialEq)]
 enum Command {
@@ -272,6 +274,7 @@ fn main() -> ExitCode {
     let sub: Option<Subcommand> = match raw.first().map(String::as_str) {
         Some("content") => Some(content::run),
         Some("world") => Some(world::run),
+        Some("fair") => Some(fair::run),
         _ => None,
     };
     if let Some(sub) = sub {

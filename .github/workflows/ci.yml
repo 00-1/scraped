@@ -27,6 +27,20 @@ jobs:
       - run: npm install --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
       - run: node tools/smoke/author.cjs
       - run: node tools/smoke/bench.cjs
+      - run: node tools/smoke/play.cjs
+      # WebAssembly gives the same transcripts as native code.
+      - run: node tools/smoke/determinism.cjs
+
+  # The same replay gives identical transcripts on every platform.
+  determinism:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p scraped-game --test determinism
 
   # Fails until every required slot has Jb's own text (the M14 release gate).
   release-check:

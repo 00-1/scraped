@@ -468,6 +468,8 @@ impl Game {
         g.storylets = g.pack.storylets().cloned().collect();
         g.recompute_drivers();
         g.initial_drivers = g.drivers.clone();
+        g.site.regions.initial = g.site.regions.settle(&g.drivers, 720);
+        g.state.regions = g.site.regions.initial.clone();
         g
     }
 
@@ -488,6 +490,11 @@ impl Game {
         let look = self.look();
         intro.push(look);
         self.output(intro, None)
+    }
+
+    /// The content pack's version.
+    pub fn pack_version(&self) -> String {
+        self.pack.version()
     }
 
     /// The code, said through its slot.

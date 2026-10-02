@@ -140,7 +140,8 @@ fn dispatch(req: &Value) -> Result<Value, String> {
         "play_new" => {
             let (pack, _) = pack(req)?;
             let legacy: Option<scraped_game::ending::Legacy> = opt(req, "legacy", None);
-            let mut game = scraped_game::Game::with_legacy(seed(req), pack, legacy);
+            let preset: String = opt(req, "difficulty", "standard".to_string());
+            let mut game = scraped_game::Game::create(seed(req), pack, &preset, legacy);
             game.spoil = opt(req, "spoil", false);
             game.trace = opt(req, "trace", false);
             let first = game.start();
@@ -211,6 +212,49 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             Ok(registry_json(&scraped_game::slots::registry_for(&pack)))
         }
         "storylet_schema" => Ok(scraped_game::storylets::schema()),
+        // The world to play for a requested seed: itself if fair, else a
+        // fair one derived from it.
+        "fair_seed" => {
+            let preset: String = opt(req, "difficulty", "standard".to_string());
+            Ok(json!({ "seed": scraped_game::fairness::fair_seed(seed(req), &preset).to_string() }))
+        }
+        // The browser player's interface labels, from Jb's ui.label slot.
+        "ui_labels" => {
+            let (pack, _) = pack(req)?;
+            let registry = scraped_game::slots::registry_for(&pack);
+            let lang = Language::generate(1);
+            let hooks = LangHooks { lang: &lang };
+            let mut r = Renderer::new(&registry, &pack, 1, &hooks);
+            let labels: serde_json::Map<String, Value> = scraped_game::slots::UI_LABELS
+                .iter()
+                .map(|id| {
+                    let c: scraped_content::Context = [("id".to_string(), scraped_content::Value::from(*id))].into_iter().collect();
+                    (id.to_string(), json!(r.render("ui.label", &c)))
+                })
+                .collect();
+            Ok(Value::Object(labels))
+        }
+        "seed_decode" => {
+            let code: String = field(req, "code")?;
+            match scraped_game::seedcode::decode(&code) {
+                Some(c) => Ok(json!({ "seed": c.seed.to_string(), "difficulty": c.preset, "pack": c.pack })),
+                None => Err("that code doesn't read".to_string()), // DEBUG-TEXT
+            }
+        }
+        "play_code" => GAME.with(|g| match g.borrow_mut().as_mut() {
+            Some(game) => {
+                let code = game.seed_code();
+                Ok(json!({ "code": code, "text": game.say_code(&code), "difficulty": game.preset, "pack": game.pack_version() }))
+            }
+            None => Err("no game started".to_string()),
+        }),
+        // Determinism across platforms: the same as the native test's hash.
+        "transcript_hash" => {
+            let (pack, _) = pack(req)?;
+            let preset: String = opt(req, "difficulty", "standard".to_string());
+            let steps: usize = opt(req, "steps", 40);
+            Ok(json!({ "hash": scraped_game::coverage::transcript_hash(&pack, seed(req), &preset, steps) }))
+        }
         // Bots play the given seeds; which text players meet, and how often.
         "coverage" => {
             let (pack, _) = pack(req)?;

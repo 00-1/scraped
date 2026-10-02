@@ -103,3 +103,57 @@ fn every_preset_gives_fair_worlds() {
         );
     }
 }
+
+/// Balance numbers for the log: how long the wanderer lasts, what ends it,
+/// and how much of the land changes on its own in a month.
+#[test]
+#[ignore]
+fn balance_probe() {
+    for preset in ["gentle", "standard", "archaeologist"] {
+        let mut hours = Vec::new();
+        let mut causes = std::collections::BTreeMap::new();
+        for seed in 1..=8u64 {
+            let mut g = crate::Game::create(seed, crate::composing_tests::pack(), preset, None);
+            let mut out = g.start();
+            let mut bot = crate::coverage::Bot::new("wanderer", seed);
+            for _ in 0..400 {
+                if g.state.dead.is_some() {
+                    break;
+                }
+                let c = bot.next(&g, &out);
+                out = g.step(&c);
+            }
+            hours.push((g.state.minutes - 8 * 60) / 60);
+            *causes
+                .entry(
+                    g.state
+                        .dead
+                        .as_ref()
+                        .map_or("alive".to_string(), |d| d.cause.clone()),
+                )
+                .or_insert(0) += 1;
+        }
+        let mut month = 0;
+        let mut aspects = std::collections::BTreeMap::new();
+        for seed in 1..=8u64 {
+            let mut g = crate::Game::create(seed, crate::composing_tests::pack(), preset, None);
+            g.start();
+            g.state.minutes += 30 * 1440;
+            g.step_regions();
+            month += g
+                .record()
+                .regions
+                .iter()
+                .filter(|r| !r.changes.is_empty())
+                .count();
+            for r in g.record().regions {
+                for c in r.changes {
+                    *aspects
+                        .entry(format!("{}:{}>{}", c.aspect, c.before, c.after))
+                        .or_insert(0) += 1;
+                }
+            }
+        }
+        eprintln!("BALANCE {preset}: hours {hours:?} ends {causes:?}; regions changed alone in a month (8 worlds): {month} {aspects:?}");
+    }
+}

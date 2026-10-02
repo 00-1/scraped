@@ -1,0 +1,99 @@
+# The release gate and release binaries. Push a tag like v1.0.0 to release;
+# run by hand (Actions → Release → Run workflow) to try the gate.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # Everything that must hold before a release.
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - run: cargo fmt --all --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      # No empty required slots, no example variants, no lint errors.
+      - run: cargo run -q -p scraped-cli -- content release-check
+      # Every seed of a batch, at every difficulty, gives a fair world.
+      - run: cargo run -q --release -p scraped-cli -- fair --seeds 1-50 --all
+      # The browser builds, works headless, and matches native transcripts.
+      - run: tools/build.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
+      - run: node tools/smoke/author.cjs
+      - run: node tools/smoke/bench.cjs
+      - run: node tools/smoke/play.cjs
+      - run: node tools/smoke/determinism.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser
+          path: tools/dist/play.html
+
+  determinism:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p scraped-game --test determinism
+
+  binaries:
+    needs: [gate, determinism]
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x86_64
+            ext: ""
+          - os: macos-latest
+            name: macos-arm64
+            ext: ""
+          - os: windows-latest
+            name: windows-x86_64
+            ext: ".exe"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release -p scraped-play
+      - shell: bash
+        run: |
+          mkdir -p dist/scraped-${{ matrix.name }}
+          cp target/release/scraped${{ matrix.ext }} target/release/scraped-mcp${{ matrix.ext }} dist/scraped-${{ matrix.name }}/
+          cp -r content docs/PROTOCOL.md docs/coop dist/scraped-${{ matrix.name }}/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scraped-${{ matrix.name }}
+          path: dist/scraped-${{ matrix.name }}
+
+  publish:
+    needs: binaries
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: |
+          cd artifacts
+          for d in scraped-*; do (cd "$d" && zip -qr "../$d.zip" .); done
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/*.zip
+            artifacts/browser/play.html

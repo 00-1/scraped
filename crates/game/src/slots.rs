@@ -1188,6 +1188,13 @@ fn s_end_act(_: u64) -> Vec<Context> {
     ]
 }
 
+fn s_ui(_: u64) -> Vec<Context> {
+    UI_LABELS
+        .iter()
+        .map(|s| ctx(&[("id", Value::from(*s))]))
+        .collect()
+}
+
 fn s_manual(_: u64) -> Vec<Context> {
     MANUAL
         .iter()
@@ -1973,6 +1980,11 @@ pub fn slots() -> Vec<SlotDef> {
             .min_variants(1)
             .max_len(3000)
             .sampler(s_manual),
+        SlotDef::new("ui.label", "A label in the browser player's interface: buttons, fields and short notices around the game (not the game's own text). Keep each short. title: the page title; keys: a one-line hint of the keyboard shortcuts (Enter sends, Up and Down recall commands, Alt+S saves, Alt+M opens the menu); saved/loaded: brief notices; world_code: before the world's shareable code; the presets' names: gentle, standard, archaeologist.")
+            .var("id", e(UI_LABELS), "Which label.")
+            .min_variants(1)
+            .max_len(160)
+            .sampler(s_ui),
         SlotDef::new("say.seed_code", "Shows the world's shareable code, so players can compare notebooks for the same world.")
             .var("code", VarType::Text, "The code, e.g. K5G0-9ZQ1.")
             .max_len(200)
@@ -1991,6 +2003,44 @@ pub fn registry() -> Registry {
     all.extend(slots());
     Registry::new(all)
 }
+
+/// Every label of the browser player's interface (the `ui.label` slot).
+pub const UI_LABELS: &[&str] = &[
+    "title",
+    "new_game",
+    "seed",
+    "code",
+    "difficulty",
+    "gentle",
+    "standard",
+    "archaeologist",
+    "start",
+    "cancel",
+    "save",
+    "load",
+    "save_slot",
+    "empty_slot",
+    "export_save",
+    "import_save",
+    "transcript",
+    "notebook",
+    "text_size",
+    "smaller",
+    "larger",
+    "contrast",
+    "theme",
+    "dark",
+    "light",
+    "legacy",
+    "command",
+    "enter",
+    "keys",
+    "saved",
+    "loaded",
+    "world_code",
+    "menu",
+    "close",
+];
 
 /// Sections of the player's manual (the `manual` command).
 pub const MANUAL: &[&str] = &[
@@ -2037,6 +2087,7 @@ pub const REVIEW: &[(&str, &str)] = &[
     ("end", "late"),
     ("notebook", "late"),
     ("manual", "reference"),
+    ("ui", "reference"),
 ];
 
 /// The registry with a slot for each of the pack's storylets.
