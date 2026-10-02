@@ -1,0 +1,50 @@
+# A test build of the Android app as a GitHub prerelease, for installing on
+# a phone before the real release (which waits for the release gate).
+# Push a tag like android-0.2.0-1 to publish one.
+name: Android preview
+
+on:
+  push:
+    tags: ["android-*"]
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown,aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: cargo install cargo-ndk --locked
+      - name: Signing key (if the repository has one)
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            mkdir -p android/.keystore
+            echo "$KEYSTORE_B64" | base64 -d > android/.keystore/scraped-again.p12
+            echo "ANDROID_KEYSTORE=$PWD/android/.keystore/scraped-again.p12" >> "$GITHUB_ENV"
+          fi
+      - run: android/build.sh
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      - run: android/test-agent.sh
+      - name: Publish the prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" android/dist/scraped-again.apk \
+            --prerelease --title "Android preview $GITHUB_REF_NAME" \
+            --notes "A test build of the Android app (not a game release). Install scraped-again.apk on Android 8 or newer."
