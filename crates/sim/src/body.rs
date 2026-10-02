@@ -69,7 +69,7 @@ pub const INJURY_STATES: &[&str] = &["unhurt", "bruised", "hurt", "badly_hurt"];
 pub const WET_STATES: &[&str] = &["dry", "damp", "soaked"];
 /// Ways the body can fail. Ids for content.
 pub const DEATHS: &[&str] = &[
-    "cold", "thirst", "hunger", "injury", "drowning", "fall", "collapse", "creature",
+    "cold", "thirst", "hunger", "injury", "drowning", "fall", "collapse", "creature", "writing",
 ];
 
 fn band(x: u32, limits: &[u32]) -> usize {

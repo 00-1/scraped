@@ -382,84 +382,27 @@ impl Writing {
 
     /// The live layer of a surface: its most recent scraped layer.
     pub fn live(&self, surface: usize, scraped: &BTreeSet<usize>) -> Option<usize> {
-        self.surfaces[surface]
-            .layers
-            .iter()
-            .rev()
-            .copied()
-            .find(|t| scraped.contains(t))
+        live_of(&self.surfaces[surface].layers, scraped)
     }
 
-    /// What a reader sees on a surface: unscraped layers above the live one
-    /// in full, and the live one in part. (Text, partial.) Older layers are
-    /// ghosts.
+    /// What a reader sees on a surface (see `visible_of`).
     pub fn visible(&self, surface: usize, scraped: &BTreeSet<usize>) -> Vec<(usize, bool)> {
-        let layers = &self.surfaces[surface].layers;
-        let live = layers.iter().rposition(|t| scraped.contains(t));
-        match live {
-            None => layers.iter().map(|&t| (t, false)).collect(),
-            Some(i) => layers[i..]
-                .iter()
-                .enumerate()
-                .map(|(k, &t)| (t, k == 0))
-                .collect(),
-        }
+        visible_of(&self.surfaces[surface].layers, scraped)
     }
 
     /// How many ghost layers lie beneath what can be read.
     pub fn ghosts(&self, surface: usize, scraped: &BTreeSet<usize>) -> usize {
-        let layers = &self.surfaces[surface].layers;
-        layers
-            .iter()
-            .rposition(|t| scraped.contains(t))
-            .unwrap_or(0)
+        ghosts_of(&self.surfaces[surface].layers, scraped)
     }
 
     /// The top unscraped layer of a surface: what a scrape removes.
     pub fn top_unscraped(&self, surface: usize, scraped: &BTreeSet<usize>) -> Option<usize> {
-        let layers = &self.surfaces[surface].layers;
-        let live = layers.iter().rposition(|t| scraped.contains(t));
-        layers
-            .iter()
-            .enumerate()
-            .rev()
-            .find(|(i, t)| !scraped.contains(t) && live.is_none_or(|l| *i > l))
-            .map(|(_, &t)| t)
+        top_unscraped_of(&self.surfaces[surface].layers, scraped)
     }
 
     /// The claim a text would make if live.
     pub fn claim(&self, w: &World, land: &Land, text: usize) -> Option<Claim> {
-        let t = self.text(w, text);
-        let (verb, subject, negative) = claim_parts(t)?;
-        let (class, property, amount) = Table::get().effect(&verb, &subject, negative)?;
-        // History's casts reach as far as their event says (the root's
-        // only to its own surroundings until M10); new releases by surface.
-        // DESIGN-Q: the root inscription acts within 900 m until M10's great
-        // inscriptions.
-        let range = match t.event.map(|e| &w.history.events[e].kind) {
-            Some(EventKind::Writing { effect, root, .. }) => {
-                let r = f64::from(effect.radius) * f64::from(CELL);
-                if *root {
-                    r.min(900.0)
-                } else {
-                    r
-                }
-            }
-            _ => reach(t.material),
-        };
-        Some(Claim {
-            text,
-            verb,
-            subject,
-            negative,
-            class,
-            property,
-            amount,
-            pos: land.structure_pos[t.structure],
-            range,
-            year: t.year,
-            structure: t.structure,
-        })
+        claim_of(w, land, self.text(w, text), text)
     }
 
     /// Every claim acting now.
@@ -469,6 +412,84 @@ impl Writing {
             .filter_map(|t| self.claim(w, land, t))
             .collect()
     }
+}
+
+/// The live layer of a stack: its most recent scraped layer.
+pub fn live_of(layers: &[usize], scraped: &BTreeSet<usize>) -> Option<usize> {
+    layers.iter().rev().copied().find(|t| scraped.contains(t))
+}
+
+/// What a reader sees of a stack: unscraped layers above the live one in
+/// full, and the live one in part. (Text, partial.) Older layers are ghosts.
+pub fn visible_of(layers: &[usize], scraped: &BTreeSet<usize>) -> Vec<(usize, bool)> {
+    match layers.iter().rposition(|t| scraped.contains(t)) {
+        None => layers.iter().map(|&t| (t, false)).collect(),
+        Some(i) => layers[i..]
+            .iter()
+            .enumerate()
+            .map(|(k, &t)| (t, k == 0))
+            .collect(),
+    }
+}
+
+/// How many ghost layers lie beneath what can be read.
+pub fn ghosts_of(layers: &[usize], scraped: &BTreeSet<usize>) -> usize {
+    layers
+        .iter()
+        .rposition(|t| scraped.contains(t))
+        .unwrap_or(0)
+}
+
+/// The ghost layer just beneath the live one: what the deep-reading tool
+/// shows, and what new writing must agree with.
+pub fn beneath_of(layers: &[usize], scraped: &BTreeSet<usize>) -> Option<usize> {
+    let live = layers.iter().rposition(|t| scraped.contains(t))?;
+    live.checked_sub(1).map(|i| layers[i])
+}
+
+/// The top unscraped layer of a stack: what a scrape removes.
+pub fn top_unscraped_of(layers: &[usize], scraped: &BTreeSet<usize>) -> Option<usize> {
+    let live = layers.iter().rposition(|t| scraped.contains(t));
+    layers
+        .iter()
+        .enumerate()
+        .rev()
+        .find(|(i, t)| !scraped.contains(t) && live.is_none_or(|l| *i > l))
+        .map(|(_, &t)| t)
+}
+
+/// The claim a text makes when live, if it is potent and not vague.
+pub fn claim_of(w: &World, land: &Land, t: &Text, id: usize) -> Option<Claim> {
+    let (verb, subject, negative) = claim_parts(t)?;
+    let (class, property, amount) = Table::get().effect(&verb, &subject, negative)?;
+    // History's casts reach as far as their event says (the root's only to
+    // its own surroundings until M10); new releases by surface.
+    // DESIGN-Q: the root inscription acts within 900 m until M10's great
+    // inscriptions.
+    let range = match t.event.map(|e| &w.history.events[e].kind) {
+        Some(EventKind::Writing { effect, root, .. }) => {
+            let r = f64::from(effect.radius) * f64::from(CELL);
+            if *root {
+                r.min(900.0)
+            } else {
+                r
+            }
+        }
+        _ => reach(t.material),
+    };
+    Some(Claim {
+        text: id,
+        verb,
+        subject,
+        negative,
+        class,
+        property,
+        amount,
+        pos: land.structure_pos[t.structure],
+        range,
+        year: t.year,
+        structure: t.structure,
+    })
 }
 
 /// The amount a property takes at a point from the claims reaching it:
