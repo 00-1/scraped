@@ -108,7 +108,7 @@ footer { color: var(--muted); font-size: .85rem; }
   </div>
   <div class="status" id="status">Loading engine…</div>
   <div class="panel" id="panel"></div>
-  <footer>The Rust language engine runs in your browser as WebAssembly and gives the same output as the <code>scraped-lang</code> command-line tool. Glyph drawings are a debugging aid; in the game, glyphs are only ever described.</footer>
+  <footer>See also the <a href="author.html">authoring tool</a> (on the published site). The Rust language engine runs in your browser as WebAssembly and gives the same output as the <code>scraped-lang</code> command-line tool. Glyph drawings are a debugging aid; in the game, glyphs are only ever described.</footer>
 </div>
 <script>
 const BUILD = __BUILD__;
@@ -129,6 +129,15 @@ function showBuild() {
 }
 showBuild();
 setInterval(showBuild, 30000);
+
+// Sends a JSON request to the engine and returns its JSON reply.
+function api(req) {
+  const bytes = new TextEncoder().encode(JSON.stringify(req));
+  const ptr = engine.alloc(bytes.length);
+  new Uint8Array(engine.memory.buffer, ptr, bytes.length).set(bytes);
+  const out = engine.call(ptr, bytes.length);
+  return JSON.parse(new TextDecoder().decode(new Uint8Array(engine.memory.buffer, out, engine.output_len())));
+}
 
 async function boot() {
   const bytes = Uint8Array.from(atob(ENGINE_B64), c => c.charCodeAt(0));
@@ -153,9 +162,9 @@ function generate() {
   $("count").value = count; $("eras").value = eras;
   const flags = ($("names").checked ? 1 : 0) | ($("fused").checked ? 2 : 0);
   const t0 = performance.now();
-  const ptr = engine.generate(Number(seed & 0xFFFFFFFFn), Number(seed >> 32n), count, eras,
-    Number($("separation").value), Number($("script").value), flags);
-  state.data = JSON.parse(new TextDecoder().decode(new Uint8Array(engine.memory.buffer, ptr, engine.output_len())));
+  state.data = api({ cmd: "bench", seed: seed.toString(), count, eras,
+    separation: Number($("separation").value), script: Number($("script").value), flags });
+  if (state.data.error) { $("status").textContent = "The engine reported an error: " + state.data.error; return; }
   state.era = Math.min(state.era, state.data.eras.length - 1);
   store("seed", state.data.seed);
   $("status").textContent = `Seed ${state.data.seed} · ${count} inscriptions · ${eras} era${eras > 1 ? "s" : ""} · generated in ${Math.round(performance.now() - t0)} ms`;

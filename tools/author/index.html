@@ -1,0 +1,403 @@
+<title>Scraped Again Authoring</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a writer's desk. Slot list on the left like a card index, the open slot on the right: brief, variants being written, previews from real worlds. */
+:root {
+  --bg: #e9ebe6; --sheet: #f6f7f3; --ink: #22262b; --muted: #5d6560; --rule: #cdd2cb;
+  --accent: #2d6f63; --accent-soft: #d5e5df; --warn: #9a6a12; --warn-soft: #f3e6c8; --bad: #a33a2c; --bad-soft: #f4d9d4;
+  --var: #2d6f63; --kw: #7a4f2a;
+  --display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #16191c; --sheet: #1e2226; --ink: #e4e7e2; --muted: #9aa39d; --rule: #343a3f;
+  --accent: #7cc2b2; --accent-soft: #233a35; --warn: #e4b45c; --warn-soft: #3a3020; --bad: #f08a7a; --bad-soft: #3d2420;
+  --var: #7cc2b2; --kw: #e0aa78; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #16191c; --sheet: #1e2226; --ink: #e4e7e2; --muted: #9aa39d; --rule: #343a3f;
+  --accent: #7cc2b2; --accent-soft: #233a35; --warn: #e4b45c; --warn-soft: #3a3020; --bad: #f08a7a; --bad-soft: #3d2420;
+  --var: #7cc2b2; --kw: #e0aa78; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 56px; display: grid; gap: 14px; }
+header { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; }
+h1 { font-family: var(--display); font-weight: 700; letter-spacing: .08em; font-size: clamp(1.4rem, 3vw, 1.9rem); margin: 0; }
+.mono, .status { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; }
+.bar .grow { flex: 1 1 12rem; min-width: 0; }
+button, .filebtn { font: 500 .82rem var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+button:hover, .filebtn:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--sheet); border-color: var(--accent); }
+button.ghost { background: none; }
+button:disabled { opacity: .5; cursor: default; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.filebtn input { display: none; }
+.layout { display: grid; grid-template-columns: minmax(15rem, 19rem) 1fr; gap: 14px; align-items: start; }
+@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+aside { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 10px; display: grid; gap: 8px; position: sticky; top: env(safe-area-inset-top, 0px); max-height: 100vh; overflow: auto; }
+@media (max-width: 760px) { aside { position: static; max-height: none; } }
+aside input[type=search] { width: 100%; font: .9rem var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; }
+.family { font: 500 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 8px 4px 2px; }
+.slotlink { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; border: 1px solid transparent; background: none; padding: 6px 8px; }
+.slotlink[aria-current=true] { background: var(--accent-soft); border-color: var(--accent); }
+.chip { font: 500 .66rem var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+.chip.ok { background: var(--accent-soft); color: var(--accent); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+main { display: grid; gap: 14px; min-width: 0; }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.card h2 { font-family: var(--mono); font-size: 1.05rem; margin: 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.card h3 { font-family: var(--display); font-size: .95rem; letter-spacing: .1em; margin: 0; }
+.brief { margin: 0; max-width: 72ch; }
+table.vars { border-collapse: collapse; width: 100%; font-size: .9rem; }
+table.vars td, table.vars th { text-align: left; vertical-align: top; padding: 5px 10px 5px 0; border-bottom: 1px solid var(--rule); }
+table.vars th { font: 500 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+table.vars code, .ex { font-family: var(--mono); font-size: .84rem; }
+.ex { color: var(--muted); overflow-wrap: anywhere; }
+.scroll { overflow-x: auto; }
+.variant { border: 1px solid var(--rule); border-radius: 5px; padding: 10px; display: grid; gap: 8px; background: var(--bg); }
+.variant.example { border-style: dashed; }
+.editor { position: relative; font: .95rem/1.5 var(--mono); }
+.editor pre, .editor textarea { margin: 0; padding: 8px 10px; font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; border: 1px solid var(--rule); border-radius: 4px; min-height: 3.4em; }
+.editor pre { color: var(--ink); background: var(--sheet); pointer-events: none; }
+.editor textarea { position: absolute; inset: 0; width: 100%; height: 100%; resize: none; color: transparent; caret-color: var(--ink); background: transparent; overflow: hidden; }
+.editor textarea::selection { background: var(--accent-soft); color: transparent; }
+.hl-var { color: var(--var); font-weight: 500; }
+.hl-kw { color: var(--kw); font-weight: 500; }
+.row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.row label { font: .78rem var(--mono); color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.row input[type=text] { font: .85rem var(--mono); color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 6px; min-width: 14rem; }
+.row input[type=number] { font: .85rem var(--mono); width: 4.5rem; color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 6px; }
+.issues { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: .88rem; }
+.issues li { padding: 4px 8px; border-radius: 3px; }
+.issues li.error { background: var(--bad-soft); color: var(--bad); }
+.issues li.warning { background: var(--warn-soft); color: var(--warn); }
+table.preview { border-collapse: collapse; width: 100%; }
+table.preview td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.preview td.out { font-size: 1rem; }
+table.preview svg { width: 40px; height: 40px; color: var(--ink); }
+.empty { color: var(--muted); font-style: italic; }
+.help { font-size: .88rem; color: var(--muted); }
+.help code { font-family: var(--mono); font-size: .82rem; color: var(--ink); }
+footer { color: var(--muted); font-size: .85rem; }
+</style>
+<div class="wrap">
+  <header>
+    <h1>Scraped Again · Authoring</h1>
+    <span class="status" id="build"></span>
+  </header>
+  <div class="bar">
+    <button type="button" id="open" class="primary" title="Open the repository's content folder and save straight into it (Chrome or Edge)">Open content folder</button>
+    <button type="button" id="save" disabled>Save to folder</button>
+    <label class="filebtn" title="Load .toml files or a .zip of them">Import files<input type="file" id="import" accept=".toml,.zip" multiple></label>
+    <button type="button" id="exportZip">Export zip</button>
+    <button type="button" id="copyFile" title="Copy the open slot's file as TOML, to paste into GitHub">Copy file</button>
+    <span class="grow status" id="packStatus">Loading engine…</span>
+  </div>
+  <div class="layout">
+    <aside>
+      <input type="search" id="search" placeholder="Find a slot" aria-label="Find a slot">
+      <div id="slotList"></div>
+    </aside>
+    <main id="main"><div class="card"><p class="empty">Loading…</p></div></main>
+  </div>
+  <footer>Drafts are kept in this browser until saved. Template language: see <code>content/README.md</code>. The engine runs here as WebAssembly, so previews are real generated worlds.</footer>
+</div>
+<script>
+const BUILD = __BUILD__;
+const BUNDLED = __CONTENT__;
+const ENGINE_B64 =
+"__ENGINE__";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+let engine, registry;
+const state = { pack: { files: [] }, saved: "", slot: null, lint: { issues: [], coverage: [] }, dir: null, seed: "42", spoil: false, search: "" };
+
+function api(req) {
+  const bytes = new TextEncoder().encode(JSON.stringify(req));
+  const ptr = engine.alloc(bytes.length);
+  new Uint8Array(engine.memory.buffer, ptr, bytes.length).set(bytes);
+  const out = engine.call(ptr, bytes.length);
+  return JSON.parse(new TextDecoder().decode(new Uint8Array(engine.memory.buffer, out, engine.output_len())));
+}
+
+function showBuild() {
+  const mins = Math.max(0, Math.round((Date.now() - Date.parse(BUILD.time)) / 60000));
+  const ago = mins < 1 ? "just now" : mins < 60 ? `${mins} min ago` : mins < 2880 ? `${Math.round(mins / 60)} h ago` : `${Math.round(mins / 1440)} days ago`;
+  $("build").textContent = `Build ${BUILD.commit} · built ${ago}`;
+}
+showBuild(); setInterval(showBuild, 30000);
+
+// ---------- pack state ----------
+const packKey = () => JSON.stringify(state.pack);
+function dirty() { return packKey() !== state.saved; }
+function setPack(pack, markSaved) {
+  state.pack = pack;
+  if (markSaved) state.saved = packKey();
+  persist();
+  relint();
+}
+function persist() { store("author.pack", packKey()); store("author.saved", state.saved); }
+function fileFor(slotId) {
+  const family = slotId.split(".")[0];
+  const path = `${family}.toml`;
+  let f = state.pack.files.find(f => f.path === path);
+  if (!f) { f = { path, variants: [] }; state.pack.files.push(f); state.pack.files.sort((a, b) => a.path.localeCompare(b.path)); }
+  return f;
+}
+function variantsOf(slotId) {
+  const out = [];
+  state.pack.files.forEach(f => f.variants.forEach((v, i) => { if (v.slot === slotId) out.push({ file: f, index: i, v }); }));
+  return out;
+}
+
+let lintTimer;
+function relint() {
+  clearTimeout(lintTimer);
+  lintTimer = setTimeout(() => {
+    state.lint = api({ cmd: "lint", pack: state.pack });
+    renderList(); renderSlotIssues(); updateStatus();
+  }, 250);
+}
+function updateStatus() {
+  const errors = (state.lint.issues || []).filter(i => i.severity === "error").length;
+  const where = state.dir ? `folder “${state.dir.name}”` : "this browser";
+  $("packStatus").textContent = `${dirty() ? "Unsaved changes" : "All changes saved"} (${where}) · pack ${state.lint.version || "…"} · ${errors} error${errors === 1 ? "" : "s"}`;
+  $("save").disabled = !state.dir || !dirty();
+}
+
+// ---------- slot list ----------
+const STATUS = { "empty": ["bad", "empty"], "example-only": ["warn", "example only"], "under-filled": ["warn", "needs more"], "partial": ["warn", "gaps"], "ok": ["ok", "done"] };
+function covOf(id) { return (state.lint.coverage || []).find(c => c.slot === id); }
+function renderList() {
+  const q = state.search.toLowerCase();
+  const fams = {};
+  registry.slots.filter(s => !q || s.id.includes(q) || s.description.toLowerCase().includes(q)).forEach(s => (fams[s.family] ||= []).push(s));
+  $("slotList").innerHTML = Object.entries(fams).map(([fam, slots]) => `<div class="family">${esc(fam)}</div>` + slots.map(s => {
+    const c = covOf(s.id);
+    const [cls, label] = c ? (c.errors ? ["bad", `${c.errors} error${c.errors > 1 ? "s" : ""}`] : STATUS[c.status]) : ["warn", "…"];
+    return `<button type="button" class="slotlink" data-slot="${esc(s.id)}" aria-current="${s.id === state.slot}"><span class="mono" style="color:var(--ink)">${esc(s.id)}</span><span class="chip ${cls}">${label}</span></button>`;
+  }).join("")).join("") || `<p class="empty">No slot matches.</p>`;
+}
+
+// ---------- slot page ----------
+function typeLabel(t) { return t.kind === "enum" ? `one of: ${t.values.join(", ")}` : t.kind; }
+function highlight(text) {
+  return esc(text).replace(/(\{&gt;[^}]*\}|\{[^{}]*\})/g, m => m.startsWith("{&gt;") ? `<span class="hl-kw">${m}</span>` : `<span class="hl-var">${m}</span>`)
+    .replace(/(\[(?:if [^\]]*|else|end|damaged)\])/g, '<span class="hl-kw">$1</span>') + "\n";
+}
+function renderSlot() {
+  const s = registry.slots.find(x => x.id === state.slot);
+  if (!s) { $("main").innerHTML = `<div class="card"><p class="empty">Choose a slot on the left.</p></div>`; return; }
+  const vs = variantsOf(s.id);
+  const c = covOf(s.id);
+  $("main").innerHTML = `
+    <section class="card">
+      <h2>${esc(s.id)} ${c ? `<span class="chip ${STATUS[c.status][0]}">${STATUS[c.status][1]}</span>` : ""}</h2>
+      <p class="brief">${esc(s.description)}</p>
+      <p class="help">Needs ${s.min_variants} written variant${s.min_variants > 1 ? "s" : ""}${s.required ? "" : " (optional for release)"} · at most ${s.max_len} characters · file <code>${esc(s.family)}.toml</code></p>
+      <div class="scroll"><table class="vars"><thead><tr><th>Variable</th><th>Type</th><th>Meaning</th><th>Example values</th></tr></thead><tbody>
+        ${s.variables.map(v => `<tr><td><code>{${esc(v.name)}}</code></td><td class="ex">${esc(typeLabel(v.type))}</td><td>${esc(v.description)}</td><td class="ex">${esc([...new Set(s.examples.map(e => Array.isArray(e[v.name]) ? e[v.name].join(" · ") : String(e[v.name])))].slice(0, 3).join(" | "))}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">No variables.</td></tr>`}
+      </tbody></table></div>
+      <ul class="issues" id="slotIssues"></ul>
+    </section>
+    <section class="card">
+      <div class="row" style="justify-content:space-between"><h3>Variants</h3><button type="button" id="addVariant" class="primary">Add variant</button></div>
+      ${vs.length ? vs.map((x, n) => variantCard(x, n, vs.length)).join("") : `<p class="empty">No variants yet. Add one, then watch the preview below.</p>`}
+      <p class="help">Helpers: ${registry.helpers.map(h => `<code>${esc(h.usage.split(":")[0])}</code>`).join(" ")} · <code>{>slot.id}</code> · <code>[if cond]…[else]…[end]</code></p>
+    </section>
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Preview</h3>
+        <div class="row">
+          <label for="seed">Seed <input type="number" id="seed" value="${esc(state.seed)}" min="0"></label>
+          <button type="button" id="newSeed">New seed</button>
+          <label for="spoil"><input type="checkbox" id="spoil" ${state.spoil ? "checked" : ""}> Show spoilers</label>
+        </div>
+      </div>
+      <div class="scroll"><table class="preview" id="preview"></table></div>
+    </section>`;
+  renderSlotIssues(); renderPreview();
+}
+function variantCard(x, n, total) {
+  const v = x.v;
+  return `<div class="variant ${v.example ? "example" : ""}" data-file="${esc(x.file.path)}" data-index="${x.index}">
+    <div class="editor"><pre aria-hidden="true">${highlight(v.text)}</pre><textarea spellcheck="true" aria-label="Variant ${n + 1} text" data-field="text">${esc(v.text)}</textarea></div>
+    <div class="row">
+      <label>When <input type="text" data-field="when" value="${esc(v.when || "")}" placeholder="always"></label>
+      <label>Weight <input type="number" data-field="weight" min="1" value="${v.weight || 1}"></label>
+      <label><input type="checkbox" data-field="example" ${v.example ? "checked" : ""}> Example (placeholder)</label>
+      <span style="flex:1"></span>
+      <button type="button" class="ghost" data-act="up" ${n === 0 ? "disabled" : ""}>Up</button>
+      <button type="button" class="ghost" data-act="down" ${n === total - 1 ? "disabled" : ""}>Down</button>
+      <button type="button" class="ghost" data-act="delete">Delete</button>
+    </div>
+    <ul class="issues" data-issues></ul>
+  </div>`;
+}
+function renderSlotIssues() {
+  const box = $("slotIssues"); if (!box) return;
+  const all = (state.lint.issues || []).filter(i => i.slot === state.slot);
+  box.innerHTML = all.filter(i => i.variant == null).map(i => `<li class="${i.severity}">${esc(i.message)}</li>`).join("");
+  document.querySelectorAll(".variant").forEach(el => {
+    const mine = all.filter(i => i.file === el.dataset.file && i.variant === +el.dataset.index);
+    el.querySelector("[data-issues]").innerHTML = mine.map(i => `<li class="${i.severity}">${esc(i.message)}</li>`).join("");
+  });
+}
+let previewTimer;
+function renderPreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => {
+    const t = $("preview"); if (!t) return;
+    const r = api({ cmd: "preview", pack: state.pack, slot: state.slot, seed: state.seed, count: 8 });
+    if (r.error) { t.innerHTML = `<tr><td class="empty">${esc(r.error)}</td></tr>`; return; }
+    t.innerHTML = r.rows.map(row => `<tr>
+      ${state.spoil && row.svg ? `<td>${row.svg}</td>` : ""}
+      <td class="out">${esc(row.text)}</td>
+      <td class="ex">${esc(Object.entries(row.vars).map(([k, v]) => `${k}=${Array.isArray(v) ? `[${v.length}]` : v}`).join("  "))}</td></tr>`).join("")
+      || `<tr><td class="empty">No sample situations for this slot.</td></tr>`;
+  }, 150);
+}
+
+// ---------- editing ----------
+function variantAt(el) { const f = state.pack.files.find(f => f.path === el.dataset.file); return { f, i: +el.dataset.index, v: f.variants[+el.dataset.index] }; }
+document.addEventListener("input", e => {
+  const card = e.target.closest(".variant"); if (!card) return;
+  const { v } = variantAt(card); const field = e.target.dataset.field;
+  if (field === "text") { v.text = e.target.value; card.querySelector("pre").innerHTML = highlight(v.text); }
+  if (field === "when") { if (e.target.value.trim()) v.when = e.target.value; else delete v.when; }
+  if (field === "weight") { v.weight = Math.max(1, parseInt(e.target.value, 10) || 1); }
+  if (field === "example") { if (e.target.checked) v.example = true; else delete v.example; card.classList.toggle("example", !!v.example); }
+  persist(); updateStatus(); relint(); renderPreview();
+});
+document.addEventListener("click", async e => {
+  const link = e.target.closest("[data-slot]");
+  if (link) { state.slot = link.dataset.slot; store("author.slot", state.slot); renderList(); renderSlot(); return; }
+  const act = e.target.closest("[data-act]");
+  if (act) {
+    const { f, i } = variantAt(act.closest(".variant"));
+    const same = f.variants.map((v, j) => j).filter(j => f.variants[j].slot === state.slot);
+    const pos = same.indexOf(i);
+    if (act.dataset.act === "delete") f.variants.splice(i, 1);
+    if (act.dataset.act === "up" && pos > 0) [f.variants[i], f.variants[same[pos - 1]]] = [f.variants[same[pos - 1]], f.variants[i]];
+    if (act.dataset.act === "down" && pos < same.length - 1) [f.variants[i], f.variants[same[pos + 1]]] = [f.variants[same[pos + 1]], f.variants[i]];
+    persist(); relint(); renderSlot(); return;
+  }
+  if (e.target.id === "addVariant") { fileFor(state.slot).variants.push({ slot: state.slot, text: "" }); persist(); relint(); renderSlot(); document.querySelector(".variant:last-of-type textarea")?.focus(); }
+  if (e.target.id === "newSeed") { state.seed = String(Math.floor(Math.random() * 1e9)); renderSlot(); }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "seed") { state.seed = e.target.value || "42"; renderPreview(); }
+  if (e.target.id === "spoil") { state.spoil = e.target.checked; renderPreview(); }
+});
+$("search").addEventListener("input", e => { state.search = e.target.value; renderList(); });
+
+// ---------- files ----------
+function packFromTexts(files) {
+  const r = api({ cmd: "parse", files });
+  if (r.errors.length) $("packStatus").textContent = "Some files could not be read: " + r.errors.map(e => `${e.path}: ${e.message}`).join("; ");
+  return r.pack;
+}
+function textsOf(pack) { return api({ cmd: "write", pack }).files; }
+
+$("open").addEventListener("click", async () => {
+  if (!window.showDirectoryPicker) { $("packStatus").textContent = "This browser cannot open folders. Use Chrome or Edge, or Import / Export zip / Copy file instead."; return; }
+  try {
+    const dir = await window.showDirectoryPicker({ mode: "readwrite" });
+    const files = [];
+    for await (const [name, h] of dir.entries()) if (h.kind === "file" && name.endsWith(".toml")) files.push({ path: name, text: await (await h.getFile()).text() });
+    if (!files.length) $("packStatus").textContent = `“${dir.name}” has no .toml files yet; new files will be created there when you save.`;
+    state.dir = dir;
+    setPack(packFromTexts(files), true);
+    renderSlot();
+  } catch (err) { if (err.name !== "AbortError") $("packStatus").textContent = "Could not open the folder: " + err.message; }
+});
+$("save").addEventListener("click", async () => {
+  if (!state.dir) return;
+  try {
+    for (const f of textsOf(state.pack)) {
+      const h = await state.dir.getFileHandle(f.path, { create: true });
+      const w = await h.createWritable(); await w.write(f.text); await w.close();
+    }
+    state.saved = packKey(); persist(); updateStatus();
+  } catch (err) { $("packStatus").textContent = "Saving failed: " + err.message; }
+});
+$("copyFile").addEventListener("click", () => {
+  if (!state.slot) return;
+  const path = `${state.slot.split(".")[0]}.toml`;
+  const f = textsOf(state.pack).find(f => f.path === path);
+  if (!f) return;
+  navigator.clipboard.writeText(f.text).then(
+    () => { $("packStatus").textContent = `Copied ${path}. Paste it over content/${path} in the repository.`; },
+    () => { $("packStatus").textContent = "Copying was blocked here; use Export zip or Open content folder instead."; });
+});
+$("import").addEventListener("change", async e => {
+  const files = [];
+  for (const file of e.target.files) {
+    if (file.name.endsWith(".zip")) files.push(...await unzip(new Uint8Array(await file.arrayBuffer())));
+    else files.push({ path: file.name, text: await file.text() });
+  }
+  e.target.value = "";
+  if (files.length) { setPack(packFromTexts(files.filter(f => f.path.endsWith(".toml"))), false); renderSlot(); }
+});
+$("exportZip").addEventListener("click", () => {
+  const blob = new Blob([zip(textsOf(state.pack))], { type: "application/zip" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "content.zip"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+});
+
+// Minimal zip: stored (uncompressed) entries to write; stored or deflated to read.
+const CRC = new Uint32Array(256).map((_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+function crc32(b) { let c = 0xffffffff; for (const x of b) c = CRC[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; }
+function zip(files) {
+  const enc = new TextEncoder(), parts = [], central = []; let offset = 0;
+  for (const f of files) {
+    const name = enc.encode(f.path), data = enc.encode(f.text), crc = crc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [14, crc, 4], [18, data.length, 4], [22, data.length, 4], [26, name.length, 2]].forEach(([o, v, s]) => s === 4 ? h.setUint32(o, v, true) : h.setUint16(o, v, true));
+    const c = new DataView(new ArrayBuffer(46));
+    [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [16, crc, 4], [20, data.length, 4], [24, data.length, 4], [28, name.length, 2], [42, offset, 4]].forEach(([o, v, s]) => s === 4 ? c.setUint32(o, v, true) : c.setUint16(o, v, true));
+    parts.push(new Uint8Array(h.buffer), name, data); central.push(new Uint8Array(c.buffer), name);
+    offset += 30 + name.length + data.length;
+  }
+  const size = central.reduce((n, p) => n + p.length, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  [[0, 0x06054b50, 4], [8, files.length, 2], [10, files.length, 2], [12, size, 4], [16, offset, 4]].forEach(([o, v, s]) => s === 4 ? end.setUint32(o, v, true) : end.setUint16(o, v, true));
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)]);
+}
+async function unzip(b) {
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength), out = [], dec = new TextDecoder();
+  let i = 0;
+  while (i + 30 <= b.length && dv.getUint32(i, true) === 0x04034b50) {
+    const method = dv.getUint16(i + 8, true), size = dv.getUint32(i + 18, true), nlen = dv.getUint16(i + 26, true), xlen = dv.getUint16(i + 28, true);
+    const name = dec.decode(b.subarray(i + 30, i + 30 + nlen)), start = i + 30 + nlen + xlen, data = b.subarray(start, start + size);
+    let bytes = data;
+    if (method === 8) bytes = new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+    if (!name.endsWith("/")) out.push({ path: name.split("/").pop(), text: dec.decode(bytes) });
+    i = start + size;
+  }
+  return out;
+}
+
+// ---------- start ----------
+async function boot() {
+  const bytes = Uint8Array.from(atob(ENGINE_B64), c => c.charCodeAt(0));
+  engine = (await WebAssembly.instantiate(bytes, {})).instance.exports;
+  registry = api({ cmd: "registry" });
+  const draft = load("author.pack");
+  const bundled = packFromTexts(BUNDLED);
+  if (draft) { state.pack = JSON.parse(draft); state.saved = load("author.saved") || JSON.stringify(bundled); }
+  else { state.pack = bundled; state.saved = packKey(); }
+  state.slot = load("author.slot") || registry.slots[0]?.id;
+  state.lint = api({ cmd: "lint", pack: state.pack });
+  renderList(); renderSlot(); updateStatus();
+}
+boot().catch(err => { $("packStatus").textContent = "The engine failed to load: " + err.message; });
+</script>
