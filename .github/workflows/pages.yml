@@ -19,6 +19,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Fails harmlessly until Pages is switched on (Settings → Pages →
+    # Source: GitHub Actions); remove this line once it is.
+    continue-on-error: true
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
