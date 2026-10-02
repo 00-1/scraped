@@ -53,15 +53,15 @@ Surface descriptions by material and condition; damaged-text framing ("Beneath t
 
 ## Checklist
 
-- [ ] Surfaces with layer stacks from history
-- [ ] Scrape action and the three laws
-- [ ] Concept-to-property table and claim semantics
-- [ ] Effects engine with ranges and conflicts
-- [ ] Historic writing events become live claims
-- [ ] Partial reading through the damage filter
-- [ ] Hands and era differences
-- [ ] Scraping tool placement and the pivot moment
-- [ ] Debug views
-- [ ] Slots registered with examples
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Surfaces with layer stacks from history
+- [x] Scrape action and the three laws
+- [x] Concept-to-property table and claim semantics
+- [x] Effects engine with ranges and conflicts
+- [x] Historic writing events become live claims
+- [x] Partial reading through the damage filter
+- [x] Hands and era differences
+- [x] Scraping tool placement and the pivot moment
+- [x] Debug views
+- [x] Slots registered with examples
+- [x] Tests listed above
+- [x] LOG.md entry

@@ -55,7 +55,8 @@ Staying alive: `drink` (from a well, river or lake), `fill waterskin`, `eat`,
 `sleep`, `forage`, `gather wood`, `make fire` (firesteel and wood), `make
 torch`, `light torch`, `wear cloak`, `status`. Mechanisms: `open sluice`,
 `pull lever`, `pry door`. `shout` scares some creatures off and brings down
-loose stone; `cross` tries ice, wading or swimming.
+loose stone; `cross` tries ice, wading or swimming. With the scraper,
+`scrape <thing>` scrapes its top fresh writing away, and potent writing acts.
 
 ### Worlds
 
@@ -65,6 +66,7 @@ cargo run -q -p scraped-cli -- world --seed 42 map --spoil
 cargo run -q -p scraped-cli -- world --seed 42 map --spoil --png world.png
 cargo run -q -p scraped-cli -- world --seed 42 history --spoil
 cargo run -q -p scraped-cli -- world --seed 42 site 0 --spoil
+cargo run -q -p scraped-cli -- world --seed 42 writing --spoil   # live claims, surface stacks
 ```
 
 ### Browser tools
@@ -98,7 +100,8 @@ Every English word the player reads is written by Jb in `content/` (see
 - `crates/content` — content slots, the template language, the pack, lint and coverage.
 - `crates/world` — world generation: terrain, rivers, history, structures, texts, decay.
 - `crates/sim` — the physical world: sight, landmarks, travel costs, local properties,
-  the rule table (`data/rules.toml`), mechanisms, items, the body, creatures.
+  the rule table (`data/rules.toml`), mechanisms, items, the body, creatures, and
+  writing that acts (`data/claims.toml`, surfaces, layers, claims).
 - `crates/game` — game state, the parser (`data/verbs.toml`), commands and travel.
 - `crates/play` — the `scraped` terminal client and JSON-lines agent protocol.
 - `crates/web` — the engine for browsers: one WebAssembly module with a JSON interface.

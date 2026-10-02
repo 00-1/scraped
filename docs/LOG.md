@@ -184,3 +184,26 @@
 8. **Where the writing tools lie**: one each in an archive or temple outside the starting town.
 
 **Content slots added:** `prop.cues`, `place.dark`, `read.dark`, `mech.name`, `mech.examine`, `mech.operate`, `mech.already`, `mech.cannot`, `fire.name`, `fire.lit`, `fire.fail`, `fire.fed`, `fire.out`, `fire.doused`, `item.examine`, `item.lit`, `item.out`, `item.doused`, `item.made`, `item.make_fail`, `item.too_heavy`, `item.wear`, `item.remove`, `item.cannot_use`, `drink.done`, `drink.none`, `fill.done`, `fill.none`, `eat.done`, `eat.none`, `sleep.done`, `forage.found`, `forage.none`, `gather.found`, `gather.none`, `body.change`, `body.status`, `body.collapse`, `hazard.fall`, `hazard.collapse`, `hazard.flooded`, `hazard.barred`, `door.pried`, `shout.done`, `cross.done`, `cross.fail`, `cross.fell_through`, `cross.swept`, `creature.name`, `creature.seen`, `creature.near`, `creature.sighted`, `creature.struck`, `creature.stole`, `creature.fled`, `death.narrate`, `end.summary`. `thing.name` and `thing.examine` gained an `item` variable.
+
+## 2026-10-02 — M08 Writing that acts
+
+**Done**
+- **Surfaces and layers** (`crates/sim/src/writing.rs`): every text sits on its surface in a stack, oldest first. History's potent writing was cast, so it lies scraped and acts. Only the most recent scraped layer on a surface is live; layers beneath it are ghosts (inert, not yet readable); unscraped writing above it reads in full.
+- **The three laws**: `scrape <thing>` with the scraper removes the whole top unscraped text, which becomes a scraped layer; if potent, its claim acts at once. Scraping an ordinary text over a live claim ends that claim (it is no longer the top scraped layer). Nothing is ever removed: stacks only grow and the scraped set only grows.
+- **Claims** (`crates/sim/data/claims.toml`, the concept-to-property table): subjects map to classes (passages, rooms, land, stone) and verbs to properties. `open` holds doors open or shut, `burn` adds or takes 12° from rooms or land (enough to freeze rivers and make them crossable), `break` makes stone crumble or holds it sound. New concepts get powers by adding rows.
+- **Effects engine**: claims act within a range (historic ones by their event's radius, the root inscription capped at 900 m for now; new releases by surface material). Conflicts: nearer beats farther, then newer beats older, and direct contradictions at the same place cancel. Effects show only as physical cues: strange warmth, frost against the season, doors that won't move, stone that groans loose.
+- **Partial reading**: a scraped layer shows about 60% of its glyphs in daylight and 40% in dim light, deterministically per surface; lost glyphs are numbered gaps and can't be labelled. Ghost layers announce themselves ("fainter marks beneath").
+- **Hands**: each scribe has a recognisable hand (six kinds), passed to the reading frame, so attentive players can tell writers apart; era spellings come from the language eras.
+- **Scraping tool and the pivot**: the scraper lies in a reachable room of an archive or temple outside the starting town; beside it is a latent potent inscription whose effect is visible, safe and plain (nearby doors swing open, or the rooms warm). Four more latent inscriptions lie farther afield.
+- **Debug views** (spoilers): `scraped-lang world --seed N writing --spoil`, and the bench's World tab ("Writing: why each place is strange"), listing live claims and their ranges, what each settlement is subject to, and surface stacks. Play spoilers include the claims acting where the player stands.
+- **Tests**: conflicts; every potent-capable concept has a deterministic power; layers only grow; only top scraped layers act; every historic writing event leaves a scraped trace and acts on something; the scraper and a safe pivot are reachable on every test seed; scraping the pivot changes the world as claimed and nothing is lost; held doors resist; no output states a claim's meaning.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Layers**: all texts on one feature form one stack in date order (king lists included); only history's potent writing starts scraped.
+2. **Reach**: stone 900 m, metal 700, clay 500, wood and plaster 400, vellum 300; the root inscription acts within 900 m until M10.
+3. **Claim powers**: 12° of heat; `open` and `break` on doors both hold them open; a "box" is treated as a passage; `break` on stone makes rooms unstable.
+4. **Reading by eye**: 60% of glyphs in daylight, 40% dim.
+5. **Latent inscriptions**: the pivot plus four, in the newest era's language; the pivot opens doors if the building has one, else warms it.
+6. **Hands**: six kinds, by author.
+
+**Content slots added:** `read.lost`, `read.scraped`, `read.ghosts`, `scrape.done`, `scrape.no_tool`, `scrape.bare`, `effect.change`, `effect.held`, `tool.found`. `read.frame` gained `hand`; `prop.cues` gained `uncanny`.
