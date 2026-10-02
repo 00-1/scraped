@@ -45,7 +45,11 @@ echo '{"cmd": "look"}' | cargo run -q -p scraped-play -- --seed 42 --json
 ```
 
 In play, `save`, `load`, `transcript on|off` and `quit` handle the session;
-`define 3 as ka` gives a glyph your own label.
+`define 3 as ka` gives a glyph your own label. Outdoors: `head north`,
+`go to the tower` (anything in view), `follow the river downstream`,
+`go back`, `name this place the gap` and later `go to the gap`. In fog or at
+night you drift without knowing it; the bench's Play tab shows where you
+really are when spoilers are on.
 
 ### Worlds
 

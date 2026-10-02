@@ -129,3 +129,31 @@
 4. Several buildings can share a name ("the intact tomb"); players use ordinals. Your `place.structure` variants can tell them apart once they have more to go on (M06 adds landmarks).
 
 **Content slots added:** `place.site`, `place.structure`, `place.room`, `place.exit`, `place.out`, `thing.name`, `thing.examine`, `read.frame`, `read.glyph`, `read.more`, `read.no_more`, `read.end`, `read.nothing`, and the `say.*` family (intro, help, inventory, take/drop, doors, define, which, unknown verb, not here, no exit, saved, loaded, pack changed, wait…).
+
+## 2026-10-02 — M06 Perception and movement
+
+**Done**
+- **Position and sight**: the player stands at a point on the land (whole metres); interiors stay room-based. Sight lines run over the height of the land (water surfaces included), with eye height, trees blocking beyond 100 m, and a reach set by weather and light. Sight is symmetric by construction.
+- **Landmarks and salience**: settlements (living or ruined), lone buildings (waystations, bridges), and hills and mountains found by prominence. A look names the most striking ones in view, by size and closeness and how many look alike, with eight-point bearings and rough distance bands.
+- **Edges**: rivers, streams, roads, coast, lake shores, treelines and cliffs near the player; `follow the river downstream|upstream`, `follow road east`; following keeps to a river's bank and stops at the sea, a lake, or the edge's end.
+- **Intent movement**: `go to <anything in view>`, `head <direction>` (also `north`, `ne`…), `follow …`, `go back` / `retrace my steps`, `name this place <name>` then `go to <name>`, `enter`, `leave`. Routes are planned over walking time (slope, ground, roads; deep rivers need a ford or bridge; sea and lakes bar the way).
+- **Travel simulation**: walks go in 300 m steps; time passes by ground and climb; anything newly in view (a settlement or building, including a settlement walked into) stops the walk.
+- **Drift**: with no landmark, edge or sun to steer by (fog, rain, night, woods), each step adds heading error. The player is told what they believe they walked, never their true position, and may arrive somewhere other than intended.
+- **Reports for mapping**: every journey reports bearing, rough distance (100 m under a kilometre, 500 m above) and time, as perceived; the JSON `state` carries the same, plus landmarks in view and edges near.
+- **Weather and light**: three-hour spells of clear, rain or fog from local moisture (fog likelier at dawn, night and near water); dawn and dusk dim, night dark.
+- **Multi-scale descriptions**: region (from a high point), area (outdoors), room (interiors), all slots.
+- **Bench**: the Play tab shows, with spoilers on, the real map with your true path and position.
+- **Tests**: sight symmetric and blocked by ridges; `go to` a visible landmark always arrives in clear daylight; drift zero with references, present in fog at night, reproducible; bearing reports match geometry in clear conditions; a **surveyor bot** that only sums travel reports maps the settlements it reaches within 15% of distance walked on average; a 24 km journey resolves in about 30 ms.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Sight ranges**: clear daylight 20 km, rain 3 km, fog 200 m; dawn and dusk 40%; night 500 m at most.
+2. **The sun as a compass**: in clear daylight outside woods the player never drifts, even with no landmark in view. Drift happens in fog, rain, darkness and forest.
+3. **Weather and days**: three-hour weather spells, no seasons, days 05:00–21:00 all year.
+4. **Report precision**: rounded metres and quarter hours are given to content, so maps can be drawn; content decides how to say them.
+5. **Command reach**: `head` walks about 3 km, `follow` up to about 12 km, unless something stops it first.
+6. **Summits**: highest within 1.5 km and 120 m above the land within 2.4 km; "mountain" from 700 m.
+7. Some starting towns sit in hollows with nothing in view; the player has to climb out to see anything. Keep that, or bias starting towns towards a view?
+
+**Content slots added:** `land.weather`, `land.area`, `land.edge_name`, `land.edge`, `land.name`, `land.landmark`, `land.horizon`, `land.region`, `travel.report`, `travel.lost`, `travel.arrive`, `travel.not_there`, `travel.interrupt`, `travel.blocked`, `travel.edge_end`, `travel.already`, `travel.no_route`, `travel.unseen`, `travel.no_edge`, `travel.indoors`, `travel.back_none`, `say.named`, `say.name_bad`.
+
+**Also:** the authoring tool on claude.ai now saves edits to its own project store as you type (folder pickers and downloads are blocked inside the viewer); Claude reads them from there into `content/`.

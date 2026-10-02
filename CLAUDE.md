@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**M06 — Perception and movement** (`docs/milestones/M06-perception-and-movement.md`). M01–M05 are done.
+**M07 — Physical world and survival** (`docs/milestones/M07-physical-world-and-survival.md`). M01–M06 are done.
 
 - Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
 - Keep the browser bench (`tools/bench`, later the `web` crate) up to date with each milestone; once there is a game, it goes in the bench too.

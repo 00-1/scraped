@@ -51,15 +51,15 @@ Area look by biome and terrain; distant landmark phrases by type and distance ba
 
 ## Checklist
 
-- [ ] Visibility over heightfield, weather and light limits
-- [ ] Salience scoring and landmark reporting
-- [ ] Followable edges
-- [ ] Intent movement commands
-- [ ] Pathfinding and step-wise travel with interruptions
-- [ ] Drift and honest uncertainty
-- [ ] Bearings and distance reporting
-- [ ] Naming places
-- [ ] Time of day, day length, fog and rain
-- [ ] Multi-scale descriptions as slots
-- [ ] Surveyor bot test
-- [ ] LOG.md entry
+- [x] Visibility over heightfield, weather and light limits
+- [x] Salience scoring and landmark reporting
+- [x] Followable edges
+- [x] Intent movement commands
+- [x] Pathfinding and step-wise travel with interruptions
+- [x] Drift and honest uncertainty
+- [x] Bearings and distance reporting
+- [x] Naming places
+- [x] Time of day, day length, fog and rain
+- [x] Multi-scale descriptions as slots
+- [x] Surveyor bot test
+- [x] LOG.md entry
