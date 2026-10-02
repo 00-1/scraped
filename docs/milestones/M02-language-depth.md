@@ -66,14 +66,14 @@ Recorded here so M03 can register them: glyph description phrasing (stroke names
 
 ## Checklist
 
-- [ ] Script: stroke vocabulary, glyph generation, script logic, direction
-- [ ] Debug SVG glyph renderer
-- [ ] Numeral system and ledger totals
-- [ ] Sound-change rule catalogue and era derivation
-- [ ] Morphological erosion and lexical replacement across eras
-- [ ] Script change across eras
-- [ ] Everyday and potent registers
-- [ ] Difficulty dials
-- [ ] CLI commands and bench update
-- [ ] Tests listed above
-- [ ] LOG.md entry with open questions
+- [x] Script: stroke vocabulary, glyph generation, script logic, direction
+- [x] Debug SVG glyph renderer
+- [x] Numeral system and ledger totals
+- [x] Sound-change rule catalogue and era derivation
+- [x] Morphological erosion and lexical replacement across eras
+- [x] Script change across eras
+- [x] Everyday and potent registers
+- [x] Difficulty dials
+- [x] CLI commands and bench update
+- [x] Tests listed above
+- [x] LOG.md entry with open questions

@@ -37,3 +37,30 @@
 
 **Next**
 - Jb: decide on the M01 open questions above (or accept the defaults in M02), then start M02.
+
+## 2026-10-02 — M02 Language depth
+
+**Done**
+- **Script** (`script.rs`): alphabet, abjad or syllabary per seed. Glyphs are sets of marks (stroke, turn, spot) from a 9-stroke vocabulary. Per-seed script logic makes voiced sounds, fricatives and nasals add a shared mark to their partner's glyph, so readers can discover it. Writing direction is left-to-right, right-to-left or boustrophedon. Every glyph is checked to be distinct. A debug SVG renderer and mechanical debug descriptions; player-facing descriptions are left for M03 content slots.
+- **Numerals** (`numerals.rs`): base 10, 12, 20 or 5+10; biggest-first or smallest-first; optional bare powers ("hundred" or "one hundred"). An "and" linker is added automatically when a system would otherwise be ambiguous (for example, small-first base 5+10 makes 16 and 60 identical). All of 0–999 round-trip. Numeral signs are additive or positional. Ledgers now carry exact totals.
+- **Eras** (`history.rs`, `Language::at_era`): 3 eras by default (1–5). Each era applies 2–3 ordered, exceptionless sound changes from a catalogue: mergers, vowel shifts, intervocalic lenition, palatalisation, cluster loss and final-vowel loss. Each rule also updates the era's phonotactics. Rules never repeat or undo an earlier one, and spelling is shared across eras. When change makes words collide, one gets a new root; when affixes collide, one erodes into a separate particle word. A few words are also replaced by chance. The script simplifies some glyphs and adds glyphs for new sounds.
+- **Registers**: everyday (tombs, ledgers, warnings, dedications, plus new labels and letters) and potent (a fixed opening and closing word, and a particle before the verb). Potent meaning is left to M08.
+- **Difficulty dials** (`difficulty.rs`): word separation (spaces, dividers, none), name determinative, forced script kind, era count, fused morphology. Dials change presentation only; tests check that they don't reshuffle the words.
+- **CLI**: `script --spoil`, `eras --spoil`, `corpus --era E --glyphs`, `grammar --era E`, and flags for every dial.
+- **Bench** (`tools/bench`, built by `tools/bench/build.sh`): eras side by side, glyph view, script table with drawings, all dials. It sits outside the workspace until M03's `web` crate replaces it.
+- **Tests**: phonotactics in every era; every word and affix in era *n* is exactly the rules applied to era *n−1*; every surface word in every era has one analysis; glyphs are distinct; numerals and signs round-trip; ledger totals add up; dials leave words alone; snapshots for seeds 1, 42 and 9001 in all eras (grammar, script, corpus, spoilers, glyph text). The WebAssembly build gives byte-identical output to native.
+
+**Open questions for Jb** (each also marked `DESIGN-Q:` in code)
+1. **Proposed defaults kept** from the roadmap gate: the M01 answers stay as built, and separation and name marking are now dials. Please confirm or change.
+2. **Abjad** writes word-initial vowels with one carrier sign. **Boustrophedon** doesn't mirror glyphs on reversed lines.
+3. **Numeral signs** exist in every script, but inscriptions write numbers as words. Should ledgers use signs?
+4. **Erosion and replacement rates**: one affix erodes by chance in about one era in five, and about one word in 25 is replaced per era (more when sound change forces it). Tune?
+5. **Potent claims** use open, burn and break with the thing as subject ("let the gate not open"). The potent particle always sits right before the verb.
+6. **Glyph line width** is fixed at 16 until surfaces have real sizes.
+7. **Same meanings across eras**: inscription *n* means the same thing in every era of a corpus, which helps comparing eras in the bench. In the game, M04 decides what is actually written where.
+
+**Content slots added:** none yet. Glyph description phrasing becomes the first slot family in M03, and the engine already exposes the structured glyphs it needs.
+
+**Usage:** not measured from inside the session.
+
+**Next:** M03, content system and authoring tool v1.

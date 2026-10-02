@@ -18,3 +18,5 @@ jobs:
       - run: cargo test
       # Library crates must stay WebAssembly-compatible.
       - run: cargo build -p scraped-lang --target wasm32-unknown-unknown
+      - run: cargo clippy --manifest-path tools/bench/Cargo.toml --target wasm32-unknown-unknown -- -D warnings
+      - run: tools/bench/build.sh

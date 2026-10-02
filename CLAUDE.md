@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**M02 — Language depth** (`docs/milestones/M02-language-depth.md`). M01 is done.
+**M03 — Content system and authoring tool v1** (`docs/milestones/M03-content-and-authoring.md`). M01 and M02 are done.
 
 - Work on one milestone per session, only within its spec. Do not start the next milestone, even if there is time left; stop and report instead.
 - Before building, check the spec's design gates. If Jb hasn't settled one, build on the proposed default, mark it `// DESIGN-Q:`, and list it in your report.
