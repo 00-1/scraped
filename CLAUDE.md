@@ -8,7 +8,9 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**None: the roadmap (M01–M14) is complete.** What remains for the first release is Jb's text: the release gate (`.github/workflows/release.yml`, `scraped-lang content release-check`) passes once every required slot has his own variants. New mechanics go in a post-release roadmap, which Jb has yet to write; until then, work only on fixes, balance from playtests, and tooling Jb asks for.
+**D01 — Instruments** (`docs/milestones/D01-instruments.md`), the first milestone of the depth roadmap in `docs/DEPTH.md`. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete.
+
+Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
 
 - Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
 - Keep the browser bench (`tools/bench`, later the `web` crate) up to date with each milestone; once there is a game, it goes in the bench too.

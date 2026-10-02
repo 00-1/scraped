@@ -12,6 +12,32 @@ Scraped Again is a text-only exploration game about deciphering a lost, procedur
 - **Agent-friendly, not agent-dependent:** easy to hook an agent up to, but designed for humans first.
 - **Spirit:** classic story-driven text adventures, with roguelike depth, procedural worlds and the ability to change the environment.
 
+## Writing is background, at first
+
+Decided by Jb (2026-10-02), and it overrides anything below that suggests otherwise.
+
+The world must be genuinely interesting and rewarding to explore in its own right. Writing is the core mechanic, but a player must be able to play for a long time without knowing that, because there are plenty of other intriguing things to find, survive and work out. To a new player the writing is background flavour: marks on old stones, like the ruins around them. Over time the player may notice that there is more to it, and give it a second look.
+
+What this means in practice:
+
+- **Nothing points at the writing.** No tutorial, no announcement, no item that is obviously "the magic tool", no scripted first spell placed beside it.
+- **The world rewards exploration without writing.** Places, objects, mechanisms, creatures, weather, the sky, the history visible in ruins: each is worth exploring for its own sake, with its own mysteries and its own payoffs.
+- **The strangeness comes first, unexplained.** Old spells shape the world everywhere, and at first they are indistinguishable from the world's other oddities. Their cause is something the player may work out later, from patterns in their own notes.
+- **Discovery is gradual and the player's own.** The realisation that writing acts should emerge from evidence (a strange place always has scraped writing nearby; cleaning a stone to read it changed something), not from a scripted moment. Different players should realise at different times, and some may never.
+- **Tools are ordinary first.** What can scrape is first a knife, a chisel, a pumice stone, used to cut, pry or clean. What can magnify is first a lens for starting fires and reading small marks. Their deeper use is discovered, not announced.
+- **A run without writing is still a run.** A player who never learns the mechanic can still explore, survive, map, solve mechanisms, piece together the history, and end their time in the world in a meaningful way.
+
+## Say little; let the player dig
+
+Decided by Jb (2026-10-02). As the world gets richer, the text must not get longer.
+
+- **Short and intriguing.** Each response is a few lines: the one or two things that matter most right now, said so the player wants to know more. Never a wall listing every element of the scene.
+- **Detail is earned.** More detail comes from digging in: examining, looking closer, listening, smelling, touching, waiting, coming back at another time. The world holds far more than any single response shows.
+- **Infer, don't state.** The game rarely states facts the player could work out. It doesn't say "it is spring"; there is blossom, and lambs, and meltwater. It doesn't say "you are hungry" every turn; the player notices weakness, or checks themselves.
+- **Senses are actions.** Sound, smell, touch and close looking are things the player does (`listen`, `smell`, `touch`, `look closer`), not lines appended to every description. Something only intrudes unasked when it's loud, sudden, new or dangerous.
+- **Change over inventory.** What's new or different gets mentioned; what's the same as last time stays quiet unless asked about.
+- **The body speaks rarely.** Needs show as sensations when they cross a threshold, and as detail when the player checks themselves, not as a status line.
+
 ## The three laws
 
 The world runs on three rules about writing.
@@ -33,20 +59,22 @@ There is no partial scraping. Precision lives in what you write, not in how you 
 The player starts with no tools. Unscraped text is read freely, and the top scraped layer is partly visible by eye alone. Other verbs are unlocked by finding tools.
 
 - **Reading deeper:** no tool for the top layer. A later tool lets the player read one layer deeper, revealing what can be written over what.
-- **Scraping:** likely the pivotal discovery, the first moment the player can act. Possibly surface-specific (vellum, stone, metal).
+- **Scraping:** anything with an edge or abrasive surface can scrape, and the player will scrape for ordinary reasons (cleaning moss or soot off a stone to read it). Better scrapers bite harder and reach older, stronger writing. Possibly surface-specific (vellum, stone, metal).
 - **Writing:** inks or styluses, probably last, since writing needs understanding anyway.
 
 Tools can carry story: a scribe's knife bearing its owner's mark, or a lens left by an earlier decipherer.
 
 ### Game loop
 
-1. Explore the environment.
-2. Find scraped text, seeing only part of it.
-3. Investigate the environment for its effects. Nothing is handed to the player; connecting text to effect takes work.
-4. Repeat until an understanding of writing and its effects builds up.
-5. Find the scraping tool, and scrape the rare unscraped texts to trigger their effects.
-6. Find the writing tool, and write and scrape your own text.
-7. Find the deep-reading tool to see one layer beneath, revealing what can be written over what.
+The loop below is the *possible* arc, not a sequence the game steers the player through (see "Writing is background, at first").
+
+1. Explore the environment, for its own sake: places, objects, mechanisms, creatures, the land and sky.
+2. Notice writing everywhere, mostly as background; some of it scraped, partly legible.
+3. Notice strange things in the world, alongside ordinary mysteries. Nothing says which are which.
+4. Perhaps notice the pattern: strangeness and scraped writing go together. Connecting text to effect takes work.
+5. Perhaps scrape a stone for an ordinary reason, and see something change.
+6. Learn enough of the language to write, and write and scrape your own text.
+7. Read deeper layers, revealing what can be written over what.
 
 The early phase works as a two-sided cipher: partial text hints at its effect, and the effect hints at the text.
 

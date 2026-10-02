@@ -389,3 +389,14 @@
 - **Fix**: since the M14 balance pass, life could stall short of where it was heading, because a slow daily step rounded away in whole thousandths. It now moves at least one unit a day. A world left alone changes a band in about 13% of regions a month. The sim test that caught it hadn't been reached by the earlier test runs, which stop at the first failing crate; I now run with `--no-fail-fast`.
 
 **Content slots added:** `app.label` (68 ids, each described for Jb).
+
+## 2026-10-02 — Depth roadmap
+
+**Done**
+- Reviewed the M14 build by playing it (seed 42) and measuring the world: every system works, but each is at its simplest (11 building types, 6 spells per world on 3 verbs, 59% of texts are tombs, generic landmark names), arrival text lists everything at once, and the scraper sits beside a "pivot" spell with a storylet announcing it.
+- Two principles from Jb added to the top of `docs/DESIGN.md`: **Writing is background, at first** (the world is worth exploring for itself; the mechanic is discovered slowly, never pointed at) and **Say little; let the player dig** (short, intriguing responses; detail through examining, listening, smelling; season and needs inferred from evidence, not stated).
+- Game loop and tools in `DESIGN.md` reworded to match.
+- New `docs/DEPTH.md` and milestone specs D01–D11 in `docs/milestones/`, each with numeric targets measured by D01's instruments and sample transcripts for Jb to read.
+
+**Next**
+- D01 — Instruments.
