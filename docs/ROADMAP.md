@@ -26,7 +26,7 @@ The engine is agent work. The content pack is Jb's work. The authoring tool is w
 | 07 ✅ | [Physical world and survival](milestones/M07-physical-world-and-survival.md) | Local properties and their interactions, mechanisms, items, needs, threats, death | survive, or not |
 | 08 ✅ | [Writing that acts](milestones/M08-writing-that-acts.md) | The three laws, layers, partial reading, effects engine, scraping tool | notice effects, then trigger a spell by scraping |
 | 09 ✅ | [Player writing](milestones/M09-player-writing.md) | Writing tool, player text parsed to meaning, understanding gate, layer constraints, deep reading, misfires | compose and cast new inscriptions |
-| 10 | [A world on a trajectory](milestones/M10-world-trajectory.md) | Regional simulation, time passing, great active inscriptions, scraping that scales, change seen on revisit | change the fate of a region |
+| 10 ✅ | [A world on a trajectory](milestones/M10-world-trajectory.md) | Regional simulation, time passing, great active inscriptions, scraping that scales, change seen on revisit | change the fate of a region |
 | 11 | [Endings and legacy](milestones/M11-endings-and-legacy.md) | Ways a run ends, leaving, the deepest text, the zoomed-out summary and chronicle, traces in the next world | finish a run |
 | 12 | [Authored spine and set pieces](milestones/M12-spine-and-set-pieces.md) | Storylet engine, opening and frame, set pieces placed into generated worlds | slot hand-written events into any world |
 | 13 | [Authoring tool v2](milestones/M13-authoring-tool-v2.md) | Coverage by reachability, playtest-from-any-state, world and language inspectors, repetition analysis | finish the content pack efficiently |
@@ -94,7 +94,7 @@ Calibration: M01 cost about **$6** of agent usage. The estimates below are rough
 | 07 | 2–3× | $12–18 |
 | 08 | 2–3× | $12–18 |
 | 09 | 2–2.5× | $10–15 |
-| 10 | 2–2.5× | $10–15 |
+| 10 ✅ | 2–2.5× | $10–15 |
 | 11 | 1.5–2× | $8–12 |
 | 12 | 1.5–2× | $8–12 |
 | 13 | 2–2.5× | $10–15 |

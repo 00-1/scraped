@@ -231,3 +231,29 @@
 7. Players can't write personal names yet.
 
 **Content slots added:** `write.done`, `write.refused`, `write.unknown_mark`, `write.hesitate`, `write.smudge`, `write.backlash`, `scrape.wet`, `read.deep`; `death.narrate` and `end.summary` gained the cause `writing`.
+
+## 2026-10-02 — M10 A world on a trajectory
+
+**Done**
+- **Regions** (`crates/sim/src/region.rs`): drainage basins cut into ~10 km blocks (small ones merged), each with life, water, stability and climate, and with upstream, downstream and neighbouring regions. One step a day: water relaxes to rain plus upstream minus warmth, life follows water and warmth and spreads, stability falls with drought and spreads its cracks, climate relaxes unless pushed. Values are whole thousandths, so skipping time is exact.
+- **Trajectories**: dying worlds start worn and head for 60% of their land's life and water; stagnant worlds hold at 85%; recovering worlds grow back; balanced worlds hold. No other people (living world: none, as proposed).
+- **Great inscriptions**: the root plus the two widest-reaching writing events of history, provided they can be reached. Each pushes its region and neighbours (winter, drought, flood, binding, crevasse, holding). Rubble on the way to them has been dug through; their buildings never flood.
+- **Regional → local**: climate and seasons shift air temperature (and so ice and the body); river flow scales with the region's water against where it began (rivers shrink, crossings open or close); foraging follows the region's life.
+- **Scaling tools**: scraper (1), fine scraper (2), old scraper (3), first scraper (4), each farther out (the first beside the root). Surfaces bearing a great inscription need the first scraper to scrape or write on. A release with a fine scraper or better reaches three times as far; with the old scraper it pushes its region; with the first, its region and two around. Countering a great inscription (scraping fresh writing over it, or writing and releasing the opposite claim) ends its push.
+- **Trade-offs**: coupling (water downstream, life following water and warmth, cracks spreading) makes large changes ripple; the debug view lists every driver and, per region, what pushed it.
+- **Revisits**: the game remembers each outdoor cell's regional state when last seen and says when a band has changed ("the water here was high; now it is low"); changes within a band say nothing.
+- **Time**: `wait 3 hours`, `wait a day`, `wait 2 weeks`, `wait a season`; a 360-day year of four seasons (summer warmer, winter colder); the player ages from 25, which shows in `status`, and wounds heal more slowly past 30.
+- **Evidence of the big picture**: shortage ledgers in the storehouses of the regions that have lost most life, plus history's famine ledgers, ruins and letters.
+- **Debug views**: `scraped-lang world --seed N regions --spoil --days 360` and the bench's World tab ("Regions over half a year"); play spoilers carry the region, its variables and what pushes it.
+- **Tests**: ten years alone is stable; skipping days equals stepping them; dying worlds lose life and recovering ones gain over a year; holding water upstream changes downstream; every great inscription is reachable on foot and through its building, resists weaker scrapers, and can be countered with the first scraper; countering changes its region's course; revisits notice only band changes.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Regions**: basins cut into 32-cell blocks, merged below 40 cells.
+2. **Coupling numbers and headings**: 60% / 85% / 100% / 115% of natural life and water for dying / stagnant / balanced / recovering; a few percent change per day.
+3. **Great inscriptions**: the root plus two; the root reaches three regions out, others two. A perpetual winter can kill a region's life within a year; is that the intended harshness?
+4. **Claim → region**: warmth ±6°, opening/sealing water ±0.3, breaking/holding stability ±0.4.
+5. **Tools**: four scrapers, all found (none made); the stylus works at any scale if the right scraper is carried.
+6. **Seasons and age**: 360-day year from spring; start age 25; healing slows by a sixtieth a year past 30; no death of old age yet (M11's endings).
+7. **Evidence**: up to four shortage ledgers; no migration graffiti yet.
+
+**Content slots added:** `region.cues`, `region.changed`, `great.site`, `great.release`, `scrape.too_weak`, `time.status`; `write.refused` gained `too_great`; `tool.found` and `thing.name` gained the new scrapers.

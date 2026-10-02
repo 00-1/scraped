@@ -47,14 +47,14 @@ Regional state cues in area descriptions; before/after contrast phrases; seasons
 
 ## Checklist
 
-- [ ] Regions, variables and coupling
-- [ ] Regional → local property bias
-- [ ] Great active inscriptions from history
-- [ ] Scaling scraping and writing tools
-- [ ] Trade-off coupling and debug explanation
-- [ ] Per-place memory and revisit contrast
-- [ ] Time passage, seasons, ageing
-- [ ] Evidence of the big picture placed in the world
-- [ ] Slots registered with examples
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Regions, variables and coupling
+- [x] Regional → local property bias
+- [x] Great active inscriptions from history
+- [x] Scaling scraping and writing tools
+- [x] Trade-off coupling and debug explanation
+- [x] Per-place memory and revisit contrast
+- [x] Time passage, seasons, ageing
+- [x] Evidence of the big picture placed in the world
+- [x] Slots registered with examples
+- [x] Tests listed above
+- [x] LOG.md entry

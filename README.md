@@ -59,7 +59,9 @@ loose stone; `cross` tries ice, wading or swimming. With the scraper,
 `scrape <thing>` scrapes its top fresh writing away, and potent writing acts.
 With the stylus, `write 4 12 7 / 3 9 on wall` writes glyphs (script numbers,
 or your own labels from `define`) once you have met each word in two texts;
-the lens shows the layer beneath when you read.
+the lens shows the layer beneath when you read. Time: `wait 2 weeks`; the
+world drifts by region (spoilers: `world --seed N regions --spoil`), and
+stronger scrapers reach farther, up to the great inscriptions.
 
 ### Worlds
 
