@@ -42,13 +42,13 @@ Storylets are content; the engine adds only generic slots (for example, "a story
 
 ## Checklist
 
-- [ ] Storylet data format in the content pack
-- [ ] Condition evaluator and triggering
-- [ ] Placement at world generation
-- [ ] Effects through game systems
-- [ ] Generated-language requests from storylets
-- [ ] Spine hooks wired into the game
-- [ ] Authoring tool storylet editor and placement preview
-- [ ] Storylet lint
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Storylet data format in the content pack
+- [x] Condition evaluator and triggering
+- [x] Placement at world generation
+- [x] Effects through game systems
+- [x] Generated-language requests from storylets
+- [x] Spine hooks wired into the game
+- [x] Authoring tool storylet editor and placement preview
+- [x] Storylet lint
+- [x] Tests listed above
+- [x] LOG.md entry

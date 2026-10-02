@@ -283,3 +283,28 @@
 7. **Chronicle display**: glyph numbers with the player's labels, "/" between words.
 
 **Content slots added:** `end.left`, `end.written_in`, `end.old_age`, `end.overtaken`, `end.region`, `end.calm`, `end.act`, `end.chronicle`, `read.legacy`, `notebook.heading`, `say.export_offer`, `say.exported`, `say.legacy_kept`. `end.summary` is reworked (ending, counts); `read.deep` gained `count`; `tool.found` gained the first lens.
+
+## 2026-10-02 — M12 Authored spine and set pieces
+
+**Done**
+- **Storylets in the pack**: `[[storylet]]` tables in any content file, with `at` (anywhere, structure, outdoors, hook), a spine `hook`, a `when` condition, `after`, placement rules (building kinds, land, era, near water, away from the start), effects and a request for generated writing. Each storylet's text is the slot `story.<id>`, so it is written, linted, covered and previewed like any other slot. Files round-trip through the authoring tool and the project database.
+- **Conditions** use the template language, plus a new `has` operator for lists (`carrying has 'torch'`, `flags has 'met_keeper'`, `happened has 'shrine'`).
+- **Placement** at world creation: deterministic from the seed and the storylet's id, at most one storylet per building, only buildings that can be entered and walked to.
+- **Generated language**: a storylet can ask for an everyday warning or a potent claim about a concept or kind of thing, in an era; the engine builds the meaning, renders it in that era and puts it on a new inscription in the building, readable like any other (and, if potent, releasable). It parses back to its meaning.
+- **Triggering**: on entering the building, within 300 m of an outdoor spot, anywhere the condition holds, or at a spine beat. Storylets happen once unless marked `repeat`.
+- **Effects** through the game's own systems: give an item, set or clear a flag, open the building's ways (unbar and clear).
+- **Spine hooks**: opening (replaces the bare wake-up when written), first scraped text seen, each tool found, first release, first write, reaching a great inscription, finding the deepest text, and every ending (before the summary).
+- **Authoring tool**: "New storylet" in the sidebar; a storylet form with dropdowns and checkboxes for every rule; spine beats shown as chips (written or not); "Place it" generates a world and shows the building, its distance and bearing from the start, the generated writing (gloss with spoilers) and the text as it reads there.
+- **Lint**: bad `at`, missing or unknown beat, unknown building kind, land or era, unreadable condition or unknown variables, `after` naming no storylet or itself, unknown or conflicting effects, writing with nowhere to go or about nothing the language has, missing text, duplicate ids, unwritten spine beats, and (in `scraped-cli content lint`, which generates worlds) storylets that fit no building.
+- **Web API**: `storylet_schema`, `storylet_preview`; `registry`, `lint`, `lint_variant` and `preview` take the pack. Play spoilers list where storylets were placed and what has happened.
+- **Examples**: one placed storylet (a far temple with a warning about water) and one per spine beat, all marked as examples for Jb to replace.
+- **Tests**: condition evaluation, `after` and flags chaining, deterministic placement that follows its rules, generated writing that parses back and triggers on entering, a scripted run reaching every spine beat, and lint fixtures for each problem.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Nearness** for outdoor storylets: 300 m.
+2. **One storylet per building**; storylets placed in pack order, so earlier ones get first pick.
+3. **Generated writing** for a storylet goes on a new stone inscription in the building's furthest reachable room (or outdoors at the spot).
+4. **Hook storylets' text** appears after the command's own text; the opening replaces the wake-up, the ending comes before the summary.
+5. Should "first_…" beats ever repeat? They fire once a run.
+
+**Content slots added:** one per storylet (`story.<id>`), declared from the pack. Examples: `story.opening`, `story.shrine`, `story.scraped_seen`, `story.tool`, `story.release`, `story.first_write`, `story.great`, `story.deepest`, `story.ending`.
