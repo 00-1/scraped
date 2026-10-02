@@ -34,14 +34,14 @@ New mechanics. Anything new goes in a post-release roadmap.
 
 ## Checklist
 
-- [ ] Solvability checker and seed repair/rejection
-- [ ] Difficulty metrics and presets
-- [ ] Balance pass
-- [ ] Browser player: accessible, saves, transcripts, hosted
-- [ ] Terminal release binaries
-- [ ] Agent protocol docs and MCP wrapper with co-op house rules
-- [ ] Seed sharing codes
-- [ ] Release gate in CI
-- [ ] Player help and manual (content)
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Solvability checker and seed repair/rejection
+- [x] Difficulty metrics and presets
+- [x] Balance pass
+- [x] Browser player: accessible, saves, transcripts, hosted
+- [x] Terminal release binaries
+- [x] Agent protocol docs and MCP wrapper with co-op house rules
+- [x] Seed sharing codes
+- [x] Release gate in CI
+- [x] Player help and manual (content): slots and the `manual` command are in; the text is Jb's to write
+- [x] Tests listed above
+- [x] LOG.md entry

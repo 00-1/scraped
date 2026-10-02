@@ -30,7 +30,7 @@ The engine is agent work. The content pack is Jb's work. The authoring tool is w
 | 11 ✅ | [Endings and legacy](milestones/M11-endings-and-legacy.md) | Ways a run ends, leaving, the deepest text, the zoomed-out summary and chronicle, traces in the next world | finish a run |
 | 12 ✅ | [Authored spine and set pieces](milestones/M12-spine-and-set-pieces.md) | Storylet engine, opening and frame, set pieces placed into generated worlds | slot hand-written events into any world |
 | 13 ✅ | [Authoring tool v2](milestones/M13-authoring-tool-v2.md) | Coverage by reachability, playtest-from-any-state, world and language inspectors, repetition analysis | finish the content pack efficiently |
-| 14 | [Fairness, clients and release](milestones/M14-fairness-clients-release.md) | Solvability checks, difficulty tuning, browser player, agent harness, release gate | ship it |
+| 14 ✅ | [Fairness, clients and release](milestones/M14-fairness-clients-release.md) | Solvability checks, difficulty tuning, browser player, agent harness, release gate | ship it |
 
 Dependencies are mostly linear. Two exceptions:
 

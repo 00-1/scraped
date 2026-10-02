@@ -7,7 +7,7 @@ A text-only game about deciphering a lost, procedurally generated language in a 
 - Agent briefing: [`CLAUDE.md`](CLAUDE.md)
 - Work log: [`docs/LOG.md`](docs/LOG.md)
 
-Status: pre-alpha. Building the language engine first.
+Status: feature-complete (milestones M01–M14); waiting on Jb's text. The release gate passes once every required slot has his own writing.
 
 ## Try it
 
@@ -36,9 +36,17 @@ A shorter corpus is always the start of a longer one for the same seed.
 
 ### Play
 
+In a browser: `tools/build.sh`, then open `tools/dist/play.html` (also
+published to GitHub Pages). Saves, transcripts and notebooks stay in the
+browser or download as files.
+
+In a terminal (release binaries are attached to each GitHub release):
+
 ```sh
 # Wake in a generated town and explore it: look, go temple, read stele, help.
 cargo run -q -p scraped-play -- --seed 42
+cargo run -q -p scraped-play -- --difficulty gentle      # gentle | standard | archaeologist
+cargo run -q -p scraped-play -- --code K5G0-9ZQ1          # a world someone shared
 
 # For agents: one JSON command per line in, one JSON response per line out.
 echo '{"cmd": "look"}' | cargo run -q -p scraped-play -- --seed 42 --json
@@ -48,7 +56,10 @@ In play, `save`, `load`, `transcript on|off`, `export` (the notebook:
 transcript, named places and run record, once the run is over) and `quit`
 handle the session; `--legacy [FILE]` carries the last run's final
 inscription into the next world as a faint, very old layer;
-`define 3 as ka` gives a glyph your own label. Outdoors: `head north`,
+`code` shows the world's shareable code and `manual` the player's
+manual. A seed whose world fails the fairness check is quietly replaced by
+a fair world derived from it (`--raw` turns that off). `define 3 as ka`
+gives a glyph your own label. Outdoors: `head north`,
 `go to the tower` (anything in view), `follow the river downstream`,
 `go back`, `name this place the gap` and later `go to the gap`. In fog or at
 night you drift without knowing it; the bench's Play tab shows where you
@@ -66,6 +77,10 @@ the lens shows the layer beneath when you read. Time: `wait 2 weeks`; the
 world drifts by region (spoilers: `world --seed N regions --spoil`), and
 stronger scrapers reach farther, up to the great inscriptions.
 
+Agents can play too: `--json` (see [`docs/PROTOCOL.md`](docs/PROTOCOL.md)),
+or the MCP server `scraped-mcp`, with house rules for playing alongside a
+person in [`docs/coop/CLAUDE.md`](docs/coop/CLAUDE.md).
+
 ### Worlds
 
 ```sh
@@ -75,17 +90,23 @@ cargo run -q -p scraped-cli -- world --seed 42 map --spoil --png world.png
 cargo run -q -p scraped-cli -- world --seed 42 history --spoil
 cargo run -q -p scraped-cli -- world --seed 42 site 0 --spoil
 cargo run -q -p scraped-cli -- world --seed 42 writing --spoil   # live claims, surface stacks
+cargo run -q -p scraped-cli -- fair --seeds 1-50 --all            # solvability batch
 ```
 
 ### Browser tools
 
-`tools/build.sh` builds two self-contained pages into `tools/dist/`, each with
-the engine (`crates/web`) compiled to WebAssembly:
+`tools/build.sh` builds three self-contained pages into `tools/dist/`, each
+with the engine (`crates/web`) compiled to WebAssembly: `play.html` (the
+game, above) and:
 
 - `author.html`, the **authoring tool**: every content slot with its status,
   what it is for and its variables; an editor that lints as you type; live
-  previews against real generated worlds; saving straight into `content/`
-  (Chrome/Edge), or via zip export and copy-to-clipboard.
+  previews against real generated worlds; storylets with a placement
+  preview; a playtest beside the editor where every line links to the text
+  that wrote it and edits show at once; gaps ranked by how often players
+  meet them; voice tools; inspectors; the diff since the last commit; and
+  saving straight into `content/` (Chrome/Edge), or via zip export and
+  copy-to-clipboard.
 - `bench.html`, the **bench**: the game (Play tab; spoilers show your true position and body), eras side by side, glyphs, the script
   table, every difficulty dial, and the world (map, history, sites).
 
@@ -112,9 +133,11 @@ Every English word the player reads is written by Jb in `content/` (see
   the rule table (`data/rules.toml`), mechanisms, items, the body, creatures, and
   writing that acts (`data/claims.toml`, surfaces, layers, claims).
 - `crates/game` — game state, the parser (`data/verbs.toml`), commands and travel.
-- `crates/play` — the `scraped` terminal client and JSON-lines agent protocol.
+- `crates/play` — the `scraped` terminal client, the JSON-lines agent protocol and
+  the `scraped-mcp` MCP server.
 - `crates/web` — the engine for browsers: one WebAssembly module with a JSON interface.
-- `tools/bench`, `tools/author` — page templates for the bench and the authoring tool.
+- `tools/play`, `tools/bench`, `tools/author` — page templates for the player, the
+  bench and the authoring tool; `tools/smoke` — their headless tests.
 - `content/` — Jb's content pack.
 
 ## Checks

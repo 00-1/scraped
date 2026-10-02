@@ -330,3 +330,29 @@
 5. The bots are simple; slots behind deep play (endings, late writing) show as "never reached" until better bots exist.
 
 **Content slots added:** none.
+
+## 2026-10-02 — M14 Fairness, clients and release
+
+**Done**
+- **Solvability checker** (`scraped_game::fairness`): for each goal (the scraper, the first release, writing a claim, a great inscription, the deepest text, leaving) it traces what must be reachable on foot and through buildings, which words must appear in enough readable texts, and which constructions must be attested in the newest era; for leaving, the departure words must be in the deepest texts and enough words shared between the oldest and newest writing to carry them across. Worlds that fail give way to the first fair seed derived from them (`fair_seed`); the clients do this unless told `--raw`.
+- **It found a real problem**: on most seeds the root inscription, and so the deepest text, lay behind fallen rooms. Where the root can't be reached, the deepest accounts now lie beneath a scraped recopy of the root, in a reachable room of the same building.
+- **Difficulty**: presets gentle (an alphabet, names marked, two eras), standard (the defaults) and archaeologist (word dividers, fused inflection, four eras), carried in saves and seed codes. Metrics per world: readable texts, evidence density (texts per concept), ambiguity (newest-era roots spelled alike), anchors (numerals, formulae, repeated names) and the bridge between oldest and newest writing. Each preset has a band. `scraped-lang fair --seeds 1-30 --all`: 88 of 90 worlds fair as made, and all 90 have a fair world.
+- **Balance**: regions settle for two years under history's pushes before play, so water, ground and climate start where the great inscriptions have long held them, and life stays as worn as the trajectory left it. Ground starts mid-band, and life moves half a percent of the way a day. A world left alone now changes a band in about 6% of regions a month (it was nearly all). Survival is unchanged: the careful bot lasts four days, the reckless one dies in a day or two, and the coverage wanderer mostly dies of cold in about 20 hours.
+- **Browser player** (`tools/play`, published to Pages): a quiet reading page; the log is a live region; keyboard-first (focus starts in the command box, Up/Down recall, Alt+S saves, Alt+M opens the menu); text size, high contrast, light/dark; three save slots plus export/import; transcript and notebook downloads; new games by seed, code or difficulty; legacy; links with `#code=…`. Its labels are Jb's `ui.label` slot.
+- **Terminal player**: `--difficulty`, `--code`, `--raw`; `code` shows the world's code. Release binaries for Linux, macOS and Windows (`scraped` and `scraped-mcp`, with the content and protocol docs), built by the release workflow and attached to each GitHub release.
+- **Agents**: JSON-lines responses carry `protocol: 1`; `docs/PROTOCOL.md` documents it. `scraped-mcp` is a stdio MCP server with five tools: new_game, act, save, load and seed_code. `docs/coop/CLAUDE.md` holds house rules for an agent playing with a person (ask before anything irreversible, never claim meanings without evidence, keep a journal).
+- **Seed codes**: Crockford base 32 with the preset, a pack fingerprint and a check byte (`2K4G-30GF-GFV8-T`); typos are caught.
+- **Release gate** (`.github/workflows/release.yml`): fmt, clippy, tests, the content release check, the fairness batch (50 seeds × 3 presets), the browser builds and their headless tests, and determinism on Linux, macOS and Windows; then the binaries. CI also checks determinism on all three platforms and in WebAssembly (`tools/smoke/determinism.cjs`, against `crates/game/tests/transcripts.txt`).
+- **Player docs**: `manual <section>` (contents, playing, reading, notebook, writing, survival, endings) through the `manual.page` slot; the in-game `help` as before. The text is Jb's to write.
+- **Tests**: crafted unsolvable worlds fail on exactly the right goal; metric bands; every preset gives fair worlds, plays and replays; seed codes round-trip and catch typos; the MCP server and protocol 1; cross-platform transcripts; and a headless test of the browser player (keyboard only, focus stays in the menu, named controls and labels, live log, saves, text size, contrast, downloads, and the same world from its code).
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Presets**: the dials for gentle, standard and archaeologist; the metric bands (8 anchors and density 2 for all, gentle needs density 3 and under 5% ambiguity); the bridge of 10 shared words.
+2. **Unfair seeds** are replaced silently by a derived fair seed; should players be told?
+3. **Balance**: two years of settling; ground starting at 0.7; life at half a percent a day.
+4. **UI labels** are one slot (`ui.label`) with an id per control.
+5. **Release**: the gate fails until every required slot has Jb's text, as intended. The first tag (`v0.1.0`?) is his call.
+
+**Content slots added:** `manual.page`, `say.seed_code`, `ui.label`.
+
+**Roadmap complete.** What's left for release is Jb's writing; the authoring tool's Gaps and Review views show where to start.
