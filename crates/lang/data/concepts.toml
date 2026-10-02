@@ -1,0 +1,630 @@
+# Starter concept list for Milestone 1.
+#
+# Every language generated from a seed gets one root per concept here.
+# Fields:
+#   id        unique gloss used in interlinear glosses (lowercase, no spaces)
+#   domain    people | nature | places | objects | actions | qualities | deixis | numbers
+#   pos       noun | verb | adj | num | det | adv
+#   tags      (nouns) semantic tags used by inscription templates to pick sensible words
+#   objects   (verbs) tags an object noun must carry (any one); empty = intransitive
+#   applies   (adjectives) tags a noun must carry (any one) for the adjective to modify it
+#   value     (numbers) numeric value
+#   en_*      English forms for the placeholder translation, only where the regular rule fails
+#
+# Tags are a stand-in for real semantics until world generation exists.
+
+# --- people -----------------------------------------------------------------
+[[concept]]
+id = "person"
+domain = "people"
+pos = "noun"
+tags = ["person"]
+
+[[concept]]
+id = "man"
+domain = "people"
+pos = "noun"
+tags = ["person"]
+en_plural = "men"
+
+[[concept]]
+id = "woman"
+domain = "people"
+pos = "noun"
+tags = ["person"]
+en_plural = "women"
+
+[[concept]]
+id = "child"
+domain = "people"
+pos = "noun"
+tags = ["person", "kin"]
+en_plural = "children"
+
+[[concept]]
+id = "son"
+domain = "people"
+pos = "noun"
+tags = ["kin"]
+
+[[concept]]
+id = "daughter"
+domain = "people"
+pos = "noun"
+tags = ["kin"]
+
+[[concept]]
+id = "mother"
+domain = "people"
+pos = "noun"
+tags = ["kin", "honoured"]
+
+[[concept]]
+id = "father"
+domain = "people"
+pos = "noun"
+tags = ["kin", "honoured"]
+
+[[concept]]
+id = "wife"
+domain = "people"
+pos = "noun"
+tags = ["kin"]
+en_plural = "wives"
+
+[[concept]]
+id = "husband"
+domain = "people"
+pos = "noun"
+tags = ["kin"]
+
+[[concept]]
+id = "brother"
+domain = "people"
+pos = "noun"
+tags = ["kin"]
+
+[[concept]]
+id = "sister"
+domain = "people"
+pos = "noun"
+tags = ["kin"]
+
+[[concept]]
+id = "king"
+domain = "people"
+pos = "noun"
+tags = ["person", "title", "honoured"]
+
+[[concept]]
+id = "queen"
+domain = "people"
+pos = "noun"
+tags = ["person", "title", "honoured"]
+
+[[concept]]
+id = "priest"
+domain = "people"
+pos = "noun"
+tags = ["person", "title"]
+
+[[concept]]
+id = "scribe"
+domain = "people"
+pos = "noun"
+tags = ["person", "title"]
+
+[[concept]]
+id = "smith"
+domain = "people"
+pos = "noun"
+tags = ["person", "title"]
+
+[[concept]]
+id = "servant"
+domain = "people"
+pos = "noun"
+tags = ["person", "title"]
+
+[[concept]]
+id = "god"
+domain = "people"
+pos = "noun"
+tags = ["deity", "honoured", "fearsome"]
+
+# --- nature -----------------------------------------------------------------
+[[concept]]
+id = "water"
+domain = "nature"
+pos = "noun"
+tags = ["liquid"]
+
+[[concept]]
+id = "river"
+domain = "nature"
+pos = "noun"
+tags = ["crossable", "deep"]
+
+[[concept]]
+id = "stone"
+domain = "nature"
+pos = "noun"
+tags = ["breakable"]
+
+[[concept]]
+id = "tree"
+domain = "nature"
+pos = "noun"
+tags = ["flammable"]
+
+[[concept]]
+id = "fire"
+domain = "nature"
+pos = "noun"
+tags = ["fearsome"]
+
+[[concept]]
+id = "sun"
+domain = "nature"
+pos = "noun"
+tags = []
+
+[[concept]]
+id = "moon"
+domain = "nature"
+pos = "noun"
+tags = []
+
+[[concept]]
+id = "rain"
+domain = "nature"
+pos = "noun"
+tags = []
+
+[[concept]]
+id = "mountain"
+domain = "nature"
+pos = "noun"
+tags = ["crossable"]
+
+[[concept]]
+id = "sea"
+domain = "nature"
+pos = "noun"
+tags = ["crossable", "deep", "fearsome"]
+
+[[concept]]
+id = "sheep"
+domain = "nature"
+pos = "noun"
+tags = ["good"]
+en_plural = "sheep"
+
+[[concept]]
+id = "ox"
+domain = "nature"
+pos = "noun"
+tags = ["good"]
+en_plural = "oxen"
+
+[[concept]]
+id = "goat"
+domain = "nature"
+pos = "noun"
+tags = ["good"]
+
+[[concept]]
+id = "fish"
+domain = "nature"
+pos = "noun"
+tags = ["good", "food"]
+en_plural = "fish"
+
+[[concept]]
+id = "grain"
+domain = "nature"
+pos = "noun"
+tags = ["food", "flammable"]
+
+# --- places -----------------------------------------------------------------
+[[concept]]
+id = "house"
+domain = "places"
+pos = "noun"
+tags = ["enterable", "flammable"]
+
+[[concept]]
+id = "temple"
+domain = "places"
+pos = "noun"
+tags = ["enterable", "place", "sacred"]
+
+[[concept]]
+id = "city"
+domain = "places"
+pos = "noun"
+tags = ["enterable", "place"]
+en_plural = "cities"
+
+[[concept]]
+id = "gate"
+domain = "places"
+pos = "noun"
+tags = ["openable", "breakable"]
+
+[[concept]]
+id = "door"
+domain = "places"
+pos = "noun"
+tags = ["openable", "breakable", "flammable"]
+
+[[concept]]
+id = "road"
+domain = "places"
+pos = "noun"
+tags = []
+
+[[concept]]
+id = "field"
+domain = "places"
+pos = "noun"
+tags = ["flammable"]
+
+[[concept]]
+id = "tomb"
+domain = "places"
+pos = "noun"
+tags = ["openable", "enterable", "sacred"]
+
+[[concept]]
+id = "well"
+domain = "places"
+pos = "noun"
+tags = ["deep"]
+
+[[concept]]
+id = "wall"
+domain = "places"
+pos = "noun"
+tags = ["crossable", "breakable"]
+
+[[concept]]
+id = "tower"
+domain = "places"
+pos = "noun"
+tags = ["enterable"]
+
+[[concept]]
+id = "shrine"
+domain = "places"
+pos = "noun"
+tags = ["enterable", "place", "sacred"]
+
+# --- objects ----------------------------------------------------------------
+[[concept]]
+id = "bowl"
+domain = "objects"
+pos = "noun"
+tags = ["made", "good", "breakable"]
+
+[[concept]]
+id = "jar"
+domain = "objects"
+pos = "noun"
+tags = ["made", "good", "breakable"]
+
+[[concept]]
+id = "tablet"
+domain = "objects"
+pos = "noun"
+tags = ["made", "writing", "breakable"]
+
+[[concept]]
+id = "statue"
+domain = "objects"
+pos = "noun"
+tags = ["made", "breakable", "sacred"]
+
+[[concept]]
+id = "altar"
+domain = "objects"
+pos = "noun"
+tags = ["made", "sacred"]
+
+[[concept]]
+id = "oil"
+domain = "objects"
+pos = "noun"
+tags = ["liquid"]
+
+[[concept]]
+id = "wine"
+domain = "objects"
+pos = "noun"
+tags = ["liquid"]
+
+[[concept]]
+id = "cloth"
+domain = "objects"
+pos = "noun"
+tags = ["good", "flammable"]
+
+[[concept]]
+id = "loaf"
+domain = "objects"
+pos = "noun"
+tags = ["good", "food"]
+en_plural = "loaves"
+
+[[concept]]
+id = "knife"
+domain = "objects"
+pos = "noun"
+tags = ["made", "good"]
+en_plural = "knives"
+
+[[concept]]
+id = "lamp"
+domain = "objects"
+pos = "noun"
+tags = ["made", "good"]
+
+[[concept]]
+id = "box"
+domain = "objects"
+pos = "noun"
+tags = ["made", "openable", "breakable"]
+en_plural = "boxes"
+
+[[concept]]
+id = "seal"
+domain = "objects"
+pos = "noun"
+tags = ["made", "writing", "breakable"]
+
+# --- actions ----------------------------------------------------------------
+[[concept]]
+id = "lie"
+domain = "actions"
+pos = "verb"
+objects = []
+en_3sg = "lies"
+en_past = "lay"
+
+[[concept]]
+id = "make"
+domain = "actions"
+pos = "verb"
+objects = ["made"]
+en_past = "made"
+
+[[concept]]
+id = "bring"
+domain = "actions"
+pos = "verb"
+objects = ["good"]
+en_past = "brought"
+
+[[concept]]
+id = "give"
+domain = "actions"
+pos = "verb"
+objects = ["good"]
+en_past = "gave"
+
+[[concept]]
+id = "open"
+domain = "actions"
+pos = "verb"
+objects = ["openable"]
+
+[[concept]]
+id = "enter"
+domain = "actions"
+pos = "verb"
+objects = ["enterable"]
+
+[[concept]]
+id = "take"
+domain = "actions"
+pos = "verb"
+objects = ["good", "made"]
+en_past = "took"
+
+[[concept]]
+id = "burn"
+domain = "actions"
+pos = "verb"
+objects = ["flammable"]
+
+[[concept]]
+id = "drink"
+domain = "actions"
+pos = "verb"
+objects = ["liquid"]
+en_past = "drank"
+
+[[concept]]
+id = "cross"
+domain = "actions"
+pos = "verb"
+objects = ["crossable"]
+en_3sg = "crosses"
+
+[[concept]]
+id = "touch"
+domain = "actions"
+pos = "verb"
+objects = ["sacred"]
+en_3sg = "touches"
+
+[[concept]]
+id = "break"
+domain = "actions"
+pos = "verb"
+objects = ["breakable"]
+en_past = "broke"
+
+[[concept]]
+id = "scrape"
+domain = "actions"
+pos = "verb"
+objects = ["writing"]
+
+[[concept]]
+id = "eat"
+domain = "actions"
+pos = "verb"
+objects = ["food"]
+en_past = "ate"
+
+[[concept]]
+id = "fear"
+domain = "actions"
+pos = "verb"
+objects = ["fearsome"]
+
+[[concept]]
+id = "honour"
+domain = "actions"
+pos = "verb"
+objects = ["honoured"]
+
+# --- qualities --------------------------------------------------------------
+[[concept]]
+id = "great"
+domain = "qualities"
+pos = "adj"
+applies = ["title", "deity", "place", "crossable"]
+
+[[concept]]
+id = "small"
+domain = "qualities"
+pos = "adj"
+applies = ["made", "good", "enterable"]
+
+[[concept]]
+id = "old"
+domain = "qualities"
+pos = "adj"
+applies = ["title", "made", "enterable", "openable"]
+
+[[concept]]
+id = "new"
+domain = "qualities"
+pos = "adj"
+applies = ["made", "enterable", "openable"]
+
+[[concept]]
+id = "holy"
+domain = "qualities"
+pos = "adj"
+applies = ["sacred", "deity", "liquid"]
+
+[[concept]]
+id = "dark"
+domain = "qualities"
+pos = "adj"
+applies = ["enterable", "deep", "liquid"]
+
+[[concept]]
+id = "good"
+domain = "qualities"
+pos = "adj"
+applies = ["title", "liquid", "good"]
+
+[[concept]]
+id = "white"
+domain = "qualities"
+pos = "adj"
+applies = ["made", "good", "breakable"]
+
+[[concept]]
+id = "red"
+domain = "qualities"
+pos = "adj"
+applies = ["made", "good", "liquid"]
+
+[[concept]]
+id = "cold"
+domain = "qualities"
+pos = "adj"
+applies = ["liquid", "deep"]
+
+[[concept]]
+id = "deep"
+domain = "qualities"
+pos = "adj"
+applies = ["deep"]
+
+# --- deixis -----------------------------------------------------------------
+[[concept]]
+id = "this"
+domain = "deixis"
+pos = "det"
+
+[[concept]]
+id = "here"
+domain = "deixis"
+pos = "adv"
+
+# --- numbers ----------------------------------------------------------------
+[[concept]]
+id = "one"
+domain = "numbers"
+pos = "num"
+value = 1
+
+[[concept]]
+id = "two"
+domain = "numbers"
+pos = "num"
+value = 2
+
+[[concept]]
+id = "three"
+domain = "numbers"
+pos = "num"
+value = 3
+
+[[concept]]
+id = "four"
+domain = "numbers"
+pos = "num"
+value = 4
+
+[[concept]]
+id = "five"
+domain = "numbers"
+pos = "num"
+value = 5
+
+[[concept]]
+id = "six"
+domain = "numbers"
+pos = "num"
+value = 6
+
+[[concept]]
+id = "seven"
+domain = "numbers"
+pos = "num"
+value = 7
+
+[[concept]]
+id = "eight"
+domain = "numbers"
+pos = "num"
+value = 8
+
+[[concept]]
+id = "nine"
+domain = "numbers"
+pos = "num"
+value = 9
+
+[[concept]]
+id = "ten"
+domain = "numbers"
+pos = "num"
+value = 10

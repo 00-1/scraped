@@ -1,0 +1,13 @@
+[package]
+name = "scraped-lang"
+description = "Procedural language engine for Scraped Again: phonology, lexicon, morphology, syntax and inscriptions."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+rand_chacha.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
