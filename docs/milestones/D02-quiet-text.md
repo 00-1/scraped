@@ -8,7 +8,29 @@
 
 ## Why
 
-On the M14 build, arriving in a town on seed 42 prints the weather, the ground, a list of fourteen buildings, the horizon, the season, the state of the land and a creature, every time, and `look` repeats all of it. Each later system appended its line. D03–D11 will add much more to the world; without this milestone, every addition makes each response longer.
+The opening of a game on the M14 build, as Jb saw it (example variants):
+
+```
+You wake in a grassland, with no memory of arriving.
+
+Clear, in the morning.
+
+You stand on flat ground, in grassland. The road runs here.
+
+You stand among ruins in a grassland, in the morning. Here the worn temple, the worn house, the intact house, the ruined storehouse, the damaged cemetery, the worn tomb, the intact tomb, the worn tomb, the intact tomb, the worn tomb, the intact tomb, the intact tomb, the intact tomb, the intact tomb and the well.
+
+In the distance: the town to the south (far) and the town to the south (horizon).
+
+It is cold.
+
+It is spring. Little grows.
+```
+
+What's wrong, and none of it is the placeholder wording: every system adds its own line; the scene is restated ("grassland" three times, "in the morning" twice, "You stand" twice); fifteen buildings are listed one by one; two landmarks are indistinguishable; and temperature, season and the land's state are stated instead of shown.
+
+**This opening is a fixture.** After D02, the same moment on the same seed must render at most three facts with no repetition, such as (shape only; the words will be Jb's) a road through long grass, a ruined temple over a crowd of tombs, and the cold felt in the breath. Everything removed must still be reachable by `look around`, `look closer`, `listen` and so on. Commit the before and after to `docs/samples/D02/`.
+
+Also, on the M14 build, arriving in a town on seed 42 prints the weather, the ground, a list of fourteen buildings, the horizon, the season, the state of the land and a creature, every time, and `look` repeats all of it. Each later system appended its line. D03–D11 will add much more to the world; without this milestone, every addition makes each response longer.
 
 ## Scope
 
