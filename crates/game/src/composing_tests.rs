@@ -25,7 +25,7 @@ pub(crate) fn pack() -> Pack {
     Pack::load(&files).0
 }
 
-fn claim(verb: &str, subject: &str, negative: bool) -> Sentence {
+pub(crate) fn claim(verb: &str, subject: &str, negative: bool) -> Sentence {
     Sentence::Clause(Clause {
         predicate: verb.into(),
         mood: Mood::Potent,

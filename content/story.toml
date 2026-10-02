@@ -1,0 +1,117 @@
+notes = "Storylets: hand-written events and places, and the beats of the spine. Each storylet's text is the slot story.<id>."
+
+[[variant]]
+slot = "story.opening"
+text = "You wake in {a biome}, with no memory of arriving."
+example = true
+
+[[variant]]
+slot = "story.shrine"
+text = "Someone tended this place once. On {inscription}, fresh-looking marks."
+example = true
+
+[[variant]]
+slot = "story.scraped_seen"
+text = "Some of these marks were scraped away on purpose."
+example = true
+
+[[variant]]
+slot = "story.tool"
+text = "It fits your hand as if it remembered it."
+example = true
+
+[[variant]]
+slot = "story.release"
+text = "Something in the world answers you."
+example = true
+
+[[variant]]
+slot = "story.first_write"
+text = "Your first marks, in a tongue no one has spoken for an age."
+example = true
+
+[[variant]]
+slot = "story.great"
+text = "This is one of the old places."
+example = true
+
+[[variant]]
+slot = "story.deepest"
+text = "Beneath everything, the oldest words."
+example = true
+
+[[variant]]
+slot = "story.ending"
+text = "[if ending == 'left']So you went.[else]So it ended.[end]"
+example = true
+
+[[storylet]]
+id = "opening"
+about = "The opening: the player wakes in the world. Replaces the bare wake-up."
+at = "hook"
+hook = "opening"
+example = true
+
+[[storylet]]
+id = "shrine"
+about = "An old temple far from the starting town, with a warning about water cut by its keepers."
+at = "structure"
+effects = ["flag shrine_seen"]
+example = true
+
+[storylet.place]
+structure = ["temple"]
+away = true
+
+[storylet.inscription]
+register = "everyday"
+about = "water"
+
+[[storylet]]
+id = "scraped_seen"
+about = "The first time the player reads writing that was scraped away."
+at = "hook"
+hook = "first_scraped_seen"
+example = true
+
+[[storylet]]
+id = "tool"
+about = "The first writing tool the player picks up."
+at = "hook"
+hook = "tool_found"
+example = true
+
+[[storylet]]
+id = "release"
+about = "The player's own writing first takes effect."
+at = "hook"
+hook = "first_release"
+example = true
+
+[[storylet]]
+id = "first_write"
+about = "The player first writes in the language."
+at = "hook"
+hook = "first_write"
+example = true
+
+[[storylet]]
+id = "great"
+about = "The player first stands before a great inscription."
+at = "hook"
+hook = "great_reached"
+example = true
+
+[[storylet]]
+id = "deepest"
+about = "The player first reads the deepest text."
+at = "hook"
+hook = "deepest_found"
+example = true
+
+[[storylet]]
+id = "ending"
+about = "Said at the end of every run, before the summary."
+at = "hook"
+hook = "ending"
+example = true

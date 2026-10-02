@@ -4,7 +4,6 @@
 use std::path::Path;
 
 use scraped_content::{coverage, lint, release_check, Pack, Renderer, Severity};
-use scraped_game::slots::registry;
 use scraped_lang::slots::LangHooks;
 use scraped_lang::Language;
 
@@ -72,12 +71,17 @@ pub fn run(args: &[String]) -> Result<String, String> {
             _ => rest.push(a.clone()),
         }
     }
-    let reg = registry();
     let files = read_pack(Path::new(&dir))?;
     let (pack, errors) = Pack::load(&files);
+    let reg = scraped_game::slots::registry_for(&pack);
     let lang = Language::generate(seed);
     let hooks = LangHooks { lang: &lang };
-    let issues = lint(&reg, &pack, &errors, &hooks);
+    let mut issues = lint(&reg, &pack, &errors, &hooks);
+    issues.extend(scraped_game::storylets::lint(&pack));
+    if rest.first().map(String::as_str) == Some("lint") {
+        // Slow: which storylets fit no building in a few sample worlds.
+        issues.extend(scraped_game::storylets::unplaceable(&pack, &[1, 42, 9001]));
+    }
     match rest.first().map(String::as_str) {
         Some("lint") => {
             if json {

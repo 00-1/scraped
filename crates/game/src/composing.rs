@@ -338,6 +338,7 @@ impl Game {
             refused: None,
             glyphs,
         });
+        self.hook("first_write", "", "");
         self.output(vec![t], None)
     }
 

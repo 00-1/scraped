@@ -18,6 +18,9 @@ mod physical;
 pub mod site;
 pub mod slots;
 #[cfg(test)]
+mod storylet_tests;
+pub mod storylets;
+#[cfg(test)]
 mod survival;
 pub mod trajectory;
 #[cfg(test)]
@@ -181,6 +184,9 @@ pub struct State {
     /// What the player's scrapes did to the regional pushes.
     #[serde(default)]
     pub acts: Vec<ending::Act>,
+    /// What storylets have done.
+    #[serde(default)]
+    pub story: storylets::StoryState,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -300,6 +306,10 @@ pub struct Game {
     /// Whether the end of the run has been summed up yet.
     summarised: bool,
     legacy: Option<ending::Legacy>,
+    /// Where the pack's storylets were placed in this world.
+    pub placed: Vec<storylets::Placed>,
+    /// Beats of the spine announced so far.
+    pub hooks_seen: BTreeSet<String>,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -324,7 +334,8 @@ impl Game {
 
     /// A new game in a world carrying a previous run's legacy.
     pub fn with_legacy(seed: u64, pack: Pack, legacy: Option<ending::Legacy>) -> Self {
-        let site = Site::with_legacy(seed, legacy.as_ref().map(|l| &l.meaning));
+        let mut site = Site::with_legacy(seed, legacy.as_ref().map(|l| &l.meaning));
+        let placed = storylets::place(&mut site, &pack);
         let state = State {
             place: Place::Outside,
             carried: Vec::new(),
@@ -363,13 +374,14 @@ impl Game {
             visited: BTreeSet::new(),
             read: BTreeSet::new(),
             acts: Vec::new(),
+            story: storylets::StoryState::default(),
         };
         let claims = site
             .writing
             .live_claims(&site.world, &site.land, &state.scraped);
         let mut g = Game {
             site,
-            registry: slots::registry(),
+            registry: slots::registry_for(&pack),
             pack,
             state,
             memory: BTreeMap::new(),
@@ -393,6 +405,8 @@ impl Game {
             transcript: Vec::new(),
             summarised: false,
             legacy,
+            placed,
+            hooks_seen: BTreeSet::new(),
         };
         g.recompute_drivers();
         g.initial_drivers = g.drivers.clone();
@@ -405,12 +419,17 @@ impl Game {
 
     /// The opening text.
     pub fn start(&mut self) -> Output {
-        let intro = self.say(
-            "say.intro",
-            ctx(&[("biome", Value::from(self.site.biome()))]),
-        );
+        // The opening beat replaces the bare wake-up when Jb has written it.
+        let mut intro = self.hook("opening", "", "");
+        if intro.is_empty() {
+            intro.push(self.say(
+                "say.intro",
+                ctx(&[("biome", Value::from(self.site.biome()))]),
+            ));
+        }
         let look = self.look();
-        self.output(vec![intro, look], None)
+        intro.push(look);
+        self.output(intro, None)
     }
 
     /// Saves the game as its seed, pack version and commands.
@@ -666,6 +685,7 @@ impl Game {
                 };
                 let cues = self.cues();
                 let great = if self.great_here() {
+                    self.hook("great_reached", "", "");
                     self.say("great.site", Context::new())
                 } else {
                     String::new()
@@ -741,6 +761,7 @@ impl Game {
 
     fn output(&mut self, parts: Vec<String>, truth: Option<Json>) -> Output {
         let mut parts = parts;
+        self.run_storylets();
         parts.extend(self.take_notes());
         if let Place::Room { structure, .. } = self.state.place {
             self.state.visited.insert(structure);
@@ -748,6 +769,8 @@ impl Game {
         let mut truth = truth;
         if self.state.dead.is_some() && !self.summarised {
             self.summarised = true;
+            let ending = self.ending().unwrap_or("death").to_string();
+            parts.extend(self.hook("ending", "", &ending));
             parts.extend(self.summary_parts());
             truth = Some(self.end_truth());
         }
@@ -765,6 +788,7 @@ impl Game {
                 "claims": self.claims_here(),
                 "understanding": self.understanding(),
                 "regions": self.regions_truth(),
+                "storylets": self.storylets_truth(),
             }))
         });
         if let Some(cmd) = self.log.last() {
@@ -1030,6 +1054,9 @@ impl Game {
                 let t = self.say("say.take", named);
                 let kind = self.thing(i).kind;
                 let found = self.tool_found(kind);
+                if found.is_some() {
+                    self.hook("tool_found", kind, "");
+                }
                 self.output(std::iter::once(t).chain(found).collect(), None)
             }
             ("drop", Target::Thing(i)) => {
@@ -1361,6 +1388,12 @@ impl Game {
         let body = lines.join("\n");
         let read: Vec<usize> = seen.iter().map(|x| x.0).collect();
         self.encounter(&read);
+        if seen.iter().any(|x| x.1) {
+            self.hook("first_scraped_seen", "", "");
+        }
+        if read.iter().any(|t| self.site.writing.deep.contains(t)) {
+            self.hook("deepest_found", "", "");
+        }
         let after = if page + 1 < pages {
             self.state.reading = Some(Reading {
                 thing,

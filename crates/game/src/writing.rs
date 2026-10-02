@@ -213,6 +213,7 @@ impl Game {
         let mut felt = self.claim_changes(&before);
         if self.claims.iter().any(|c| c.text == text) && text >= base {
             felt.extend(self.release_feeling(power));
+            self.hook("first_release", "", "");
         }
         self.scrape_felt = !felt.is_empty();
         parts.extend(felt);

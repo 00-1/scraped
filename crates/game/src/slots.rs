@@ -1971,3 +1971,16 @@ pub fn registry() -> Registry {
     all.extend(slots());
     Registry::new(all)
 }
+
+/// The registry with a slot for each of the pack's storylets.
+pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
+    let mut all = scraped_lang::slots::slots();
+    all.extend(slots());
+    let mut seen = std::collections::BTreeSet::new();
+    for s in pack.storylets() {
+        if seen.insert(s.id.clone()) {
+            all.push(crate::storylets::slot(s));
+        }
+    }
+    Registry::new(all)
+}

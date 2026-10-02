@@ -276,11 +276,12 @@ fn legacy_appears_only_when_enabled() {
     for seed in SEEDS {
         let plain = Game::new(seed, pack());
         assert!(plain.site.writing.legacy.is_none());
-        let n = plain.site.writing.count(&plain.site.world);
+        let n = plain.site.writing.count(&plain.site.world)
+            - plain.placed.iter().filter(|p| p.text.is_some()).count();
         let with = Game::with_legacy(seed, pack(), Some(legacy.clone()));
         let id = with.site.writing.legacy.expect("placed");
         assert_eq!(with.text(id).meaning, legacy.meaning);
-        assert_eq!(id, n, "seed {seed}: legacy comes after all else");
+        assert_eq!(id, n, "seed {seed}: legacy comes after history's texts");
         // A ghost: older than everything on its surface, under a cast.
         let t = (0..with.site.things.len())
             .find(|&t| with.site.things[t].texts.contains(&id))

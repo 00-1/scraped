@@ -116,7 +116,6 @@ struct FileText {
 
 fn dispatch(req: &Value) -> Result<Value, String> {
     let cmd: String = field(req, "cmd")?;
-    let registry = scraped_game::slots::registry();
     match cmd.as_str() {
         "bench" => Ok(bench(req)),
         "world" => Ok(with_world(seed(req), |w| {
@@ -205,7 +204,17 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 |w| json!({ "text": scraped_world::debug::site(w, id) }),
             ))
         }
-        "registry" => Ok(registry_json(&registry)),
+        "registry" => {
+            let (pack, _) = pack(req)?;
+            Ok(registry_json(&scraped_game::slots::registry_for(&pack)))
+        }
+        "storylet_schema" => Ok(scraped_game::storylets::schema()),
+        "storylet_preview" => {
+            let (pack, _) = pack(req)?;
+            let id: String = field(req, "id")?;
+            let mut g = scraped_game::Game::new(seed(req), pack);
+            Ok(g.preview_storylet(&id))
+        }
         "parse" => {
             let (pack, errors) = pack(req)?;
             Ok(json!({ "pack": pack, "errors": errors, "version": pack.version() }))
@@ -226,12 +235,16 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let (pack, errors) = pack(req)?;
             let lang = Language::generate(42);
             let hooks = LangHooks { lang: &lang };
-            let issues = lint(&registry, &pack, &errors, &hooks);
+            let registry = scraped_game::slots::registry_for(&pack);
+            let mut issues = lint(&registry, &pack, &errors, &hooks);
+            issues.extend(scraped_game::storylets::lint(&pack));
             let cov = coverage(&registry, &pack, &issues);
             Ok(json!({ "issues": issues, "coverage": cov, "version": pack.version() }))
         }
         "lint_variant" => {
             let v: Variant = field(req, "variant")?;
+            let (pack, _) = pack(req)?;
+            let registry = scraped_game::slots::registry_for(&pack);
             let slot = registry
                 .get(&v.slot)
                 .ok_or(format!("no slot '{}'", v.slot))?;
@@ -244,6 +257,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let seed = seed(req);
             let lang = Language::generate(seed);
             let hooks = LangHooks { lang: &lang };
+            let registry = scraped_game::slots::registry_for(&pack);
             let mut r = Renderer::new(&registry, &pack, seed, &hooks);
             let rows = slots::preview(&mut r, &slot, seed, count);
             Ok(json!({ "seed": seed.to_string(), "rows": rows }))
@@ -420,6 +434,47 @@ mod tests {
         assert!(site["text"].as_str().unwrap().starts_with("SITE 0"));
         assert_eq!(base64(b"Man"), "TWFu");
         assert_eq!(base64(b"Ma"), "TWE=");
+    }
+
+    #[test]
+    fn storylets_in_the_browser() {
+        let text = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../content/story.toml"
+        ))
+        .unwrap();
+        let files = json!([{"path": "story.toml", "text": text}]);
+        let schema = call(json!({"cmd": "storylet_schema"}));
+        assert!(schema["hooks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|h| h == "opening"));
+        let reg = call(json!({"cmd": "registry", "files": files}));
+        assert!(reg["slots"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|s| s["id"] == "story.shrine"));
+        let mut placed = 0;
+        for seed in ["1", "42", "7"] {
+            let p = call(
+                json!({"cmd": "storylet_preview", "files": files, "seed": seed, "id": "shrine"}),
+            );
+            if p["placed"] == true {
+                placed += 1;
+                assert_eq!(p["building"]["kind"], "temple");
+                assert!(p["inscription"]["romanised"].is_string());
+            }
+        }
+        assert!(placed >= 2);
+        let lint = call(json!({"cmd": "lint", "files": files}));
+        assert!(lint["issues"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|i| i["severity"] != "error"
+                || !i["kind"].as_str().unwrap().starts_with("storylet")));
     }
 
     #[test]

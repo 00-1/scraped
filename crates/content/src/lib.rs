@@ -14,6 +14,6 @@ pub mod slot;
 pub mod template;
 
 pub use lint::{coverage, lint, release_check, Coverage, Issue, Severity, Status};
-pub use pack::{Pack, PackError, PackFile, Variant};
+pub use pack::{InscriptionRequest, Pack, PackError, PackFile, Placement, Storylet, Variant};
 pub use render::{Hooks, NoHooks, Renderer};
 pub use slot::{Context, Registry, SlotDef, Value, VarType, SAMPLE_SEEDS};
