@@ -12,6 +12,11 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   await page.fill('#seed', '7');
   await page.click('button.primary');
   await page.waitForFunction(() => document.querySelector('#status').textContent.startsWith('Seed 7'));
+  // The game: Play is the first tab.
+  await page.waitForSelector('#playInput');
+  await page.fill('#playInput', 'help');
+  await page.press('#playInput', 'Enter');
+  await page.waitForFunction(() => document.querySelector('#playLog').textContent.includes('> help'));
   await page.check('#spoil');
   await page.click('[data-tab=world]');
   await page.waitForSelector('[data-site]', { timeout: 20000 });

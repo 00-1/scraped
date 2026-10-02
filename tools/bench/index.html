@@ -73,6 +73,12 @@ table.eras td.n { text-align: right; }
 .glyph .d { font-size: .78rem; color: var(--muted); line-height: 1.35; }
 pre.sheettext { margin: 0; padding: 8px 16px 16px; font: .85rem/1.5 var(--mono); overflow-x: auto; }
 footer { color: var(--muted); font-size: .85rem; }
+.play { display: grid; gap: 10px; padding: 12px 16px 16px; }
+.play pre { margin: 0; font: 1rem/1.55 var(--body); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 60vh; min-height: 16rem; overflow: auto; }
+.play pre .cmd { font-family: var(--mono); color: var(--accent); }
+.play pre .truth { font-family: var(--mono); font-size: .8rem; color: var(--gloss); }
+.play form { display: flex; gap: 8px; }
+.play input[type=text] { flex: 1; min-width: 0; width: auto; font: 1rem var(--mono); }
 .world { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 16px; padding: 12px 16px 16px; }
 @media (max-width: 760px) { .world { grid-template-columns: 1fr; } }
 .map { position: relative; width: 100%; aspect-ratio: 1; max-width: 480px; }
@@ -85,7 +91,7 @@ footer { color: var(--muted); font-size: .85rem; }
   <header>
     <h1>Scraped Again</h1>
     <p class="status" id="build"></p>
-    <p class="sub">Language and world bench. Generate a language, read its inscriptions as text or glyphs, and compare the same texts across its eras. Spoilers show the true meanings, the sound changes, the full grammar, and the world built from the same seed: its map, history and sites.</p>
+    <p class="sub">Play the game, or look under it. Generate a language, read its inscriptions as text or glyphs, and compare the same texts across its eras. Spoilers show the true meanings, the sound changes, the full grammar, and the world built from the same seed: its map, history and sites.</p>
   </header>
   <form class="controls" id="controls">
     <div class="field"><label for="seed">Seed</label><input type="text" id="seed" inputmode="numeric" value="42" autocomplete="off"></div>
@@ -101,7 +107,8 @@ footer { color: var(--muted); font-size: .85rem; }
   </form>
   <div class="bar">
     <div class="tabs" role="tablist">
-      <button type="button" role="tab" data-tab="corpus" aria-selected="true">Corpus</button>
+      <button type="button" role="tab" data-tab="play" aria-selected="true">Play</button>
+      <button type="button" role="tab" data-tab="corpus" aria-selected="false">Corpus</button>
       <button type="button" role="tab" data-tab="eras" aria-selected="false">Eras</button>
       <button type="button" role="tab" data-tab="script" aria-selected="false">Script</button>
       <button type="button" role="tab" data-tab="grammar" aria-selected="false">Grammar</button>
@@ -120,10 +127,11 @@ footer { color: var(--muted); font-size: .85rem; }
 </div>
 <script>
 const BUILD = __BUILD__;
+const BUNDLED = __CONTENT__;
 const ENGINE_B64 =
 "__ENGINE__";
 const $ = id => document.getElementById(id);
-const state = { tab: "corpus", era: 0, view: "text", data: null };
+const state = { tab: "play", era: 0, view: "text", data: null };
 let engine;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -192,11 +200,29 @@ function render() {
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
   document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === state.view));
   $("viewChips").hidden = state.tab !== "corpus";
-  $("eraChips").hidden = state.tab === "eras" || state.tab === "world";
+  $("eraChips").hidden = ["eras", "world", "play"].includes(state.tab);
   $("eraChips").innerHTML = d.eras.length > 1 ? d.eras.map(e =>
     `<button type="button" data-era="${e.era}" aria-pressed="${e.era === state.era}">Era ${e.era}</button>`).join("") : "";
   const p = $("panel");
   const needSpoil = what => `<p class="note">The ${what} is all spoilers. Turn on “Show spoilers” to see it.</p>`;
+  if (state.tab === "play") {
+    if (!state.play || state.play.seed !== d.seed) {
+      const first = api({ cmd: "play_new", seed: d.seed, files: BUNDLED, spoil: true });
+      state.play = { seed: d.seed, log: [{ text: first.text }], history: [], back: 0 };
+    }
+    p.innerHTML = `<div class="play">
+      <pre id="playLog" aria-live="polite"></pre>
+      <form id="playForm"><input type="text" id="playInput" autocomplete="off" spellcheck="false" placeholder="look, go temple, read stele, help…" aria-label="Command"><button type="submit" class="primary">Enter</button></form>
+      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="playSave">Save in this browser</button>
+        <button type="button" id="playLoad">Load saved game</button>
+        <button type="button" id="playRestart">Restart</button>
+      </div>
+    </div>`;
+    renderPlayLog();
+    $("playInput").focus();
+    return;
+  }
   if (state.tab === "corpus") {
     p.innerHTML = `<ol class="corpus">${era.corpus.inscriptions.map((i, n) => `
       <li><span class="n">${i.index}</span>${state.view === "glyphs" ? glyphRows(era.glyphs[n], era) : `<span class="line">${esc(i.text)}</span>`}
@@ -241,6 +267,22 @@ function render() {
   }
 }
 
+function renderPlayLog() {
+  const spoil = $("spoil").checked;
+  $("playLog").innerHTML = state.play.log.map(e =>
+    (e.cmd != null ? `<span class="cmd">&gt; ${esc(e.cmd)}</span>\n` : "") + esc(e.text) +
+    (spoil && e.truth ? `\n<span class="truth">${esc(e.truth.map(t => `[era ${t.era} ${t.kind}] ${t.text} — ${t.translation}`).join("\n"))}</span>` : "")
+  ).join("\n\n");
+  $("playLog").scrollTop = $("playLog").scrollHeight;
+}
+
+function playLine(line) {
+  const r = api({ cmd: "play", line });
+  state.play.log.push({ cmd: line, text: r.error ? "[" + r.error + "]" : r.text, truth: r.truth });
+  state.play.history.push(line); state.play.back = 0;
+  renderPlayLog();
+}
+
 function ruleText(r) {
   switch (r.type) {
     case "shift": return `${r.from} > ${r.to}`;
@@ -253,13 +295,37 @@ function ruleText(r) {
 }
 
 $("controls").addEventListener("submit", e => { e.preventDefault(); generate(); });
+document.addEventListener("submit", e => {
+  if (e.target.id !== "playForm") return;
+  e.preventDefault();
+  const line = $("playInput").value; $("playInput").value = "";
+  playLine(line);
+});
+document.addEventListener("keydown", e => {
+  if (e.target.id !== "playInput" || !state.play || !["ArrowUp", "ArrowDown"].includes(e.key)) return;
+  const h = state.play.history; if (!h.length) return;
+  state.play.back = Math.max(0, Math.min(h.length, state.play.back + (e.key === "ArrowUp" ? 1 : -1)));
+  e.target.value = state.play.back ? h[h.length - state.play.back] : "";
+  e.preventDefault();
+});
 $("random").addEventListener("click", () => { $("seed").value = String(Math.floor(Math.random() * 1e9)); generate(); });
-$("spoil").addEventListener("change", () => { store("spoil", $("spoil").checked ? "1" : "0"); render(); });
+$("spoil").addEventListener("change", () => { store("spoil", $("spoil").checked ? "1" : "0"); if (state.tab === "play") renderPlayLog(); else render(); });
 document.addEventListener("click", e => {
   const t = e.target.closest("button"); if (!t) return;
   if (t.dataset.tab) { state.tab = t.dataset.tab; render(); }
   if (t.dataset.era) { state.era = +t.dataset.era; render(); }
   if (t.dataset.view) { state.view = t.dataset.view; render(); }
+  if (t.id === "playSave") { const save = api({ cmd: "play_save" }); store("play.save", JSON.stringify(save)); $("status").textContent = `Saved: seed ${save.seed}, ${save.commands.length} commands.`; }
+  if (t.id === "playLoad") {
+    const saved = load("play.save");
+    if (!saved) { $("status").textContent = "No saved game in this browser yet."; return; }
+    const save = JSON.parse(saved);
+    $("seed").value = String(save.seed); generate();
+    const r = api({ cmd: "play_load", files: BUNDLED, save, spoil: true });
+    state.play = { seed: String(save.seed), log: [{ text: r.text }], history: [], back: 0 };
+    state.tab = "play"; render();
+  }
+  if (t.id === "playRestart") { state.play = null; render(); }
   if (t.dataset.site) { state.site = api({ cmd: "site", seed: state.data.seed, settlement: +t.dataset.site }).text; $("worldText").textContent = state.site; }
 });
 $("copy").addEventListener("click", () => {
