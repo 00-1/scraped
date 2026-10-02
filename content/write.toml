@@ -1,0 +1,31 @@
+notes = "Writing new text: the act, refusals, smudging, misfires."
+
+[[variant]]
+slot = "write.done"
+text = "You write on {thing}: {list glyphs}."
+example = true
+
+[[variant]]
+slot = "write.refused"
+text = "You can't write there ({reason})."
+example = true
+
+[[variant]]
+slot = "write.unknown_mark"
+text = "You don't know a mark called {mark}."
+example = true
+
+[[variant]]
+slot = "write.hesitate"
+text = "Your hand hesitates over marks you don't know well enough."
+example = true
+
+[[variant]]
+slot = "write.smudge"
+text = "The marks won't take on {thing}."
+example = true
+
+[[variant]]
+slot = "write.backlash"
+text = "The scraping jolts through your hands."
+example = true

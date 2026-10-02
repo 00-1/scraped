@@ -1144,6 +1144,40 @@ fn s_tool(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_write(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("thing", Value::from("the plaster wall")),
+        ("material", Value::from("plaster")),
+        (
+            "glyphs",
+            Value::List(vec!["a bar, centre".into(), "a hook turned left".into()]),
+        ),
+    ])]
+}
+
+fn s_write_refused(_: u64) -> Vec<Context> {
+    ["nothing", "no_tool", "dark", "not_surface", "covered"]
+        .iter()
+        .map(|r| {
+            ctx(&[
+                ("reason", Value::from(*r)),
+                ("thing", Value::from("the stele")),
+            ])
+        })
+        .collect()
+}
+
+fn s_mark(_: u64) -> Vec<Context> {
+    vec![ctx(&[("mark", Value::from("zz"))])]
+}
+
+fn s_count(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("count", Value::Number(1))]),
+        ctx(&[("count", Value::Number(3))]),
+    ]
+}
+
 /// Every slot the game declares.
 pub fn slots() -> Vec<SlotDef> {
     let thing = "The thing's name as the game refers to it, e.g. 'the stone altar'.";
@@ -1622,6 +1656,32 @@ pub fn slots() -> Vec<SlotDef> {
             .var("kind", e(&["scraper", "stylus", "lens"]), "Which tool.")
             .max_len(400)
             .sampler(s_tool),
+        SlotDef::new("write.done", "The player writes new text on a surface. Echo the glyphs back as they were cut or painted (descriptions given), never what they mean.")
+            .var("thing", VarType::Text, thing)
+            .var("material", e(MATERIALS), "The surface.")
+            .var("glyphs", VarType::List, "Each glyph written, described (from glyph.describe).")
+            .max_len(1200)
+            .sampler(s_write),
+        SlotDef::new("write.refused", "Writing can't begin: no stylus, too dark, nothing to write, not a surface that takes writing, or fresh writing already covers it (it must be scraped first).")
+            .var("reason", e(&["nothing", "no_tool", "dark", "not_surface", "covered"]), "Why.")
+            .var("thing", VarType::Text, "The surface named, if any.")
+            .max_len(200)
+            .sampler(s_write_refused),
+        SlotDef::new("write.unknown_mark", "The player names a glyph that isn't a glyph number of the script or one of their own labels.")
+            .var("mark", VarType::Text, "What they typed.")
+            .sampler(s_mark),
+        SlotDef::new("write.hesitate", "The player's hand won't commit marks they don't know well enough: some words in what they want to write haven't been seen in enough writing yet. Physical, not a rule; don't say which words.")
+            .var("count", VarType::Number, "How many unfamiliar words.")
+            .max_len(200)
+            .sampler(s_count),
+        SlotDef::new("write.smudge", "The new writing won't take over the trace beneath it: it beads, runs or flakes away, because it doesn't fit what was there before. Physical, never the rule.")
+            .var("thing", VarType::Text, thing)
+            .var("material", e(MATERIALS), "The surface.")
+            .max_len(200)
+            .sampler(s_scrape),
+        SlotDef::new("write.backlash", "A malformed potent inscription turns on its writer as it is scraped: a jolt, a burn, something that hurts (one level of injury).").sampler(s_none),
+        SlotDef::new("scrape.wet", "The player tries to scrape writing whose ink or cuts are still fresh; it must dry first.").var("thing", VarType::Text, thing).sampler(s_named),
+        SlotDef::new("read.deep", "Through the lens, a fainter layer shows beneath the top one, before its glyphs are listed.").max_len(200).sampler(s_none),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
         SlotDef::new("say.pack_changed", "A loaded save was made with different text (content pack) than now: the story replays the same, but wording may differ.")

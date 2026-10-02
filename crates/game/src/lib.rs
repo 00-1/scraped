@@ -7,6 +7,9 @@
 //! prose.
 
 pub use scraped_sim::outdoors;
+pub mod composing;
+#[cfg(test)]
+mod composing_tests;
 pub mod parser;
 mod physical;
 pub mod site;
@@ -153,6 +156,10 @@ pub struct State {
     pub scraped: BTreeSet<usize>,
     /// Writing tools the player has come across (for the first-find note).
     pub found: BTreeSet<String>,
+    /// What the player has written, in order. These layers enter history.
+    pub written: Vec<composing::Written>,
+    /// Roots the player has met, and in which texts (tracked silently).
+    pub encountered: BTreeMap<String, BTreeSet<usize>>,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -175,6 +182,12 @@ pub struct Summary {
     /// The last journey as the player perceived it.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub travelled: Option<Travelled>,
+    /// What the last `write` did.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub wrote: Option<composing::WriteReport>,
+    /// Whether the last `scrape` released anything the player could feel.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scraped: Option<bool>,
     /// The body's needs, by coarse state.
     pub body: BTreeMap<String, String>,
     /// "daylight", "dim" or "dark".
@@ -244,6 +257,14 @@ pub struct Game {
     interrupted: bool,
     /// Claims of live writing, recomputed whenever something is scraped.
     claims: Vec<Claim>,
+    /// Texts the player has written, rebuilt from the state.
+    player_texts: Vec<scraped_world::texts::Text>,
+    /// How many texts a root must be met in before it can be written.
+    pub threshold: usize,
+    last_write: Option<composing::WriteReport>,
+    last_scrape: Option<usize>,
+    /// Whether the last scrape changed anything the player could feel.
+    scrape_felt: bool,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -294,6 +315,8 @@ impl Game {
             dead: None,
             scraped: site.writing.scraped.clone(),
             found: BTreeSet::new(),
+            written: Vec::new(),
+            encountered: BTreeMap::new(),
         };
         let claims = site
             .writing
@@ -313,6 +336,11 @@ impl Game {
             notes: Vec::new(),
             interrupted: false,
             claims,
+            player_texts: Vec::new(),
+            threshold: composing::THRESHOLD,
+            last_write: None,
+            last_scrape: None,
+            scrape_felt: false,
         }
     }
 
@@ -634,6 +662,8 @@ impl Game {
             edges,
             weather,
             travelled: self.last_travel.take(),
+            wrote: self.last_write.take(),
+            scraped: self.last_scrape.take().map(|_| self.scrape_felt),
             body: self
                 .state
                 .body
@@ -662,6 +692,7 @@ impl Game {
                 "cell": self.state.pos.cell(),
                 "town": self.site.land.town(&self.site.world, self.state.pos),
                 "claims": self.claims_here(),
+                "understanding": self.understanding(),
             }))
         });
         Output {
@@ -677,6 +708,7 @@ impl Game {
     pub fn step(&mut self, input: &str) -> Output {
         self.log.push(input.to_string());
         self.sync_made();
+        self.sync_written();
         self.state.noise = 0;
         if self.state.dead.is_some() {
             return self.ended();
@@ -782,6 +814,7 @@ impl Game {
             "shout" => self.shout(),
             "cross" => self.cross(&cmd.words),
             "status" => self.status(),
+            "write" => self.write(&cmd.words),
             "go" => {
                 // "go north" is a direction; anything else names a place.
                 if let [d] = cmd.words.as_slice() {
@@ -1115,6 +1148,7 @@ impl Game {
     /// The glyphs of everything written on a thing, in reading order.
     fn marks(&self, thing: usize) -> Vec<Mark> {
         let mut out = Vec::new();
+        let deep = self.deep_layer(thing);
         for (n, (tid, partial)) in self.layers_seen(thing).into_iter().enumerate() {
             if n > 0 {
                 out.push(Mark::Break);
@@ -1128,7 +1162,7 @@ impl Game {
                     Some(k) => Mark::Glyph {
                         era: text.era,
                         index: script.index(&k),
-                        lost: partial && self.lost(tid, g),
+                        lost: partial && self.lost(tid, g, Some(tid) == deep),
                     },
                     None => Mark::Gap,
                 });
@@ -1187,6 +1221,9 @@ impl Game {
                 ]);
                 extra_frames.push(self.say("read.scraped", c));
             }
+            if self.deep_layer(thing).is_some() {
+                extra_frames.insert(0, self.say("read.deep", Context::new()));
+            }
             let ghosts = self.ghost_count(thing);
             if ghosts > 0 {
                 extra_frames.push(self.say(
@@ -1244,6 +1281,8 @@ impl Game {
             }
         }
         let body = lines.join("\n");
+        let read: Vec<usize> = seen.iter().map(|x| x.0).collect();
+        self.encounter(&read);
         let after = if page + 1 < pages {
             self.state.reading = Some(Reading {
                 thing,

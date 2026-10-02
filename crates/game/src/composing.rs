@@ -1,0 +1,455 @@
+//! The player as author: writing new text in the language, the
+//! understanding gate, agreement with what lies beneath, and misfires.
+//!
+//! Player text is entered as glyphs (script numbers or the player's own
+//! labels), never English. The game parses it to a meaning; text that does
+//! not parse is still written, and is inert.
+
+use std::collections::BTreeSet;
+
+use serde::{Deserialize, Serialize};
+
+use scraped_content::Value;
+use scraped_lang::concepts::{self, Pos};
+use scraped_lang::corpus::Kind;
+use scraped_lang::meaning::{Head, Mood, NounPhrase, Sentence};
+use scraped_lang::parse::{glyph_sym, Mode, Parser, Tok};
+use scraped_lang::script::GlyphKey;
+use scraped_sim::body::Activity;
+use scraped_sim::writing::live_of;
+use scraped_world::texts::Text;
+
+use crate::parser::{resolve, Resolution};
+use crate::site::{ctx, label};
+use crate::{Game, Output, Target};
+
+/// A text the player wrote: where, what they entered, and when.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Written {
+    pub thing: usize,
+    /// Glyph indices in the era's script; `None` is a gap between words.
+    pub glyphs: Vec<Option<usize>>,
+    pub minutes: u32,
+}
+
+/// What a `write` did, for agents.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct WriteReport {
+    pub accepted: bool,
+    /// Why not, by id: "no_tool", "covered", "unknown_mark", "hesitate",
+    /// "smudge", "nothing", "dark", "not_surface".
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub refused: Option<String>,
+    /// The glyphs written, as script numbers (gaps as `null`).
+    pub glyphs: Vec<Option<usize>>,
+}
+
+/// How many distinct texts a root must have been met in before the player
+/// can write it.
+// DESIGN-Q: two texts, as proposed; partly scraped readings count, and
+// function words (the potent formulae, "and") need no encounters.
+pub const THRESHOLD: usize = 2;
+
+/// Features that take new writing.
+const WRITABLE: &[&str] = &[
+    "wall",
+    "stele",
+    "altar",
+    "niche",
+    "lintel",
+    "door-slab",
+    "gate",
+    "parapet",
+    "gravestone",
+    "tablet",
+    "statue",
+    "basin",
+    "beam",
+    "table",
+    "inscription",
+    "milestone",
+];
+
+impl Game {
+    /// The era the player writes in: the newest.
+    // DESIGN-Q: player writing is always in the newest era's language and
+    // script.
+    pub(crate) fn writing_era(&self) -> usize {
+        self.site.world.languages.len() - 1
+    }
+
+    /// Rebuilds the texts the player has written from the state.
+    pub(crate) fn sync_written(&mut self) {
+        if self.player_texts.len() == self.state.written.len() {
+            return;
+        }
+        self.player_texts.clear();
+        for i in 0..self.state.written.len() {
+            let t = self.player_text(i);
+            self.player_texts.push(t);
+        }
+    }
+
+    /// The meaning of a player's text, and whether it was framed as potent
+    /// without parsing (a misfire waiting to happen).
+    fn parse_written(&self, glyphs: &[Option<usize>]) -> (Option<Sentence>, bool) {
+        let era = self.writing_era();
+        let lang = &self.site.world.languages[era];
+        let r = self.site.world.renderer(era as u32);
+        let p = Parser::without_names(&r, Mode::Glyphs);
+        let toks: Vec<Tok> = glyphs
+            .iter()
+            .map(|g| match g {
+                Some(i) => match &lang.script.glyphs[*i].0 {
+                    GlyphKey::Divider => Tok::Gap,
+                    k => Tok::Sym(glyph_sym(k)),
+                },
+                None => Tok::Gap,
+            })
+            .collect();
+        let meaning = p.sentence(&toks);
+        // Does it open with the potent formula?
+        let open_syms: Vec<Tok> = p.tokens(&[r.plain_word("pot.open")]);
+        let framed = toks
+            .iter()
+            .filter(|t| **t != Tok::Gap)
+            .take(open_syms.len())
+            .eq(open_syms.iter());
+        (meaning, framed)
+    }
+
+    fn player_text(&self, i: usize) -> Text {
+        let w = &self.state.written[i];
+        let (meaning, _) = self.parse_written(&w.glyphs);
+        let thing = self.thing(w.thing);
+        let (structure, room) = match thing.home {
+            crate::site::Place::Room { structure, room } => (structure, Some(room)),
+            crate::site::Place::Outside => {
+                // Outdoors: the nearest building stands for where it is.
+                let s = self
+                    .site
+                    .land
+                    .structure_pos
+                    .iter()
+                    .enumerate()
+                    .min_by_key(|(_, p)| p.dist2(thing.pos))
+                    .map(|(s, _)| s)
+                    .unwrap_or(0);
+                (s, None)
+            }
+        };
+        let potent = meaning
+            .as_ref()
+            .is_some_and(|m| matches!(m, Sentence::Clause(c) if c.mood == Mood::Potent));
+        Text {
+            id: self.site.writing.count(&self.site.world) + i,
+            era: self.writing_era() as u32,
+            year: self.site.world.history.eras.last().map_or(0, |e| e.end) + 1 + i as i32,
+            kind: if potent { Kind::Potent } else { Kind::Label },
+            meaning: meaning.unwrap_or(Sentence::List(Vec::new())),
+            author: None,
+            event: None,
+            structure,
+            room,
+            feature: None,
+            material: thing.material,
+        }
+    }
+
+    /// Whether the player's text `i` turns on its writer when scraped: it
+    /// is framed as potent but says nothing the language can parse.
+    pub(crate) fn backlash(&self, i: usize) -> bool {
+        let (meaning, framed) = self.parse_written(&self.state.written[i].glyphs);
+        framed && meaning.is_none()
+    }
+
+    /// Notes the roots of everything the player has just read.
+    pub(crate) fn encounter(&mut self, texts: &[usize]) {
+        for &t in texts {
+            let mut roots = BTreeSet::new();
+            concepts_of(
+                &self.text(t).meaning.clone(),
+                &mut roots,
+                &self.site.world.languages[self.text(t).era as usize].numerals,
+            );
+            for r in roots {
+                self.state.encountered.entry(r).or_default().insert(t);
+            }
+        }
+    }
+
+    /// Roots of a meaning the player hasn't met often enough to write.
+    fn unknown_roots(&self, m: &Sentence) -> Vec<String> {
+        let era = self.writing_era();
+        let mut roots = BTreeSet::new();
+        concepts_of(m, &mut roots, &self.site.world.languages[era].numerals);
+        roots
+            .into_iter()
+            .filter(|r| concepts::get(r).pos != Pos::Particle)
+            .filter(|r| self.state.encountered.get(r).map_or(0, |s| s.len()) < self.threshold)
+            .collect()
+    }
+
+    /// `write <glyphs> on <thing>`: glyphs as script numbers or the player's
+    /// own labels, `/` between words.
+    pub(crate) fn write(&mut self, words: &[String]) -> Output {
+        let Some(on) = words.iter().rposition(|w| w == "on" || w == "onto") else {
+            return self.write_refused("nothing", None, Vec::new());
+        };
+        let (marks, target) = (&words[..on], &words[on + 1..]);
+        let cands = self.visible_targets();
+        let Resolution::One(Target::Thing(thing)) = resolve(target, &cands, self.state.it.as_ref())
+        else {
+            let t = self.say(
+                "say.not_here",
+                ctx(&[("words", Value::from(target.join(" ")))]),
+            );
+            return self.output(vec![t], None);
+        };
+        self.state.it = Some(Target::Thing(thing));
+        let name = self.thing_name(thing);
+        if !self
+            .state
+            .carried
+            .iter()
+            .any(|&t| self.thing(t).kind == "stylus")
+        {
+            return self.write_refused("no_tool", Some(name), Vec::new());
+        }
+        if self.is_dark() {
+            return self.write_refused("dark", Some(name), Vec::new());
+        }
+        let th = self.thing(thing);
+        if th.portable && th.texts.is_empty() || !WRITABLE.contains(&th.kind) {
+            return self.write_refused("not_surface", Some(name), Vec::new());
+        }
+        let layers = self.layers(thing);
+        if layers
+            .last()
+            .is_some_and(|t| !self.state.scraped.contains(t))
+        {
+            return self.write_refused("covered", Some(name), Vec::new());
+        }
+        // Marks → glyphs.
+        let era = self.writing_era();
+        let script = &self.site.world.languages[era].script;
+        let mut glyphs = Vec::new();
+        for m in marks {
+            let m = m.trim_matches(|c| c == '"' || c == '\'');
+            if m.is_empty() {
+                continue;
+            }
+            if matches!(m, "/" | "|" | "·") {
+                glyphs.push(None);
+                continue;
+            }
+            let by_number = m.parse::<usize>().ok().filter(|&i| i < script.glyphs.len());
+            let by_label = || {
+                self.state
+                    .labels
+                    .iter()
+                    .find(|(k, v)| v.as_str() == m && k.starts_with(&format!("{era}:")))
+                    .and_then(|(k, _)| k.split(':').nth(1)?.parse::<usize>().ok())
+            };
+            match by_number.or_else(by_label) {
+                Some(i) => glyphs.push(Some(i)),
+                None => {
+                    let t = self.say("write.unknown_mark", ctx(&[("mark", Value::from(m))]));
+                    self.last_write = Some(WriteReport {
+                        accepted: false,
+                        refused: Some("unknown_mark".into()),
+                        glyphs: Vec::new(),
+                    });
+                    return self.output(vec![t], None);
+                }
+            }
+        }
+        if glyphs.iter().all(Option::is_none) {
+            return self.write_refused("nothing", Some(name), glyphs);
+        }
+        let (meaning, _) = self.parse_written(&glyphs);
+        // The understanding gate: only words met often enough.
+        if let Some(m) = &meaning {
+            let unknown = self.unknown_roots(m);
+            if !unknown.is_empty() {
+                self.advance(2, Activity::Resting);
+                let t = self.say(
+                    "write.hesitate",
+                    ctx(&[("count", Value::Number(unknown.len() as i64))]),
+                );
+                self.last_write = Some(WriteReport {
+                    accepted: false,
+                    refused: Some("hesitate".into()),
+                    glyphs,
+                });
+                return self.output(vec![t], None);
+            }
+        }
+        // Agreement with the trace beneath.
+        if let Some(ghost) = live_of(&layers, &self.state.scraped) {
+            let ghost_meaning = self.text(ghost).meaning.clone();
+            let ghost_potent = self.text(ghost).kind == Kind::Potent;
+            if !agrees(&ghost_meaning, ghost_potent, meaning.as_ref()) {
+                self.advance(5, Activity::Resting);
+                let material = label(&self.thing(thing).material);
+                let t = self.say(
+                    "write.smudge",
+                    ctx(&[
+                        ("thing", Value::from(name)),
+                        ("material", Value::from(material)),
+                    ]),
+                );
+                self.last_write = Some(WriteReport {
+                    accepted: false,
+                    refused: Some("smudge".into()),
+                    glyphs,
+                });
+                return self.output(vec![t], None);
+            }
+        }
+        // It takes.
+        self.advance(15, Activity::Resting);
+        self.state.written.push(Written {
+            thing,
+            glyphs: glyphs.clone(),
+            minutes: self.state.minutes,
+        });
+        self.sync_written();
+        let descriptions: Vec<Value> = glyphs
+            .iter()
+            .flatten()
+            .map(|&i| Value::from(self.glyph_description(era as u32, i)))
+            .collect();
+        let material = label(&self.thing(thing).material);
+        let t = self.say(
+            "write.done",
+            ctx(&[
+                ("thing", Value::from(name)),
+                ("material", Value::from(material)),
+                ("glyphs", Value::List(descriptions)),
+            ]),
+        );
+        self.last_write = Some(WriteReport {
+            accepted: true,
+            refused: None,
+            glyphs,
+        });
+        self.output(vec![t], None)
+    }
+
+    fn write_refused(
+        &mut self,
+        why: &str,
+        thing: Option<String>,
+        glyphs: Vec<Option<usize>>,
+    ) -> Output {
+        self.last_write = Some(WriteReport {
+            accepted: false,
+            refused: Some(why.to_string()),
+            glyphs,
+        });
+        let c = ctx(&[
+            ("reason", Value::from(why)),
+            ("thing", Value::from(thing.unwrap_or_default())),
+        ]);
+        let t = self.say("write.refused", c);
+        self.output(vec![t], None)
+    }
+
+    /// Debug: what the player has encountered, by root.
+    pub(crate) fn understanding(&self) -> serde_json::Value {
+        serde_json::json!(self
+            .state
+            .encountered
+            .iter()
+            .map(|(k, v)| (k.clone(), v.len()))
+            .collect::<std::collections::BTreeMap<_, _>>())
+    }
+}
+
+/// Every root a meaning uses: predicates, nouns, modifiers, numerals,
+/// adverbs, and the potent formulae.
+pub fn concepts_of(
+    s: &Sentence,
+    out: &mut BTreeSet<String>,
+    numerals: &scraped_lang::numerals::Numerals,
+) {
+    fn np(n: &NounPhrase, out: &mut BTreeSet<String>, numerals: &scraped_lang::numerals::Numerals) {
+        if let Head::Concept(c) = &n.head {
+            out.insert(c.clone());
+        }
+        out.extend(n.adjectives.iter().cloned());
+        if let Some(d) = &n.determiner {
+            out.insert(d.clone());
+        }
+        if let Some(q) = n.quantity {
+            out.extend(numerals.words(q).into_iter().map(str::to_string));
+        }
+        if let Some(p) = &n.possessor {
+            np(p, out, numerals);
+        }
+        for a in &n.apposition {
+            np(a, out, numerals);
+        }
+    }
+    match s {
+        Sentence::Clause(c) => {
+            out.insert(c.predicate.clone());
+            for a in &c.args {
+                np(&a.np, out, numerals);
+            }
+            out.extend(c.adverbs.iter().cloned());
+            if c.mood == Mood::Potent {
+                out.extend(["pot", "pot.open", "pot.close"].map(str::to_string));
+            }
+        }
+        Sentence::List(items) => {
+            for i in items {
+                np(i, out, numerals);
+            }
+        }
+        Sentence::Text(parts) => {
+            for p in parts {
+                concepts_of(p, out, numerals);
+            }
+        }
+    }
+}
+
+/// The agreement rule: new writing over a trace must keep its register and
+/// fill the same slots, as if completing it: the same roles, each with the
+/// same number and the same kind of noun. Text that doesn't parse agrees
+/// with nothing but a blank surface.
+// DESIGN-Q: agreement is checked against the whole trace beneath (not only
+// its surviving words): register, roles, number and the domain of each head.
+pub fn agrees(ghost: &Sentence, ghost_potent: bool, new: Option<&Sentence>) -> bool {
+    let Some(new) = new else { return false };
+    let potent = |s: &Sentence| matches!(s, Sentence::Clause(c) if c.mood == Mood::Potent);
+    if potent(new) != ghost_potent {
+        return false;
+    }
+    match (ghost, new) {
+        (Sentence::Clause(g), Sentence::Clause(n)) => {
+            let roles = |c: &scraped_lang::meaning::Clause| {
+                c.args.iter().map(|a| a.role).collect::<Vec<_>>()
+            };
+            if roles(g) != roles(n) {
+                return false;
+            }
+            g.args
+                .iter()
+                .zip(&n.args)
+                .all(|(a, b)| a.np.number == b.np.number && domain(&a.np) == domain(&b.np))
+        }
+        (Sentence::List(g), Sentence::List(n)) => g.len() == n.len(),
+        (Sentence::Text(g), Sentence::Text(n)) => g.len() == n.len(),
+        _ => false,
+    }
+}
+
+fn domain(n: &NounPhrase) -> String {
+    match &n.head {
+        Head::Concept(c) => label(&concepts::get(c).domain),
+        Head::Name(_) => "people".to_string(),
+    }
+}

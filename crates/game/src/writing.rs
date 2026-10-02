@@ -1,14 +1,20 @@
 //! Writing in play: what can be read of each surface, scraping, and the
 //! physical cues of claims taking effect.
 
-use scraped_content::Value;
+use scraped_content::{Context, Value};
 use scraped_sim::body::Activity;
 use scraped_sim::outdoors::hash;
-use scraped_sim::writing::{Claim, Class, Property};
+use scraped_sim::writing::{
+    beneath_of, claim_of, ghosts_of, live_of, top_unscraped_of, visible_of, Claim, Class, Property,
+};
 use scraped_world::texts::Text;
 
 use crate::site::{ctx, label, Place};
 use crate::{Game, Output};
+
+/// Minutes fresh writing takes to dry.
+// DESIGN-Q: half an hour.
+pub const DRYING: u32 = 30;
 
 /// Ids for the look of a scribe's hand. Content describes them.
 // DESIGN-Q: six recognisable hands, assigned by author (anonymous latent
@@ -17,34 +23,76 @@ pub const HANDS: &[&str] = &["cramped", "broad", "slanted", "careful", "heavy", 
 
 impl Game {
     pub(crate) fn text(&self, id: usize) -> &Text {
-        self.site.writing.text(&self.site.world, id)
-    }
-
-    /// The layers of a thing's writing a reader can see: (text, partial).
-    pub(crate) fn layers_seen(&self, thing: usize) -> Vec<(usize, bool)> {
-        let t = self.thing(thing);
-        match t.surface {
-            Some(s) => self.site.writing.visible(s, &self.state.scraped),
-            None => t.texts.iter().map(|&x| (x, false)).collect(),
+        let base = self.site.writing.count(&self.site.world);
+        if id >= base {
+            &self.player_texts[id - base]
+        } else {
+            self.site.writing.text(&self.site.world, id)
         }
     }
 
+    /// A thing's layers of writing, oldest first: history's and the player's.
+    pub(crate) fn layers(&self, thing: usize) -> Vec<usize> {
+        let base = self.site.writing.count(&self.site.world);
+        let mut out = self.thing(thing).texts.clone();
+        out.extend(
+            self.state
+                .written
+                .iter()
+                .enumerate()
+                .filter(|(_, w)| w.thing == thing)
+                .map(|(i, _)| base + i),
+        );
+        out
+    }
+
+    /// The layers a reader can see: (text, partial), oldest first. With the
+    /// deep-reading lens, the ghost layer beneath shows too, fainter.
+    pub(crate) fn layers_seen(&self, thing: usize) -> Vec<(usize, bool)> {
+        let layers = self.layers(thing);
+        let mut out = visible_of(&layers, &self.state.scraped);
+        if let Some(deep) = self.deep_layer(thing) {
+            out.insert(0, (deep, true));
+        }
+        out
+    }
+
+    /// The layer the lens shows, if the player carries it.
+    pub(crate) fn deep_layer(&self, thing: usize) -> Option<usize> {
+        if !self
+            .state
+            .carried
+            .iter()
+            .any(|&t| self.thing(t).kind == "lens")
+        {
+            return None;
+        }
+        beneath_of(&self.layers(thing), &self.state.scraped)
+    }
+
     pub(crate) fn ghost_count(&self, thing: usize) -> usize {
-        self.thing(thing)
-            .surface
-            .map_or(0, |s| self.site.writing.ghosts(s, &self.state.scraped))
+        let layers = self.layers(thing);
+        let ghosts = ghosts_of(&layers, &self.state.scraped);
+        ghosts - usize::from(self.deep_layer(thing).is_some())
     }
 
     /// Whether glyph `g` of a scraped text is lost to the eye here: more
     /// survive in better light.
     // DESIGN-Q: by eye, 60% of a scraped layer's glyphs show in daylight,
     // 40% in dim light.
-    pub(crate) fn lost(&self, text: usize, g: usize) -> bool {
+    pub(crate) fn lost(&self, text: usize, g: usize, deep: bool) -> bool {
         let light = self
             .env()
             .local(self.spot(), self.state.minutes, self.carried_light())
             .light;
-        let shown = if light == "daylight" { 60 } else { 40 };
+        // DESIGN-Q: through the lens, the layer beneath shows 35% of its
+        // glyphs in daylight, 20% in dim light.
+        let shown = match (deep, light == "daylight") {
+            (false, true) => 60,
+            (false, false) => 40,
+            (true, true) => 35,
+            (true, false) => 20,
+        };
         hash(&[self.seed(), 0x5c4a, text as u64, g as u64]) % 100 >= shown
     }
 
@@ -59,10 +107,20 @@ impl Game {
     }
 
     pub(crate) fn recompute_claims(&mut self) {
-        self.claims =
-            self.site
-                .writing
-                .live_claims(&self.site.world, &self.site.land, &self.state.scraped);
+        let mut claims = Vec::new();
+        for t in 0..self.site.things.len() {
+            if self.thing(t).texts.is_empty() && !self.state.written.iter().any(|w| w.thing == t) {
+                continue;
+            }
+            let layers = self.layers(t);
+            if let Some(live) = live_of(&layers, &self.state.scraped) {
+                if let Some(c) = claim_of(&self.site.world, &self.site.land, self.text(live), live)
+                {
+                    claims.push(c);
+                }
+            }
+        }
+        self.claims = claims;
     }
 
     /// Scrapes the whole top unscraped text from a surface. Needs the
@@ -80,22 +138,25 @@ impl Game {
             let t = self.say("scrape.no_tool", named);
             return self.output(vec![t], None);
         }
-        let Some(surface) = self.thing(thing).surface else {
+        let layers = self.layers(thing);
+        if layers.is_empty() {
             let t = self.say("read.nothing", named);
             return self.output(vec![t], None);
-        };
+        }
         if self.is_dark() {
             let t = self.say("read.dark", named);
             return self.output(vec![t], None);
         }
-        let Some(text) = self
-            .site
-            .writing
-            .top_unscraped(surface, &self.state.scraped)
-        else {
+        let Some(text) = top_unscraped_of(&layers, &self.state.scraped) else {
             let t = self.say("scrape.bare", named);
             return self.output(vec![t], None);
         };
+        // Fresh ink must dry before it can be scraped off cleanly.
+        let base = self.site.writing.count(&self.site.world);
+        if text >= base && self.state.minutes < self.state.written[text - base].minutes + DRYING {
+            let t = self.say("scrape.wet", named);
+            return self.output(vec![t], None);
+        }
         self.advance(20, Activity::Resting);
         if self.state.dead.is_some() {
             return self.output(Vec::new(), None);
@@ -103,6 +164,8 @@ impl Game {
         let before = self.claims.clone();
         self.state.scraped.insert(text);
         self.recompute_claims();
+        self.last_scrape = Some(text);
+        let backlash = text >= base && self.backlash(text - base);
         let material = label(&self.thing(thing).material);
         let mut parts = vec![self.say(
             "scrape.done",
@@ -111,7 +174,14 @@ impl Game {
                 ("material", Value::from(material)),
             ]),
         )];
-        parts.extend(self.claim_changes(&before));
+        let felt = self.claim_changes(&before);
+        self.scrape_felt = !felt.is_empty();
+        parts.extend(felt);
+        if backlash {
+            // A malformed claim in the potent frame turns on its writer.
+            parts.push(self.say("write.backlash", Context::new()));
+            self.hurt(1, "writing");
+        }
         self.output(parts, None)
     }
 

@@ -49,3 +49,8 @@ example = true
 slot = "read.ghosts"
 text = "Fainter marks lie beneath."
 example = true
+
+[[variant]]
+slot = "read.deep"
+text = "Beneath it, fainter, another layer shows through the lens."
+example = true

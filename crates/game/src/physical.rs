@@ -294,7 +294,7 @@ impl Game {
     }
 
     /// Injury from something: a fall, falling stone, a creature.
-    fn hurt(&mut self, levels: u32, cause: &str) {
+    pub(crate) fn hurt(&mut self, levels: u32, cause: &str) {
         if self.state.body.hurt(levels).is_some() {
             self.die(cause);
         }

@@ -242,3 +242,9 @@ object = "none"
 id = "scrape"
 words = ["scrape", "scrape off", "scrape away", "scratch out", "rub out", "erase"]
 object = "required"
+
+# Player writing (M09).
+[[verb]]
+id = "write"
+words = ["write", "inscribe", "carve", "paint", "write on"]
+object = "required"

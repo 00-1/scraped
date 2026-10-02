@@ -14,3 +14,8 @@ example = true
 slot = "scrape.bare"
 text = "There is nothing left on {thing} to scrape."
 example = true
+
+[[variant]]
+slot = "scrape.wet"
+text = "{cap thing} is still wet."
+example = true
