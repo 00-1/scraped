@@ -81,8 +81,38 @@ jobs:
           name: scraped-${{ matrix.name }}
           path: dist/scraped-${{ matrix.name }}
 
+  android:
+    needs: [gate, determinism]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then mkdir -p android/.keystore; echo "$KEYSTORE_B64" | base64 -d > android/.keystore/scraped-again.p12; fi
+      - run: android/build.sh
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'scraped-again' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: android/dist/scraped-again.apk
+
   publish:
-    needs: binaries
+    needs: [binaries, android]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
@@ -97,3 +127,4 @@ jobs:
           files: |
             artifacts/*.zip
             artifacts/browser/play.html
+            artifacts/android/scraped-again.apk

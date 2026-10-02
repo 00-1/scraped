@@ -490,7 +490,15 @@ impl Regions {
             // DESIGN-Q (M14 balance): life moves half a percent of the way
             // a day (a quarter in winter), so it takes seasons, not weeks.
             let growth = if season == 3 { 0.0025 } else { 0.005 };
-            let life2 = life + (life_target - life) * growth + (nb_life - life) * 0.0025;
+            // Values are whole thousandths, so a slow step under half a unit
+            // would round away and stall; it moves at least one unit.
+            let toward = (life_target - life) * growth;
+            let toward = if toward.abs() < 0.5 && (life_target - life).abs() >= 1.0 {
+                (life_target - life).signum()
+            } else {
+                toward
+            };
+            let life2 = life + toward + (nb_life - life) * 0.0025;
             // Stability falls with drought and spreads its cracks.
             let weakest = reg
                 .neighbours

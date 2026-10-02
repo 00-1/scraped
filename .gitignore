@@ -3,3 +3,8 @@
 .DS_Store
 /tools/dist
 /node_modules
+# Android build: fetched tools, build output, the local signing key
+android/.tools/
+android/build/
+android/dist/
+android/.keystore/

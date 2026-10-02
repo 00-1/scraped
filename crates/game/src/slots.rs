@@ -1195,6 +1195,13 @@ fn s_ui(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_app(_: u64) -> Vec<Context> {
+    APP_LABELS
+        .iter()
+        .map(|(s, _)| ctx(&[("id", Value::from(*s))]))
+        .collect()
+}
+
 fn s_manual(_: u64) -> Vec<Context> {
     MANUAL
         .iter()
@@ -1985,6 +1992,14 @@ pub fn slots() -> Vec<SlotDef> {
             .min_variants(1)
             .max_len(160)
             .sampler(s_ui),
+        SlotDef::new("app.label", &format!(
+            "A label in the Android app's interface around the game (not the game's own text). Keep each short. The ids: {}.",
+            APP_LABELS.iter().map(|(i, d)| format!("{i}: {d}")).collect::<Vec<_>>().join(" ")
+        ))
+            .var("id", e(&APP_LABELS.iter().map(|l| l.0).collect::<Vec<_>>()), "Which label (see the description).")
+            .min_variants(1)
+            .max_len(240)
+            .sampler(s_app),
         SlotDef::new("say.seed_code", "Shows the world's shareable code, so players can compare notebooks for the same world.")
             .var("code", VarType::Text, "The code, e.g. K5G0-9ZQ1.")
             .max_len(200)
@@ -2042,6 +2057,80 @@ pub const UI_LABELS: &[&str] = &[
     "close",
 ];
 
+/// Labels of the Android app's interface (the `app.label` slot): id and
+/// what it is, for Jb.
+pub const APP_LABELS: &[(&str, &str)] = &[
+    ("app_name", "The app's name, under its icon."),
+    ("worlds", "Heading of the list of worlds (games) on the first screen."),
+    ("no_worlds", "Shown on the first screen before any world exists."),
+    ("new_world", "Button to begin a new world."),
+    ("world", "Before a world's code, e.g. on its row and title."),
+    ("day", "Before the day number on a world's row."),
+    ("ended", "On a world's row when its run is over."),
+    ("difficulty", "Label of the difficulty choice."),
+    ("gentle", "The gentle difficulty."),
+    ("standard", "The standard difficulty."),
+    ("archaeologist", "The hardest difficulty."),
+    ("code_hint", "Placeholder of the field for a world code someone shared (optional)."),
+    ("code_bad", "The code typed doesn't read."),
+    ("begin", "Button that starts the new world."),
+    ("cancel", "Cancel button."),
+    ("composer", "Placeholder in the command box."),
+    ("send", "The send button (read aloud by screen readers)."),
+    ("recall", "Button that brings back the last command typed."),
+    ("latest", "Button to jump down to the newest text."),
+    ("you", "Read aloud before the player's own commands."),
+    ("agent", "Tag on commands an AI agent typed."),
+    ("notebook", "The notebook: the player's own notes for this world."),
+    ("notebook_hint", "Placeholder of the empty notebook."),
+    ("copy", "Copy a passage."),
+    ("to_notebook", "Add a passage to the notebook."),
+    ("copied", "Brief notice: copied."),
+    ("added", "Brief notice: added to the notebook."),
+    ("menu", "The menu button."),
+    ("back", "The back button."),
+    ("close", "Close button."),
+    ("share_code", "Share this world's code with someone."),
+    ("share_text", "Shared with the code after it, inviting someone to play the same world."),
+    ("manual", "Open the player's manual."),
+    ("export", "Save this world to a file."),
+    ("import", "Open a world from a file."),
+    ("delete", "Delete this world."),
+    ("delete_confirm", "Asks to confirm deleting a world; it cannot be undone."),
+    ("appearance", "Heading of the appearance settings."),
+    ("text_size", "Text size setting."),
+    ("theme", "Colour theme setting."),
+    ("system", "Follow the phone's light or dark setting."),
+    ("light", "Light theme."),
+    ("dark", "Dark theme."),
+    ("sepia", "Warm paper theme."),
+    ("font", "Typeface setting."),
+    ("serif", "Book typeface."),
+    ("sans", "Plain typeface."),
+    ("integrations", "Heading of the integrations screen (Google backup, file sync, AI agent)."),
+    ("backup", "Google account backup."),
+    ("backup_hint", "Explains that worlds and notebooks are backed up to the player's Google account by Android, and restored on a new phone."),
+    ("backup_now", "Ask Android to back up soon."),
+    ("backup_asked", "Notice after asking for a backup."),
+    ("sync", "Keep a copy in a file the player chooses (for example in Google Drive)."),
+    ("sync_hint", "Explains file sync: pick a file (Google Drive works); every change is written there; restore from it on another device."),
+    ("sync_choose", "Choose the file to sync to."),
+    ("sync_restore", "Restore worlds from a synced file."),
+    ("sync_on", "Before the name of the file being synced to."),
+    ("sync_stop", "Stop syncing."),
+    ("sync_failed", "Writing or reading the file failed."),
+    ("restored", "Notice: worlds restored."),
+    ("agent_access", "Let an AI agent play: it sees only the game's text and can type commands, nothing else."),
+    ("agent_hint", "Explains agent access: an agent on the same Wi-Fi connects to the address with the key; it sees only the game's text and types commands; keep the app open."),
+    ("agent_on", "Turn agent access on."),
+    ("agent_address", "Label of the address an agent connects to."),
+    ("agent_key", "Label of the secret key an agent must present."),
+    ("agent_copy", "Copy the connection settings for an agent."),
+    ("agent_new_key", "Make a new key (old connections stop working)."),
+    ("agent_offline", "Agent access needs Wi-Fi."),
+    ("loading", "Shown while the world is being made or loaded."),
+];
+
 /// Sections of the player's manual (the `manual` command).
 pub const MANUAL: &[&str] = &[
     "contents", "playing", "reading", "notebook", "writing", "survival", "endings",
@@ -2088,6 +2177,7 @@ pub const REVIEW: &[(&str, &str)] = &[
     ("notebook", "late"),
     ("manual", "reference"),
     ("ui", "reference"),
+    ("app", "reference"),
 ];
 
 /// The registry with a slot for each of the pack's storylets.

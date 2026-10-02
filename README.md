@@ -40,6 +40,10 @@ In a browser: `tools/build.sh`, then open `tools/dist/play.html` (also
 published to GitHub Pages). Saves, transcripts and notebooks stay in the
 browser or download as files.
 
+On Android: `android/build.sh` makes an APK (see [`docs/ANDROID.md`](docs/ANDROID.md)):
+a chat-style reading app with notebooks, Google backup, file sync and agent
+access.
+
 In a terminal (release binaries are attached to each GitHub release):
 
 ```sh

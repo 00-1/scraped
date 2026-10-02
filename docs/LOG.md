@@ -356,3 +356,36 @@
 **Content slots added:** `manual.page`, `say.seed_code`, `ui.label`.
 
 **Roadmap complete.** What's left for release is Jb's writing; the authoring tool's Gaps and Review views show where to start.
+
+## 2026-10-02 — Android app
+
+**Done**
+- **An Android app** (`android/`, Android 8+, targets 35): the game only, no spoilers. Built by `android/build.sh` without Gradle or the SDK manager (this environment can't reach Google's SDK host). The platform jar comes from GitHub, aapt2 from Apktool's release, D8 from R8's release and apksig from Maven Central. The APK is about 1.3 MB.
+- **The page**: `tools/app/index.html` runs the existing WebAssembly engine in the app's WebView, so the app plays exactly as the other clients, with the same determinism. The native shell is a few hundred lines of Java.
+- **Design, from research**: interactive fiction on phones lives or dies by typing. The best-regarded Android IF app (Text Fiction) is praised for an SMS-like interface that replaces typing with touch; chat apps get the composer right. So:
+  - a worlds list like a list of conversations;
+  - the game's text as prose, with commands as bubbles;
+  - a composer pinned above the keyboard that keeps the keyboard up after sending, with recall;
+  - chips for one-tap commands and verb + thing composition;
+  - tap a passage to copy it or add it to the world's notebook;
+  - text size, theme (system, light, dark, sepia), typeface, and Android's font scale respected;
+  - edge-to-edge with the keyboard and bars handled natively (Android 15 no longer resizes the window for the keyboard).
+- **Integrations**:
+  - Android's Google account backup of worlds and notebooks;
+  - sync to a file the player picks (Google Drive works), with restore and import;
+  - agent access: an MCP server and plain HTTP on the local network, behind a key, with two abilities only (read the text, type a command), the agent's moves shown tagged in the transcript.
+- **Tests**:
+  - `tools/smoke/app.cjs` drives the page on an emulated Pixel 7: making a world, typing, focus kept after sending, recall, chips, scrolling to the newest text, the notebook, an agent's moves, menus, theme, integrations, back, and reopening a world.
+  - `android/test/AgentTest.java` tests the agent server over a real socket: the key, MCP and HTTP, only two tools, and bounded one-line commands.
+  - CI builds the APK and keeps it as an artifact; releases attach it.
+- **Not tested on a device**: there is no emulator here. The Java is compiled against the Android 35 platform and the APK is checked (manifest, aligned resources, dex, v2 signature), but the first run on a real phone may turn up something.
+
+**Open questions for Jb**
+1. **Agent access over the internet** (for Claude on claude.ai) needs a relay service; the local-network version is what exists.
+2. **Command words on chips** (look, read, take, examine, inventory, status, wait, out) are the parser's verbs, shown as typed rather than as slot text. Should they be labels instead?
+3. **The signing key**: set the `ANDROID_KEYSTORE_B64` and `ANDROID_KEYSTORE_PASSWORD` secrets so CI builds can update each other.
+4. **Package name** `org.scrapedagain`.
+
+- **Fix**: since the M14 balance pass, life could stall short of where it was heading, because a slow daily step rounded away in whole thousandths. It now moves at least one unit a day. A world left alone changes a band in about 13% of regions a month. The sim test that caught it hadn't been reached by the earlier test runs, which stop at the first failing crate; I now run with `--no-fail-fast`.
+
+**Content slots added:** `app.label` (68 ids, each described for Jb).

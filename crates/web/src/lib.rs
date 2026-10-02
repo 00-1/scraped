@@ -234,6 +234,22 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 .collect();
             Ok(Value::Object(labels))
         }
+        // The Android app's interface labels, from Jb's app.label slot.
+        "app_labels" => {
+            let (pack, _) = pack(req)?;
+            let registry = scraped_game::slots::registry_for(&pack);
+            let lang = Language::generate(1);
+            let hooks = LangHooks { lang: &lang };
+            let mut r = Renderer::new(&registry, &pack, 1, &hooks);
+            let labels: serde_json::Map<String, Value> = scraped_game::slots::APP_LABELS
+                .iter()
+                .map(|(id, _)| {
+                    let c: scraped_content::Context = [("id".to_string(), scraped_content::Value::from(*id))].into_iter().collect();
+                    (id.to_string(), json!(r.render("app.label", &c)))
+                })
+                .collect();
+            Ok(Value::Object(labels))
+        }
         "seed_decode" => {
             let code: String = field(req, "code")?;
             match scraped_game::seedcode::decode(&code) {
