@@ -108,3 +108,24 @@
 4. Rivers on very smooth slopes can still run as straight parallel lines; a better erosion pass can come later.
 
 **Content slots added:** none (biomes, structure kinds and room purposes are data ids; their descriptions become slots in M05–M06).
+
+## 2026-10-02 — M05 Game core and text interface
+
+**Done**
+- **`game` crate**: game state (place, inventory, moved things, time in minutes, "it", reading position, glyph labels, door states), the pipeline parse → resolve → simulate → describe, and a command log that drives save and replay. Play starts in the most-written living town that is not the capital.
+- **Parser**: verbs and synonyms as data (`crates/game/data/verbs.toml`); noun phrases match the words of each thing's *displayed* name, so whatever your content calls a thing is what the player types; ordinals ("second tomb", "tomb 2"), "it", and "Which …?" questions answered by the next line.
+- **Interiors**: walk between the town's buildings and their rooms by exit or by name; doors open, close and stick; collapsed rooms and buried buildings block the way.
+- **Reading**: texts shown glyph by glyph through your glyph descriptions, paged (`more`); `define 3 as ka` labels a glyph and from then on it reads as your label. Labels are never checked against the truth.
+- **Description slots**: every line the game says is a slot (44 now), each with an example variant; a test scans `game` and `play` for stray string literals.
+- **Save/load/replay**: seed + pack version + command log; loading replays it and warns if the content changed.
+- **`play` crate**: the `scraped` terminal client (word-wrapping, `save`, `load`, `transcript on|off`, `quit`) and the JSON-lines agent protocol (`--json`; `text` is exactly what a human sees, `state` summarises place, things, inventory, exits; ground truth only with `--spoil`).
+- **Browser**: the bench has a **Play** tab (first tab) running the same game core, with save and load in the browser.
+- **Tests**: parser verbs, synonyms, ordinals, pronouns, ambiguity; replay determinism; save/load round trip; protocol lines are JSON whose `text` matches the session; the no-prose-in-code scan; play in the browser build.
+
+**Open questions for Jb** (marked `DESIGN-Q:` in code)
+1. **Starting site**: the most-written living town that is not the capital, until M12's frame.
+2. **Light**: underground rooms and night are "dim" but still readable until lamps exist (M07).
+3. **Event log**: the command log is the event log for now; a richer log of what happened (for the notebook and endings) can come when there are more events than movement and reading.
+4. Several buildings can share a name ("the intact tomb"); players use ordinals. Your `place.structure` variants can tell them apart once they have more to go on (M06 adds landmarks).
+
+**Content slots added:** `place.site`, `place.structure`, `place.room`, `place.exit`, `place.out`, `thing.name`, `thing.examine`, `read.frame`, `read.glyph`, `read.more`, `read.no_more`, `read.end`, `read.nothing`, and the `say.*` family (intro, help, inventory, take/drop, doors, define, which, unknown verb, not here, no exit, saved, loaded, pack changed, wait…).

@@ -34,6 +34,19 @@ cargo run -q -p scraped-cli -- --seed 42 corpus --count 10 --json
 
 A shorter corpus is always the start of a longer one for the same seed.
 
+### Play
+
+```sh
+# Wake in a generated town and explore it: look, go temple, read stele, help.
+cargo run -q -p scraped-play -- --seed 42
+
+# For agents: one JSON command per line in, one JSON response per line out.
+echo '{"cmd": "look"}' | cargo run -q -p scraped-play -- --seed 42 --json
+```
+
+In play, `save`, `load`, `transcript on|off` and `quit` handle the session;
+`define 3 as ka` gives a glyph your own label.
+
 ### Worlds
 
 ```sh
@@ -53,7 +66,7 @@ the engine (`crates/web`) compiled to WebAssembly:
   what it is for and its variables; an editor that lints as you type; live
   previews against real generated worlds; saving straight into `content/`
   (Chrome/Edge), or via zip export and copy-to-clipboard.
-- `bench.html`, the **bench**: eras side by side, glyphs, the script
+- `bench.html`, the **bench**: the game (Play tab), eras side by side, glyphs, the script
   table, every difficulty dial, and the world (map, history, sites).
 
 The Pages workflow publishes both. It needs the `wasm32-unknown-unknown`

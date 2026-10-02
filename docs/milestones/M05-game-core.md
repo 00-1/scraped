@@ -54,15 +54,15 @@ Room look (by room purpose, light, state), object examine, exits, parser errors 
 
 ## Checklist
 
-- [ ] Game state, action pipeline, event log
-- [ ] Parser with disambiguation; verbs as data
-- [ ] Interiors and in-site movement
-- [ ] Reading and paging
-- [ ] Player transliteration
-- [ ] Description slots registered with examples
-- [ ] Save, load, replay
-- [ ] Terminal client and transcripts
-- [ ] JSON-lines agent protocol
-- [ ] Minimal browser play page
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Game state, action pipeline, event log
+- [x] Parser with disambiguation; verbs as data
+- [x] Interiors and in-site movement
+- [x] Reading and paging
+- [x] Player transliteration
+- [x] Description slots registered with examples
+- [x] Save, load, replay
+- [x] Terminal client and transcripts
+- [x] JSON-lines agent protocol
+- [x] Minimal browser play page
+- [x] Tests listed above
+- [x] LOG.md entry
