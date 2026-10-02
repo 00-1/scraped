@@ -86,6 +86,7 @@ dependencies = [
  "scraped-content",
  "scraped-game",
  "scraped-lang",
+ "scraped-sim",
  "scraped-world",
  "serde",
  "serde_json",
@@ -138,6 +139,7 @@ dependencies = [
 name = "scraped-sim"
 version = "0.1.0"
 dependencies = [
+ "scraped-lang",
  "scraped-world",
  "serde",
  "serde_json",
@@ -151,6 +153,7 @@ dependencies = [
  "scraped-content",
  "scraped-game",
  "scraped-lang",
+ "scraped-sim",
  "scraped-world",
  "serde",
  "serde_json",

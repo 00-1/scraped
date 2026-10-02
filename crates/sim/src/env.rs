@@ -14,6 +14,7 @@ use scraped_world::World;
 use crate::fixtures::{Fixtures, MechKind, Spot};
 use crate::outdoors::{hash, outdoor_light, weather, Land, Pos, LOCAL};
 use crate::rules::{ice_cm, Effect, Props, Rules};
+use crate::writing::{resolve, Claim, Class, Property};
 
 /// A fire burning somewhere.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -63,6 +64,8 @@ pub struct Env<'a> {
     pub state: &'a SimState,
     /// Debug and tests: fixed weather and light outdoors.
     pub forced: Option<(&'static str, &'static str)>,
+    /// Claims of live writing acting now.
+    pub claims: &'a [Claim],
 }
 
 /// What a spot is like, in coarse terms for descriptions and the body.
@@ -114,7 +117,55 @@ impl<'a> Env<'a> {
             Some(_) => 0.0,
             None => DIURNAL[hour],
         };
-        mean + swing + spell + wet
+        mean + swing
+            + spell
+            + wet
+            + f64::from(
+                self.claimed(Property::Heat, &[Class::Land], pos)
+                    .unwrap_or(0),
+            )
+    }
+
+    /// What live writing makes of a property at a point, for claims on
+    /// things of the given classes.
+    pub fn claimed(&self, property: Property, classes: &[Class], at: Pos) -> Option<i32> {
+        if self.claims.is_empty() {
+            return None;
+        }
+        let near: Vec<&Claim> = self
+            .claims
+            .iter()
+            .filter(|c| c.property == property && classes.contains(&c.class))
+            .collect();
+        resolve(&near, at)
+    }
+
+    /// Whether writing holds a building's doors open (+1) or shut (-1).
+    pub fn held(&self, structure: usize) -> Option<i32> {
+        self.claimed(
+            Property::Openness,
+            &[Class::Passage],
+            self.land.structure_pos[structure],
+        )
+    }
+
+    /// Heat writing adds in a building's rooms.
+    pub fn room_heat(&self, structure: usize) -> i32 {
+        self.claimed(
+            Property::Heat,
+            &[Class::Room, Class::Passage, Class::Structure],
+            self.land.structure_pos[structure],
+        )
+        .unwrap_or(0)
+    }
+
+    /// Whether writing makes a building's stone sound (+1) or crumbling (-1).
+    pub fn stability(&self, structure: usize) -> Option<i32> {
+        self.claimed(
+            Property::Stability,
+            &[Class::Structure],
+            self.land.structure_pos[structure],
+        )
     }
 
     /// The fire burning at a spot (outdoors: within a few hundred metres).
@@ -355,6 +406,7 @@ impl<'a> Env<'a> {
                 if fire {
                     temperature += 12.0;
                 }
+                temperature += f64::from(self.room_heat(structure));
                 let sky = self.outdoor_light(minutes);
                 let base = if r.level < 0 || sky == "dark" {
                     "dark"
@@ -385,8 +437,12 @@ impl<'a> Env<'a> {
                     light,
                     wetness,
                     air: if open >= 0.8 { "draughty" } else { "still" },
-                    unstable: self.fixtures.unstable.contains(&(structure, room))
-                        && !self.state.settled.contains(&(structure, room)),
+                    unstable: room > 0
+                        && !self.state.settled.contains(&(structure, room))
+                        && match self.stability(structure) {
+                            Some(s) => s < 0,
+                            None => self.fixtures.unstable.contains(&(structure, room)),
+                        },
                     fire,
                     sheltered: open < 0.8,
                 }

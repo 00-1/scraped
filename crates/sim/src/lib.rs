@@ -12,3 +12,4 @@ pub mod fixtures;
 pub mod items;
 pub mod outdoors;
 pub mod rules;
+pub mod writing;

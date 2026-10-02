@@ -549,16 +549,24 @@ impl Fixtures {
                         && st.condition != Condition::Buried
                 })
                 .map(|st| st.id)
+                .filter(|&sid| !self.reachable_rooms(w, sid).is_empty())
                 .collect();
             if homes.is_empty() {
                 continue;
             }
-            let sid = homes[(hash(&[w.seed, 0x7001, n as u64]) % homes.len() as u64) as usize];
-            let rooms = &w.structures[sid].interior.rooms;
-            let room = (0..rooms.len())
-                .rev()
-                .find(|&r| !rooms[r].collapsed)
-                .unwrap_or(0);
+            // Reachable on foot from the start, by the land as it is.
+            let from = Pos::of_cell(
+                w.history.settlements[start].cell.ux(),
+                w.history.settlements[start].cell.uy(),
+            );
+            let pick = hash(&[w.seed, 0x7001, n as u64]) as usize;
+            let Some(sid) = (0..homes.len())
+                .map(|k| homes[(pick + k) % homes.len()])
+                .find(|&sid| land.route(w, from, land.structure_pos[sid]).is_some())
+            else {
+                continue;
+            };
+            let room = *self.reachable_rooms(w, sid).last().unwrap_or(&0);
             self.items.push(Placed {
                 kind: tool,
                 at: Spot::Room {
@@ -568,6 +576,46 @@ impl Fixtures {
                 pos: land.structure_pos[sid],
             });
         }
+    }
+
+    /// Rooms of a building a player can reach from its entrance by ordinary
+    /// means (no rubble, no water, barred doors only with a pry bar),
+    /// nearest first.
+    pub fn reachable_rooms(&self, w: &World, structure: usize) -> Vec<usize> {
+        let st = &w.structures[structure];
+        let rooms = &st.interior.rooms;
+        if rooms.is_empty() || rooms[0].collapsed {
+            return Vec::new();
+        }
+        let flooded = |r: usize| {
+            self.flooded
+                .iter()
+                .any(|f| f.structure == structure && f.room == r)
+        };
+        let mut seen = vec![0usize];
+        let mut i = 0;
+        while i < seen.len() {
+            let r = seen[i];
+            i += 1;
+            for l in &st.interior.links {
+                let other = if l.a == r {
+                    l.b
+                } else if l.b == r {
+                    l.a
+                } else {
+                    continue;
+                };
+                if l.state == PassageState::Blocked
+                    || rooms[other].collapsed
+                    || flooded(other)
+                    || seen.contains(&other)
+                {
+                    continue;
+                }
+                seen.push(other);
+            }
+        }
+        seen
     }
 
     /// River flow at a cell, given which sluices are open.

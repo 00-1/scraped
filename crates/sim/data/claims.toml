@@ -1,0 +1,115 @@
+# What potent writing does: the concept-to-property table.
+#
+# A potent inscription is a claim: a verb, a subject, and whether it is
+# denied ("let the gate open", "let the house not burn"). Once scraped, the
+# world tries to make the claim true near the surface it was written on.
+#
+# `subject` says what class of thing a concept names; `effect` says what a
+# verb does to each class when the claim is positive (a denied claim does
+# the reverse). Give a new concept a power by adding a row; no code needed.
+#
+# Classes:   passage (doors, gates, arches), room (indoors), land (open
+#            ground and the water on it), structure (stone and walls).
+# Properties: openness (+1 held open, -1 held shut), heat (degrees added),
+#            stability (+1 sound, -1 crumbling).
+
+[[subject]]
+id = "gate"
+class = "passage"
+
+[[subject]]
+id = "door"
+class = "passage"
+
+[[subject]]
+id = "tomb"
+class = "passage"
+
+# DESIGN-Q: a box is treated as a passage (its lid) until containers exist.
+[[subject]]
+id = "box"
+class = "passage"
+
+[[subject]]
+id = "tree"
+class = "land"
+
+[[subject]]
+id = "field"
+class = "land"
+
+[[subject]]
+id = "grain"
+class = "land"
+
+[[subject]]
+id = "house"
+class = "room"
+
+[[subject]]
+id = "cloth"
+class = "room"
+
+[[subject]]
+id = "stone"
+class = "structure"
+
+[[subject]]
+id = "wall"
+class = "structure"
+
+[[subject]]
+id = "statue"
+class = "structure"
+
+[[subject]]
+id = "seal"
+class = "structure"
+
+[[subject]]
+id = "bowl"
+class = "structure"
+
+[[subject]]
+id = "jar"
+class = "structure"
+
+[[subject]]
+id = "tablet"
+class = "structure"
+
+[[effect]]
+verb = "open"
+class = "passage"
+property = "openness"
+amount = 1
+
+[[effect]]
+verb = "burn"
+class = "land"
+property = "heat"
+amount = 12
+
+[[effect]]
+verb = "burn"
+class = "room"
+property = "heat"
+amount = 12
+
+[[effect]]
+verb = "burn"
+class = "passage"
+property = "heat"
+amount = 12
+
+[[effect]]
+verb = "break"
+class = "structure"
+property = "stability"
+amount = -1
+
+[[effect]]
+verb = "break"
+class = "passage"
+property = "openness"
+amount = 1
