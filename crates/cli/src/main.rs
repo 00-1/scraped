@@ -5,24 +5,41 @@
 
 use std::process::ExitCode;
 
+use scraped_lang::concepts;
 use scraped_lang::corpus::Corpus;
+use scraped_lang::difficulty::{Difficulty, NameMarking, Regularity, Separation};
+use scraped_lang::script::ScriptKind;
 use scraped_lang::sheet::GrammarSheet;
 use scraped_lang::Language;
+use serde_json::json;
 
 const USAGE: &str = "\
 usage:
-  scraped-lang --seed N corpus [--count 40] [--json] [--spoil]
-  scraped-lang --seed N grammar --spoil [--json]
+  scraped-lang --seed N corpus [--count 40] [--era E] [--glyphs] [--json] [--spoil]
+  scraped-lang --seed N grammar --spoil [--era E] [--json]
+  scraped-lang --seed N script --spoil [--era E] [--json]
+  scraped-lang --seed N eras --spoil [--json]
 
-  --seed N    language seed (any unsigned 64-bit number)
-  --count K   number of inscriptions (default 40)
-  --json      structured output
-  --spoil     include ground truth: glosses, meanings, the grammar";
+  --seed N         language seed (any unsigned 64-bit number)
+  --count K        number of inscriptions (default 40)
+  --era E          historical era, 0 = oldest (default 0)
+  --glyphs         write inscriptions as numbered glyphs (see `script`)
+  --json           structured output
+  --spoil          include ground truth: glosses, meanings, the grammar
+
+difficulty dials:
+  --eras N               number of eras, 1-5 (default 3)
+  --separation S         spaces | dots | none (default spaces)
+  --mark-names           put a determinative sign before names
+  --script-kind K        alphabet | abjad | syllabary (default: by seed)
+  --fused                fuse a few affix combinations";
 
 #[derive(Debug, PartialEq)]
 enum Command {
     Corpus,
     Grammar,
+    Script,
+    Eras,
 }
 
 #[derive(Debug, PartialEq)]
@@ -30,16 +47,22 @@ struct Args {
     seed: u64,
     command: Command,
     count: u32,
+    era: u32,
+    glyphs: bool,
     json: bool,
     spoil: bool,
+    difficulty: Difficulty,
 }
 
 fn parse(args: &[String]) -> Result<Args, String> {
     let mut seed = None;
     let mut command = None;
     let mut count = 40;
+    let mut era = 0;
+    let mut glyphs = false;
     let mut json = false;
     let mut spoil = false;
+    let mut d = Difficulty::default();
     let mut it = args.iter();
     while let Some(a) = it.next() {
         let mut value = |name: &str| {
@@ -56,37 +79,95 @@ fn parse(args: &[String]) -> Result<Args, String> {
                 let v = value("--count")?;
                 count = v.parse().map_err(|_| format!("bad count: {v}"))?;
             }
+            "--era" => {
+                let v = value("--era")?;
+                era = v.parse().map_err(|_| format!("bad era: {v}"))?;
+            }
+            "--eras" => {
+                let v = value("--eras")?;
+                d.eras = v
+                    .parse()
+                    .ok()
+                    .filter(|n| (1..=5).contains(n))
+                    .ok_or(format!("--eras must be 1 to 5, not {v}"))?;
+            }
+            "--separation" => {
+                d.separation = match value("--separation")?.as_str() {
+                    "spaces" => Separation::Spaces,
+                    "dots" => Separation::Dots,
+                    "none" => Separation::None,
+                    v => {
+                        return Err(format!(
+                            "--separation must be spaces, dots or none, not {v}"
+                        ))
+                    }
+                }
+            }
+            "--script-kind" => {
+                d.script = Some(match value("--script-kind")?.as_str() {
+                    "alphabet" => ScriptKind::Alphabet,
+                    "abjad" => ScriptKind::Abjad,
+                    "syllabary" => ScriptKind::Syllabary,
+                    v => {
+                        return Err(format!(
+                            "--script-kind must be alphabet, abjad or syllabary, not {v}"
+                        ))
+                    }
+                })
+            }
+            "--mark-names" => d.names = NameMarking::Determinative,
+            "--fused" => d.regularity = Regularity::Fused,
+            "--glyphs" => glyphs = true,
             "--json" => json = true,
             "--spoil" => spoil = true,
             "corpus" if command.is_none() => command = Some(Command::Corpus),
             "grammar" if command.is_none() => command = Some(Command::Grammar),
+            "script" if command.is_none() => command = Some(Command::Script),
+            "eras" if command.is_none() => command = Some(Command::Eras),
             other => return Err(format!("unexpected argument: {other}")),
         }
     }
-    Ok(Args {
+    let args = Args {
         seed: seed.ok_or("missing --seed")?,
-        command: command.ok_or("missing command: corpus or grammar")?,
+        command: command.ok_or("missing command: corpus, grammar, script or eras")?,
         count,
+        era,
+        glyphs,
         json,
         spoil,
-    })
+        difficulty: d,
+    };
+    if args.era >= args.difficulty.eras() {
+        return Err(format!(
+            "--era {} is out of range: this language has eras 0 to {}",
+            args.era,
+            args.difficulty.eras() - 1
+        ));
+    }
+    Ok(args)
 }
 
 fn run(args: &Args) -> Result<String, String> {
-    let lang = Language::generate(args.seed);
+    let lang = Language::generate_with(args.seed, args.difficulty).at_era(args.era);
+    let needs_spoil = |what: &str| {
+        Err(format!(
+            "the {what} is all spoilers; pass --spoil to see it"
+        ))
+    };
     match args.command {
         Command::Corpus => {
             let corpus = Corpus::generate(&lang, args.count);
-            Ok(if args.json {
-                pretty(&corpus.to_json(args.spoil))
-            } else {
-                corpus.to_text(args.spoil)
+            Ok(match (args.json, args.glyphs) {
+                (true, _) => pretty(&corpus.to_json(args.spoil)),
+                (false, true) => corpus.to_glyph_text(),
+                (false, false) => corpus.to_text(args.spoil),
             })
         }
+        Command::Grammar | Command::Script if !args.spoil => needs_spoil(match args.command {
+            Command::Grammar => "grammar sheet",
+            _ => "script table",
+        }),
         Command::Grammar => {
-            if !args.spoil {
-                return Err("the grammar sheet is all spoilers; pass --spoil to see it".to_string());
-            }
             let sheet = GrammarSheet::new(&lang);
             Ok(if args.json {
                 pretty(&serde_json::to_value(&sheet).expect("sheet serialises"))
@@ -94,7 +175,78 @@ fn run(args: &Args) -> Result<String, String> {
                 sheet.to_text()
             })
         }
+        Command::Script => {
+            let sheet = GrammarSheet::new(&lang);
+            Ok(if args.json {
+                pretty(&serde_json::to_value(&sheet.script).expect("script serialises"))
+            } else {
+                sheet.script_text()
+            })
+        }
+        Command::Eras if !args.spoil => needs_spoil("sound-change history"),
+        Command::Eras => Ok(eras(&lang, args.json)),
     }
+}
+
+/// Every era's sound changes, and every word through time.
+fn eras(lang: &Language, as_json: bool) -> String {
+    let eras = lang.eras();
+    let last = eras.last().expect("at least one era");
+    let words: Vec<(String, Vec<String>, Vec<u32>)> = concepts::all()
+        .iter()
+        .filter(|c| eras[0].lexicon.has(&c.id))
+        .map(|c| {
+            let forms = eras
+                .iter()
+                .map(|l| l.romanise(l.lexicon.root(&c.id)))
+                .collect();
+            let replaced = eras
+                .iter()
+                .filter(|l| l.changes.replaced.contains(&c.id))
+                .map(|l| l.era)
+                .collect();
+            (c.id.clone(), forms, replaced)
+        })
+        .collect();
+    if as_json {
+        return pretty(&json!({
+            "seed": lang.seed,
+            "steps": last.history,
+            "changes": eras.iter().map(|l| json!({"era": l.era, "changes": l.changes})).collect::<Vec<_>>(),
+            "words": words.iter().map(|(c, f, r)| json!({"concept": c, "forms": f, "replaced_in": r})).collect::<Vec<_>>(),
+        }));
+    }
+    let mut s = format!("ERAS — seed {} ({} eras)\n\n", lang.seed, eras.len());
+    for step in &last.history {
+        s.push_str(&format!("era {} (from era {}):\n", step.era, step.era - 1));
+        for r in &step.rules {
+            s.push_str(&format!("  {}\n", r.notation()));
+        }
+        let ch = &eras[step.era as usize].changes;
+        if !ch.eroded.is_empty() {
+            s.push_str(&format!(
+                "  affixes that became particles: {}\n",
+                ch.eroded.join(", ")
+            ));
+        }
+    }
+    s.push_str("\nWORDS (* = replaced by a new word in that era)\n");
+    for (c, forms, replaced) in &words {
+        let cells: Vec<String> = forms
+            .iter()
+            .enumerate()
+            .map(|(e, f)| {
+                let star = if replaced.contains(&(e as u32)) {
+                    "*"
+                } else {
+                    ""
+                };
+                format!("{:<12}", format!("{star}{f}"))
+            })
+            .collect();
+        s.push_str(&format!("  {c:<11} {}\n", cells.join(" ").trim_end()));
+    }
+    s
 }
 
 fn pretty(v: &serde_json::Value) -> String {
@@ -138,8 +290,11 @@ mod tests {
                 seed: 7,
                 command: Command::Corpus,
                 count: 5,
+                era: 0,
+                glyphs: false,
                 json: true,
-                spoil: true
+                spoil: true,
+                difficulty: Difficulty::default(),
             }
         );
     }
@@ -158,6 +313,37 @@ mod tests {
         assert!(parse(&args("--seed x corpus")).is_err());
         assert!(parse(&args("--seed 1")).is_err());
         assert!(parse(&args("--seed 1 corpus --bogus")).is_err());
+    }
+
+    #[test]
+    fn parses_dials_and_eras() {
+        let a = parse(&args("--seed 1 corpus --era 2 --separation dots --mark-names --script-kind abjad --fused --eras 4")).unwrap();
+        assert_eq!(a.era, 2);
+        assert_eq!(a.difficulty.eras, 4);
+        assert_eq!(a.difficulty.separation, Separation::Dots);
+        assert_eq!(a.difficulty.script, Some(ScriptKind::Abjad));
+        assert!(parse(&args("--seed 1 corpus --era 3")).is_err());
+        assert!(parse(&args("--seed 1 corpus --eras 9")).is_err());
+    }
+
+    #[test]
+    fn every_command_runs() {
+        for cmd in [
+            "corpus --count 5",
+            "corpus --glyphs --count 5",
+            "corpus --era 2 --count 5 --json --spoil",
+            "grammar --spoil --era 1",
+            "script --spoil",
+            "script --spoil --json",
+            "eras --spoil",
+            "eras --spoil --json",
+        ] {
+            let a = parse(&args(&format!("--seed 3 {cmd}"))).unwrap();
+            assert!(!run(&a).unwrap().is_empty(), "{cmd}");
+        }
+        for cmd in ["script", "eras"] {
+            assert!(run(&parse(&args(&format!("--seed 3 {cmd}"))).unwrap()).is_err());
+        }
     }
 
     #[test]
