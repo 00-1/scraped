@@ -6,6 +6,8 @@ use scraped_world::history::Settlement;
 use scraped_world::structures::{Condition, Exit, Material, PassageState, Structure};
 use scraped_world::World;
 
+use crate::outdoors::{outdoor_light, Land, Pos};
+
 /// Where the player is.
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
@@ -31,18 +33,24 @@ pub struct Thing {
     pub portable: bool,
     /// Indices into `World::texts`.
     pub texts: Vec<usize>,
+    /// Where on the land it is (its building's spot).
+    pub pos: Pos,
 }
 
 /// Feature kinds that can be picked up.
 const PORTABLE: &[&str] = &["jar", "tablet", "scroll"];
 
-/// A world narrowed to the site being played.
+/// A generated world as the game uses it: the starting settlement, every
+/// thing that can be examined, and the land prepared for travel.
 pub struct Site {
     pub world: World,
+    /// The settlement play starts in.
     pub settlement: usize,
-    /// Structures of the site, by world index.
+    /// Structures of the starting settlement, by world index.
     pub structures: Vec<usize>,
+    /// Every thing in the world.
     pub things: Vec<Thing>,
+    pub land: Land,
 }
 
 /// One way out of a room.
@@ -98,9 +106,11 @@ impl Site {
             .filter(|st| st.settlement == Some(settlement))
             .map(|st| st.id)
             .collect();
+        let land = Land::new(&world);
         let mut things = Vec::new();
-        for &sid in &structures {
-            let st = &world.structures[sid];
+        for st in &world.structures {
+            let sid = st.id;
+            let pos = land.structure_pos[sid];
             for (ri, room) in st.interior.rooms.iter().enumerate() {
                 for f in &room.features {
                     things.push(Thing {
@@ -113,6 +123,7 @@ impl Site {
                         },
                         portable: PORTABLE.contains(&f.kind),
                         texts: f.texts.clone(),
+                        pos,
                     });
                 }
             }
@@ -124,6 +135,7 @@ impl Site {
                     home: Place::Outside,
                     portable: false,
                     texts: st.outside.clone(),
+                    pos,
                 });
             }
         }
@@ -132,6 +144,7 @@ impl Site {
             settlement,
             structures,
             things,
+            land,
         }
     }
 
@@ -218,10 +231,26 @@ impl Site {
         ])
     }
 
-    /// The biome at the site.
+    /// The biome at the starting settlement.
     pub fn biome(&self) -> String {
+        self.biome_at(self.start())
+    }
+
+    pub fn biome_at(&self, p: Pos) -> String {
+        let (x, y) = p.cell();
+        label(self.world.terrain.biome.get(x, y))
+    }
+
+    /// Where play starts: the middle of the starting settlement.
+    pub fn start(&self) -> Pos {
         let c = self.world.history.settlements[self.settlement].cell;
-        label(self.world.terrain.biome.get(c.ux(), c.uy()))
+        Pos::of_cell(c.ux(), c.uy())
+    }
+
+    /// The centre of a settlement.
+    pub fn town_pos(&self, settlement: usize) -> Pos {
+        let c = self.world.history.settlements[settlement].cell;
+        Pos::of_cell(c.ux(), c.uy())
     }
 }
 
@@ -256,12 +285,11 @@ pub fn time_of_day(minutes: u32) -> &'static str {
 
 /// How light a place is.
 // DESIGN-Q: until light and lamps exist (M07), underground rooms and night
-// are "dim" but still readable.
+// indoors are "dim" but still readable.
 pub fn light(place: Place, site: &Site, minutes: u32) -> &'static str {
     let night = matches!(time_of_day(minutes), "night");
     match place {
-        Place::Outside if night => "dim",
-        Place::Outside => "daylight",
+        Place::Outside => outdoor_light(minutes),
         Place::Room { structure, room } => {
             let r = &site.structure(structure).interior.rooms[room];
             if r.level < 0 || night {
