@@ -5,7 +5,11 @@ set -eu
 cd "$(dirname "$0")"
 cargo build --release --target wasm32-unknown-unknown
 mkdir -p dist
-wasm=target/wasm32-unknown-unknown/release/scraped_bench.wasm
+wasm="${CARGO_TARGET_DIR:-target}/wasm32-unknown-unknown/release/scraped_bench.wasm"
+if [ ! -s "$wasm" ]; then
+  echo "error: $wasm is missing or empty" >&2
+  exit 1
+fi
 b64=$(base64 < "$wasm" | tr -d '\n')
 # The template holds the engine on a line of its own: "__ENGINE__";
 {
