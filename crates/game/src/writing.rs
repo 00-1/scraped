@@ -114,13 +114,21 @@ impl Game {
             }
             let layers = self.layers(t);
             if let Some(live) = live_of(&layers, &self.state.scraped) {
-                if let Some(c) = claim_of(&self.site.world, &self.site.land, self.text(live), live)
+                if let Some(mut c) =
+                    claim_of(&self.site.world, &self.site.land, self.text(live), live)
                 {
+                    // A stronger scraper carries a release farther.
+                    // DESIGN-Q: a fine scraper or better triples a release's
+                    // local reach; old and first scrapers also act on regions.
+                    if self.state.released.get(&live).is_some_and(|&p| p >= 2) {
+                        c.range *= 3.0;
+                    }
                     claims.push(c);
                 }
             }
         }
         self.claims = claims;
+        self.recompute_drivers();
     }
 
     /// Scrapes the whole top unscraped text from a surface. Needs the
@@ -129,11 +137,7 @@ impl Game {
     pub(crate) fn scrape(&mut self, thing: usize) -> Output {
         let name = self.thing_name(thing);
         let named = ctx(&[("thing", Value::from(name.as_str()))]);
-        let has_tool = self
-            .state
-            .carried
-            .iter()
-            .any(|&t| self.thing(t).kind == "scraper");
+        let has_tool = self.power() > 0;
         if !has_tool {
             let t = self.say("scrape.no_tool", named);
             return self.output(vec![t], None);
@@ -146,6 +150,9 @@ impl Game {
         if self.is_dark() {
             let t = self.say("read.dark", named);
             return self.output(vec![t], None);
+        }
+        if self.power() < self.needs_power(thing) {
+            return self.too_weak(thing);
         }
         let Some(text) = top_unscraped_of(&layers, &self.state.scraped) else {
             let t = self.say("scrape.bare", named);
@@ -163,6 +170,10 @@ impl Game {
         }
         let before = self.claims.clone();
         self.state.scraped.insert(text);
+        let power = self.power();
+        if text >= base {
+            self.state.released.insert(text, power);
+        }
         self.recompute_claims();
         self.last_scrape = Some(text);
         let backlash = text >= base && self.backlash(text - base);
@@ -174,7 +185,10 @@ impl Game {
                 ("material", Value::from(material)),
             ]),
         )];
-        let felt = self.claim_changes(&before);
+        let mut felt = self.claim_changes(&before);
+        if self.claims.iter().any(|c| c.text == text) && text >= base {
+            felt.extend(self.release_feeling(power));
+        }
         self.scrape_felt = !felt.is_empty();
         parts.extend(felt);
         if backlash {
@@ -256,7 +270,11 @@ impl Game {
 
     /// Said when a writing tool is first picked up.
     pub(crate) fn tool_found(&mut self, kind: &str) -> Option<String> {
-        if !matches!(kind, "scraper" | "stylus" | "lens") || self.state.found.contains(kind) {
+        if !matches!(
+            kind,
+            "scraper" | "stylus" | "lens" | "fine_scraper" | "old_scraper" | "first_scraper"
+        ) || self.state.found.contains(kind)
+        {
             return None;
         }
         self.state.found.insert(kind.to_string());

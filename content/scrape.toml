@@ -19,3 +19,8 @@ example = true
 slot = "scrape.wet"
 text = "{cap thing} is still wet."
 example = true
+
+[[variant]]
+slot = "scrape.too_weak"
+text = "Your scraper skids on {thing}."
+example = true

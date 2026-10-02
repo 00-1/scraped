@@ -32,6 +32,7 @@ impl Game {
             state: &self.state.sim,
             forced: self.forced,
             claims: &self.claims,
+            regional: Some((&self.site.regions, &self.state.regions)),
         }
     }
 
@@ -169,6 +170,7 @@ impl Game {
                 in_water: local.wetness == "flooded",
                 activity,
             };
+            self.state.body.age = self.age();
             if let Some(cause) = self.state.body.pass(dt, &exposure) {
                 self.die(cause);
             }
@@ -221,6 +223,7 @@ impl Game {
             }
             self.creatures_tick(dt);
             self.state.minutes += dt;
+            self.step_regions();
             left -= dt;
             if activity != Activity::Sleeping
                 && self.state.body.collapses()
@@ -962,6 +965,13 @@ impl Game {
             u64::from(self.state.minutes),
             self.state.pos.x as u64,
         ]) % 100;
+        // Less to find where the region's life has fallen.
+        let life = self
+            .env()
+            .region_ratio(self.state.pos, scraped_sim::region::LIFE)
+            .unwrap_or(1000)
+            .clamp(0, 1500);
+        let chance = chance * life as u64 / 1000;
         self.advance(60, Activity::Walking);
         let biome = label(&self.biome_here());
         if roll < chance && self.state.dead.is_none() {
@@ -1161,7 +1171,8 @@ impl Game {
         let states = self.state.body.states();
         let pairs: Vec<(&str, Value)> = states.iter().map(|(k, v)| (*k, Value::from(*v))).collect();
         let t = self.say("body.status", ctx(&pairs));
-        self.output(vec![t], None)
+        let time = self.time_status();
+        self.output(vec![t, time], None)
     }
 
     // ---------- noise and hazards ----------

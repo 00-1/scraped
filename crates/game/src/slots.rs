@@ -111,6 +111,9 @@ pub const KINDS: &[&str] = &[
     "scraper",
     "stylus",
     "lens",
+    "fine_scraper",
+    "old_scraper",
+    "first_scraper",
 ];
 pub const NEEDS: &[&str] = &["warmth", "thirst", "hunger", "rest", "injury", "wet"];
 pub const ALL_NEED_STATES: &[&str] = &[
@@ -1178,6 +1181,74 @@ fn s_count(_: u64) -> Vec<Context> {
     ]
 }
 
+pub const BANDS: &[&str] = &["very_low", "low", "middling", "high", "very_high"];
+use scraped_sim::region::SEASONS;
+
+fn s_region_state(seed: u64) -> Vec<Context> {
+    let site = sample_site(seed);
+    let st = &site.regions.initial;
+    site.regions
+        .regions
+        .iter()
+        .take(6)
+        .enumerate()
+        .map(|(i, r)| {
+            let v = st.vars[r.id];
+            ctx(&[
+                ("life", Value::from(scraped_sim::region::band(0, v[0]))),
+                ("water", Value::from(scraped_sim::region::band(1, v[1]))),
+                ("stability", Value::from(scraped_sim::region::band(2, v[2]))),
+                ("climate", Value::from(["usual", "colder", "warmer"][i % 3])),
+                ("season", Value::from(SEASONS[i % 4])),
+            ])
+        })
+        .collect()
+}
+
+fn s_changed(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("aspect", Value::from("water")),
+            ("before", Value::from("high")),
+            ("after", Value::from("low")),
+        ]),
+        ctx(&[
+            ("aspect", Value::from("life")),
+            ("before", Value::from("low")),
+            ("after", Value::from("middling")),
+        ]),
+        ctx(&[
+            ("aspect", Value::from("climate")),
+            ("before", Value::from("usual")),
+            ("after", Value::from("colder")),
+        ]),
+    ]
+}
+
+fn s_scale(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("scale", Value::from("region"))]),
+        ctx(&[("scale", Value::from("great"))]),
+    ]
+}
+
+fn s_time(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("season", Value::from("spring")),
+            ("age", Value::from("young")),
+            ("years", Value::Number(25)),
+            ("day", Value::Number(1)),
+        ]),
+        ctx(&[
+            ("season", Value::from("winter")),
+            ("age", Value::from("old")),
+            ("years", Value::Number(61)),
+            ("day", Value::Number(12900)),
+        ]),
+    ]
+}
+
 /// Every slot the game declares.
 pub fn slots() -> Vec<SlotDef> {
     let thing = "The thing's name as the game refers to it, e.g. 'the stone altar'.";
@@ -1653,7 +1724,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_effect),
         SlotDef::new("effect.held", "A door won't move, though nothing bars it: it is held (writing's doing; never say so).").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
         SlotDef::new("tool.found", "The player first picks up one of the three writing tools: the scraper, the stylus or the lens. A moment of discovery; don't explain what it does.")
-            .var("kind", e(&["scraper", "stylus", "lens"]), "Which tool.")
+            .var("kind", e(&["scraper", "stylus", "lens", "fine_scraper", "old_scraper", "first_scraper"]), "Which tool: the scraper, the stylus, the lens, or one of the stronger scrapers (fine, old, and the first, strongest of all).")
             .max_len(400)
             .sampler(s_tool),
         SlotDef::new("write.done", "The player writes new text on a surface. Echo the glyphs back as they were cut or painted (descriptions given), never what they mean.")
@@ -1663,7 +1734,7 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(1200)
             .sampler(s_write),
         SlotDef::new("write.refused", "Writing can't begin: no stylus, too dark, nothing to write, not a surface that takes writing, or fresh writing already covers it (it must be scraped first).")
-            .var("reason", e(&["nothing", "no_tool", "dark", "not_surface", "covered"]), "Why.")
+            .var("reason", e(&["nothing", "no_tool", "dark", "not_surface", "covered", "too_great"]), "Why (too_great: the writing here is too great for the scrapers carried).")
             .var("thing", VarType::Text, "The surface named, if any.")
             .max_len(200)
             .sampler(s_write_refused),
@@ -1682,6 +1753,33 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("write.backlash", "A malformed potent inscription turns on its writer as it is scraped: a jolt, a burn, something that hurts (one level of injury).").sampler(s_none),
         SlotDef::new("scrape.wet", "The player tries to scrape writing whose ink or cuts are still fresh; it must dry first.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("read.deep", "Through the lens, a fainter layer shows beneath the top one, before its glyphs are listed.").max_len(200).sampler(s_none),
+        SlotDef::new("region.cues", "The state of the wider land, seen from here, after the look outdoors: how much grows, how much water there is, whether the ground is sound, whether it is colder or warmer than the land should be, and the season. Only what can be seen; often little needs saying.")
+            .var("life", e(BANDS), "How much grows and lives in this region.")
+            .var("water", e(BANDS), "How much water: rivers, pools, damp ground.")
+            .var("stability", e(BANDS), "How sound the ground and stone are (very_low: cracking, slumping).")
+            .var("climate", e(&["colder", "usual", "warmer"]), "Colder or warmer than this land should be.")
+            .var("season", e(&SEASONS), "The season.")
+            .max_len(400)
+            .sampler(s_region_state),
+        SlotDef::new("region.changed", "The player returns to a place and it has changed since they last saw it: contrast what they remember with what is here now ('The pool you remember is gone; cracked mud remains'). Said only when a real change happened.")
+            .var("aspect", e(&["life", "water", "stability", "climate"]), "What changed.")
+            .var("before", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it was.")
+            .var("after", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it is now.")
+            .max_len(300)
+            .sampler(s_changed),
+        SlotDef::new("great.site", "The room holds one of the great inscriptions: writing whose force is felt across the land. Something palpable, never its meaning.").max_len(400).sampler(s_none),
+        SlotDef::new("great.release", "The player scrapes writing with a scraper strong enough that its claim reaches across a region, or further. The feeling of something vast letting go.")
+            .var("scale", e(&["region", "great"]), "How far it reaches: a region, or the great scale.")
+            .max_len(400)
+            .sampler(s_scale),
+        SlotDef::new("scrape.too_weak", "The scraper the player carries is not strong enough for this writing: it skids and won't bite.").var("thing", VarType::Text, thing).sampler(s_named),
+        SlotDef::new("time.status", "The season and the player's age, with the 'status' command.")
+            .var("season", e(&SEASONS), "The season.")
+            .var("age", e(crate::trajectory::AGES), "How old the player feels.")
+            .var("years", VarType::Number, "Years of age.")
+            .var("day", VarType::Number, "Day of the run, from 1.")
+            .max_len(200)
+            .sampler(s_time),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
         SlotDef::new("say.pack_changed", "A loaded save was made with different text (content pack) than now: the story replays the same, but wording may differ.")

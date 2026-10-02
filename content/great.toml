@@ -1,0 +1,11 @@
+notes = "The great inscriptions."
+
+[[variant]]
+slot = "great.site"
+text = "The air here is heavy with old writing."
+example = true
+
+[[variant]]
+slot = "great.release"
+text = "Something vast lets go ({scale})."
+example = true

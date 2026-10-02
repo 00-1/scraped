@@ -220,8 +220,11 @@ impl Game {
             return self.write_refused("dark", Some(name), Vec::new());
         }
         let th = self.thing(thing);
-        if th.portable && th.texts.is_empty() || !WRITABLE.contains(&th.kind) {
+        if th.texts.is_empty() && (th.portable || !WRITABLE.contains(&th.kind)) {
             return self.write_refused("not_surface", Some(name), Vec::new());
+        }
+        if self.power() < self.needs_power(thing) {
+            return self.write_refused("too_great", Some(name), Vec::new());
         }
         let layers = self.layers(thing);
         if layers

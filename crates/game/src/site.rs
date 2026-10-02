@@ -9,7 +9,8 @@ use scraped_world::World;
 use scraped_sim::fixtures::{Fixtures, Spot};
 pub use scraped_sim::outdoors::{label, time_of_day};
 use scraped_sim::outdoors::{outdoor_light, Land, Pos};
-use scraped_sim::writing::Writing;
+use scraped_sim::region::{great_events, great_kind, Great, Regions};
+use scraped_sim::writing::{claim_of, Writing};
 
 /// Where the player is.
 #[derive(
@@ -60,6 +61,10 @@ pub struct Site {
     pub fixtures: Fixtures,
     /// Every written surface and its layers.
     pub writing: Writing,
+    /// Regions of the land, for the slow simulation.
+    pub regions: Regions,
+    /// The great inscriptions of history.
+    pub greats: Vec<Great>,
 }
 
 /// One way out of a room.
@@ -160,7 +165,25 @@ impl Site {
                 surface: None,
             });
         }
-        let writing = Writing::new(&world, &land, &fixtures, settlement);
+        let regions = Regions::new(&world);
+        let writing = Writing::new(&world, &land, &fixtures, settlement, Some(&regions));
+        // DESIGN-Q: the root reaches three regions out, other great
+        // inscriptions two.
+        let greats: Vec<Great> = great_events(&world)
+            .into_iter()
+            .filter_map(|e| {
+                let t = world.texts.iter().find(|t| t.event == Some(e))?;
+                let c = claim_of(&world, &land, t, t.id)?;
+                let root = e == world.history.root;
+                Some(Great {
+                    kind: great_kind(&c).to_string(),
+                    text: t.id,
+                    region: regions.at(c.pos)?,
+                    reach: if root { 3 } else { 2 },
+                    root,
+                })
+            })
+            .collect();
         for (si, s) in writing.surfaces.iter().enumerate() {
             if let Some(t) = feature_of
                 .iter()
@@ -178,6 +201,8 @@ impl Site {
             land,
             fixtures,
             writing,
+            regions,
+            greats,
         }
     }
 

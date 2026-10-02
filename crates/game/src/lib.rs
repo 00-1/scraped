@@ -16,6 +16,9 @@ pub mod site;
 pub mod slots;
 #[cfg(test)]
 mod survival;
+pub mod trajectory;
+#[cfg(test)]
+mod trajectory_tests;
 mod travel;
 mod writing;
 #[cfg(test)]
@@ -160,6 +163,12 @@ pub struct State {
     pub written: Vec<composing::Written>,
     /// Roots the player has met, and in which texts (tracked silently).
     pub encountered: BTreeMap<String, BTreeSet<usize>>,
+    /// The regions' slow variables.
+    pub regions: scraped_sim::region::RegionState,
+    /// Texts the player released, with the power of the scraper used.
+    pub released: BTreeMap<usize, u8>,
+    /// How each outdoor place looked when last seen: regional bands by cell.
+    pub memory: BTreeMap<String, Vec<String>>,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -265,6 +274,10 @@ pub struct Game {
     last_scrape: Option<usize>,
     /// Whether the last scrape changed anything the player could feel.
     scrape_felt: bool,
+    /// Regional pushes acting now.
+    drivers: Vec<scraped_sim::region::Driver>,
+    /// What moved the regions on the last day stepped (debug).
+    causes: Vec<scraped_sim::region::Cause>,
 }
 
 /// One glyph of a reading, or a gap between words.
@@ -317,11 +330,14 @@ impl Game {
             found: BTreeSet::new(),
             written: Vec::new(),
             encountered: BTreeMap::new(),
+            regions: site.regions.initial.clone(),
+            released: BTreeMap::new(),
+            memory: BTreeMap::new(),
         };
         let claims = site
             .writing
             .live_claims(&site.world, &site.land, &state.scraped);
-        Game {
+        let mut g = Game {
             site,
             registry: slots::registry(),
             pack,
@@ -341,7 +357,11 @@ impl Game {
             last_write: None,
             last_scrape: None,
             scrape_felt: false,
-        }
+            drivers: Vec::new(),
+            causes: Vec::new(),
+        };
+        g.recompute_drivers();
+        g
     }
 
     pub fn seed(&self) -> u64 {
@@ -468,7 +488,8 @@ impl Game {
                     Some(false) if w.state == PassageState::Open => w.state = PassageState::Closed,
                     _ => {}
                 }
-                if self.state.sim.opened.contains(&(structure, w.link))
+                if (self.state.sim.opened.contains(&(structure, w.link))
+                    || self.site.fixtures.cleared.contains(&(structure, w.link)))
                     && w.state == PassageState::Blocked
                 {
                     w.state = PassageState::Open;
@@ -608,7 +629,12 @@ impl Game {
                     self.say("place.room", c)
                 };
                 let cues = self.cues();
-                [room_text, cues]
+                let great = if self.great_here() {
+                    self.say("great.site", Context::new())
+                } else {
+                    String::new()
+                };
+                [room_text, cues, great]
                     .into_iter()
                     .filter(|p| !p.is_empty())
                     .collect::<Vec<_>>()
@@ -693,6 +719,7 @@ impl Game {
                 "town": self.site.land.town(&self.site.world, self.state.pos),
                 "claims": self.claims_here(),
                 "understanding": self.understanding(),
+                "regions": self.regions_truth(),
             }))
         });
         Output {
@@ -784,11 +811,7 @@ impl Game {
                 );
                 self.output(vec![t], None)
             }
-            "wait" => {
-                self.pass(30);
-                let t = self.say("say.wait", ctx(&[("minutes", Value::Number(30))]));
-                self.output(vec![t], None)
-            }
+            "wait" => self.wait(&cmd.words),
             "help" => {
                 let t = self.say("say.help", Context::new());
                 self.output(vec![t], None)

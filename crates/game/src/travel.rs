@@ -261,6 +261,7 @@ impl Game {
         ));
         let cues = self.cues();
         parts.push(cues);
+        parts.extend(self.regional_look());
         let beasts: Vec<usize> = self.creatures_in_view();
         if !beasts.is_empty() {
             let mut names = Vec::new();

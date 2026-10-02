@@ -1,0 +1,6 @@
+notes = "Time: seasons and age."
+
+[[variant]]
+slot = "time.status"
+text = "It is {season}. You are {years} ({age})."
+example = true
