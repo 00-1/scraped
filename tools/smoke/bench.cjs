@@ -22,6 +22,9 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   await page.waitForFunction(() => document.querySelector('#playLog').textContent.includes('> head north'));
   await page.check('#spoil');
   await page.waitForSelector('#playMapWrap:not([hidden])');
+  await page.fill('#playInput', 'status');
+  await page.press('#playInput', 'Enter');
+  await page.waitForFunction(() => document.querySelector('#playLog').textContent.includes('[body '));
   await page.click('[data-tab=world]');
   await page.waitForSelector('[data-site]', { timeout: 20000 });
   await page.click('[data-site="0"]');

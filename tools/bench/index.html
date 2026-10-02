@@ -275,10 +275,12 @@ function track(truth) {
   if (truth && !Array.isArray(truth) && truth.cell) state.play.trail.push(truth.cell);
 }
 
-function truthText(t) {
-  if (Array.isArray(t)) return t.map(t => `[era ${t.era} ${t.kind}] ${t.text} — ${t.translation}`).join("\n");
-  if (t && t.blind_steps) return `[drifted: ${t.blind_steps} steps with nothing to steer by]`;
-  return "";
+function truthText(t, st) {
+  const out = [];
+  if (Array.isArray(t)) out.push(t.map(t => `[era ${t.era} ${t.kind}] ${t.text} — ${t.translation}`).join("\n"));
+  if (t && t.blind_steps) out.push(`[drifted: ${t.blind_steps} steps with nothing to steer by]`);
+  if (st && st.body) out.push(`[body ${Object.entries(st.body).map(([k, v]) => `${k}=${v}`).join(" ")} · light=${st.light} · load ${st.load[0]}/${st.load[1]}${st.dead ? " · dead: " + st.dead : ""}]`);
+  return out.join("\n");
 }
 
 function renderPlayMap() {
@@ -304,7 +306,7 @@ function renderPlayMap() {
 function renderPlayLog() {
   const spoil = $("spoil").checked;
   $("playLog").innerHTML = state.play.log.map(e => {
-    const truth = spoil ? truthText(e.truth) : "";
+    const truth = spoil ? truthText(e.truth, e.state) : "";
     return (e.cmd != null ? `<span class="cmd">&gt; ${esc(e.cmd)}</span>\n` : "") + esc(e.text) +
       (truth ? `\n<span class="truth">${esc(truth)}</span>` : "");
   }).join("\n\n");
@@ -314,7 +316,7 @@ function renderPlayLog() {
 
 function playLine(line) {
   const r = api({ cmd: "play", line });
-  state.play.log.push({ cmd: line, text: r.error ? "[" + r.error + "]" : r.text, truth: r.truth });
+  state.play.log.push({ cmd: line, text: r.error ? "[" + r.error + "]" : r.text, truth: r.truth, state: r.state });
   track(r.truth);
   state.play.history.push(line); state.play.back = 0;
   renderPlayLog();

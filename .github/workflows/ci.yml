@@ -17,7 +17,7 @@ jobs:
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
       # Library crates must stay WebAssembly-compatible.
-      - run: cargo build -p scraped-lang -p scraped-content -p scraped-world --target wasm32-unknown-unknown
+      - run: cargo build -p scraped-lang -p scraped-content -p scraped-world -p scraped-sim -p scraped-game --target wasm32-unknown-unknown
       - run: cargo clippy -p scraped-web --target wasm32-unknown-unknown -- -D warnings
       # The browser tools build, and the authoring tool works headless.
       - run: tools/build.sh
