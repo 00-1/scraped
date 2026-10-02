@@ -15,6 +15,8 @@ node tools/smoke/labels.cjs android/app/build/generated/labels/res/values/string
 
 cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o android/app/src/main/jniLibs \
   build --release -p scraped-android
+# Only the app's own library: cargo-ndk also copies the web crate's.
+rm -f android/app/src/main/jniLibs/*/libscraped_web.so
 
 cd android
 ./gradlew --no-daemon -q assembleRelease "$@"

@@ -35,7 +35,9 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -107,6 +109,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -127,6 +130,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -447,9 +451,12 @@ private fun GameScreen(model: AppModel, ink: Ink) {
     val focus = remember { FocusRequester() }
     val n = model.transcript.size
     // Follow the newest text as chat apps do, unless the player has
-    // scrolled back to read; then offer a way down.
+    // scrolled back to read; then offer a way down. A reply taller than the
+    // screen opens at its top, under the command that asked for it, so it
+    // reads from its beginning.
+    val above = with(LocalDensity.current) { 64.dp.toPx() }
     LaunchedEffect(n) {
-        if (list.firstVisibleItemIndex <= 2) list.animateScrollToItem(0)
+        if (list.firstVisibleItemIndex <= 2) showNewest(list, above)
     }
     val reading by remember { androidx.compose.runtime.derivedStateOf { list.firstVisibleItemIndex > 2 } }
 
@@ -458,10 +465,7 @@ private fun GameScreen(model: AppModel, ink: Ink) {
         if (cmd.isEmpty()) return
         haptic(view)
         input = TextFieldValue("")
-        scope.launch {
-            model.send(cmd, 'y')
-            list.animateScrollToItem(0)
-        }
+        scope.launch { model.send(cmd, 'y') }
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -539,12 +543,23 @@ private fun GameScreen(model: AppModel, ink: Ink) {
             input = input,
             onInput = { input = it },
             onSend = { submit() },
-            onRun = { cmd -> haptic(view); scope.launch { model.send(cmd, 'y'); list.animateScrollToItem(0) } },
+            onRun = { cmd -> haptic(view); scope.launch { model.send(cmd, 'y') } },
             focus = focus,
             modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime)),
         )
     }
     if (menu) WorldMenuSheet(model, w, inGame = true) { menu = false }
+}
+
+/** Scrolls to the newest entry; if it's taller than the screen, to its top. */
+private suspend fun showNewest(list: LazyListState, above: Float) {
+    awaitFrame()
+    list.scrollToItem(0)
+    val info = list.layoutInfo
+    val newest = info.visibleItemsInfo.firstOrNull { it.index == 0 } ?: return
+    val over = newest.size - (info.viewportEndOffset - info.viewportStartOffset)
+    // Indices run upwards in the reversed list: forward is towards the top.
+    if (over > 0) list.animateScrollBy(over + above)
 }
 
 @Composable

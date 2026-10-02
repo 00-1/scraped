@@ -102,4 +102,4 @@ jobs:
           target: google_apis
           disable-animations: true
           working-directory: android
-          script: ./gradlew --no-daemon connectedDebugAndroidTest
+          script: ./gradlew --no-daemon connectedDebugAndroidTest || { adb logcat -d | grep -E "AppTest|AndroidRuntime|scrapedagain|FATAL|TestRunner" | tail -300; exit 1; }
