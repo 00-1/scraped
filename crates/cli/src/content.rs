@@ -4,7 +4,8 @@
 use std::path::Path;
 
 use scraped_content::{coverage, lint, release_check, Pack, Renderer, Severity};
-use scraped_lang::slots::{registry, LangHooks};
+use scraped_game::slots::registry;
+use scraped_lang::slots::LangHooks;
 use scraped_lang::Language;
 
 pub const USAGE: &str = "\

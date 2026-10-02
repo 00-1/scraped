@@ -19,6 +19,8 @@ use serde_json::{json, Value};
 
 thread_local! {
     static OUT: RefCell<Vec<u8>> = const { RefCell::new(Vec::new()) };
+    /// The game being played in the browser.
+    static GAME: RefCell<Option<scraped_game::Game>> = const { RefCell::new(None) };
     /// The last world generated, so site views don't regenerate it.
     static WORLD: RefCell<Option<scraped_world::World>> = const { RefCell::new(None) };
 }
@@ -114,7 +116,7 @@ struct FileText {
 
 fn dispatch(req: &Value) -> Result<Value, String> {
     let cmd: String = field(req, "cmd")?;
-    let registry = slots::registry();
+    let registry = scraped_game::slots::registry();
     match cmd.as_str() {
         "bench" => Ok(bench(req)),
         "world" => Ok(with_world(seed(req), |w| {
@@ -136,6 +138,39 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 "timeline": scraped_world::debug::timeline(w),
             })
         })),
+        "play_new" => {
+            let (pack, _) = pack(req)?;
+            let mut game = scraped_game::Game::new(seed(req), pack);
+            game.spoil = opt(req, "spoil", false);
+            let first = game.start();
+            GAME.with(|g| *g.borrow_mut() = Some(game));
+            Ok(json!(first))
+        }
+        "play" => {
+            let line: String = field(req, "line")?;
+            GAME.with(|g| match g.borrow_mut().as_mut() {
+                Some(game) => Ok(json!(game.step(&line))),
+                None => Err("no game started".to_string()),
+            })
+        }
+        "play_save" => GAME.with(|g| match g.borrow().as_ref() {
+            Some(game) => Ok(json!(game.save())),
+            None => Err("no game started".to_string()),
+        }),
+        "play_load" => {
+            let (pack, _) = pack(req)?;
+            let save: scraped_game::Save = field(req, "save")?;
+            let (mut game, changed) = scraped_game::Game::load(&save, pack);
+            game.spoil = opt(req, "spoil", false);
+            let mut text = game.message("say.loaded");
+            if changed {
+                text.push_str("\n\n");
+                text.push_str(&game.message("say.pack_changed"));
+            }
+            let look = game.step("look");
+            GAME.with(|g| *g.borrow_mut() = Some(game));
+            Ok(json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state }))
+        }
         "site" => {
             let id: usize = field(req, "settlement")?;
             Ok(with_world(
@@ -358,6 +393,23 @@ mod tests {
         assert!(site["text"].as_str().unwrap().starts_with("SITE 0"));
         assert_eq!(base64(b"Man"), "TWFu");
         assert_eq!(base64(b"Ma"), "TWE=");
+    }
+
+    #[test]
+    fn play_in_the_browser() {
+        let text = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../content/say.toml"
+        ))
+        .unwrap();
+        let first = call(
+            json!({"cmd": "play_new", "seed": "42", "files": [{"path": "say.toml", "text": text}]}),
+        );
+        assert!(!first["text"].as_str().unwrap().is_empty());
+        let r = call(json!({"cmd": "play", "line": "i"}));
+        assert!(r["text"].as_str().unwrap().contains("nothing"));
+        let save = call(json!({"cmd": "play_save"}));
+        assert_eq!(save["commands"][0], "i");
     }
 
     #[test]
