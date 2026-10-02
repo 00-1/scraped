@@ -58,6 +58,7 @@ LEXICON
     smith       'eyu
     servant     muyo
     god         kumu
+    self        huyï
   [nature]
     water       bixa
     river       hutu
@@ -119,6 +120,7 @@ LEXICON
     fear        nayo
     honour      tsati
     say         dono
+    depart      mango
   [qualities]
     great       mabe
     small       pali

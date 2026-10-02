@@ -3,20 +3,20 @@ machu mahigatina
     machu  mahiga-ti-na
     enter  temple-PL-ACC
 
-ŋugi pumusa pabuna gipa tilisu
-    #2 dedication · Ŋugi made this box for the god.
-    ŋugi  pumu-sa   pabu-na  gipa  tili-su
-    Ŋugi  make-PST  box-ACC  this  god-DAT
+buchi yilu pumusa pabuna gipa tilisu
+    #2 dedication · Buchi, scribe, made this box for the god.
+    buchi  yilu    pumu-sa   pabu-na  gipa  tili-su
+    Buchi  scribe  make-PST  box-ACC  this  god-DAT
 
-mapi sulipi yupiŋa gama nuxa
-    #3 tomb · Mapi, sister of Suli, lies here.
-    mapi  suli-pi   yupiŋa  gama  nuxa
-    Mapi  Suli-GEN  sister  lie   here
+ŋapu ŋinapapi ŋuya gama nuxa
+    #3 tomb · Ŋapu, mother of Ŋinapa, lies here.
+    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
+    Ŋapu  Ŋinapa-GEN  mother  lie   here
 
-ŋakabi mapipi sawukuna
-    #4 warning · Do not break the gate of Mapi.
-    ŋaka-bi    mapi-pi   sawuku-na
-    break-NEG  Mapi-GEN  gate-ACC
+ŋakabi ŋapupi sawukuna
+    #4 warning · Do not break the gate of Ŋapu.
+    ŋaka-bi    ŋapu-pi   sawuku-na
+    break-NEG  Ŋapu-GEN  gate-ACC
 
 halapi pumusa subana gipa manihasu
     #5 dedication · Halapi made this tablet for Maniha.
@@ -38,20 +38,20 @@ lumiti tupu kagu
     lumi-ti  tupu  kagu
     fish-PL  five  three
 
-tuyi lituhupi yupiŋa gama nuxa
-    #9 tomb · Tuyi, sister of Lituhu, lies here.
-    tuyi  lituhu-pi   yupiŋa  gama  nuxa
-    Tuyi  Lituhu-GEN  sister  lie   here
+lunaki xanupi chulu gama nuxa
+    #9 tomb · Lunaki, daughter of Xanu, lies here.
+    lunaki  xanu-pi   chulu     gama  nuxa
+    Lunaki  Xanu-GEN  daughter  lie   here
 
 wila kuchupi wusu gama nuxa
     #10 tomb · Wila, brother of Kuchu, lies here.
     wila  kuchu-pi   wusu     gama  nuxa
     Wila  Kuchu-GEN  brother  lie   here
 
-buchi ŋugipi sibisi gama nuxa
-    #11 tomb · Buchi, husband of Ŋugi, lies here.
-    buchi  ŋugi-pi   sibisi   gama  nuxa
-    Buchi  Ŋugi-GEN  husband  lie   here
+'anuwa tigupi chulu gama nuxa
+    #11 tomb · 'Anuwa, daughter of Tigu, lies here.
+    'anuwa  tigu-pi   chulu     gama  nuxa
+    'Anuwa  Tigu-GEN  daughter  lie   here
 
 halapi luhasa kachachisu yilusu kuchu wiŋapusa liputina tupu yawa tupu kagu chiba yawa kichi bugu bikusu
     #12 letter · Halapi said to Kachachi, scribe,: Kuchu gave 185 goats for the city.
@@ -73,10 +73,10 @@ lituhu luhasa 'axisu 'axi wiŋapusa chukitina hamu
     lituhu  luha-sa  'axi-su   'axi  wiŋapu-sa  chuki-ti-na  hamu
     Lituhu  say-PST  'Axi-DAT  'Axi  give-PST   jar-PL-ACC   four
 
-mapi sulipi yupiŋa gama nuxa
-    #16 tomb · Mapi, sister of Suli, lies here.
-    mapi  suli-pi   yupiŋa  gama  nuxa
-    Mapi  Suli-GEN  sister  lie   here
+ŋapu ŋinapapi ŋuya gama nuxa
+    #16 tomb · Ŋapu, mother of Ŋinapa, lies here.
+    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
+    Ŋapu  Ŋinapa-GEN  mother  lie   here
 
 halapi wilapi wusu gama nuxa
     #17 tomb · Halapi, brother of Wila, lies here.
@@ -128,20 +128,20 @@ sakabipi ŋasi
     sakabi-pi  ŋasi
     king-GEN   bowl
 
-ŋapu pumusa ŋasina gipa wiyisu kuhisu
-    #27 dedication · Ŋapu made this bowl for Wiyi, queen.
-    ŋapu  pumu-sa   ŋasi-na   gipa  wiyi-su   kuhi-su
-    Ŋapu  make-PST  bowl-ACC  this  Wiyi-DAT  queen-DAT
+wiyi kuhi pumusa ŋasina gipa tuyisu
+    #27 dedication · Wiyi, queen, made this bowl for Tuyi.
+    wiyi  kuhi   pumu-sa   ŋasi-na   gipa  tuyi-su
+    Wiyi  queen  make-PST  bowl-ACC  this  Tuyi-DAT
 
-mapi sulipi yupiŋa gama nuxa
-    #28 tomb · Mapi, sister of Suli, lies here.
-    mapi  suli-pi   yupiŋa  gama  nuxa
-    Mapi  Suli-GEN  sister  lie   here
+ŋapu ŋinapapi ŋuya gama nuxa
+    #28 tomb · Ŋapu, mother of Ŋinapa, lies here.
+    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
+    Ŋapu  Ŋinapa-GEN  mother  lie   here
 
-buchi luhasa manihasu kixaŋa luwuna
-    #29 letter · Buchi said to Maniha: Take the loaf.
-    buchi  luha-sa  maniha-su   kixaŋa  luwu-na
-    Buchi  say-PST  Maniha-DAT  take    loaf-ACC
+'anuwa luhasa manihasu kixaŋa luwuna
+    #29 letter · 'Anuwa said to Maniha: Take the loaf.
+    'anuwa  luha-sa  maniha-su   kixaŋa  luwu-na
+    'Anuwa  say-PST  Maniha-DAT  take    loaf-ACC
 
 yapapu sakabi yitisa ŋasitina hamu chiba
     #30 ledger · Yapapu, king, brought 40 bowls.
@@ -153,10 +153,10 @@ winubi latimana
     winu-bi   latima-na
     burn-NEG  door-ACC
 
-mapi sulipi yupiŋa gama nuxa
-    #32 tomb · Mapi, sister of Suli, lies here.
-    mapi  suli-pi   yupiŋa  gama  nuxa
-    Mapi  Suli-GEN  sister  lie   here
+ŋapu ŋinapapi ŋuya gama nuxa
+    #32 tomb · Ŋapu, mother of Ŋinapa, lies here.
+    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
+    Ŋapu  Ŋinapa-GEN  mother  lie   here
 
 lumiti tupu nimi yawa nimi chiba yawa nimi bugu xapati nimi chiŋiti nimi yawa tupu kichi chiba yawa kichi bugu yukama kichi yawa tupu hamu chiba yawa kagu bugu
     #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
@@ -173,20 +173,20 @@ tigupi chuki
     tigu-pi   chuki
     Tigu-GEN  jar
 
-buchi luhasa mulasu yilusu 'ababi kachachipi yakalatina
-    #36 letter · Buchi said to Mula, scribe,: Do not cross the rivers of Kachachi.
-    buchi  luha-sa  mula-su   yilu-su     'aba-bi    kachachi-pi   yakala-ti-na
-    Buchi  say-PST  Mula-DAT  scribe-DAT  cross-NEG  Kachachi-GEN  river-PL-ACC
+'anuwa luhasa mulasu yilusu 'ababi kachachipi yakalatina
+    #36 letter · 'Anuwa said to Mula, scribe,: Do not cross the rivers of Kachachi.
+    'anuwa  luha-sa  mula-su   yilu-su     'aba-bi    kachachi-pi   yakala-ti-na
+    'Anuwa  say-PST  Mula-DAT  scribe-DAT  cross-NEG  Kachachi-GEN  river-PL-ACC
 
 lumiti kagu yawa tupu chiba
     #37 ledger · 53 fish.
     lumi-ti  kagu   yawa  tupu  chiba
     fish-PL  three  AND   five  ten
 
-wiyi luhasa 'axisu misu ya'itina
-    #38 letter · Wiyi said to 'Axi: Fear the seas.
-    wiyi  luha-sa  'axi-su   misu  ya'i-ti-na
-    Wiyi  say-PST  'Axi-DAT  fear  sea-PL-ACC
+tuyi luhasa 'axisu ŋugi yitisa luwutina tupu hamu
+    #38 letter · Tuyi said to 'Axi: Ŋugi brought nine loaves.
+    tuyi  luha-sa  'axi-su   ŋugi  yiti-sa    luwu-ti-na   tupu  hamu
+    Tuyi  say-PST  'Axi-DAT  Ŋugi  bring-PST  loaf-PL-ACC  five  four
 
 misubi ya'ina
     #39 warning · Do not fear the sea.

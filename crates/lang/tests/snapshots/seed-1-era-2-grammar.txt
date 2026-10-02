@@ -72,6 +72,7 @@ LEXICON
     smith       hiho
     servant     noŋi
     god         tili
+    self        soso
   [nature]
     water       miwo
     river       yoholo
@@ -133,6 +134,7 @@ LEXICON
     fear        misu
     honour      yohu
     say         luho
+    depart      tofi
   [qualities]
     great       sisohu
     small       pi'u

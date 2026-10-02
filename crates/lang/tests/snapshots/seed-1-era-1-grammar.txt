@@ -67,6 +67,7 @@ LEXICON
     smith       hiĥa
     servant     naŋi
     god         tili
+    self        sasa
   [nature]
     water       miwa
     river       yaĥala
@@ -128,6 +129,7 @@ LEXICON
     fear        misu
     honour      yaĥu
     say         luha
+    depart      tafi
   [qualities]
     great       sisahu
     small       pi'u

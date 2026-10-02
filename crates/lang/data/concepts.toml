@@ -721,3 +721,21 @@ pos = "particle"
 id = "pot"
 domain = "grammar"
 pos = "particle"
+
+# --- departure --------------------------------------------------------------
+# Words found only in the deepest text (M11): the one who reads and writes,
+# and leaving the world. No everyday genre uses them, so they can be learnt
+# nowhere else.
+[[concept]]
+id = "self"
+domain = "people"
+pos = "noun"
+tags = ["departure"]
+en_plural = "selves"
+
+[[concept]]
+id = "depart"
+domain = "actions"
+pos = "verb"
+objects = []
+en_past = "departed"

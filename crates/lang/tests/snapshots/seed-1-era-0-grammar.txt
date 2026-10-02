@@ -58,6 +58,7 @@ LEXICON
     smith       hika
     servant     naŋi
     god         tili
+    self        saxa
   [nature]
     water       miwa
     river       yakala
@@ -119,6 +120,7 @@ LEXICON
     fear        misu
     honour      yaku
     say         luha
+    depart      tapi
   [qualities]
     great       sixahu
     small       pi'u

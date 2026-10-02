@@ -63,6 +63,7 @@ LEXICON
     smith       'ey
     servant     ritslom
     god         kum
+    self        huy
   [nature]
     water       bix
     river       hut
@@ -124,6 +125,7 @@ LEXICON
     fear        nïf
     honour      tsot
     say         don
+    depart      mong
   [qualities]
     great       mob
     small       mutxu

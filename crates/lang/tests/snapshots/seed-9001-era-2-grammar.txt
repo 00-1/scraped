@@ -69,6 +69,7 @@ LEXICON
     smith       pugëy
     servant     penmin
     god         bunsih
+    self        tehihòn
   [nature]
     water       kinlòsëm
     river       hes
@@ -130,6 +131,7 @@ LEXICON
     fear        mihimtëm
     honour      ñëlki
     say         bòn
+    depart      wëgemën
   [qualities]
     great       sëgòn
     small       bëmsòn

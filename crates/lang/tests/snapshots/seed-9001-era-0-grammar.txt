@@ -58,6 +58,7 @@ LEXICON
     smith       pukayi
     servant     penmin
     god         bunxiha
+    self        tehihon
   [nature]
     water       kinlosam
     river       hesi
@@ -119,6 +120,7 @@ LEXICON
     fear        mi'imtam
     honour      ñalki
     say         bon
+    depart      wakeman
   [qualities]
     great       sagon
     small       bamson

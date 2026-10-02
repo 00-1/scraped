@@ -85,6 +85,9 @@ pub enum Kind {
     Letter,
     /// A claim in the potent register. Rare.
     Potent,
+    /// An account of what happened, by those who came after: the deepest
+    /// text and the end-of-run chronicle (M11). Never generated as corpus.
+    Account,
 }
 
 /// Everyday writing does nothing; potent writing can act once scraped (M08).
@@ -105,6 +108,7 @@ impl Kind {
             Kind::Label => "label",
             Kind::Letter => "letter",
             Kind::Potent => "potent",
+            Kind::Account => "account",
         }
     }
 
@@ -307,7 +311,7 @@ fn compose(rng: &mut Rng, cast: &Cast) -> (Kind, Sentence) {
         Kind::Dedication => dedication(rng, cast),
         Kind::Label => label(rng, cast),
         Kind::Letter => letter(rng, cast),
-        Kind::Potent => potent(rng),
+        Kind::Potent | Kind::Account => potent(rng),
     };
     (kind, s)
 }

@@ -66,6 +66,7 @@ LEXICON
     smith       pugëyi
     servant     penmin
     god         bunsihë
+    self        tehihon
   [nature]
     water       kinlosëm
     river       hesi
@@ -127,6 +128,7 @@ LEXICON
     fear        mi'imtëm
     honour      ñëlki
     say         bon
+    depart      wëgemën
   [qualities]
     great       sëgon
     small       bëmson

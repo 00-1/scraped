@@ -12,15 +12,15 @@ SCRIPT — seed 9001 era 2: alphabet written right to left
   #8   ɲ                ñ        arc down at the top; arc left in the middle; cross at the top
   #9   s                s        dot at the bottom; cross in the middle
   #10  h                h        bar upright in the middle; wedge right on the right; zigzag down in the middle
-  #11  l                l        ring in the middle; tail up at the bottom; cross on the right
-  #12  ɬ                ł        bar upright on the right; dot on the left
+  #11  l                l        ring in the middle; cross on the right
+  #12  ɬ                ł        dot on the left
   #13  j                y        bar level on the left; cross on the right
   #14  w                w        hook right at the top; dot on the left; zigzag left on the right
   #15  e                e        hook left on the left; tail right on the right
   #16  i                i        ring at the top; tail left at the bottom
-  #17  u                u        hook right on the right; dot at the bottom; wedge down at the top
-  #18  ə                ë        bar level on the left
-  #19  ɔ                ò        wedge down at the top; cross at the bottom
+  #17  u                u        hook right on the right; dot at the bottom
+  #18  ə                ë        arc left on the right
+  #19  ɔ                ò        ring on the right
   #20  numeral 0        0        arc right at the top
   #21  numeral 1        1        zigzag right on the right
   #22  numeral 2        2        cross at the top; cross at the bottom
@@ -32,6 +32,6 @@ SCRIPT — seed 9001 era 2: alphabet written right to left
   #28  numeral 8        8        ring at the top
   #29  numeral 9        9        dot in the middle
   #30  numeral 10       10       wedge up on the left
-  #31  numeral 11       11       dot at the top; arc up in the middle; cross at the top
+  #31  numeral 11       11       dot at the top; arc up in the middle
   #32  (word divider)   ·        wedge up at the top; wedge up on the left
   #33  (name marker)    °        dot on the right

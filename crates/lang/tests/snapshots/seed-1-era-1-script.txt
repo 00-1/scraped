@@ -16,23 +16,23 @@ SCRIPT — seed 1 era 1: alphabet written left to right
   #12  h                h        dot on the right; arc right on the right; arc left at the bottom; tail left on the right
   #13  x                ĥ        hook up in the middle; dot on the right; arc left at the top; cross at the bottom
   #14  ɣ                ğ        hook up in the middle; dot on the right; ring on the right; arc left at the top; cross at the bottom
-  #15  θ                þ        wedge right at the top; tail down on the left
-  #16  tʃ               ch       hook down at the bottom; hook down on the left
+  #15  θ                þ        bar upright in the middle; arc right in the middle
+  #16  tʃ               ch       hook down at the bottom
   #17  l                l        hook down on the right; wedge down in the middle
   #18  j                y        tail up in the middle
   #19  w                w        hook down on the left; arc up on the right
-  #20  a                a        bar level in the middle; cross at the top
-  #21  i                i        dot in the middle; ring on the left; tail down on the right
-  #22  u                u        bar level on the left; wedge left on the right; cross in the middle
-  #23  numeral 0        0        arc down on the right; tail up on the right
+  #20  a                a        cross at the top
+  #21  i                i        dot in the middle; tail down on the right
+  #22  u                u        bar level on the left; wedge left on the right
+  #23  numeral 0        0        tail up on the right
   #24  numeral 1        1        dot at the top; tail up on the left
   #25  numeral 2        2        bar upright on the left; cross at the bottom
-  #26  numeral 3        3        ring in the middle; ring on the right; arc up on the left
+  #26  numeral 3        3        ring in the middle; ring on the right
   #27  numeral 4        4        dot on the right; tail up in the middle
   #28  numeral 5        5        dot on the right; arc right at the top
   #29  numeral 6        6        bar level on the left; arc right on the right
   #30  numeral 7        7        hook left on the left
   #31  numeral 8        8        arc down on the left
-  #32  numeral 9        9        dot on the right; ring on the left; wedge right in the middle
+  #32  numeral 9        9        dot on the right; wedge right in the middle
   #33  (word divider)   ·        arc down in the middle; arc left on the right; cross on the right
   #34  (name marker)    °        bar upright on the right; wedge right at the top

@@ -1,37 +1,37 @@
-niro botini mïhu peme nengi
-    #1 tomb · Niro, mother of Boti, lies here.
-    niro  boti-ni   mïhu    peme  nengi
-    Niro  Boti-GEN  mother  here  lie
+rayelu bupini mï peme nengi
+    #1 tomb · Rayelu, father of Bupi, lies here.
+    rayelu  bupi-ni   mï      peme  nengi
+    Rayelu  Bupi-GEN  father  here  lie
 
 ta'a linga rïne tsala mipe
     #2 potent · [potent] let the grain burn.
     ta'a      linga  rïne  tsala  mipe
     POT.OPEN  grain  POT   burn   POT.CLOSE
 
-latifï la'uheni lelo peme nengi
-    #3 tomb · Latifï, sister of La'uhe, lies here.
-    latifï  la'uhe-ni   lelo    peme  nengi
-    Latifï  La'uhe-GEN  sister  here  lie
+nalïbi la'uheni ho peme nengi
+    #3 tomb · Nalïbi, child of La'uhe, lies here.
+    nalïbi  la'uhe-ni   ho     peme  nengi
+    Nalïbi  La'uhe-GEN  child  here  lie
 
 timoku 'alïdu
     #4 warning · Eat the fish.
     timo-ku   'alïdu
     fish-ACC  eat
 
-niro foyeyi xidono tsakuni pirekaku bilamu
-    #5 letter · Niro said to Foye: Do not touch the temple of the king.
-    niro  foye-yi   xi-dono  tsaku-ni  pireka-ku   bi-lamu
-    Niro  Foye-DAT  PST-say  king-GEN  temple-ACC  NEG-touch
+rayelu hipipayi xidono tsakuni pirekaku bilamu
+    #5 letter · Rayelu said to Hipipa: Do not touch the temple of the king.
+    rayelu  hipipa-yi   xi-dono  tsaku-ni  pireka-ku   bi-lamu
+    Rayelu  Hipipa-DAT  PST-say  king-GEN  temple-ACC  NEG-touch
 
-tifu 'apapa mafoyi muyoyi kofe'o xidono boti kumuyi diyungaku ngaxi ngongi boda yoki xikanaba
-    #6 letter · Tifu, scribe, said to Mafo, old servant,: Boti brought 54 oxen for the god.
-    tifu  'apapa  mafo-yi   muyo-yi      kofe'o  xi-dono  boti  kumu-yi  diyu-nga-ku  ngaxi  ngongi  boda  yoki  xi-kanaba
-    Tifu  scribe  Mafo-DAT  servant-DAT  old     PST-say  Boti  god-DAT  ox-PL-ACC    four   AND     five  ten   PST-bring
+tifu 'apapa pekiyi xidono 'odatiku binayo
+    #6 letter · Tifu, scribe, said to Peki: Do not fear the fire.
+    tifu  'apapa  peki-yi   xi-dono  'odati-ku  bi-nayo
+    Tifu  scribe  Peki-DAT  PST-say  fire-ACC   NEG-fear
 
-nika latifïni fu'a peme nengi
-    #7 tomb · Nika, wife of Latifï, lies here.
-    nika  latifï-ni   fu'a  peme  nengi
-    Nika  Latifï-GEN  wife  here  lie
+tsifa likini ralo peme nengi
+    #7 tomb · Tsifa, daughter of Liki, lies here.
+    tsifa  liki-ni   ralo      peme  nengi
+    Tsifa  Liki-GEN  daughter  here  lie
 
 poluku ngama
     #8 warning · Break the statue.
@@ -43,55 +43,55 @@ de'uku binge'oba
     de'u-ku   bi-nge'oba
     seal-ACC  NEG-scrape
 
-batafa 'eyu la'uheyi memaku pali hike xikula
-    #10 dedication · Batafa, smith, made this small altar for La'uhe.
-    batafa  'eyu   la'uhe-yi   mema-ku    pali   hike  xi-kula
-    Batafa  smith  La'uhe-DAT  altar-ACC  small  this  PST-make
+'ipi muyo la'uheyi memaku pali hike xikula
+    #10 dedication · 'Ipi, servant, made this small altar for La'uhe.
+    'ipi  muyo     la'uhe-yi   mema-ku    pali   hike  xi-kula
+    'Ipi  servant  La'uhe-DAT  altar-ACC  small  this  PST-make
 
-rati'o likini kinake peme nengi
-    #11 tomb · Rati'o, husband of Liki, lies here.
-    rati'o  liki-ni   kinake   peme  nengi
-    Rati'o  Liki-GEN  husband  here  lie
+kiye penudini kuri peme nengi
+    #11 tomb · Kiye, brother of Penudi, lies here.
+    kiye  penudi-ni   kuri     peme  nengi
+    Kiye  Penudi-GEN  brother  here  lie
 
-bene pirekayi xemï tupaku hike xikula
-    #12 dedication · Bene made this knife for the new temple.
-    bene  pireka-yi   xemï  tupa-ku    hike  xi-kula
-    Bene  temple-DAT  new   knife-ACC  this  PST-make
+haro pirekayi xemï tupaku hike xikula
+    #12 dedication · Haro made this knife for the new temple.
+    haro  pireka-yi   xemï  tupa-ku    hike  xi-kula
+    Haro  temple-DAT  new   knife-ACC  this  PST-make
 
-kotitï batilayi rirï tukiku hike xikula
-    #13 dedication · Kotitï made this lamp for the dark shrine.
-    kotitï  batila-yi   rirï  tuki-ku   hike  xi-kula
-    Kotitï  shrine-DAT  dark  lamp-ACC  this  PST-make
+penudi batilayi rirï tukiku hike xikula
+    #13 dedication · Penudi made this lamp for the dark shrine.
+    penudi  batila-yi   rirï  tuki-ku   hike  xi-kula
+    Penudi  shrine-DAT  dark  lamp-ACC  this  PST-make
 
-la'uhe rati'oyi xidono helaku rirï bilamu
-    #14 letter · La'uhe said to Rati'o: Do not touch the dark tomb.
-    la'uhe  rati'o-yi   xi-dono  hela-ku   rirï  bi-lamu
-    La'uhe  Rati'o-DAT  PST-say  tomb-ACC  dark  NEG-touch
+la'uhe kiyeyi xidono liki tukingaku feyi ngongi boda yoki xingotsa
+    #14 letter · La'uhe said to Kiye: Liki gave 58 lamps.
+    la'uhe  kiye-yi   xi-dono  liki  tuki-nga-ku  feyi   ngongi  boda  yoki  xi-ngotsa
+    La'uhe  Kiye-DAT  PST-say  Liki  lamp-PL-ACC  eight  AND     five  ten   PST-give
 
-la'uhe yapeyi xidono kotitïni hataku bitsala
-    #15 letter · La'uhe said to Yape: Do not burn the field of Kotitï.
-    la'uhe  yape-yi   xi-dono  kotitï-ni   hata-ku    bi-tsala
-    La'uhe  Yape-DAT  PST-say  Kotitï-GEN  field-ACC  NEG-burn
+la'uhe kekoyi xidono filelo tukingaku moyi ngongi nepa yoki xikanaba
+    #15 letter · La'uhe said to Keko: Filelo brought 36 lamps.
+    la'uhe  keko-yi   xi-dono  filelo  tuki-nga-ku  moyi  ngongi  nepa   yoki  xi-kanaba
+    La'uhe  Keko-DAT  PST-say  Filelo  lamp-PL-ACC  six   AND     three  ten   PST-bring
 
-metema la'uheni ho muyo peme nengi
-    #16 tomb · Metema, child of La'uhe, servant, lies here.
-    metema  la'uhe-ni   ho     muyo     peme  nengi
-    Metema  La'uhe-GEN  child  servant  here  lie
+bupi pekini nïdupi 'apapa peme nengi
+    #16 tomb · Bupi, son of Peki, scribe, lies here.
+    bupi  peki-ni   nïdupi  'apapa  peme  nengi
+    Bupi  Peki-GEN  son     scribe  here  lie
 
-yape kotitïni kuri peme nengi
-    #17 tomb · Yape, brother of Kotitï, lies here.
-    yape  kotitï-ni   kuri     peme  nengi
-    Yape  Kotitï-GEN  brother  here  lie
+keko bupini mï peme nengi
+    #17 tomb · Keko, father of Bupi, lies here.
+    keko  bupi-ni   mï      peme  nengi
+    Keko  Bupi-GEN  father  here  lie
 
 poninga fangi ngongi feyi yoki ngongi fangi kïda
     #18 ledger · 181 sheep.
     poni-nga  fangi  ngongi  feyi   yoki  ngongi  fangi  kïda
     sheep-PL  one    AND     eight  ten   AND     one    hundred
 
-nubongini matsuku derï
-    #19 warning · Enter the city of Nubongi.
-    nubongi-ni   matsu-ku  derï
-    Nubongi-GEN  city-ACC  enter
+hitïdani matsuku derï
+    #19 warning · Enter the city of Hitïda.
+    hitïda-ni   matsu-ku  derï
+    Hitïda-GEN  city-ACC  enter
 
 'alungaku rapiti
     #20 warning · Open the doors.
@@ -103,98 +103,98 @@ ngïbini donguku ngale tako
     ngïbi-ni   dongu-ku  ngale  tako
     queen-GEN  bowl-ACC  red    take
 
-tahe kumuyi luyengaku kara ngongi kara yoki xikanaba
-    #22 ledger · Tahe brought 77 loaves for the god.
-    tahe  kumu-yi  luye-nga-ku  kara   ngongi  kara   yoki  xi-kanaba
-    Tahe  god-DAT  loaf-PL-ACC  seven  AND     seven  ten   PST-bring
+niba batilayi tepïngaku feyi xikanaba
+    #22 ledger · Niba brought eight cloths for the shrine.
+    niba  batila-yi   tepï-nga-ku   feyi   xi-kanaba
+    Niba  shrine-DAT  cloth-PL-ACC  eight  PST-bring
 
 mïhuku tsati
     #23 warning · Honour the mother.
     mïhu-ku     tsati
     mother-ACC  honour
 
-yi'ï hanabungaku fangi yoki xikanaba
-    #24 ledger · Yi'ï brought ten jars.
-    yi'ï  hanabu-nga-ku  fangi  yoki  xi-kanaba
-    Yi'ï  jar-PL-ACC     one    ten   PST-bring
+yïno hanabungaku fangi yoki xikanaba
+    #24 ledger · Yïno brought ten jars.
+    yïno  hanabu-nga-ku  fangi  yoki  xi-kanaba
+    Yïno  jar-PL-ACC     one    ten   PST-bring
 
-kotitï la'uheni mï peme nengi
-    #25 tomb · Kotitï, father of La'uhe, lies here.
-    kotitï  la'uhe-ni   mï      peme  nengi
-    Kotitï  La'uhe-GEN  father  here  lie
+penudi pekini kuri peme nengi
+    #25 tomb · Penudi, brother of Peki, lies here.
+    penudi  peki-ni   kuri     peme  nengi
+    Penudi  Peki-GEN  brother  here  lie
 
-latifï fuyuyi tsakuyi xidono mïhuku tsati
-    #26 letter · Latifï said to Fuyu, king,: Honour the mother.
-    latifï  fuyu-yi   tsaku-yi  xi-dono  mïhu-ku     tsati
-    Latifï  Fuyu-DAT  king-DAT  PST-say  mother-ACC  honour
+nalïbi fuyuyi tsakuyi xidono mïhuku tsati
+    #26 letter · Nalïbi said to Fuyu, king,: Honour the mother.
+    nalïbi  fuyu-yi   tsaku-yi  xi-dono  mïhu-ku     tsati
+    Nalïbi  Fuyu-DAT  king-DAT  PST-say  mother-ACC  honour
 
-latifï penoyi xidono kenaku rapa
-    #27 letter · Latifï said to Peno: Drink the wine.
-    latifï  peno-yi   xi-dono  kena-ku   rapa
-    Latifï  Peno-DAT  PST-say  wine-ACC  drink
+nalïbi bïpayi xidono rayelu tukingaku feyi ngongi yobu yoki xingotsa
+    #27 letter · Nalïbi said to Bïpa: Rayelu gave 28 lamps.
+    nalïbi  bïpa-yi   xi-dono  rayelu  tuki-nga-ku  feyi   ngongi  yobu  yoki  xi-ngotsa
+    Nalïbi  Bïpa-DAT  PST-say  Rayelu  lamp-PL-ACC  eight  AND     two   ten   PST-give
 
-foye yi'ïni kuri ngïbi peme nengi
-    #28 tomb · Foye, brother of Yi'ï, queen, lies here.
-    foye  yi'ï-ni   kuri     ngïbi  peme  nengi
-    Foye  Yi'ï-GEN  brother  queen  here  lie
+hipipa kekoni ralo 'eyu peme nengi
+    #28 tomb · Hipipa, daughter of Keko, smith, lies here.
+    hipipa  keko-ni   ralo      'eyu   peme  nengi
+    Hipipa  Keko-GEN  daughter  smith  here  lie
 
-foru yapeni nïdupi peme nengi
-    #29 tomb · Foru, son of Yape, lies here.
-    foru  yape-ni   nïdupi  peme  nengi
-    Foru  Yape-GEN  son     here  lie
+meti bïpani lelo peme nengi
+    #29 tomb · Meti, sister of Bïpa, lies here.
+    meti  bïpa-ni   lelo    peme  nengi
+    Meti  Bïpa-GEN  sister  here  lie
 
-bene kumuyi mabe donguku hike xikula
-    #30 dedication · Bene made this bowl for the great god.
-    bene  kumu-yi  mabe   dongu-ku  hike  xi-kula
-    Bene  god-DAT  great  bowl-ACC  this  PST-make
+haro kumuyi mabe donguku hike xikula
+    #30 dedication · Haro made this bowl for the great god.
+    haro  kumu-yi  mabe   dongu-ku  hike  xi-kula
+    Haro  god-DAT  great  bowl-ACC  this  PST-make
 
-tahe luyengaku yobu xingotsa
-    #31 ledger · Tahe gave two loaves.
-    tahe  luye-nga-ku  yobu  xi-ngotsa
-    Tahe  loaf-PL-ACC  two   PST-give
+niba diyungaku feyi xingotsa
+    #31 ledger · Niba gave eight oxen.
+    niba  diyu-nga-ku  feyi   xi-ngotsa
+    Niba  ox-PL-ACC    eight  PST-give
 
 buruku hebefa rapiti
     #32 warning · Open the white gate.
     buru-ku   hebefa  rapiti
     gate-ACC  white   open
 
-yape kotitïni kuri peme nengi
-    #33 tomb · Yape, brother of Kotitï, lies here.
-    yape  kotitï-ni   kuri     peme  nengi
-    Yape  Kotitï-GEN  brother  here  lie
+keko bupini mï peme nengi
+    #33 tomb · Keko, father of Bupi, lies here.
+    keko  bupi-ni   mï      peme  nengi
+    Keko  Bupi-GEN  father  here  lie
 
-nubongi nironi mï 'eyu peme nengi
-    #34 tomb · Nubongi, father of Niro, smith, lies here.
-    nubongi  niro-ni   mï      'eyu   peme  nengi
-    Nubongi  Niro-GEN  father  smith  here  lie
+hitïda nalïbini mï 'apapa peme nengi
+    #34 tomb · Hitïda, father of Nalïbi, scribe, lies here.
+    hitïda  nalïbi-ni   mï      'apapa  peme  nengi
+    Hitïda  Nalïbi-GEN  father  scribe  here  lie
 
-depingoni batilaku biderï
-    #35 warning · Do not enter the shrine of Depingo.
-    depingo-ni   batila-ku   bi-derï
-    Depingo-GEN  shrine-ACC  NEG-enter
+taheni batilaku biderï
+    #35 warning · Do not enter the shrine of Tahe.
+    tahe-ni   batila-ku   bi-derï
+    Tahe-GEN  shrine-ACC  NEG-enter
 
-lipate penoni kuri 'apapa peme nengi
-    #36 tomb · Lipate, brother of Peno, scribe, lies here.
-    lipate  peno-ni   kuri     'apapa  peme  nengi
-    Lipate  Peno-GEN  brother  scribe  here  lie
+yinu bupini fu'a muyo peme nengi
+    #36 tomb · Yinu, wife of Bupi, servant, lies here.
+    yinu  bupi-ni   fu'a  muyo     peme  nengi
+    Yinu  Bupi-GEN  wife  servant  here  lie
 
 ta'a yabi kofe'o rïne ngama mipe
     #37 potent · [potent] let the old tablet break.
     ta'a      yabi    kofe'o  rïne  ngama  mipe
     POT.OPEN  tablet  old     POT   break  POT.CLOSE
 
-foru yapeni nïdupi peme nengi
-    #38 tomb · Foru, son of Yape, lies here.
-    foru  yape-ni   nïdupi  peme  nengi
-    Foru  Yape-GEN  son     here  lie
+meti bïpani lelo peme nengi
+    #38 tomb · Meti, sister of Bïpa, lies here.
+    meti  bïpa-ni   lelo    peme  nengi
+    Meti  Bïpa-GEN  sister  here  lie
 
-lipate batilayi tupaku hike xikula
-    #39 dedication · Lipate made this knife for the shrine.
-    lipate  batila-yi   tupa-ku    hike  xi-kula
-    Lipate  shrine-DAT  knife-ACC  this  PST-make
+yinu batilayi tupaku hike xikula
+    #39 dedication · Yinu made this knife for the shrine.
+    yinu  batila-yi   tupa-ku    hike  xi-kula
+    Yinu  shrine-DAT  knife-ACC  this  PST-make
 
-bene hanabungaku boda ngongi ngaxi yoki xingotsa
-    #40 ledger · Bene gave 45 jars.
-    bene  hanabu-nga-ku  boda  ngongi  ngaxi  yoki  xi-ngotsa
-    Bene  jar-PL-ACC     five  AND     four   ten   PST-give
+haro kumuyi tukingaku parï yoki xingotsa
+    #40 ledger · Haro gave 90 lamps for the god.
+    haro  kumu-yi  tuki-nga-ku  parï  yoki  xi-ngotsa
+    Haro  god-DAT  lamp-PL-ACC  nine  ten   PST-give
 
