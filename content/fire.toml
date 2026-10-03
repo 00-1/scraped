@@ -29,3 +29,8 @@ example = true
 slot = "fire.doused"
 text = "You put out the {where}."
 example = true
+
+[[variant]]
+slot = "fire.near"
+text = "A fire burns here."
+example = true

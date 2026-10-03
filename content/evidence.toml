@@ -1,0 +1,11 @@
+notes = "Signs of the season and of how the land fares: shown, never named."
+
+[[variant]]
+slot = "evidence.season"
+text = "You notice {evidence}."
+example = true
+
+[[variant]]
+slot = "evidence.region"
+text = "Here and there: {evidence}."
+example = true

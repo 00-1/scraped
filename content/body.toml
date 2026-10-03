@@ -2,15 +2,25 @@ notes = "How the body feels: needs and their changes."
 
 [[variant]]
 slot = "body.change"
-text = "[if worse]You are {state}.[else]You feel better: {state}.[end]"
-example = true
-
-[[variant]]
-slot = "body.status"
-text = "Warmth: {warmth}. Thirst: {thirst}. Hunger: {hunger}. Rest: {rest}. Injury: {injury}. Wetness: {wet}."
+text = "[if need == 'warmth'][if worse]You shiver.[else]Warmth comes back into your hands.[end][end][if need == 'thirst'][if worse]Your mouth is dry.[else]Your thirst eases.[end][end][if need == 'hunger'][if worse]Your stomach aches with hunger.[else]Your hunger fades.[end][end][if need == 'rest'][if worse]Your limbs are heavy.[else]You feel rested.[end][end][if need == 'injury'][if worse]Pain flares.[else]The pain dulls.[end][end][if need == 'wet'][if worse]Water soaks through your clothes.[else]You are drying out.[end][end]"
 example = true
 
 [[variant]]
 slot = "body.collapse"
 text = "Exhausted, you fall asleep where you stand."
+example = true
+
+[[variant]]
+slot = "body.felt"
+text = "Your {need}: {state}."
+example = true
+
+[[variant]]
+slot = "body.well"
+text = "You feel well enough."
+example = true
+
+[[variant]]
+slot = "body.age"
+text = "Your body feels {age}."
 example = true

@@ -1,0 +1,6 @@
+notes = "The sky: weather and light, and what looking up shows."
+
+[[variant]]
+slot = "sky.weather"
+text = "[if weather == 'rain']It is raining[else][if weather == 'fog']Fog lies close[else]The sky is clear[end][end], {time}."
+example = true

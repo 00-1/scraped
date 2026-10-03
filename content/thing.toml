@@ -9,3 +9,8 @@ example = true
 slot = "thing.examine"
 text = "{cap a material} {kind}.[if written] Marks are cut into it: writing. You could read it.[end]"
 example = true
+
+[[variant]]
+slot = "thing.closer"
+text = "Looking closer: {a size} {material} {kind}[if written], marked with writing[end]."
+example = true

@@ -1,6 +1,0 @@
-notes = "Cues about how a place feels: cold, damp, draughty, dark, unstable."
-
-[[variant]]
-slot = "prop.cues"
-text = "[if dark]It is too dark to see.[end][if temperature == 'freezing'] It is freezing.[end][if temperature == 'cold'] It is cold.[end][if wetness == 'flooded'] Water stands here.[end][if air == 'draughty' and indoors] There is a draught.[end][if unstable] Loose stone hangs overhead.[end][if fire] A fire burns.[end][if uncanny == 'warmth'] The air is strangely warm.[end][if uncanny == 'frost'] Frost lies where it should not.[end]"
-example = true

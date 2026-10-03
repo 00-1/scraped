@@ -1,18 +1,8 @@
 notes = "Where the player is: the open site, buildings, rooms and ways out."
 
 [[variant]]
-slot = "place.site"
-text = "You stand among ruins in {a biome}, in the {time}. Here {list structures}."
-example = true
-
-[[variant]]
 slot = "place.structure"
 text = "the {condition} {kind}"
-example = true
-
-[[variant]]
-slot = "place.room"
-text = "A {purpose}[if level < 0], below ground[end][if light == 'dim'], dim and close[end].[if things] Here: {list things}.[end][if exits] Ways out: {list exits}.[end]"
 example = true
 
 [[variant]]
@@ -28,4 +18,39 @@ example = true
 [[variant]]
 slot = "place.dark"
 text = "It is too dark to see anything here.[if exits] You can feel your way to {list exits}.[end]"
+example = true
+
+[[variant]]
+slot = "place.whole"
+text = "[if settlement == 'none'][if amount == 'one']A {condition} {main} stands alone here[else]{cap amount} {condition} buildings stand here[end][else]{cap a condition} {settlement}[if main_amount != 'one'] of {main_amount} {plural main 2}[end][end]."
+example = true
+
+[[variant]]
+slot = "place.standout"
+text = "[if why == 'only']Among them stands {name}[else][if why == 'tallest']Above the rest rises {name}[else]{cap name} stands out[end][end]."
+example = true
+
+[[variant]]
+slot = "place.group"
+text = "{cap amount} {plural kind 2}, [if mixed]in mixed repair[else]mostly {condition}[end]."
+example = true
+
+[[variant]]
+slot = "place.member"
+text = "{cap name}[if bearing != 'here'], to the {bearing}[end].[if more > 0] {cap count more other} beyond.[end]"
+example = true
+
+[[variant]]
+slot = "place.count"
+text = "You count {count count kind}."
+example = true
+
+[[variant]]
+slot = "place.thing"
+text = "{cap name} stands here."
+example = true
+
+[[variant]]
+slot = "place.group_name"
+text = "the {plural kind 2}"
 example = true

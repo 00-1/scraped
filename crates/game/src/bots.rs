@@ -1426,11 +1426,16 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
     };
     // A fact: a render of a slot that says one thing (no lists), outside
     // the parser's replies, whose text the player was actually shown.
+    // Facts are said as sentences, so compare without case.
     let count_facts = |rs: &[Rendered], text: &str| {
+        let text = text.to_lowercase();
         rs.iter()
             .filter(|r| !r.trace.slot.starts_with("say."))
             .filter(|r| !r.vars.values().any(|v| matches!(v, Value::List(_))))
-            .filter(|r| !r.trace.text.trim().is_empty() && text.contains(r.trace.text.trim()))
+            .filter(|r| {
+                let t = r.trace.text.trim().to_lowercase();
+                !t.is_empty() && text.contains(&t)
+            })
             .count() as u32
     };
     run.facts.push(count_facts(&g.renders, &out.text));

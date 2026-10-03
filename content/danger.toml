@@ -1,0 +1,6 @@
+notes = "Dangers that break through any description."
+
+[[variant]]
+slot = "danger.unstable"
+text = "Loose stone hangs overhead."
+example = true

@@ -65,14 +65,23 @@ fn every_line_links_to_the_variant_that_made_it() {
             }
             // Every line comes from some render (glyph numbers and the
             // rule between pieces of writing aside).
+            // Facts are said as sentences, several to a line: a line is
+            // made when the renders' texts (without case) cover its words.
+            let mut pieces: Vec<String> = out
+                .renders
+                .iter()
+                .map(|r| r.trace.text.trim().to_lowercase())
+                .filter(|t| !t.is_empty())
+                .collect();
+            pieces.sort_by_key(|t| std::cmp::Reverse(t.len()));
             for line in out.text.lines().filter(|l| !l.trim().is_empty()) {
-                let made = out
-                    .renders
-                    .iter()
-                    .any(|r| r.trace.text.contains(line.trim()))
-                    || line
-                        .chars()
-                        .all(|c| c.is_ascii_digit() || " /—".contains(c));
+                let whole = line.trim().to_lowercase();
+                let mut left = whole.clone();
+                for t in &pieces {
+                    left = left.replace(t.as_str(), " ");
+                }
+                let made = pieces.iter().any(|t| t.contains(&whole))
+                    || !left.chars().any(char::is_alphabetic);
                 assert!(made, "seed {seed}: no render made {line:?}");
             }
             for r in &out.renders {

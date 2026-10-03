@@ -7,8 +7,54 @@
 
 [[verb]]
 id = "look"
-words = ["look", "l", "look around"]
+words = ["look", "l"]
 object = "none"
+
+# Digging in (D02): each goes a level deeper than a look.
+[[verb]]
+id = "look_around"
+words = ["look around", "look about", "l around", "survey", "scan", "look at the view"]
+object = "none"
+
+[[verb]]
+id = "look_closer"
+words = ["look closer", "look more closely", "look carefully", "l closer", "search", "search here", "look about here"]
+object = "none"
+
+[[verb]]
+id = "look_up"
+words = ["look up", "l up", "look at the sky", "look skyward", "look at the ceiling"]
+object = "none"
+
+[[verb]]
+id = "look_down"
+words = ["look down", "l down", "look at the ground", "look at the floor", "look underfoot"]
+object = "none"
+
+[[verb]]
+id = "listen"
+words = ["listen", "listen to", "hear", "what is that sound", "what is that noise", "what's that sound", "what's that noise"]
+object = "optional"
+
+[[verb]]
+id = "smell"
+words = ["smell", "sniff", "what is that smell", "what's that smell", "smell the air"]
+object = "optional"
+
+[[verb]]
+id = "touch"
+words = ["touch", "feel", "run fingers over", "run your fingers over"]
+object = "optional"
+
+[[verb]]
+id = "taste"
+words = ["taste", "lick", "sip"]
+object = "optional"
+
+[[verb]]
+id = "count"
+words = ["count", "number"]
+object = "required"
 
 [[verb]]
 id = "examine"
@@ -234,7 +280,7 @@ object = "optional"
 
 [[verb]]
 id = "status"
-words = ["status", "health", "how am i", "condition"]
+words = ["status", "health", "how am i", "condition", "check myself", "check yourself", "check me", "how do i feel", "examine myself", "look at myself", "x me", "x myself"]
 object = "none"
 
 # Writing that acts (M08).

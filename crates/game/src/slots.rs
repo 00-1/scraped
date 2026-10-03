@@ -6,9 +6,9 @@ use std::rc::Rc;
 
 use scraped_content::{Context, Registry, SlotDef, Value, VarType};
 
-use crate::site::{ctx, label, light, time_of_day, Place, Site};
+use crate::site::{ctx, label, Place, Site};
 use scraped_sim::outdoors::{
-    bearing, distance_band, duration_band, rough_metres, rough_minutes, Pos, BEARINGS, DISTANCES,
+    bearing, distance_band, duration_band, rough_metres, rough_minutes, BEARINGS, DISTANCES,
     DURATIONS, EDGES,
 };
 use scraped_sim::region::VARIABLES;
@@ -300,41 +300,6 @@ fn s_structure(seed: u64) -> Vec<Context> {
         .collect()
 }
 
-fn s_room(seed: u64) -> Vec<Context> {
-    let site = sample_site(seed);
-    rooms(&site)
-        .into_iter()
-        .map(|p| {
-            let Place::Room { structure, room } = p else {
-                unreachable!()
-            };
-            let st = site.structure(structure);
-            let r = &st.interior.rooms[room];
-            let things: Vec<Value> = site
-                .things
-                .iter()
-                .filter(|t| t.home == p)
-                .map(|t| Value::from(format!("{} {}", label(&t.material), t.kind)))
-                .collect();
-            let exits: Vec<Value> = site
-                .ways(p)
-                .iter()
-                .map(|w| Value::from(label(&w.exit)))
-                .collect();
-            ctx(&[
-                ("purpose", Value::from(r.purpose)),
-                ("structure", Value::from(label(&st.kind))),
-                ("condition", Value::from(label(&st.condition))),
-                ("level", Value::Number(i64::from(r.level))),
-                ("light", Value::from(light(p, &site, 9 * 60))),
-                ("things", Value::List(things)),
-                ("exits", Value::List(exits)),
-                ("time", Value::from(time_of_day(9 * 60))),
-            ])
-        })
-        .collect()
-}
-
 fn s_exit(seed: u64) -> Vec<Context> {
     let site = sample_site(seed);
     let mut out: Vec<Context> = rooms(&site)
@@ -510,92 +475,6 @@ fn s_landmark(seed: u64) -> Vec<Context> {
         .collect()
 }
 
-fn s_horizon(seed: u64) -> Vec<Context> {
-    let all: Vec<Value> = s_landmark(seed)
-        .iter()
-        .map(|c| {
-            Value::from(format!(
-                "{} to the {}",
-                c["name"].text(),
-                c["bearing"].text()
-            ))
-        })
-        .collect();
-    [
-        (0, "fog", "daylight"),
-        (3, "clear", "daylight"),
-        (6, "clear", "dim"),
-        (1, "rain", "dark"),
-    ]
-    .iter()
-    .map(|&(n, w, l)| {
-        let shown: Vec<Value> = all.iter().take(n).cloned().collect();
-        let count = shown.len() as i64;
-        ctx(&[
-            ("landmarks", Value::List(shown)),
-            ("count", Value::Number(count)),
-            ("weather", Value::from(w)),
-            ("light", Value::from(l)),
-        ])
-    })
-    .collect()
-}
-
-fn s_weather(_: u64) -> Vec<Context> {
-    let mut out = Vec::new();
-    for w in WEATHERS {
-        for (l, t) in [
-            ("daylight", "morning"),
-            ("dim", "evening"),
-            ("dark", "night"),
-        ] {
-            out.push(ctx(&[
-                ("weather", Value::from(*w)),
-                ("light", Value::from(l)),
-                ("time", Value::from(t)),
-            ]));
-        }
-    }
-    out
-}
-
-/// Sample spots: the start, and the places of landmarks.
-fn spots(site: &Site) -> Vec<Pos> {
-    let mut out = vec![site.start()];
-    out.extend(site.land.landmarks.iter().take(10).map(|l| l.pos));
-    out
-}
-
-fn s_area(seed: u64) -> Vec<Context> {
-    let site = sample_site(seed);
-    spots(&site)
-        .into_iter()
-        .map(|p| {
-            let edges: Vec<Value> = site
-                .land
-                .edges_near(p)
-                .into_iter()
-                .map(|(e, b)| {
-                    Value::from(match b {
-                        None => format!("a {} here", EDGES[e]),
-                        Some(b) => format!("a {} to the {}", EDGES[e], BEARINGS[b]),
-                    })
-                })
-                .collect();
-            let town = site.land.town(&site.world, p);
-            ctx(&[
-                ("biome", Value::from(site.biome_at(p))),
-                ("terrain", Value::from(site.land.terrain_here(p))),
-                ("edges", Value::List(edges)),
-                ("near", Value::List(Vec::new())),
-                ("high", Value::Bool(site.land.high(p))),
-                ("in_town", Value::Bool(town.is_some())),
-                ("time", Value::from("morning")),
-            ])
-        })
-        .collect()
-}
-
 fn s_edge_name(_: u64) -> Vec<Context> {
     EDGES
         .iter()
@@ -725,23 +604,6 @@ fn s_all_directions(_: u64) -> Vec<Context> {
         .iter()
         .map(|d| ctx(&[("direction", Value::from(*d))]))
         .collect()
-}
-
-fn s_cues(_: u64) -> Vec<Context> {
-    let mut out = Vec::new();
-    for (i, t) in TEMPERATURES.iter().enumerate() {
-        out.push(ctx(&[
-            ("temperature", Value::from(*t)),
-            ("wetness", Value::from(WETNESSES[i % 4])),
-            ("air", Value::from(AIRS[i % 3])),
-            ("unstable", Value::Bool(i == 2)),
-            ("fire", Value::Bool(i == 1)),
-            ("dark", Value::Bool(i == 3)),
-            ("indoors", Value::Bool(i % 2 == 0)),
-            ("uncanny", Value::from(["none", "warmth", "frost"][i % 3])),
-        ]));
-    }
-    out
 }
 
 fn s_dark(_: u64) -> Vec<Context> {
@@ -924,6 +786,18 @@ fn s_found(_: u64) -> Vec<Context> {
     ])]
 }
 
+/// Each need with its states, mildest first.
+pub(crate) fn need_states() -> [(&'static str, &'static [&'static str]); 6] {
+    [
+        ("warmth", scraped_sim::body::WARMTH_STATES),
+        ("thirst", scraped_sim::body::THIRST_STATES),
+        ("hunger", scraped_sim::body::HUNGER_STATES),
+        ("rest", scraped_sim::body::REST_STATES),
+        ("injury", scraped_sim::body::INJURY_STATES),
+        ("wet", scraped_sim::body::WET_STATES),
+    ]
+}
+
 fn s_body_change(_: u64) -> Vec<Context> {
     let groups: [(&str, &[&str]); 6] = [
         ("warmth", scraped_sim::body::WARMTH_STATES),
@@ -944,27 +818,6 @@ fn s_body_change(_: u64) -> Vec<Context> {
         }
     }
     out
-}
-
-fn s_status(_: u64) -> Vec<Context> {
-    vec![
-        ctx(&[
-            ("warmth", Value::from("warm")),
-            ("thirst", Value::from("fine")),
-            ("hunger", Value::from("fine")),
-            ("rest", Value::from("rested")),
-            ("injury", Value::from("unhurt")),
-            ("wet", Value::from("dry")),
-        ]),
-        ctx(&[
-            ("warmth", Value::from("shivering")),
-            ("thirst", Value::from("parched")),
-            ("hunger", Value::from("weak")),
-            ("rest", Value::from("exhausted")),
-            ("injury", Value::from("badly_hurt")),
-            ("wet", Value::from("soaked")),
-        ]),
-    ]
 }
 
 fn s_hurt(_: u64) -> Vec<Context> {
@@ -1029,13 +882,6 @@ fn s_creature_seen(_: u64) -> Vec<Context> {
             ])
         })
         .collect()
-}
-
-fn s_creature_near(_: u64) -> Vec<Context> {
-    vec![ctx(&[(
-        "creatures",
-        Value::List(vec!["a scavenger to the north (middle)".into()]),
-    )])]
 }
 
 fn s_struck(_: u64) -> Vec<Context> {
@@ -1321,48 +1167,6 @@ fn s_count(_: u64) -> Vec<Context> {
 }
 
 pub const BANDS: &[&str] = &["very_low", "low", "middling", "high", "very_high"];
-use scraped_sim::region::SEASONS;
-
-fn s_region_state(seed: u64) -> Vec<Context> {
-    let site = sample_site(seed);
-    let st = &site.regions.initial;
-    site.regions
-        .regions
-        .iter()
-        .take(6)
-        .enumerate()
-        .map(|(i, r)| {
-            let v = st.vars[r.id];
-            ctx(&[
-                ("life", Value::from(scraped_sim::region::band(0, v[0]))),
-                ("water", Value::from(scraped_sim::region::band(1, v[1]))),
-                ("stability", Value::from(scraped_sim::region::band(2, v[2]))),
-                ("climate", Value::from(["usual", "colder", "warmer"][i % 3])),
-                ("season", Value::from(SEASONS[i % 4])),
-            ])
-        })
-        .collect()
-}
-
-fn s_changed(_: u64) -> Vec<Context> {
-    vec![
-        ctx(&[
-            ("aspect", Value::from("water")),
-            ("before", Value::from("high")),
-            ("after", Value::from("low")),
-        ]),
-        ctx(&[
-            ("aspect", Value::from("life")),
-            ("before", Value::from("low")),
-            ("after", Value::from("middling")),
-        ]),
-        ctx(&[
-            ("aspect", Value::from("climate")),
-            ("before", Value::from("usual")),
-            ("after", Value::from("colder")),
-        ]),
-    ]
-}
 
 fn s_scale(_: u64) -> Vec<Context> {
     vec![
@@ -1371,52 +1175,16 @@ fn s_scale(_: u64) -> Vec<Context> {
     ]
 }
 
-fn s_time(_: u64) -> Vec<Context> {
-    vec![
-        ctx(&[
-            ("season", Value::from("spring")),
-            ("age", Value::from("young")),
-            ("years", Value::Number(25)),
-            ("day", Value::Number(1)),
-        ]),
-        ctx(&[
-            ("season", Value::from("winter")),
-            ("age", Value::from("old")),
-            ("years", Value::Number(61)),
-            ("day", Value::Number(12900)),
-        ]),
-    ]
-}
-
 /// Every slot the game declares.
 pub fn slots() -> Vec<SlotDef> {
     let thing = "The thing's name as the game refers to it, e.g. 'the stone altar'.";
     vec![
-        SlotDef::new("place.site", "What the player sees standing in the open among the site's buildings (the 'look' outside). Sets the scene of a ruined settlement; lists what can be entered. Must not explain what the writing means.")
-            .var("biome", e(BIOMES), "The land the site stands in.")
-            .var("structures", VarType::List, "Names of the buildings here, already rendered by place.structure.")
-            .var("count", VarType::Number, "How many buildings.")
-            .var("abandoned", VarType::Bool, "Whether the settlement was abandoned in its history.")
-            .var("time", e(TIMES), "Time of day.")
-            .max_len(600)
-            .sampler(s_site),
         SlotDef::new("place.structure", "A building's short name as used in lists and by the parser ('the ruined temple'). The player types words from it to refer to the building, so include the kind word.")
             .var("kind", e(STRUCTURES), "What kind of building.")
             .var("condition", e(CONDITIONS), "What time has done to it.")
             .min_variants(1)
             .max_len(60)
             .sampler(s_structure),
-        SlotDef::new("place.room", "The 'look' inside a room: its feel, its things and its ways out. Things and exits arrive already rendered. Must not say what writing means.")
-            .var("purpose", e(PURPOSES), "What the room was for.")
-            .var("structure", e(STRUCTURES), "The building it is in.")
-            .var("condition", e(CONDITIONS), "The building's condition.")
-            .var("level", VarType::Number, "Floor: 0 ground, below 0 underground, above 0 upstairs.")
-            .var("light", e(LIGHTS), "How light it is.")
-            .var("things", VarType::List, "What is here, rendered by thing.name.")
-            .var("exits", VarType::List, "Ways out, rendered by place.exit.")
-            .var("time", e(TIMES), "Time of day.")
-            .max_len(800)
-            .sampler(s_room),
         SlotDef::new("place.exit", "One way out of a room, used inside place.room ('a narrow stair leading down'). Include the direction word so the player knows what to type.")
             .var("direction", e(DIRECTIONS), "Which way.")
             .var("passage", e(PASSAGES), "What kind of passage.")
@@ -1537,22 +1305,6 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.name_bad", "A 'name' command with no name: explain the form 'name this place the gap'.")
             .var("input", VarType::Text, "What the player typed after 'name'.")
             .sampler(s_input),
-        SlotDef::new("land.weather", "Weather and light at a glance, opening the look outdoors. Short.")
-            .var("weather", e(WEATHERS), "Clear, rain or fog.")
-            .var("light", e(LIGHTS), "Daylight, dim (dawn and dusk) or dark (night).")
-            .var("time", e(TIMES), "Time of day.")
-            .max_len(200)
-            .sampler(s_weather),
-        SlotDef::new("land.area", "The ground where the player stands outdoors (the local 100–300 m): land, lie of the ground, edges close by (rivers, roads, coast…), and anything near enough to walk to. When 'in_town' is true, place.site follows with the settlement's buildings, so don't list them here.")
-            .var("biome", e(BIOMES), "The land here.")
-            .var("terrain", e(TERRAINS), "The lie of the ground: flat, a slope, a hilltop or a valley floor.")
-            .var("edges", VarType::List, "Edges close by, each rendered by land.edge.")
-            .var("near", VarType::List, "Buildings and things close by outside a settlement, rendered by their name slots.")
-            .var("high", VarType::Bool, "Whether this is a high point that looks out over the region (land.region follows).")
-            .var("in_town", VarType::Bool, "Whether the player stands in a settlement.")
-            .var("time", e(TIMES), "Time of day.")
-            .max_len(600)
-            .sampler(s_area),
         SlotDef::new("land.edge_name", "An edge's short name for the parser ('the river', 'the old road'). The player types words from it ('follow the river'), so include the kind word.")
             .var("kind", e(&EDGES), "What kind of edge.")
             .min_variants(1)
@@ -1588,13 +1340,6 @@ pub fn slots() -> Vec<SlotDef> {
             .var("distance", e(&DISTANCES), "How far by eye: near (under ~400 m), short (~1 km), middle (a few km), far (up to ~10 km), horizon (beyond).")
             .max_len(160)
             .sampler(s_landmark),
-        SlotDef::new("land.horizon", "What stands out further away, closing the look outdoors: the most striking landmarks in view, or how little can be seen (fog, night).")
-            .var("landmarks", VarType::List, "Landmarks in view, most striking first, each rendered by land.landmark.")
-            .var("count", VarType::Number, "How many.")
-            .var("weather", e(WEATHERS), "The weather, which limits the view.")
-            .var("light", e(LIGHTS), "The light, which limits the view.")
-            .max_len(900)
-            .sampler(s_horizon),
         SlotDef::new("land.region", "From a high point: the lie of the whole region (what land spreads out below, whether the sea is in view).")
             .var("biomes", VarType::List, "The commonest kinds of land in view, commonest first (biome ids).")
             .var("main", e(BIOMES), "The commonest.")
@@ -1658,17 +1403,6 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("travel.indoors", "An outdoor command (head, follow, back, name) typed indoors: go outside first.")
             .var("verb", VarType::Text, "The command.")
             .sampler(s_indoors),
-        SlotDef::new("prop.cues", "Short cues about the feel of a place, after its look: cold, damp, draughty, dark, unstable stone, a fire. Only what the senses give; often nothing needs saying.")
-            .var("temperature", e(TEMPERATURES), "How warm the air is.")
-            .var("wetness", e(WETNESSES), "How wet the place is (flooded: standing water).")
-            .var("air", e(AIRS), "Still, draughty or windy.")
-            .var("unstable", VarType::Bool, "Loose stone overhead that noise could bring down.")
-            .var("fire", VarType::Bool, "A fire burns here.")
-            .var("dark", VarType::Bool, "Too dark to see.")
-            .var("indoors", VarType::Bool, "In a room rather than outdoors.")
-            .var("uncanny", e(&["none", "warmth", "frost"]), "Heat or cold that doesn't belong here (writing's doing): an unnatural warmth, or frost against the season. Never say why.")
-            .max_len(300)
-            .sampler(s_cues),
         SlotDef::new("place.dark", "The look in a room too dark to see: no things, only the ways out the player can feel. Should make the player want light.")
             .var("level", VarType::Number, "Floor: 0 ground, below 0 underground.")
             .var("exits", VarType::List, "Ways out, rendered by place.exit.")
@@ -1776,15 +1510,6 @@ pub fn slots() -> Vec<SlotDef> {
             .var("worse", VarType::Bool, "Whether it got worse (or better).")
             .max_len(200)
             .sampler(s_body_change),
-        SlotDef::new("body.status", "How the player feels, all needs at once (the 'status' command). Felt, not numbers.")
-            .var("warmth", e(scraped_sim::body::WARMTH_STATES), "Warmth.")
-            .var("thirst", e(scraped_sim::body::THIRST_STATES), "Thirst.")
-            .var("hunger", e(scraped_sim::body::HUNGER_STATES), "Hunger.")
-            .var("rest", e(scraped_sim::body::REST_STATES), "Rest.")
-            .var("injury", e(scraped_sim::body::INJURY_STATES), "Injury.")
-            .var("wet", e(scraped_sim::body::WET_STATES), "Wetness.")
-            .max_len(500)
-            .sampler(s_status),
         SlotDef::new("body.collapse", "Exhaustion: the player drops where they stand and sleeps.").sampler(s_none),
         SlotDef::new("hazard.fall", "A fall on a stair in the dark.").var("hurt", VarType::Number, "Levels of injury (1 or 2).").sampler(s_hurt),
         SlotDef::new("hazard.collapse", "Noise brings loose stone down in this room: a way may close, another open, and the player may be hurt.").var("hurt", VarType::Number, "Levels of injury.").sampler(s_hurt),
@@ -1812,7 +1537,6 @@ pub fn slots() -> Vec<SlotDef> {
             .var("distance", e(&DISTANCES), "How far by eye.")
             .max_len(120)
             .sampler(s_creature_seen),
-        SlotDef::new("creature.near", "Creatures in view, after the look outdoors.").var("creatures", VarType::List, "Each rendered by creature.seen.").sampler(s_creature_near),
         SlotDef::new("creature.sighted", "A creature comes into view and the player stops (travel interrupted).")
             .var("name", VarType::Text, "Its name.")
             .var("archetype", e(ARCHETYPES), "What kind.")
@@ -1965,33 +1689,12 @@ pub fn slots() -> Vec<SlotDef> {
             .var("count", VarType::Number, "How many faint layers show (more than one only through the first lens).")
             .max_len(200)
             .sampler(s_count),
-        SlotDef::new("region.cues", "The state of the wider land, seen from here, after the look outdoors: how much grows, how much water there is, whether the ground is sound, whether it is colder or warmer than the land should be, and the season. Only what can be seen; often little needs saying.")
-            .var("life", e(BANDS), "How much grows and lives in this region.")
-            .var("water", e(BANDS), "How much water: rivers, pools, damp ground.")
-            .var("stability", e(BANDS), "How sound the ground and stone are (very_low: cracking, slumping).")
-            .var("climate", e(&["colder", "usual", "warmer"]), "Colder or warmer than this land should be.")
-            .var("season", e(&SEASONS), "The season.")
-            .max_len(400)
-            .sampler(s_region_state),
-        SlotDef::new("region.changed", "The player returns to a place and it has changed since they last saw it: contrast what they remember with what is here now ('The pool you remember is gone; cracked mud remains'). Said only when a real change happened.")
-            .var("aspect", e(&["life", "water", "stability", "climate"]), "What changed.")
-            .var("before", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it was.")
-            .var("after", e(&[BANDS, &["colder", "usual", "warmer"]].concat()), "How it is now.")
-            .max_len(300)
-            .sampler(s_changed),
         SlotDef::new("great.site", "The room holds one of the great inscriptions: writing whose force is felt across the land. Something palpable, never its meaning.").max_len(400).sampler(s_none),
         SlotDef::new("great.release", "The player scrapes writing with a scraper strong enough that its claim reaches across a region, or further. The feeling of something vast letting go.")
             .var("scale", e(&["region", "great"]), "How far it reaches: a region, or the great scale.")
             .max_len(400)
             .sampler(s_scale),
         SlotDef::new("scrape.too_weak", "The scraper the player carries is not strong enough for this writing: it skids and won't bite.").var("thing", VarType::Text, thing).sampler(s_named),
-        SlotDef::new("time.status", "The season and the player's age, with the 'status' command.")
-            .var("season", e(&SEASONS), "The season.")
-            .var("age", e(crate::trajectory::AGES), "How old the player feels.")
-            .var("years", VarType::Number, "Years of age.")
-            .var("day", VarType::Number, "Day of the run, from 1.")
-            .max_len(200)
-            .sampler(s_time),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
         SlotDef::new("manual.page", "The player's manual, one section per page (the 'manual' command; 'manual notebook' and so on). Contents lists the sections. Never spoil the language or the world: teach how to play and how to keep a notebook, not what anything means.")
@@ -2028,6 +1731,7 @@ pub fn slots() -> Vec<SlotDef> {
 pub fn registry() -> Registry {
     let mut all = scraped_lang::slots::slots();
     all.extend(slots());
+    all.extend(crate::quiet_slots::slots());
     Registry::new(all)
 }
 
@@ -2197,6 +1901,7 @@ pub const REVIEW: &[(&str, &str)] = &[
 pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     let mut all = scraped_lang::slots::slots();
     all.extend(slots());
+    all.extend(crate::quiet_slots::slots());
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {

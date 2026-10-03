@@ -1,0 +1,16 @@
+notes = "How the air feels: temperature, wind, strangeness."
+
+[[variant]]
+slot = "air.felt"
+text = "[if temperature == 'freezing']Your breath smokes in the bitter air.[else][if temperature == 'hot']The heat presses on you.[else]The air is {temperature}.[end][end]"
+example = true
+
+[[variant]]
+slot = "air.moving"
+text = "[if indoors]A draught stirs.[else]Wind pulls at your clothes.[end]"
+example = true
+
+[[variant]]
+slot = "air.uncanny"
+text = "[if kind == 'frost']Frost lies where it should not.[else]The air is strangely warm.[end]"
+example = true

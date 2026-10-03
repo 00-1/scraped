@@ -7,6 +7,7 @@
 //! prose.
 
 pub use scraped_sim::outdoors;
+pub mod attention;
 pub mod bots;
 pub mod composing;
 #[cfg(test)]
@@ -23,7 +24,9 @@ pub mod fairness;
 mod fairness_tests;
 pub mod parser;
 mod physical;
+pub mod quiet_slots;
 pub mod seedcode;
+mod senses;
 pub mod site;
 pub mod slots;
 #[cfg(test)]
@@ -54,7 +57,7 @@ use scraped_sim::body::{Activity, Body};
 use scraped_sim::creatures::Creature;
 use scraped_sim::env::SimState;
 use scraped_sim::writing::Claim;
-use site::{ctx, label, time_of_day, Place, Site, Thing, Way};
+use site::{ctx, label, Place, Site, Thing, Way};
 
 /// Verbs that are compass points or up and down.
 const DIRECTION_VERBS: &[&str] = &[
@@ -91,6 +94,11 @@ pub enum Target {
     Mechanism(usize),
     /// The fire burning here.
     Fire,
+    /// Alike buildings here, as a group, by kind (index into
+    /// `slots::STRUCTURES`).
+    Buildings(usize),
+    /// Alike things here, as a group, by kind (index into `slots::KINDS`).
+    Things(usize),
 }
 
 /// How a run ended, for the end-of-run summary.
@@ -196,6 +204,10 @@ pub struct State {
     /// What storylets have done.
     #[serde(default)]
     pub story: storylets::StoryState,
+    /// What the player has been told about each thing, by fact key: the
+    /// attention model's memory (D02).
+    #[serde(default)]
+    pub told: BTreeMap<String, attention::Told>,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -435,6 +447,7 @@ impl Game {
             read: BTreeSet::new(),
             acts: Vec::new(),
             story: storylets::StoryState::default(),
+            told: BTreeMap::new(),
         };
         let claims = site
             .writing
@@ -755,75 +768,47 @@ impl Game {
             }
             out.extend(self.outdoor_targets());
         }
+        // Alike things together, by their plural ("the tombs", "the jars").
+        let mut groups: BTreeMap<(bool, usize), usize> = BTreeMap::new();
+        if self.state.place == Place::Outside {
+            for s in self.local_structures() {
+                let kind = label(&self.site.structure(s).kind);
+                if let Some(k) = slots::STRUCTURES.iter().position(|x| *x == kind) {
+                    *groups.entry((true, k)).or_default() += 1;
+                }
+            }
+        }
+        if !self.is_dark() {
+            for t in self.here() {
+                if let Some(k) = slots::KINDS.iter().position(|x| *x == self.thing(t).kind) {
+                    *groups.entry((false, k)).or_default() += 1;
+                }
+            }
+        }
+        for ((building, k), n) in groups {
+            if n < 2 {
+                continue;
+            }
+            let (target, kind) = if building {
+                (Target::Buildings(k), slots::STRUCTURES[k])
+            } else {
+                (Target::Things(k), slots::KINDS[k])
+            };
+            let name = self.target_name(target);
+            let many = senses::plural(kind);
+            out.push(Candidate::new(target, &name, &[&many, "ones"]));
+        }
         out
     }
 
+    /// Describes the place on arriving: a room as it's entered, or the
+    /// land on stepping out or ending a journey (D02's attention model).
     fn look(&mut self) -> String {
-        let time = time_of_day(self.state.minutes);
-        match self.state.place {
-            Place::Outside => self.look_outside(),
-            Place::Room { structure, room } => {
-                let st = self.site.structure(structure);
-                let r = &st.interior.rooms[room];
-                let (purpose, level, kind, condition) =
-                    (r.purpose, r.level, label(&st.kind), label(&st.condition));
-                let dark = self.is_dark();
-                let mut things: Vec<Value> = if dark {
-                    Vec::new()
-                } else {
-                    self.here()
-                        .into_iter()
-                        .map(|t| Value::from(self.thing_name(t)))
-                        .collect()
-                };
-                for m in self.mechanisms_here() {
-                    things.push(Value::from(self.mech_name(m)));
-                }
-                let mut exits: Vec<Value> = self
-                    .ways()
-                    .iter()
-                    .map(|w| Value::from(self.way_name(w)))
-                    .collect();
-                if room == 0 {
-                    exits.push(Value::from(self.stable("place.out", Context::new(), 7)));
-                }
-                let light = self
-                    .env()
-                    .local(self.spot(), self.state.minutes, self.carried_light())
-                    .light;
-                let room_text = if dark {
-                    let c = ctx(&[
-                        ("level", Value::Number(i64::from(level))),
-                        ("exits", Value::List(exits)),
-                    ]);
-                    self.say("place.dark", c)
-                } else {
-                    let c = ctx(&[
-                        ("purpose", Value::from(purpose)),
-                        ("structure", Value::from(kind)),
-                        ("condition", Value::from(condition)),
-                        ("level", Value::Number(i64::from(level))),
-                        ("light", Value::from(light)),
-                        ("things", Value::List(things)),
-                        ("exits", Value::List(exits)),
-                        ("time", Value::from(time)),
-                    ]);
-                    self.say("place.room", c)
-                };
-                let cues = self.cues();
-                let great = if self.great_here() {
-                    self.hook("great_reached", "", "");
-                    self.say("great.site", Context::new())
-                } else {
-                    String::new()
-                };
-                [room_text, cues, great]
-                    .into_iter()
-                    .filter(|p| !p.is_empty())
-                    .collect::<Vec<_>>()
-                    .join("\n\n")
-            }
-        }
+        let r = match self.state.place {
+            Place::Outside => attention::Response::Arrival,
+            Place::Room { .. } => attention::Response::Room,
+        };
+        self.describe(r)
     }
 
     fn summary(&mut self) -> Summary {
@@ -1011,7 +996,7 @@ impl Game {
         match cmd.verb.as_str() {
             "look" => {
                 self.pass(1);
-                let t = self.look();
+                let t = self.describe(attention::Response::Look);
                 self.output(vec![t], None)
             }
             "inventory" => {
@@ -1065,6 +1050,28 @@ impl Game {
             "shout" => self.shout(),
             "cross" => self.cross(&cmd.words),
             "status" => self.status(),
+            "look_around" => {
+                self.pass(2);
+                let r = if self.state.place == Place::Outside {
+                    attention::Response::Around
+                } else {
+                    attention::Response::Closer
+                };
+                let t = self.describe(r);
+                self.output(vec![t], None)
+            }
+            "look_closer" => {
+                self.pass(3);
+                let t = self.describe(attention::Response::Closer);
+                self.output(vec![t], None)
+            }
+            "look_up" => self.look_up(),
+            "look_down" => self.look_down(),
+            "listen" => self.listen(),
+            "smell" => self.smell(),
+            "taste" => self.taste(),
+            "count" => self.count(&cmd.words),
+            "touch" if cmd.words.is_empty() => self.touch(None),
             "write" => self.write(&cmd.words),
             "go" => {
                 // "go north" is a direction; anything else names a place.
@@ -1111,6 +1118,33 @@ impl Game {
                 );
                 self.output(vec![t], None)
             }
+            // "a tomb", "another tomb", "the nearest tomb": any one will do,
+            // so take the nearest not yet been into.
+            Resolution::Many(options)
+                if words.iter().any(|w| {
+                    matches!(
+                        w.as_str(),
+                        "a" | "an" | "another" | "any" | "nearest" | "closest"
+                    )
+                }) =>
+            {
+                let p = self.state.pos;
+                let pick = options
+                    .iter()
+                    .copied()
+                    .min_by_key(|o| match *o {
+                        Target::Structure(s) => (
+                            self.state.visited.contains(&s),
+                            self.site.land.structure_pos[s].dist2(p),
+                        ),
+                        Target::Thing(t) => {
+                            (self.state.told.contains_key(&format!("examined:{t}")), 0)
+                        }
+                        _ => (true, i64::MAX),
+                    })
+                    .expect("several options");
+                self.act(verb, pick)
+            }
             Resolution::Many(options) => {
                 let names: Vec<Value> = options
                     .iter()
@@ -1142,10 +1176,49 @@ impl Game {
             Target::Edge(e) => self.edge_name(e),
             Target::Mechanism(m) => self.mech_name(m),
             Target::Fire => self.fire_name(),
+            Target::Buildings(k) => {
+                let kind = slots::STRUCTURES.get(k).copied().unwrap_or("house");
+                self.say("place.group_name", ctx(&[("kind", Value::from(kind))]))
+            }
+            Target::Things(k) => {
+                let kind = slots::KINDS.get(k).copied().unwrap_or("jar");
+                self.say("place.group_name", ctx(&[("kind", Value::from(kind))]))
+            }
         }
     }
 
     fn act(&mut self, verb: &str, target: Target) -> Output {
+        // Groups: looking at them lists their members; going to one goes to
+        // the nearest member not yet entered.
+        if let Target::Buildings(k) | Target::Things(k) = target {
+            if verb == "go" {
+                if let Target::Buildings(_) = target {
+                    if let Some(s) = self.pick_member(k) {
+                        return self.act("go", Target::Structure(s));
+                    }
+                }
+            }
+            if matches!(verb, "examine" | "count" | "go" | "look") {
+                return if verb == "count" {
+                    let kind = match target {
+                        Target::Buildings(_) => slots::STRUCTURES.get(k).copied(),
+                        _ => slots::KINDS.get(k).copied(),
+                    }
+                    .unwrap_or("house");
+                    self.count(&[kind.to_string()])
+                } else {
+                    self.examine_group(target)
+                };
+            }
+        }
+        if verb == "touch" {
+            return self.touch(Some(target));
+        }
+        if let ("examine", Target::Thing(i)) = (verb, target) {
+            if let Some(o) = self.examine_closer(i) {
+                return o;
+            }
+        }
         self.state.it = Some(target);
         let name = self.target_name(target);
         let named = ctx(&[("thing", Value::from(name.as_str()))]);

@@ -944,7 +944,7 @@ impl Game {
         self.output(vec![t], None)
     }
 
-    fn biome_here(&self) -> Biome {
+    pub(crate) fn biome_here(&self) -> Biome {
         let (x, y) = self.state.pos.cell();
         *self.site.world.terrain.biome.get(x, y)
     }
@@ -998,7 +998,7 @@ impl Game {
         }
     }
 
-    fn wooded(&self) -> bool {
+    pub(crate) fn wooded(&self) -> bool {
         matches!(
             self.biome_here(),
             Biome::Forest | Biome::Pine | Biome::Scrub | Biome::Shore
@@ -1175,12 +1175,30 @@ impl Game {
         self.output(vec![tx], None)
     }
 
+    /// `check myself` (and `status`): how the body feels, need by need,
+    /// as sensations; and the years, as the body feels them (D02: there is
+    /// no status line, and no levels or numbers).
     pub(crate) fn status(&mut self) -> Output {
-        let states = self.state.body.states();
-        let pairs: Vec<(&str, Value)> = states.iter().map(|(k, v)| (*k, Value::from(*v))).collect();
-        let t = self.say("body.status", ctx(&pairs));
-        let time = self.time_status();
-        self.output(vec![t, time], None)
+        self.pass(1);
+        let mut parts = Vec::new();
+        for (need, state) in self.state.body.states() {
+            let mildest = crate::slots::need_states()
+                .iter()
+                .find(|(n, _)| *n == need)
+                .is_some_and(|(_, states)| states.first() == Some(&state));
+            if !mildest {
+                let c = ctx(&[("need", Value::from(need)), ("state", Value::from(state))]);
+                parts.push(self.say("body.felt", c));
+            }
+        }
+        if parts.is_empty() {
+            parts.push(self.say("body.well", Context::new()));
+        }
+        let age = self.age_band();
+        if age != "young" {
+            parts.push(self.say("body.age", ctx(&[("age", Value::from(age))])));
+        }
+        self.output(vec![parts.join(" ")], None)
     }
 
     // ---------- noise and hazards ----------
@@ -1410,33 +1428,6 @@ impl Game {
     pub(crate) fn take_notes(&mut self) -> Vec<String> {
         self.interrupted = false;
         std::mem::take(&mut self.notes)
-    }
-
-    /// Coarse cues about a place for descriptions.
-    pub(crate) fn cues(&mut self) -> String {
-        let spot = self.spot();
-        let local = self
-            .env()
-            .local(spot, self.state.minutes, self.carried_light());
-        let temp = match local.temperature {
-            t if t < 0.0 => "freezing",
-            t if t < 8.0 => "cold",
-            t if t < 15.0 => "cool",
-            t if t < 22.0 => "mild",
-            t if t < 28.0 => "warm",
-            _ => "hot",
-        };
-        let c = ctx(&[
-            ("temperature", Value::from(temp)),
-            ("wetness", Value::from(local.wetness)),
-            ("air", Value::from(local.air)),
-            ("unstable", Value::Bool(local.unstable)),
-            ("fire", Value::Bool(local.fire)),
-            ("dark", Value::Bool(local.light == "dark")),
-            ("indoors", Value::Bool(matches!(spot, Spot::Room { .. }))),
-            ("uncanny", Value::from(self.uncanny())),
-        ]);
-        self.say("prop.cues", c)
     }
 }
 

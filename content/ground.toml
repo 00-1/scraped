@@ -1,0 +1,6 @@
+notes = "The ground or floor underfoot."
+
+[[variant]]
+slot = "ground.wet"
+text = "[if wetness == 'flooded']Water stands underfoot.[else]The ground is wet.[end]"
+example = true

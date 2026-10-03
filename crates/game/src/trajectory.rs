@@ -4,7 +4,7 @@
 
 use scraped_content::Value;
 use scraped_sim::items::scrape_power;
-use scraped_sim::region::{regional_push, Driver, SEASONS, VARIABLES};
+use scraped_sim::region::{regional_push, Driver};
 use scraped_sim::writing::live_of;
 
 use crate::site::{ctx, Place};
@@ -113,42 +113,6 @@ impl Game {
         })
     }
 
-    /// Regional cues for the look outdoors, plus contrast with what the
-    /// player remembers of this place.
-    pub(crate) fn regional_look(&mut self) -> Vec<String> {
-        let mut out = Vec::new();
-        let pos = self.state.pos;
-        let Some(bands) = self.env().region_bands(pos) else {
-            return out;
-        };
-        let season = SEASONS[scraped_sim::region::season(self.state.minutes)];
-        let c = ctx(&[
-            ("life", Value::from(bands[0])),
-            ("water", Value::from(bands[1])),
-            ("stability", Value::from(bands[2])),
-            ("climate", Value::from(bands[3])),
-            ("season", Value::from(season)),
-        ]);
-        out.push(self.say("region.cues", c));
-        let (x, y) = pos.cell();
-        let key = format!("{x},{y}");
-        let now: Vec<String> = bands.iter().map(|b| b.to_string()).collect();
-        if let Some(before) = self.state.memory.get(&key).cloned() {
-            for (i, (b, a)) in before.iter().zip(&now).enumerate() {
-                if b != a {
-                    let c = ctx(&[
-                        ("aspect", Value::from(VARIABLES[i])),
-                        ("before", Value::from(b.as_str())),
-                        ("after", Value::from(a.as_str())),
-                    ]);
-                    out.push(self.say("region.changed", c));
-                }
-            }
-        }
-        self.state.memory.insert(key, now);
-        out
-    }
-
     /// `wait`, `wait 3 hours`, `wait a day`, `wait 2 weeks`.
     pub(crate) fn wait(&mut self, words: &[String]) -> Output {
         let n = words
@@ -181,20 +145,6 @@ impl Game {
             ctx(&[("minutes", Value::Number(i64::from(waited)))]),
         );
         self.output(vec![t], None)
-    }
-
-    /// Season and age, for the status command.
-    pub(crate) fn time_status(&mut self) -> String {
-        let c = ctx(&[
-            (
-                "season",
-                Value::from(SEASONS[scraped_sim::region::season(self.state.minutes)]),
-            ),
-            ("age", Value::from(self.age_band())),
-            ("years", Value::Number(i64::from(self.age()))),
-            ("day", Value::Number(i64::from(self.day() + 1))),
-        ]);
-        self.say("time.status", c)
     }
 
     /// Debug: regions and what is pushing them.

@@ -1,0 +1,21 @@
+notes = "A room: its whole, its ways out, and what stands out in it."
+
+[[variant]]
+slot = "room.whole"
+text = "{cap a purpose}[if level < 0], below ground[end][if light == 'dim'], dim and close[end]."
+example = true
+
+[[variant]]
+slot = "room.ways"
+text = "Ways out: {list ways}."
+example = true
+
+[[variant]]
+slot = "room.group"
+text = "{cap amount} {material} {plural kind 2}."
+example = true
+
+[[variant]]
+slot = "room.thing"
+text = "{cap name}[if item] lies here[else] stands here[end]."
+example = true

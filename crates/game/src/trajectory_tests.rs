@@ -172,27 +172,32 @@ fn countering_a_great_inscription_changes_where_its_regions_head() {
 
 #[test]
 fn revisits_notice_only_real_change() {
+    use crate::attention::Response;
     let mut g = Game::new(42, pack());
     g.start();
     g.state.place = Place::Outside;
-    let first = g.regional_look();
-    assert_eq!(first.len(), 1, "first visit: cues only");
-    let again = g.regional_look();
-    assert_eq!(again.len(), 1, "nothing changed");
-    // A small drift that crosses no band: still nothing.
+    // What the water of the region shows, if anything.
+    let water = |g: &mut Game| -> Option<String> {
+        g.outdoor_facts(Response::Look)
+            .into_iter()
+            .find(|f| f.key == "region:water")
+            .map(|f| f.vars.get("evidence").map(|v| v.text()).unwrap_or_default())
+    };
     let r = g.site.regions.at(g.state.pos).unwrap();
-    let v = g.state.regions.vars[r][WATER];
-    let within = (v / 200) * 200 + 100;
-    g.state.regions.vars[r][WATER] = within;
-    g.state.memory.clear();
-    g.regional_look();
-    g.state.regions.vars[r][WATER] = within + 50;
-    assert_eq!(
-        g.regional_look().len(),
-        1,
-        "a change within a band is not news"
+    // A small drift that crosses no band shows the same evidence.
+    g.state.regions.vars[r][WATER] = 50;
+    let low = water(&mut g);
+    assert!(low.is_some(), "very low water shows");
+    g.state.regions.vars[r][WATER] = 150;
+    assert_eq!(water(&mut g), low, "a change within a band is not news");
+    // A real change, across bands, shows something else.
+    g.state.regions.vars[r][WATER] = 300;
+    let after = water(&mut g);
+    assert!(
+        after.is_some() && after != low,
+        "crossing a band is noticed"
     );
-    // A real change, across a band.
-    g.state.regions.vars[r][WATER] = (within + 400).min(990);
-    assert_eq!(g.regional_look().len(), 2, "crossing a band is noticed");
+    // Middling water shows nothing at all.
+    g.state.regions.vars[r][WATER] = 500;
+    assert_eq!(water(&mut g), None);
 }

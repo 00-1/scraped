@@ -4,7 +4,7 @@
 use scraped_content::{Context, Value};
 
 use crate::parser::{resolve, Candidate, Resolution};
-use crate::site::{ctx, label, time_of_day, Place};
+use crate::site::{ctx, label, Place};
 use crate::{Game, Output, Sighting, Target, Travelled};
 use scraped_sim::body::Activity;
 use scraped_sim::outdoors::{
@@ -12,8 +12,6 @@ use scraped_sim::outdoors::{
     rough_minutes, sight_range, unit, InView, Pos, Way, ARRIVE, BEARINGS, EDGES, EYE, LOCAL, STEP,
 };
 
-/// Landmarks named in a look, at most.
-const HORIZON: usize = 6;
 /// How far `head north` goes before stopping to look, in steps.
 // DESIGN-Q: a heading walks about 3 km (or until something new comes into
 // view, or water bars the way).
@@ -37,7 +35,11 @@ impl Game {
         self.conditions_at(self.state.pos, self.state.minutes)
     }
 
-    fn conditions_at(&self, pos: Pos, minutes: u32) -> (&'static str, &'static str, f64) {
+    pub(crate) fn conditions_at(
+        &self,
+        pos: Pos,
+        minutes: u32,
+    ) -> (&'static str, &'static str, f64) {
         if let Some((w, l)) = self.forced {
             return (w, l, sight_range(w, l));
         }
@@ -46,7 +48,7 @@ impl Game {
         (w, l, sight_range(w, l))
     }
 
-    fn town_here(&self) -> Option<usize> {
+    pub(crate) fn town_here(&self) -> Option<usize> {
         self.site.land.town(&self.site.world, self.state.pos)
     }
 
@@ -81,12 +83,12 @@ impl Game {
         self.site.land.in_view(&self.site.world, pos, range, town)
     }
 
-    fn in_view(&self) -> Vec<InView> {
+    pub(crate) fn in_view(&self) -> Vec<InView> {
         self.view_from(self.state.pos, self.conditions().2)
     }
 
     /// Marks everything in view, and the settlement underfoot, as seen.
-    fn see_around(&mut self) {
+    pub(crate) fn see_around(&mut self) {
         for v in self.in_view() {
             self.state.seen.insert(v.landmark);
         }
@@ -113,7 +115,7 @@ impl Game {
         self.stable("land.edge_name", c, 4_000_000 + e as u64)
     }
 
-    fn edge_phrase(&mut self, e: usize, b: Option<usize>) -> String {
+    pub(crate) fn edge_phrase(&mut self, e: usize, b: Option<usize>) -> String {
         let name = self.edge_name(e);
         let c = ctx(&[
             ("name", Value::from(name)),
@@ -132,7 +134,7 @@ impl Game {
         }
     }
 
-    fn landmark_phrase(&mut self, v: &InView) -> String {
+    pub(crate) fn landmark_phrase(&mut self, v: &InView) -> String {
         let name = self.landmark_name(v.landmark);
         let c = ctx(&[
             ("name", Value::from(name)),
@@ -180,142 +182,6 @@ impl Game {
             out.push(Candidate::new(Target::Edge(e), &name, &[EDGES[e]]));
         }
         out
-    }
-
-    /// The look outdoors: weather, the ground underfoot, the settlement if
-    /// in one, what stands out on the horizon, and the lie of the region
-    /// from a high point.
-    pub(crate) fn look_outside(&mut self) -> String {
-        let (weather, light, range) = self.conditions();
-        let time = time_of_day(self.state.minutes);
-        let pos = self.state.pos;
-        let mut parts = Vec::new();
-        parts.push(self.say(
-            "land.weather",
-            ctx(&[
-                ("weather", Value::from(weather)),
-                ("light", Value::from(light)),
-                ("time", Value::from(time)),
-            ]),
-        ));
-        let edges: Vec<Value> = self
-            .site
-            .land
-            .edges_near(pos)
-            .into_iter()
-            .map(|(e, b)| Value::from(self.edge_phrase(e, b)))
-            .collect();
-        let town = self.town_here();
-        let mut near: Vec<Value> = Vec::new();
-        if town.is_none() {
-            for s in self.local_structures() {
-                near.push(Value::from(self.structure_name(s)));
-            }
-            for t in self.here() {
-                near.push(Value::from(self.thing_name(t)));
-            }
-            for m in self.mechanisms_here() {
-                near.push(Value::from(self.mech_name(m)));
-            }
-        }
-        let high = self.site.land.high(pos) && range >= 5000.0;
-        parts.push(self.say(
-            "land.area",
-            ctx(&[
-                ("biome", Value::from(self.site.biome_at(pos))),
-                ("terrain", Value::from(self.site.land.terrain_here(pos))),
-                ("edges", Value::List(edges)),
-                ("near", Value::List(near)),
-                ("high", Value::Bool(high)),
-                ("in_town", Value::Bool(town.is_some())),
-                ("time", Value::from(time)),
-            ]),
-        ));
-        if let Some(t) = town {
-            let names: Vec<Value> = self
-                .local_structures()
-                .into_iter()
-                .map(|s| Value::from(self.structure_name(s)))
-                .collect();
-            let mut all = names.clone();
-            for th in self.here() {
-                all.push(Value::from(self.thing_name(th)));
-            }
-            for m in self.mechanisms_here() {
-                all.push(Value::from(self.mech_name(m)));
-            }
-            let c = ctx(&[
-                ("biome", Value::from(self.site.biome_at(pos))),
-                ("structures", Value::List(all)),
-                ("count", Value::Number(names.len() as i64)),
-                (
-                    "abandoned",
-                    Value::Bool(self.site.world.history.settlements[t].abandoned.is_some()),
-                ),
-                ("time", Value::from(time)),
-            ]);
-            parts.push(self.say("place.site", c));
-        }
-        let view = self.in_view();
-        self.see_around();
-        let shown: Vec<Value> = view
-            .iter()
-            .take(HORIZON)
-            .map(|v| Value::from(self.landmark_phrase(v)))
-            .collect();
-        let n = shown.len() as i64;
-        parts.push(self.say(
-            "land.horizon",
-            ctx(&[
-                ("landmarks", Value::List(shown)),
-                ("count", Value::Number(n)),
-                ("weather", Value::from(weather)),
-                ("light", Value::from(light)),
-            ]),
-        ));
-        let cues = self.cues();
-        parts.push(cues);
-        parts.extend(self.regional_look());
-        let beasts: Vec<usize> = self.creatures_in_view();
-        if !beasts.is_empty() {
-            let mut names = Vec::new();
-            for i in beasts {
-                let name = self.creature_name(i);
-                let at = self.state.creatures[i].pos;
-                let c = ctx(&[
-                    ("name", Value::from(name)),
-                    (
-                        "archetype",
-                        Value::from(self.site.fixtures.creatures[i].archetype),
-                    ),
-                    (
-                        "bearing",
-                        Value::from(bearing(pos, at).map_or("north", |b| BEARINGS[b])),
-                    ),
-                    ("distance", Value::from(distance_band(pos.dist(at)))),
-                ]);
-                names.push(Value::from(self.say("creature.seen", c)));
-            }
-            parts.push(self.say("creature.near", ctx(&[("creatures", Value::List(names))])));
-        }
-        if high {
-            let (biomes, sea) = self.site.land.region(&self.site.world, pos, range);
-            let main = biomes.first().copied().unwrap_or("grassland");
-            parts.push(self.say(
-                "land.region",
-                ctx(&[
-                    (
-                        "biomes",
-                        Value::List(biomes.into_iter().map(Value::from).collect()),
-                    ),
-                    ("main", Value::from(main)),
-                    ("shape", Value::from(outdoors::shape(&self.site.world))),
-                    ("sea", Value::Bool(sea)),
-                ]),
-            ));
-        }
-        parts.retain(|p| !p.is_empty());
-        parts.join("\n\n")
     }
 
     pub(crate) fn outdoor_summary(&mut self) -> (Vec<Sighting>, Vec<String>, Option<String>) {
@@ -795,7 +661,7 @@ impl Game {
             parts.push(self.say(slot, c));
         }
         if moved && self.state.dead.is_none() {
-            parts.push(self.look_outside());
+            parts.push(self.describe(crate::attention::Response::Arrival));
         }
         let truth = serde_json::json!({
             "pos": [pos.x, pos.y],

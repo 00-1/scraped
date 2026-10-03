@@ -11,11 +11,6 @@ text = "{name} to the {bearing}"
 example = true
 
 [[variant]]
-slot = "creature.near"
-text = "You see {list creatures}."
-example = true
-
-[[variant]]
 slot = "creature.sighted"
 text = "You stop: {name} to the {bearing}."
 example = true
