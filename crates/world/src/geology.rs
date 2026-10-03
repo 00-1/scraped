@@ -65,6 +65,9 @@ pub struct Geology {
 }
 
 impl Geology {
+    // DESIGN-Q: rock by region: basalt in sparse volcanic patches, granite
+    // on the heights, clay in wet lowlands, sandstone in dry country, and
+    // limestone and slate between.
     pub fn generate(seed: u64, t: &Terrain, w: &Water) -> Self {
         let s = t.height.size;
         let n = s as f64;

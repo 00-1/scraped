@@ -523,3 +523,81 @@
 - Members of a group look alike ("the intact tomb, to the east" twice). D03 gives buildings more to tell them apart by.
 
 **Parked** at Jb's request after D02. The next agent starts D03; see `docs/HANDOFF.md`.
+
+## 2026-10-03 — D03 Places with character
+
+**Done**
+- **The world** (`crates/world`):
+  - **Rock.** A geology layer by region: granite, slate, limestone, sandstone, basalt and clay.
+  - **Natural features and old marks**, 36 kinds, each placed by its cause:
+    - springs at slope feet, warm ones over basalt;
+    - waterfalls and rapids where rivers drop;
+    - gorges, deltas, oxbow lakes, tidal flats, sea stacks and sea caves;
+    - cave mouths and sinkholes in limestone;
+    - cliffs, arches, pillars, scree, boulder fields, salt flats, glaciers;
+    - ancient trees, groves, dead and petrified forests, reed beds, meadows;
+    - cairns on summits; standing stones and burial mounds near the oldest towns;
+    - terraces, field walls, old roads and cuttings, quarries, spoil heaps.
+
+    Caves record what they should hold, for D04.
+  - **Buildings.** 39 new kinds of building (50 in all) from one table, each with a family and a placeholder room plan. Each town's role calls for its own; signal stations, wayside shrines, hermitages and aqueducts stand out on the land. The original buildings, their texts and their decay are unchanged.
+  - **Towns.**
+    - Each settlement has a role: capital, port, holy city, mining camp, fortress, market town, farming village or refuge.
+    - It has a reason for its shape (a river crossing, a harbour, a hilltop…) and a street plan.
+    - It has districts joined by streets, and walls and gates where war came.
+    - No two towns of one role and size share a layout.
+  - **Underground routes** recorded for D04: cellars, drains, tunnels under walls, catacombs, mine workings and cave systems.
+  - **Scenes.** Each traces to an event or to its place's history; there are at least 3 per town, and more out on the land.
+- **The game:**
+  - **Arriving.** A town's role is in its first line ("an intact holy city of a few houses").
+  - **Moving through towns.** The district underfoot is a fact; `look around` in a town gives its layout; `go to the market` walks there.
+  - **Features.**
+    - Those close by are noticed on arrival, and those within 1.5 km on `look around`.
+    - Tall ones are landmarks; one standing in water is reached from the bank.
+    - `examine` digs in.
+  - **Scenes** are mostly found by `look closer`.
+  - **Journeys** are stopped only by striking landmarks.
+  - **Items.** The newer buildings hold items by their family.
+- **Storylets** can be placed at scenes (`[storylet.place] scene = ["barricade"]`). The storylet happens in the scene's room. The authoring tool has a Scenes list for this.
+- **Bench:** the world map shows features by group, town roles in the tooltips, and a Places view (roles, districts, buildings, scenes, features, underground).
+- **Measures:** scenes per settlement, scenes outside towns, towns sharing a layout, town roles, and new kinds found in the fifth hour. The WebAssembly world-generation time is checked in the wasm smoke test (under 0.1 s).
+- **Bots:**
+  - **Explorer.** Goes into the kinds of building it has seen least first. Makes for towns from noon. Shelters indoors from the evening or when cold. Wants water, food, a cloak and a firesteel before lights.
+
+    It survives three days on 8 of seeds 1–10 and 17 of 1–20 (D01: 16).
+  - **Scholar.** Goes where writing is kept and passes by mills and smithies. Still reaches the deepest text on 5 of 10 seeds.
+- **Results (seeds 1–10):**
+
+  | Measure | Before | After |
+  |---|---|---|
+  | Building kinds per world | 8.7 | 38.2 |
+  | Natural feature kinds | 5.8 | 22.4 |
+  | Scenes per settlement (median, least) | 0 | 4, 3 |
+  | Towns sharing a layout | – | none |
+  | New kinds in hour 5 | – | 6 |
+
+  D02's brevity holds: 17 words per arrival.
+- **Samples:** `docs/samples/D03/` (ten hours each), with notes.
+- **Tests:**
+  - every feature follows its cause;
+  - every scene traces to history;
+  - towns never share a layout, and every town building has a district;
+  - worlds are varied enough;
+  - kinds' ids follow the table;
+  - slot lists cover every room and thing;
+  - districts can be walked to and named;
+  - features are noticed and examined;
+  - scenes are found by looking closer;
+  - storylets can be placed at scenes.
+
+**Open questions:** see the new "Places with character (D03)" section of `docs/DECISIONS.md`.
+
+**New content slots (one example variant each):**
+- `land.feature`, `land.feature_name`, `feature.closer`
+- `place.district`, `place.district_name`, `place.layout`, `place.scene`
+
+`place.whole` gains `role`. Room purposes and thing kinds gain the new buildings' ids.
+
+**For Jb**
+- What each role builds, and how roles are chosen, are first guesses. They are listed in DECISIONS.
+- The scenes are ready for set pieces: a storylet can ask for "barricade", "meal left", "plague pit" and the rest.

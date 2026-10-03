@@ -202,6 +202,11 @@ pub fn riverside(t: &Terrain, w: &Water, c: Cell) -> bool {
 }
 
 /// Plans every settlement's role and layout.
+// DESIGN-Q: roles in order of precedence: the capital; a port within 4
+// cells of the sea; a fortress where war came to a town of size 2+; a
+// mining camp by rock (60%); the two holiest towns; up to three refuges
+// (founded by migration, or high and remote); a market town where three
+// roads meet; else a farming village.
 pub fn plan(seed: u64, t: &Terrain, w: &Water, _g: &Geology, h: &History) -> Vec<Town> {
     let mut rng = Rng::new(seed, Stream::World(7));
     let mut towns: Vec<Town> = Vec::new();

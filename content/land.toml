@@ -34,3 +34,13 @@ example = true
 slot = "land.unseen"
 text = "[if light == 'dark']Darkness hides anything further off.[else]The {weather} hides the distance.[end]"
 example = true
+
+[[variant]]
+slot = "land.feature"
+text = "[if bearing == 'here']{cap a kind} here[else]{cap a kind} to the {bearing}[end]"
+example = true
+
+[[variant]]
+slot = "land.feature_name"
+text = "the {kind}"
+example = true

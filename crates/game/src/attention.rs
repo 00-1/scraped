@@ -429,6 +429,9 @@ impl Game {
             .iter()
             .max_by(|a, b| a.1.cmp(b.1).then(b.0.cmp(a.0)))
             .map_or(Condition::Intact, |(c, _)| *c);
+        let role = town
+            .and_then(|t| self.site.world.towns.get(t))
+            .map_or("", |t| t.role.id());
         let (settlement, size, abandoned) = match town {
             Some(t) => {
                 let st = &w.history.settlements[t];
@@ -452,6 +455,7 @@ impl Game {
         let second = by_count.get(1).copied();
         let vars = ctx(&[
             ("settlement", Value::from(settlement)),
+            ("role", Value::from(role)),
             ("size", Value::Number(size)),
             ("abandoned", Value::Bool(abandoned)),
             ("amount", Value::from(vague(structures.len()))),
@@ -476,23 +480,31 @@ impl Game {
             whole
         });
         // Standouts: tall, alone of their kind, or unlike the rest.
+        let here_district = self.district_here().map(|(_, d)| d);
+        let w = &self.site.world;
         let mut ranked: Vec<(f64, usize, &'static str)> = structures
             .iter()
             .map(|&s| {
                 let st = &w.structures[s];
                 let mut score = height_of(st.kind) * 2.0;
                 let mut why = "tallest";
+                // The only one of its kind stands out by how striking that
+                // kind is (a palace more than a bakehouse), and buildings
+                // in the part of town underfoot more than far ones (D03).
                 if kinds[&st.kind] == 1 && structures.len() > 2 {
-                    score += 25.0;
+                    score += 8.0 + st.kind.info().weight;
                     why = "only";
+                }
+                if here_district.is_some() && st.district == here_district {
+                    score += 6.0;
                 }
                 if st.condition != condition {
                     score += 8.0;
                     if why == "tallest" {
                         why = if st.condition < condition {
-                            "best_kept"
+                            "best kept"
                         } else {
-                            "worst_kept"
+                            "worst kept"
                         };
                     }
                 }
@@ -572,6 +584,7 @@ impl Game {
         let pos = self.state.pos;
         let biome = self.site.biome_at(pos);
         self.whole_and_standouts(response, &mut out);
+        self.place_facts(response, &mut out);
         // Things and mechanisms standing in the open.
         if response == Response::Closer || self.town_here().is_none() {
             for t in self.here() {
@@ -989,6 +1002,7 @@ impl Game {
                 ]),
             ));
         }
+        self.room_scene_facts(response, &mut out);
         self.felt_facts(&mut out);
         if self.great_here() {
             self.hook("great_reached", "", "");
@@ -1002,6 +1016,9 @@ impl Game {
 fn order(slot: &str) -> u8 {
     match slot {
         "place.dark" | "room.whole" | "place.whole" => 0,
+        "place.district" | "place.layout" => 1,
+        "place.scene" => 2,
+        "land.feature" => 4,
         "place.standout" | "place.group" | "room.group" | "room.thing" | "place.thing" => 1,
         "great.site" => 2,
         "room.ways" => 3,

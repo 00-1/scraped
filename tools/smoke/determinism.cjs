@@ -23,5 +23,14 @@ const path = require('path');
     const r = api({ cmd: 'transcript_hash', files, seed, difficulty, steps: 40 });
     if (r.hash !== hash) throw new Error(`seed ${seed} ${difficulty}: wasm ${r.hash || JSON.stringify(r)} != native ${hash}`);
   }
+  // D03: world generation stays quick in the browser.
+  for (const seed of ['1', '42', '9001']) {
+    const t0 = Date.now();
+    const w = api({ cmd: 'world', seed });
+    const ms = Date.now() - t0;
+    if (!w.features || !w.features.length) throw new Error(`seed ${seed}: no features`);
+    if (ms > 3000) throw new Error(`seed ${seed}: world generation took ${ms} ms`);
+    console.log(`world ${seed} generated in ${ms} ms`);
+  }
   console.log(`wasm determinism passed (${want.length} runs)`);
 })().catch(e => { console.error(e.message); process.exit(1); });

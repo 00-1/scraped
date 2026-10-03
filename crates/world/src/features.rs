@@ -194,6 +194,9 @@ fn cand(score: f64, x: usize, y: usize, cause: &'static str) -> Cand {
 }
 
 /// How many of each kind at most, and how far apart (cells).
+// DESIGN-Q: at most 4 of most kinds per world (8 springs; 5 caves,
+// sinkholes, rapids, meadows, groves and cairns; 2 glaciers, deltas, salt
+// flats and petrified forests), at least 14 cells (4 km) apart.
 fn limits(kind: &str) -> (usize, i64) {
     match kind {
         "spring" => (8, 10),

@@ -272,9 +272,9 @@ function render() {
     const w = state.world;
     p.innerHTML = `<div class="world">
       <div class="map"><canvas id="mapCanvas" width="${w.side}" height="${w.side}"></canvas>
-        ${w.settlements.map(s => `<button type="button" data-site="${s.id}" class="${s.abandoned ? "gone" : ""}" style="left:${(s.x + .5) / w.side * 100}%;top:${(s.y + .5) / w.side * 100}%" title="${esc(s.name)}, era ${s.era}">${esc(s.name)}</button>`).join("")}
+        ${w.settlements.map(s => `<button type="button" data-site="${s.id}" class="${s.abandoned ? "gone" : ""}" style="left:${(s.x + .5) / w.side * 100}%;top:${(s.y + .5) / w.side * 100}%" title="${esc(s.name)}, era ${s.era}${s.role ? ", " + esc(s.role) : ""}">${esc(s.name)}</button>`).join("")}
       </div>
-      <div><button type="button" id="writingView">Writing: why each place is strange</button> <button type="button" id="regionsView">Regions over half a year</button> <button type="button" id="timelineView">Timeline</button></div>
+      <div><button type="button" id="writingView">Writing: why each place is strange</button> <button type="button" id="regionsView">Regions over half a year</button> <button type="button" id="timelineView">Timeline</button> <button type="button" id="placesView">Places</button></div>
       <pre id="worldText">${esc(state.site ? state.site : w.timeline)}</pre>
     </div>`;
     const ctx = $("mapCanvas").getContext("2d");
@@ -282,6 +282,9 @@ function render() {
     const px = Uint8Array.from(atob(w.pixels), c => c.charCodeAt(0));
     for (let i = 0, j = 0; i < px.length; i += 3, j += 4) { img.data[j] = px[i]; img.data[j + 1] = px[i + 1]; img.data[j + 2] = px[i + 2]; img.data[j + 3] = 255; }
     ctx.putImageData(img, 0, 0);
+    // Natural features and old marks (D03), by group.
+    const hue = { water: "#2a7fd4", rock: "#8a6d4f", life: "#2f9e44", marks: "#c2410c" };
+    for (const f of w.features || []) { ctx.fillStyle = hue[f.group] || "#000"; ctx.fillRect(f.x - 1, f.y - 1, 2, 2); }
   } else if (!spoil) {
     p.innerHTML = needSpoil(state.tab === "script" ? "script table" : "grammar sheet");
   } else if (state.tab === "script") {
@@ -409,6 +412,7 @@ document.addEventListener("click", e => {
   if (t.id === "writingView") { state.site = api({ cmd: "writing", seed: state.world.seed }).text; render(); return; }
   if (t.id === "regionsView") { state.site = api({ cmd: "regions", seed: state.world.seed, days: 180 }).text; render(); return; }
   if (t.id === "timelineView") { state.site = null; render(); return; }
+  if (t.id === "placesView") { state.site = state.world.places; render(); return; }
   if (t.dataset.site) { state.site = api({ cmd: "site", seed: state.data.seed, settlement: +t.dataset.site }).text; $("worldText").textContent = state.site; }
 });
 $("copy").addEventListener("click", () => {

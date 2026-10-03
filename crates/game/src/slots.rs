@@ -1800,6 +1800,7 @@ pub fn registry() -> Registry {
     let mut all = scraped_lang::slots::slots();
     all.extend(slots());
     all.extend(crate::quiet_slots::slots());
+    all.extend(crate::place_slots::slots());
     Registry::new(all)
 }
 
@@ -1970,6 +1971,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     let mut all = scraped_lang::slots::slots();
     all.extend(slots());
     all.extend(crate::quiet_slots::slots());
+    all.extend(crate::place_slots::slots());
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {

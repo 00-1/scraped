@@ -141,6 +141,10 @@ pub struct DepthBot {
     /// Building nouns tried at each outdoor square, and those that
     /// wouldn't let it in.
     tried_here: BTreeMap<(i32, i32), BTreeSet<String>>,
+    /// Kinds of building the explorer has gone into, and how often.
+    entered_kinds: BTreeMap<&'static str, usize>,
+    /// Gone indoors for the night: stays in till morning.
+    sheltering: bool,
     shut: BTreeSet<((i32, i32), String)>,
     /// Landmarks reached, or given up on.
     visited: BTreeSet<String>,
@@ -189,6 +193,8 @@ impl DepthBot {
             rooms: BTreeMap::new(),
             buildings: BTreeMap::new(),
             tried_here: BTreeMap::new(),
+            entered_kinds: BTreeMap::new(),
+            sheltering: false,
             shut: BTreeSet::new(),
             visited: BTreeSet::new(),
             attempts: BTreeMap::new(),
@@ -601,13 +607,21 @@ impl DepthBot {
             }
             return Some("wait 1 hour".into());
         }
-        if outside && (night || evening || shivering) && s.exits.is_empty() {
+        // Cold in the open: back to shelter, as in the evening (D03's
+        // curious explorer leaves towns sooner).
+        if outside && (night || evening || shivering || cold) && s.exits.is_empty() {
             // The nearest town or building in view, while it's still light.
             let order = ["near", "short", "middle", "far", "horizon"];
             let shelter = s
                 .landmarks
                 .iter()
                 .filter(|l| !["hill", "mountain"].iter().any(|k| l.name.ends_with(k)))
+                // A cairn or a waterfall is no shelter (D03).
+                .filter(|l| {
+                    !scraped_world::features::KINDS
+                        .iter()
+                        .any(|k| l.name.ends_with(k.id))
+                })
                 .min_by_key(|l| order.iter().position(|o| *o == l.distance).unwrap_or(9));
             if let Some(l) = shelter {
                 let c = format!("go {}", l.name.trim_start_matches("the "));
@@ -638,6 +652,7 @@ impl DepthBot {
                 .find_map(|k| open.iter().copied().find(|&i| s.exits[i].ends_with(k)))
                 .or(open.first().copied());
             if let Some(i) = pick {
+                self.sheltering = true;
                 return Some(format!("go {}", noun(&s.exits, i)));
             }
         }
@@ -664,9 +679,18 @@ impl DepthBot {
             return Some("sleep".into());
         }
         let blind = s.light == "dark" && !lights;
-        let settled = !outside && self.next_way(s).is_none();
-        if (blind && outside) || (night && settled) {
-            // Nothing to see by, or nowhere to go before morning: rest.
+        // Out again in the morning, once warm.
+        if !evening && !shivering {
+            self.sheltering = false;
+        }
+        if !outside && self.sheltering && !evening {
+            // In from the cold by day: warm up indoors first.
+            return Some("wait 1 hour".into());
+        }
+        let settled = !outside && (self.sheltering || self.next_way(s).is_none());
+        if (blind && outside) || (evening && settled) {
+            // Nothing to see by, or nowhere to go before morning: rest
+            // (from the evening, once under a roof).
             if self.worth(g, s, "sleep") {
                 return Some("sleep".into());
             }
@@ -1069,18 +1093,24 @@ impl DepthBot {
         // Buildings here not yet entered. The scholar goes where writing
         // is kept (temples, archives, tombs, houses) and passes by mills
         // and smithies, as a reader would.
+        // The explorer is curious: kinds it has been into least first
+        // (D03's towns have many).
         let scholar = self.scholar();
+        let entered = &self.entered_kinds;
         let tried = self.tried_here.entry(square).or_default();
         let mut order: Vec<(usize, usize)> = (0..s.exits.len())
             .map(|i| {
-                (
-                    if scholar {
-                        writing_rank(&s.exits[i])
-                    } else {
-                        0
-                    },
-                    i,
-                )
+                let rank = if scholar {
+                    writing_rank(&s.exits[i])
+                } else {
+                    entered
+                        .get(kind_named(&s.exits[i]))
+                        .copied()
+                        .unwrap_or(0)
+                        .min(5)
+                        * 2
+                };
+                (rank, i)
             })
             .filter(|(r, _)| *r < 50)
             .collect();
@@ -1088,8 +1118,19 @@ impl DepthBot {
         for (_, i) in order {
             let n = noun(&s.exits, i);
             if tried.insert(n.clone()) {
+                *self
+                    .entered_kinds
+                    .entry(kind_named(&s.exits[i]))
+                    .or_default() += 1;
                 return format!("go {n}");
             }
+        }
+        // A careful walker doesn't set out from a town late in the day:
+        // with every building here seen, it waits for evening and the
+        // shelter of a house (D03's larger towns take longer to see).
+        let hour = (s.minutes / 60) % 24;
+        if !scholar && !s.exits.is_empty() && (14..17).contains(&hour) {
+            return "wait 1 hour".into();
         }
         // Note where unvisited landmarks lie, by eye.
         for l in &s.landmarks {
@@ -1117,7 +1158,16 @@ impl DepthBot {
             .iter()
             .filter(|l| !self.visited.contains(&l.name))
             .collect();
-        fresh.sort_by_key(|l| order.iter().position(|o| *o == l.distance).unwrap_or(9));
+        // From noon the explorer makes for towns, where there is shelter,
+        // before the cairns and shrines it would otherwise wander to.
+        let afternoon = hour >= 12 && !scholar;
+        let town = |l: &&crate::Sighting| l.name.ends_with("town") || l.name.ends_with("ruins");
+        fresh.sort_by_key(|l| {
+            (
+                afternoon && !town(l),
+                order.iter().position(|o| *o == l.distance).unwrap_or(9),
+            )
+        });
         if let Some(l) = fresh.first() {
             *self.attempts.entry(l.name.clone()).or_default() += 1;
             return format!("go {}", l.name.trim_start_matches("the "));
@@ -1227,6 +1277,17 @@ fn claim_glyphs(g: &Game, verb: &str, subject: &str) -> String {
         .join(" ")
 }
 
+/// The kind of building a name ends with ("the worn market hall": "market
+/// hall"), as a player reads it.
+fn kind_named(name: &str) -> &'static str {
+    crate::slots::STRUCTURES
+        .iter()
+        .filter(|k| name.ends_with(*k))
+        .max_by_key(|k| k.len())
+        .copied()
+        .unwrap_or("")
+}
+
 /// How likely a building, by its name, is to hold writing, as a reader
 /// would guess: lower first, 50 and over not worth the scholar's time.
 fn writing_rank(name: &str) -> usize {
@@ -1264,12 +1325,21 @@ fn want(kind: &str, name: &str) -> u8 {
         } else {
             0
         }
-    } else if has("waterskin") || has("provisions") || has("food") {
+    } else if has("waterskin")
+        || has("provisions")
+        || has("food")
+        || has("cloak")
+        || has("firesteel")
+    {
+        // Water, food, warmth and the means of fire first: cold kills
+        // more explorers than the dark.
         7
-    } else if light || has("cloak") {
-        6
     } else if has("wood") {
-        3
+        6
+    } else if has("torch") || has("lamp") {
+        5
+    } else if light {
+        4
     } else if tool {
         2
     } else {

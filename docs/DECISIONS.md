@@ -197,3 +197,19 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | How many members does `look at the tombs` name? | Three at a time, those not yet named first, then round again | `crates/game/src/senses.rs` (`examine_group`) | D03 |
 | May storylets use the season and the region's state? | Yes, as variables for conditions; the example text never says them | `crates/game/src/attention_tests.rs` | now |
 
+## Places with character (D03)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| What rock lies where? | Basalt in sparse volcanic patches, granite on the heights, clay in wet lowlands, sandstone in dry country, limestone and slate between | `crates/world/src/geology.rs` | D04, D06 |
+| How many of each feature, how far apart? | At most 4 of most kinds (8 springs; 5 caves, sinkholes, rapids, meadows, groves, cairns; 2 glaciers, deltas, salt flats, petrified forests), at least 4 km apart, none in a town's heart | `crates/world/src/features.rs` (`limits`) | D06 |
+| How is a town's role decided? | In order: the capital; a port near the sea; a fortress where war came (size 2+); a mining camp by rock (60%); the two holiest towns; up to three refuges; a market town where three roads meet; else a farming village | `crates/world/src/towns.rs` (`plan`) | D08 |
+| Which buildings does each role call for? | A list per role (palace, council hall… for a capital; harbour, lighthouse… for a port); the first always, then size + 1 more (4 more in the capital), plus a gatehouse per gate of a walled town | `crates/world/src/structures.rs` (`role_kinds`) | D04 |
+| What is out on the land? | A signal station on high ground near each town that saw war, a wayside shrine a quarter of the way along long roads, a hermitage far from roads near each holy city, refuge and capital, an aqueduct from high ground to a capital that has it | `crates/world/src/structures.rs` (`place_more`) | D04 |
+| How many scenes, and which? | Each town shows up to 3 + size of its events, then its last days and its place's history until it has 3 + size / 2; outside towns: battlefields, lost travellers by waystations, kept shrines, grave goods at burial mounds | `crates/world/src/scenes.rs` | D08 |
+| How do scenes show? | Little weight at first glance (found by `look closer`), much when looking closer | `crates/game/src/places.rs` | now |
+| How far are features noticed? | Within 300 m on arriving; within 1.5 km on `look around` (tall ones are landmarks from afar) | `crates/game/src/places.rs` | now |
+| What stops a journey? | Towns, and landmarks of weight 10 or more (towers, temples, waterfalls, sea stacks, cairns no) | `crates/game/src/travel.rs` | now |
+| What do the newer buildings hold? | Items by what the building was for: food and wood in stores and markets, tools and firesteels in workshops, lamps and oil in learned and holy places, torches and cloaks in forts | `crates/sim/src/fixtures.rs` | D05 |
+| Interiors of the new kinds | A placeholder line of rooms from a table, a third of the optional rooms left out | `crates/world/src/structures.rs` (`planned`) | D04 |
+

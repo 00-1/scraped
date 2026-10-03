@@ -167,6 +167,43 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
             .count()
         + w.features.len();
     put("places.per_km2", worth as f64 / km2.max(1.0));
+    // D03: scenes, and towns that read alike.
+    let per_town: Vec<f64> = w
+        .history
+        .settlements
+        .iter()
+        .map(|s| {
+            w.scenes
+                .iter()
+                .filter(|sc| sc.settlement == Some(s.id))
+                .count() as f64
+        })
+        .collect();
+    put(
+        "places.scenes_per_settlement",
+        spread(per_town.clone()).median,
+    );
+    put(
+        "places.scenes_per_settlement_min",
+        per_town.iter().copied().fold(f64::MAX, f64::min).min(1e9),
+    );
+    put(
+        "places.scenes_outside",
+        w.scenes.iter().filter(|s| s.settlement.is_none()).count() as f64,
+    );
+    let mut layouts: BTreeMap<String, usize> = BTreeMap::new();
+    for t in &w.towns {
+        let size = w.history.settlements[t.settlement].size;
+        *layouts
+            .entry(format!("{:?}|{size}|{}", t.role, t.signature()))
+            .or_default() += 1;
+    }
+    put(
+        "places.towns_sharing_layout",
+        layouts.values().filter(|&&n| n > 1).sum::<usize>() as f64,
+    );
+    let roles: BTreeSet<_> = w.towns.iter().map(|t| t.role).collect();
+    put("places.town_roles", roles.len() as f64);
 
     // ---------- things ----------
     let thing_kinds: BTreeSet<&str> = site.things.iter().map(|t| t.kind).collect();
@@ -331,6 +368,14 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
         .collect();
     let gaps: Vec<f64> = kinds.windows(2).map(|w| f64::from(w[1] - w[0])).collect();
     put("play.minutes_between_new_kinds", spread(gaps).median);
+    // D03: still finding new kinds of place in the fifth hour.
+    put(
+        "play.new_kinds_hour5",
+        run.novelty
+            .iter()
+            .filter(|n| n.new_kind && (240..300).contains(&n.minutes))
+            .count() as f64,
+    );
 
     WorldDepth {
         seed,

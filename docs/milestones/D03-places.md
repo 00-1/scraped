@@ -57,13 +57,13 @@ Everything new is a candidate for the D02 attention model, with a salience and a
 
 ## Checklist
 
-- [ ] Geology layer
-- [ ] Natural features and cave mouths
-- [ ] New structure kinds with roles, purposes and placeholder layouts
-- [ ] Settlement roles and layouts, streets and districts
-- [ ] Underground routes recorded for D04
-- [ ] Scenes from history, as storylet targets
-- [ ] Slots and variables
-- [ ] Targets met; samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Geology layer
+- [x] Natural features and cave mouths
+- [x] New structure kinds with roles, purposes and placeholder layouts
+- [x] Settlement roles and layouts, streets and districts
+- [x] Underground routes recorded for D04
+- [x] Scenes from history, as storylet targets
+- [x] Slots and variables
+- [x] Targets met; samples committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

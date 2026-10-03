@@ -4,8 +4,8 @@ Where the project stands, for the next agent. Read `CLAUDE.md` first, then this.
 
 ## State (2026-10-03)
 
-- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), and depth milestones **D01 (Instruments)** and **D02 (Quiet text)**.
-- **Next:** **D03 — Places with character** (`docs/milestones/D03-places.md`). Nothing of it is started.
+- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), and depth milestones **D01 (Instruments)**, **D02 (Quiet text)** and **D03 (Places with character)**.
+- **Next:** **D04 — Great interiors** (`docs/milestones/D04-great-interiors.md`). Its inputs are already recorded: caves' contents (`World::features[].inside`), underground routes (`World::underground`), every building's room plan (`StructureKind::info().rooms`, placeholders to replace), and scenes tied to rooms (`World::scenes`).
 - **Branch:** `claude/laughing-edison-9brdzg`. Everything is committed and pushed. CI (`.github/workflows/ci.yml`) runs fmt, clippy, tests, the release-mode bot tests, the wasm build, the browser smoke tests and the Android build.
 - `content release-check` fails on purpose. It is the release gate, and it waits for Jb's own text.
 
@@ -15,7 +15,7 @@ Every depth milestone is judged by numbers and by reading samples:
 
 - `cargo run --release -p scraped-cli -- depth --seeds 1-10`: the metrics (definitions and the D01/D02 tables in `docs/DEPTH.md`).
 - `... -- bots --seeds 1-10 [--bot explorer|scholar]`: how far the bots get.
-- `... -- samples D03`: explorer transcripts into `docs/samples/D03/`. Write a `NOTES.md` beside them.
+- `... -- samples D04 [--hours 10]`: explorer transcripts into `docs/samples/D04/`. Write a `NOTES.md` beside them.
 - To regenerate snapshots after an intended change: `UPDATE_SNAPSHOTS=1 cargo test --release -p scraped-game --tests`. That covers `crates/game/tests/depth.txt` and `transcripts.txt`. Then run `tools/build.sh && node tools/smoke/determinism.cjs`, so wasm matches native.
 
 ## How descriptions work now (D02)
@@ -34,9 +34,24 @@ New player-visible text follows `CLAUDE.md`:
 - one `example = true` variant in `content/`;
 - no season names, region variable names or need levels outside `body.*` (tested).
 
+## How places work now (D03)
+
+The world's places live in `crates/world`:
+- `geology.rs` (rock);
+- `features.rs` (natural features and old marks, each with its cause);
+- `towns.rs` (roles, layouts, districts, streets);
+- `structures.rs` (the kinds table, `place_more` for the D03 kinds);
+- `underground.rs`;
+- `scenes.rs`.
+
+The original buildings are placed first, from their old random stream, so adding kinds never changes them.
+
+The game side is `crates/game/src/places.rs`: facts for districts, features and scenes; district and feature targets. The slots are in `place_slots.rs`.
+
 ## Known rough edges
 
 - **Example text prints raw ids** in places ("lake", "birds"). It is for Jb to write over; don't polish the example prose.
-- **Group members read alike.** D03's building variety should give standouts more to say.
+- **Group members read alike** ("the intact tomb, to the east" twice).
+- **The bots are sensitive** to any change in what's in view or in towns. Check survival on seeds 1–20 after world changes (`bots --seeds 1-20 --bot explorer`; D03: 17 of 20).
 - **The scholar bot** reads the deepest text on only 5 of 10 seeds (held doors need rare words; see the D01 findings in `docs/DEPTH.md`). This is expected to improve in D07/D09; its test holds at 5.
 - **Open design questions** are collected in `docs/DECISIONS.md`. Build on the defaults there and add new `// DESIGN-Q:` rows as you go.

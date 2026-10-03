@@ -29,7 +29,7 @@ fn e_or_empty(values: &[&str]) -> VarType {
 }
 
 /// Why a building stands out from the rest.
-pub const STANDOUTS: &[&str] = &["tallest", "only", "best_kept", "worst_kept"];
+pub const STANDOUTS: &[&str] = &["tallest", "only", "best kept", "worst kept"];
 /// What makes a sound.
 pub const SOUNDS: &[&str] = &[
     "river", "stream", "sea", "lake", "wind", "rain", "fire", "creature", "birds", "insects",
@@ -83,6 +83,14 @@ fn s_whole(_: u64) -> Vec<Context> {
     for (i, main) in STRUCTURES.iter().enumerate() {
         out.push(ctx(&[
             ("settlement", Value::from(["town", "ruins", "none"][i % 3])),
+            (
+                "role",
+                Value::from(if i % 3 == 2 {
+                    ""
+                } else {
+                    scraped_world::towns::TownRole::ALL[i % 8].id()
+                }),
+            ),
             ("size", Value::Number((i % 4) as i64 + 1)),
             ("abandoned", Value::Bool(i % 3 == 1)),
             ("amount", Value::from(AMOUNTS[2 + i % 6])),
@@ -533,6 +541,7 @@ pub fn slots() -> Vec<SlotDef> {
         // ---------- a place as a whole ----------
         SlotDef::new("place.whole", "A place of several buildings, taken in as one impression: what kind of place it is, never a list ('a ruined town of houses round a temple', 'a crowd of old tombs on the slope'). One short sentence. The arrival and 'look' start here; the player digs down with 'look closer' and 'look at the tombs'. Vague amounts only: one, two, a few, several, many, dozens, a crowd.")
             .var("settlement", e(&["town", "ruins", "none"]), "A living town, the ruins of one, or buildings standing on their own (none).")
+            .var("role", e_or_empty(&scraped_world::towns::TownRole::ALL.map(|r| r.id())), "Settlements: what it was for (capital, port, holy city, mining camp, fortress, market town, farming village, refuge); empty otherwise.")
             .var("size", VarType::Number, "Settlements: 1 hamlet to 4 city; 0 otherwise.")
             .var("abandoned", VarType::Bool, "Whether the settlement was abandoned.")
             .var("amount", e(&AMOUNTS), "How many buildings in all, roughly.")
@@ -549,7 +558,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("name", VarType::Text, "Its name, from place.structure.")
             .var("kind", e(STRUCTURES), "What it is.")
             .var("condition", e(CONDITIONS), "Its state.")
-            .var("why", e(STANDOUTS), "Why it stands out: tallest, only (of its kind), best_kept or worst_kept (against the rest).")
+            .var("why", e(STANDOUTS), "Why it stands out: tallest, only (of its kind), best kept or worst kept (against the rest).")
             .max_len(160)
             .sampler(s_standout),
         SlotDef::new("place.group", "Alike buildings taken together, when looking closer ('several houses, most of them worn'). Vague amounts only.")

@@ -25,7 +25,7 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   const status = await page.textContent('#packStatus');
   // A fact slot seen in whole responses, as the attention model assembles them.
   await page.click('[data-slot="place.whole"]');
-  await page.waitForFunction(() => /town|ruins/i.test(document.querySelector('#inContext')?.textContent || ''), null, { timeout: 30000 });
+  await page.waitForSelector('#inContext td.out', { timeout: 30000 });
   // A new storylet, placed in a temple, previewed in a real world.
   await page.fill('#newStoryletId', 'smoke well');
   await page.click('#newStorylet button');

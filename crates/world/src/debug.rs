@@ -351,3 +351,72 @@ fn text_line(w: &World, t: usize) -> String {
         english
     )
 }
+
+/// The places of a world as text (D03), for the bench: each town's role,
+/// shape and districts, its scenes, and the natural features by kind.
+pub fn places(w: &World) -> String {
+    use std::fmt::Write as _;
+    let mut out = String::new();
+    for t in &w.towns {
+        let s = &w.history.settlements[t.settlement];
+        let kinds: std::collections::BTreeSet<&str> = w
+            .structures
+            .iter()
+            .filter(|st| st.settlement == Some(s.id))
+            .map(|st| st.kind.id())
+            .collect();
+        let scenes: Vec<&str> = w
+            .scenes
+            .iter()
+            .filter(|sc| sc.settlement == Some(s.id))
+            .map(|sc| sc.kind)
+            .collect();
+        let districts: Vec<&str> = t.districts.iter().map(|d| d.kind).collect();
+        // DEBUG-TEXT
+        let _ = writeln!(
+            out,
+            "settlement {} (size {}): {}, by {}, {}{}\n  districts: {}\n  buildings: {}\n  scenes: {}",
+            s.id,
+            s.size,
+            t.role.id(),
+            t.reason,
+            t.plan,
+            if t.walled { format!(", walled with {} gates", t.gates) } else { String::new() },
+            districts.join(", "),
+            kinds.into_iter().collect::<Vec<_>>().join(", "),
+            scenes.join(", ")
+        );
+    }
+    let mut by: std::collections::BTreeMap<&str, usize> = std::collections::BTreeMap::new();
+    for f in &w.features {
+        *by.entry(f.kind).or_default() += 1;
+    }
+    let _ = writeln!(
+        out,
+        "\nfeatures: {}",
+        by.iter()
+            .map(|(k, n)| format!("{k} {n}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    ); // DEBUG-TEXT
+    let outside: Vec<&str> = w
+        .scenes
+        .iter()
+        .filter(|s| s.settlement.is_none())
+        .map(|s| s.kind)
+        .collect();
+    let _ = writeln!(out, "scenes outside towns: {}", outside.join(", ")); // DEBUG-TEXT
+    let mut ug: std::collections::BTreeMap<&str, usize> = std::collections::BTreeMap::new();
+    for r in &w.underground {
+        *ug.entry(r.kind).or_default() += 1;
+    }
+    let _ = writeln!(
+        out,
+        "underground, for D04: {}",
+        ug.iter()
+            .map(|(k, n)| format!("{k} {n}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    ); // DEBUG-TEXT
+    out
+}

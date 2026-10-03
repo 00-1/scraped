@@ -26,6 +26,10 @@ pub mod fairness;
 mod fairness_tests;
 pub mod parser;
 mod physical;
+mod place_slots;
+mod places;
+#[cfg(test)]
+mod places_tests;
 pub mod quiet_slots;
 pub mod seedcode;
 mod senses;
@@ -102,6 +106,11 @@ pub enum Target {
     Buildings(usize, Option<usize>),
     /// Alike things here, as a group, by kind (index into `slots::KINDS`).
     Things(usize),
+    /// A part of the town underfoot, by index into its districts (D03).
+    District(usize),
+    /// A natural feature or old mark close by, by index into
+    /// `World::features` (D03).
+    Feature(usize),
 }
 
 /// How a run ended, for the end-of-run summary.
@@ -775,6 +784,7 @@ impl Game {
                 out.push(Candidate::new(Target::Structure(s), &name, &[&kind]));
             }
             out.extend(self.outdoor_targets());
+            out.extend(self.place_targets());
         }
         // Alike things together, by their plural ("the tombs", "the jars").
         let mut groups: BTreeMap<(bool, usize), usize> = BTreeMap::new();
@@ -1227,6 +1237,11 @@ impl Game {
             Target::Edge(e) => self.edge_name(e),
             Target::Mechanism(m) => self.mech_name(m),
             Target::Fire => self.fire_name(),
+            Target::District(d) => match self.district_here() {
+                Some((t, _)) => self.district_name(t, d),
+                None => String::new(),
+            },
+            Target::Feature(f) => self.feature_name(f),
             Target::Buildings(k, c) => {
                 let kind = slots::STRUCTURES.get(k).copied().unwrap_or("house");
                 let condition = c
@@ -1274,6 +1289,14 @@ impl Game {
                     self.examine_group(target)
                 };
             }
+        }
+        // Places (D03): parts of town and features close by.
+        match (verb, target) {
+            ("go" | "examine" | "look", Target::District(d)) => return self.go_district(d),
+            ("go", Target::Feature(f)) => return self.go_feature(f),
+            ("examine" | "look", Target::Feature(f)) => return self.examine_feature(f),
+            ("touch", Target::Feature(_)) => return self.touch(None),
+            _ => {}
         }
         if verb == "touch" {
             return self.touch(Some(target));

@@ -1,0 +1,6 @@
+notes = "Natural features and old marks on the land, looked at closely (D03)."
+
+[[variant]]
+slot = "feature.closer"
+text = "{cap a kind}, in {rock}.[if inside] It opens into darkness.[end][if old] It looks very old.[end]"
+example = true

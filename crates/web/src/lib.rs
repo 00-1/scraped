@@ -132,7 +132,13 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                     "name": scraped_lang::render::capitalise(&lang(s.era).romanise(&s.name)),
                     "x": s.cell.x, "y": s.cell.y,
                     "era": s.era, "abandoned": s.abandoned.is_some(), "capital": s.capital,
+                    "role": w.towns.get(s.id).map(|t| t.role.id()),
                 })).collect::<Vec<_>>(),
+                "features": w.features.iter().map(|f| json!({
+                    "kind": f.kind, "x": f.cell.x, "y": f.cell.y,
+                    "group": scraped_world::features::kind(f.kind).group,
+                })).collect::<Vec<_>>(),
+                "places": scraped_world::debug::places(w),
                 "counts": { "structures": w.structures.len(), "texts": w.texts.len(), "events": w.history.events.len() },
                 "timeline": scraped_world::debug::timeline(w),
             })

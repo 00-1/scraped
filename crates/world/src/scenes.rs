@@ -83,6 +83,8 @@ fn room_in(st: &Structure, purposes: &[&str]) -> usize {
 }
 
 /// Places every scene the history and the land imply.
+// DESIGN-Q: each town shows up to 3 + size of its events as scenes, then
+// its last days and its place's history until it has 3 + size / 2.
 pub fn place(
     seed: u64,
     t: &Terrain,

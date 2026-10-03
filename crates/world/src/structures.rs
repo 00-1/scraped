@@ -1485,6 +1485,8 @@ pub fn place(seed: u64, t: &Terrain, w: &Water, h: &History) -> Vec<Structure> {
     out
 }
 
+// DESIGN-Q: which buildings each role calls for, and how many (size + 1,
+// four more in the capital).
 /// Buildings a town of a role may have: the first is always built (when
 /// the ground allows), the rest are picked by size.
 fn role_kinds(role: TownRole) -> &'static [StructureKind] {

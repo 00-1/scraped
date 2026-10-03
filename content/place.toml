@@ -22,7 +22,7 @@ example = true
 
 [[variant]]
 slot = "place.whole"
-text = "[if settlement == 'none'][if amount == 'one']A {condition} {main} stands alone here[else]{cap amount} {condition} buildings stand here[end][else]{cap a condition} {settlement}[if main_amount != 'one'] of {main_amount} {plural main 2}[end][end]."
+text = "[if settlement == 'none'][if amount == 'one']A {condition} {main} stands alone here[else]{cap amount} {condition} buildings stand here[end][else]{cap a condition} [if settlement == 'ruins']ruined {role}[else]{role}[end][if main_amount != 'one'] of {main_amount} {plural main 2}[end][end]."
 example = true
 
 [[variant]]
@@ -37,7 +37,7 @@ example = true
 
 [[variant]]
 slot = "place.member"
-text = "{cap name}[if bearing != 'here'], to the {bearing}[end].[if more > 0] {cap count more other} beyond.[end]"
+text = "{cap name}[if bearing != 'here'], to the {bearing}[end].[if more > 0] And {count more other} beyond.[end]"
 example = true
 
 [[variant]]
@@ -53,4 +53,24 @@ example = true
 [[variant]]
 slot = "place.group_name"
 text = "the [if condition != '']{condition} [end]{plural kind 2}"
+example = true
+
+[[variant]]
+slot = "place.district"
+text = "The {kind}"
+example = true
+
+[[variant]]
+slot = "place.district_name"
+text = "the {kind}"
+example = true
+
+[[variant]]
+slot = "place.layout"
+text = "{cap a role} by {a reason}, {plan}[if walled], walled with {count gates gate}[end]. Parts: {list districts}"
+example = true
+
+[[variant]]
+slot = "place.scene"
+text = "Here: {list parts}"
 example = true

@@ -10,10 +10,10 @@ Measured on the M14 build (seed 42 unless noted).
 
 | Area | Now | Problem |
 |---|---|---|
-| Building types | 11 | Every town is the same handful of temples, houses, tombs and storehouses |
+| Building types | D03: 50 kinds, by each town's role | Was: every town the same handful of temples, houses, tombs and storehouses |
 | Interiors | 3–6 rooms joined by compass exits, no geometry | Nothing large or intricate to explore inside; maps can't be checked |
 | Room purposes | about 7 | Interiors feel interchangeable |
-| Natural features | rivers, lakes, coast, summits | Nothing between towns worth walking to |
+| Natural features | D03: 36 kinds of feature and old mark, placed by cause | Was: nothing between towns worth walking to |
 | Landmark identity | "the mountain", "the town" | Five identical names in one view; maps can't tell them apart |
 | Biomes | 12 | Fine for now |
 | Items | 20, all practical | Nothing to find for its own sake |
@@ -92,11 +92,26 @@ A fact is now counted once even when a name is rendered inside it.
 | Facts digging could find per arrival | 3.4 per room | 13.1, 4× those shown | at least 3× |
 | A repeated `look` with nothing changed | full repeat | at most 2 facts (tested) | at most 2 |
 
+### After D03 (seeds 1–10, explorer 24 h)
+
+| Metric | Before | D03 | Target |
+|---|---|---|---|
+| Building kinds per world | 8.7 (of 11) | 38.2 (of 50) | at least 25 of 35+ |
+| Natural feature kinds per world | 5.8 | 22.4 | at least 12 |
+| Scenes per settlement (median / least) | 0 | 4 / 3, plus 18.8 outside towns | at least 3, plus some outside |
+| Towns sharing a role, size and layout | most | 0 | none |
+| Town roles per world | 1 | 5.7 of 8 | |
+| New kinds of thing in the fifth hour | – | 6.0 | still finding new kinds in hour 5 |
+| Words per arrival (median) | 17 | 17 | at most 60 (D02) |
+| WebAssembly world generation | – | under 0.1 s | under a few seconds |
+
+New metrics: `places.scenes_per_settlement(_min)`, `places.scenes_outside`, `places.towns_sharing_layout`, `places.town_roles`, `play.new_kinds_hour5`. `places.natural_kinds` now counts natural features (not old marks), and `places.per_km2` counts features.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
 
-- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 (16 of 1–20). Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
+- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 (16 of 1–20; after D03, 8 of 10 and 17 of 20). Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
 - **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 5 of seeds 1–10 and a great inscription on 6. The spec asks for 8. What stops it is in the game, not the bot:
   - **Held doors.** Old writing holds whole towns' doors shut. The only counter is to write "open" with a passage word (door, gate, tomb, box), and those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets the scholar write them.
   - **Scarce light.** Torches burn an hour, lamps four. Deep rooms are often dark, and the scholar must come back later with fuel.
