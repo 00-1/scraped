@@ -240,3 +240,24 @@ fn reading_records_roots_and_the_lens_reads_beneath() {
     let deep = g.act("read", crate::Target::Thing(thing)).text;
     assert_ne!(plain, deep, "the lens shows more");
 }
+
+/// D03: every room purpose and feature in the world's kinds table is a
+/// value the slots know.
+#[test]
+fn slot_lists_cover_every_kind_of_room_and_thing() {
+    let mut missing = Vec::new();
+    for k in scraped_world::structures::StructureKind::ALL {
+        for r in k.info().rooms {
+            if !crate::slots::PURPOSES.contains(&r.purpose) {
+                missing.push(r.purpose);
+            }
+            for (f, _) in r.features {
+                if !crate::slots::KINDS.contains(f) {
+                    missing.push(f);
+                }
+            }
+        }
+    }
+    missing.dedup();
+    assert!(missing.is_empty(), "{missing:?}");
+}

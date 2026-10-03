@@ -84,6 +84,10 @@ pub struct Placement {
     /// Kinds of building, e.g. "temple", "well".
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub structure: Vec<String>,
+    /// Kinds of scene (D03), e.g. "barricade": only buildings holding one,
+    /// and the storylet happens in the scene's room.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub scene: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub biome: Vec<String>,
     /// "old", "middle" or "new": when the building was raised.

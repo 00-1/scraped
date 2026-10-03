@@ -7,10 +7,15 @@
 
 pub mod debug;
 pub mod decay;
+pub mod features;
+pub mod geology;
 pub mod history;
+pub mod scenes;
 pub mod structures;
 pub mod terrain;
 pub mod texts;
+pub mod towns;
+pub mod underground;
 pub mod water;
 
 use serde::Serialize;
@@ -39,6 +44,17 @@ pub struct World {
     pub traces: Vec<Trace>,
     /// What old writing was meant to do to the land (mechanical in M08).
     pub effects: Vec<Effect>,
+    /// The rock under the land (D03).
+    pub geology: geology::Geology,
+    /// Natural features and old marks on the land (D03).
+    pub features: Vec<features::Feature>,
+    /// Each settlement's role and layout, indexed like settlements (D03).
+    pub towns: Vec<towns::Town>,
+    /// Where cellars, drains, tunnels, catacombs and mine workings run,
+    /// for D04 to build (D03).
+    pub underground: Vec<underground::Route>,
+    /// Small arrangements of things that show what happened (D03).
+    pub scenes: Vec<scenes::Scene>,
     /// The language at each era, oldest first.
     #[serde(skip)]
     pub languages: Vec<Language>,
@@ -58,9 +74,24 @@ impl World {
         let mut terrain = Terrain::generate(seed);
         let water = Water::generate(&mut terrain);
         let history = History::generate(seed, &terrain, &water, &languages);
+        let geology = geology::Geology::generate(seed, &terrain, &water);
+        let towns = towns::plan(seed, &terrain, &water, &geology, &history);
         let mut structures = structures::place(seed, &terrain, &water, &history);
+        structures::place_more(seed, &terrain, &water, &history, &towns, &mut structures);
         let texts = texts::place(seed, &history, &mut structures);
         let (traces, effects) = decay::apply(seed, &terrain, &history, &mut structures);
+        let features = features::place(seed, &terrain, &water, &geology, &history, &structures);
+        let underground =
+            underground::plan(&terrain, &water, &history, &towns, &structures, &features);
+        let scenes = scenes::place(
+            seed,
+            &terrain,
+            &water,
+            &history,
+            &towns,
+            &structures,
+            &features,
+        );
         let names = history.people.iter().map(|p| p.name.clone()).collect();
         World {
             seed,
@@ -71,6 +102,11 @@ impl World {
             texts,
             traces,
             effects,
+            geology,
+            features,
+            towns,
+            underground,
+            scenes,
             languages,
             names,
         }

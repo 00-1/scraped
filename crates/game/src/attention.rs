@@ -161,16 +161,7 @@ pub const AMOUNTS: [&str; 8] = [
 
 /// How tall a kind of building stands, in metres (as seen from afar).
 fn height_of(k: StructureKind) -> f64 {
-    match k {
-        StructureKind::Tower => 15.0,
-        StructureKind::Temple => 10.0,
-        StructureKind::Archive => 6.0,
-        StructureKind::Wall | StructureKind::Storehouse => 5.0,
-        StructureKind::Waystation | StructureKind::House => 4.0,
-        StructureKind::Bridge | StructureKind::Tomb => 3.0,
-        StructureKind::Mine => 2.0,
-        StructureKind::Cemetery => 1.0,
-    }
+    k.info().height
 }
 
 /// Evidence of the season, by season, with the land it can be seen in.
@@ -1028,7 +1019,8 @@ fn order(slot: &str) -> u8 {
 /// (a landmark, an edge) also stand alone as facts.
 pub(crate) fn sentence(t: &str) -> String {
     let t = t.trim();
-    if t.is_empty() {
+    // A piece whose variant said nothing (only its stop) says nothing.
+    if !t.chars().any(char::is_alphanumeric) {
         return String::new();
     }
     let mut c = t.chars();

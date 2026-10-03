@@ -127,8 +127,14 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
         }
     }
     for l in &site.land.landmarks {
-        if l.settlement.is_none() && l.structure.is_none() {
+        if l.settlement.is_none() && l.structure.is_none() && l.feature.is_none() {
             natural.insert(l.kind);
+        }
+    }
+    // Natural features (D03), not the old marks people left.
+    for f in &w.features {
+        if scraped_world::features::kind(f.kind).group != scraped_world::features::Group::Marks {
+            natural.insert(f.kind);
         }
     }
     put("places.natural_kinds", natural.len() as f64);
@@ -157,8 +163,9 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
             .land
             .landmarks
             .iter()
-            .filter(|l| l.settlement.is_none() && l.structure.is_none())
-            .count();
+            .filter(|l| l.settlement.is_none() && l.structure.is_none() && l.feature.is_none())
+            .count()
+        + w.features.len();
     put("places.per_km2", worth as f64 / km2.max(1.0));
 
     // ---------- things ----------

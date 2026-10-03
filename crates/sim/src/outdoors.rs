@@ -310,6 +310,9 @@ pub struct Landmark {
     pub height: f64,
     pub settlement: Option<usize>,
     pub structure: Option<usize>,
+    /// A natural feature or old mark seen from afar (D03), by index into
+    /// `World::features`.
+    pub feature: Option<usize>,
     /// Settlement size (1–4), or prominence in hundreds of metres for hills.
     pub size: i64,
     /// How much it draws the eye at close range.
@@ -333,19 +336,7 @@ pub struct Land {
 
 fn structure_height(k: StructureKind) -> (f64, f64) {
     // (height above ground in metres, weight)
-    match k {
-        StructureKind::Tower => (15.0, 25.0),
-        StructureKind::Temple => (10.0, 15.0),
-        StructureKind::Wall => (5.0, 10.0),
-        StructureKind::Waystation => (4.0, 12.0),
-        StructureKind::Bridge => (3.0, 10.0),
-        StructureKind::Archive => (6.0, 8.0),
-        StructureKind::Storehouse => (5.0, 6.0),
-        StructureKind::Tomb => (3.0, 8.0),
-        StructureKind::Mine => (2.0, 6.0),
-        StructureKind::House => (4.0, 4.0),
-        StructureKind::Cemetery => (1.0, 4.0),
-    }
+    (k.info().height, k.info().weight)
 }
 
 impl Land {
@@ -393,8 +384,53 @@ impl Land {
                 height,
                 settlement: None,
                 structure: Some(st.id),
+                feature: None,
                 size: 1,
                 weight,
+                traits: Default::default(),
+            });
+        }
+        // Features that stand up from the land (D03); the rest are only
+        // found close by.
+        for f in &w.features {
+            let k = scraped_world::features::kind(f.kind);
+            if k.height <= 0.0 {
+                continue;
+            }
+            // One standing in water (a waterfall, a sea stack) is reached
+            // from the nearest dry bank.
+            let (mut fx, mut fy) = (f.cell.ux(), f.cell.uy());
+            let dry = |x: usize, y: usize| {
+                *bridges.get(x, y)
+                    || (!w.terrain.biome.get(x, y).is_water()
+                        && !w.water.needs_crossing(&w.terrain, x, y))
+            };
+            if !dry(fx, fy) {
+                let mut best: Option<(i64, usize, usize)> = None;
+                for dy in -3i64..=3 {
+                    for dx in -3i64..=3 {
+                        let (x, y) = (fx as i64 + dx, fy as i64 + dy);
+                        if x < 0 || y < 0 || x >= s as i64 || y >= s as i64 {
+                            continue;
+                        }
+                        let d = dx * dx + dy * dy;
+                        if dry(x as usize, y as usize) && best.is_none_or(|(b, ..)| d < b) {
+                            best = Some((d, x as usize, y as usize));
+                        }
+                    }
+                }
+                let Some((_, x, y)) = best else { continue };
+                (fx, fy) = (x, y);
+            }
+            landmarks.push(Landmark {
+                kind: f.kind,
+                pos: Pos::of_cell(fx, fy),
+                height: k.height,
+                settlement: None,
+                structure: None,
+                feature: Some(f.id),
+                size: 1,
+                weight: k.weight,
                 traits: Default::default(),
             });
         }
@@ -777,19 +813,7 @@ pub enum Way {
 }
 
 fn kind_id(k: StructureKind) -> &'static str {
-    match k {
-        StructureKind::House => "house",
-        StructureKind::Temple => "temple",
-        StructureKind::Storehouse => "storehouse",
-        StructureKind::Archive => "archive",
-        StructureKind::Tomb => "tomb",
-        StructureKind::Cemetery => "cemetery",
-        StructureKind::Tower => "tower",
-        StructureKind::Wall => "wall",
-        StructureKind::Waystation => "waystation",
-        StructureKind::Bridge => "bridge",
-        StructureKind::Mine => "mine",
-    }
+    k.id()
 }
 
 fn town_landmark(s: &Settlement) -> Landmark {
@@ -801,6 +825,7 @@ fn town_landmark(s: &Settlement) -> Landmark {
         height: 4.0 + 3.0 * size as f64,
         settlement: Some(s.id),
         structure: None,
+        feature: None,
         size,
         weight: if alive { 30.0 } else { 20.0 } + 15.0 * size as f64,
         traits: Default::default(),
@@ -843,6 +868,7 @@ fn peaks(w: &World, surface: &Grid<f64>) -> Vec<Landmark> {
                     height: 0.0,
                     settlement: None,
                     structure: None,
+                    feature: None,
                     size: (prominence / 100.0).floor() as i64,
                     weight: prominence / 8.0,
                     traits: Default::default(),

@@ -577,9 +577,13 @@ impl Game {
             let mut stop = None;
             for v in &fresh {
                 self.state.seen.insert(v.landmark);
-                let kind = self.site.land.landmarks[v.landmark].kind;
+                let l = &self.site.land.landmarks[v.landmark];
+                // Only what draws the eye stops a walk: towns, and tall or
+                // striking things, not every shrine and cairn (D03).
+                // DESIGN-Q: a weight of 10 or more stops a journey.
                 if stop.is_none()
-                    && !matches!(kind, "hill" | "mountain")
+                    && !matches!(l.kind, "hill" | "mountain")
+                    && (l.settlement.is_some() || l.weight >= 10.0)
                     && Some(v.landmark) != dest_landmark
                 {
                     stop = Some(v.clone());
@@ -845,6 +849,7 @@ mod tests {
             let mut walked = 0.0;
             let mut been = std::collections::BTreeSet::new();
             let mut towns = std::collections::BTreeSet::new();
+            let mut attempts = std::collections::BTreeMap::new();
             for turn in 0..30 {
                 let view = g.in_view();
                 let pick = view
@@ -866,8 +871,17 @@ mod tests {
                 let before = g.state.pos;
                 let o = match pick {
                     Some(v) => {
-                        been.insert(v.landmark);
-                        g.go_landmark(v.landmark)
+                        // Done with a landmark once there, or after three
+                        // tries (something new in sight stops a walk).
+                        let tries = attempts.entry(v.landmark).or_insert(0);
+                        *tries += 1;
+                        let o = g.go_landmark(v.landmark);
+                        let there =
+                            g.state.pos.dist(g.site.land.landmarks[v.landmark].pos) <= ARRIVE;
+                        if there || attempts[&v.landmark] >= 3 {
+                            been.insert(v.landmark);
+                        }
+                        o
                     }
                     None => g.head_toward([0, 2, 4, 6][turn % 4]),
                 };

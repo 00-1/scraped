@@ -45,20 +45,16 @@ pub const HOOKS: &[&str] = &[
     "ending",
 ];
 
-/// Building kinds a storylet can be placed in.
-pub const STRUCTURES: &[&str] = &[
-    "house",
-    "temple",
-    "storehouse",
-    "archive",
-    "tomb",
-    "cemetery",
-    "tower",
-    "wall",
-    "waystation",
-    "bridge",
-    "mine",
-];
+/// Building kinds a storylet can be placed in (every kind, D03).
+pub const STRUCTURES: &[&str] = crate::slots::STRUCTURES;
+
+/// Every kind of scene a storylet can be placed at (D03).
+pub fn scene_kinds() -> Vec<&'static str> {
+    scraped_world::scenes::KINDS
+        .iter()
+        .map(|(k, _)| *k)
+        .collect()
+}
 
 pub const ERAS: &[&str] = &["old", "middle", "new"];
 pub const EFFECTS: &[&str] = &["give", "flag", "unflag", "open"];
@@ -218,6 +214,7 @@ pub fn candidates(w: &World, start: usize, s: &Storylet) -> Vec<usize> {
         .filter(|st| !p.away || st.settlement != Some(start))
         .filter(|st| !p.near_water || near_water(w, (st.cell.ux(), st.cell.uy())))
         .filter(|st| s.at != "structure" || !st.interior.rooms.is_empty())
+        .filter(|st| p.scene.is_empty() || scene_room(w, st.id, &p.scene).is_some())
         .map(|st| st.id)
         .collect();
     let key =
@@ -225,6 +222,18 @@ pub fn candidates(w: &World, start: usize, s: &Storylet) -> Vec<usize> {
             .fold(0u64, |h, b| h.wrapping_mul(31).wrapping_add(u64::from(b)));
     out.sort_by_key(|&id| (hash(&[w.seed, 0x5701, key, id as u64]), id));
     out
+}
+
+/// The room of a building holding a scene of one of these kinds (D03).
+pub fn scene_room(w: &World, structure: usize, kinds: &[String]) -> Option<usize> {
+    w.scenes.iter().find_map(|sc| match sc.at {
+        scraped_world::scenes::SceneAt::Room { structure: s, room }
+            if s == structure && kinds.iter().any(|k| k == sc.kind) =>
+        {
+            Some(room)
+        }
+        _ => None,
+    })
 }
 
 /// The meaning of a storylet's generated writing.
@@ -331,11 +340,12 @@ pub fn place(site: &mut Site, pack: &Pack) -> Vec<Placed> {
             let era = era_index(&site.world, req.era.as_deref().unwrap_or(""), st.era);
             let meaning = inscription_meaning(site.world.seed, s, &req.register, &req.about);
             let (home, room) = if s.at == "structure" {
-                let room = *site
-                    .fixtures
-                    .reachable_rooms(&site.world, sid)
-                    .last()
-                    .unwrap_or(&0);
+                let reachable = site.fixtures.reachable_rooms(&site.world, sid);
+                // At its scene, when it asks for one and the room can be
+                // reached; else the furthest room.
+                let room = scene_room(&site.world, sid, &s.place.scene)
+                    .filter(|r| reachable.contains(r))
+                    .unwrap_or(*reachable.last().unwrap_or(&0));
                 (
                     Place::Room {
                         structure: sid,
@@ -657,6 +667,7 @@ pub fn schema() -> serde_json::Value {
         "at": AT,
         "hooks": HOOKS,
         "structures": STRUCTURES,
+        "scenes": scene_kinds(),
         "biomes": BIOMES,
         "eras": ERAS,
         "effects": EFFECTS,
@@ -740,6 +751,18 @@ pub fn lint(pack: &Pack) -> Vec<Issue> {
                         format!(
                             "there are no buildings of kind '{k}'; the kinds are {}",
                             STRUCTURES.join(", ")
+                        ),
+                    );
+                }
+            }
+            for k in &s.place.scene {
+                if !scene_kinds().contains(&k.as_str()) {
+                    issue(
+                        Error,
+                        "storylet-place",
+                        format!(
+                            "there are no scenes of kind '{k}'; the kinds are {}",
+                            scene_kinds().join(", ")
                         ),
                     );
                 }

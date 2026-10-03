@@ -267,7 +267,7 @@ fn lint_catches_each_storylet_problem() {
         ("effects = [\"give dragon\"]\n", "storylet-effect"),
         ("effects = [\"dance\"]\n", "storylet-effect"),
         ("effects = [\"flag a\", \"unflag a\"]\n", "storylet-conflict"),
-        ("at = \"structure\"\n[storylet.place]\nstructure = [\"palace\"]\n", "storylet-place"),
+        ("at = \"structure\"\n[storylet.place]\nstructure = [\"windmill\"]\n", "storylet-place"),
         ("at = \"structure\"\n[storylet.place]\nera = \"future\"\n", "storylet-place"),
         ("[storylet.inscription]\nregister = \"everyday\"\nabout = \"water\"\n", "storylet-inscription"),
         ("at = \"structure\"\n[storylet.inscription]\nregister = \"loud\"\nabout = \"water\"\n", "storylet-inscription"),

@@ -338,6 +338,7 @@ function storyletCard(st) {
       <label for="s-after">After</label><select id="s-after" data-sfield="after">${opt(allStorylets().map(x => x.id).filter(x => x !== st.id), st.after, "nothing")}</select>
       ${placed ? `
       <label>Buildings</label>${checks("place.structure", schema.structures, p.structure)}
+      <label>Scenes</label>${checks("place.scene", schema.scenes, p.scene)}
       <label>Land</label>${checks("place.biome", schema.biomes, p.biome)}
       <label for="s-era">Era</label><select id="s-era" data-sfield="place.era">${opt(schema.eras, p.era, "any")}</select>
       <label>Also</label><div class="checks"><label><input type="checkbox" data-sfield="place.near_water" ${p.near_water ? "checked" : ""}>near water</label><label><input type="checkbox" data-sfield="place.away" ${p.away ? "checked" : ""}>not in the starting town</label></div>

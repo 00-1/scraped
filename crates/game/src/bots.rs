@@ -1066,9 +1066,26 @@ impl DepthBot {
             self.named.insert(square, name.clone());
             return format!("name here as {name}");
         }
-        // Buildings here not yet entered.
+        // Buildings here not yet entered. The scholar goes where writing
+        // is kept (temples, archives, tombs, houses) and passes by mills
+        // and smithies, as a reader would.
+        let scholar = self.scholar();
         let tried = self.tried_here.entry(square).or_default();
-        for i in 0..s.exits.len() {
+        let mut order: Vec<(usize, usize)> = (0..s.exits.len())
+            .map(|i| {
+                (
+                    if scholar {
+                        writing_rank(&s.exits[i])
+                    } else {
+                        0
+                    },
+                    i,
+                )
+            })
+            .filter(|(r, _)| *r < 50)
+            .collect();
+        order.sort();
+        for (_, i) in order {
             let n = noun(&s.exits, i);
             if tried.insert(n.clone()) {
                 return format!("go {n}");
@@ -1208,6 +1225,26 @@ fn claim_glyphs(g: &Game, verb: &str, subject: &str) -> String {
         })
         .collect::<Vec<_>>()
         .join(" ")
+}
+
+/// How likely a building, by its name, is to hold writing, as a reader
+/// would guess: lower first, 50 and over not worth the scholar's time.
+fn writing_rank(name: &str) -> usize {
+    const KEPT: [&str; 10] = [
+        "archive",
+        "temple",
+        "tomb",
+        "storehouse",
+        "cemetery",
+        "house",
+        "wall",
+        "waystation",
+        "bridge",
+        "tower",
+    ];
+    KEPT.iter()
+        .position(|k| name.split_whitespace().any(|w| w == *k))
+        .map_or(50, |i| i * 2)
 }
 
 /// How much a bot wants to carry something, by its name: 0 not at all.

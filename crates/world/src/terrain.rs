@@ -139,7 +139,7 @@ fn value_noise(seed: u64, x: f64, y: f64) -> f64 {
 }
 
 /// Fractal noise: several octaves of value noise, in about [0, 1].
-fn fbm(seed: u64, x: f64, y: f64, octaves: u32) -> f64 {
+pub(crate) fn fbm(seed: u64, x: f64, y: f64, octaves: u32) -> f64 {
     let (mut sum, mut amp, mut freq, mut norm) = (0.0, 1.0, 1.0, 0.0);
     for o in 0..octaves {
         sum += amp * value_noise(seed.wrapping_add(u64::from(o) * 7919), x * freq, y * freq);

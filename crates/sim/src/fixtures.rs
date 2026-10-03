@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
-use scraped_world::structures::{Condition, Passage, PassageState, StructureKind};
+use scraped_world::structures::{Condition, Family, Passage, PassageState, StructureKind};
 use scraped_world::terrain::{Biome, SIZE};
 use scraped_world::water::RIVER_FLOW;
 use scraped_world::World;
@@ -211,7 +211,30 @@ impl Fixtures {
                         put("torch", 35, 22);
                         put("pry_bar", 20, 23);
                     }
-                    _ => {}
+                    // D03's kinds: by what the building was for.
+                    // DESIGN-Q: item odds for the newer kinds of building.
+                    k => match k.info().family {
+                        Family::Food | Family::Store | Family::Trade => {
+                            put("provisions", 45, 30);
+                            put("wood", 40, 31);
+                        }
+                        Family::Craft | Family::Mining => {
+                            put("pry_bar", 30, 32);
+                            put("firesteel", 30, 33);
+                            put("torch", 30, 34);
+                        }
+                        Family::Learning | Family::Holy | Family::Rule => {
+                            put("lamp", 25, 35);
+                            put("oil", 25, 36);
+                            put("torch", 20, 37);
+                        }
+                        Family::Defence | Family::Travel => {
+                            put("torch", 35, 38);
+                            put("cloak", 25, 39);
+                        }
+                        Family::Water => put("waterskin", 40, 40),
+                        _ => {}
+                    },
                 }
             }
             // Fire bowls in temples' halls and sanctums.

@@ -104,32 +104,11 @@ pub struct Traits {
 }
 
 fn height_of(k: StructureKind) -> f64 {
-    match k {
-        StructureKind::Tower => 15.0,
-        StructureKind::Temple => 10.0,
-        StructureKind::Archive => 6.0,
-        StructureKind::Wall | StructureKind::Storehouse => 5.0,
-        StructureKind::Waystation | StructureKind::House => 4.0,
-        StructureKind::Bridge | StructureKind::Tomb => 3.0,
-        StructureKind::Mine => 2.0,
-        StructureKind::Cemetery => 1.0,
-    }
+    k.info().height
 }
 
 fn kind_word(k: StructureKind) -> &'static str {
-    match k {
-        StructureKind::House => "house",
-        StructureKind::Temple => "temple",
-        StructureKind::Storehouse => "storehouse",
-        StructureKind::Archive => "archive",
-        StructureKind::Tomb => "tomb",
-        StructureKind::Cemetery => "cemetery",
-        StructureKind::Tower => "tower",
-        StructureKind::Wall => "wall",
-        StructureKind::Waystation => "waystation",
-        StructureKind::Bridge => "bridge",
-        StructureKind::Mine => "mine",
-    }
+    k.id()
 }
 
 fn condition_word(c: Condition) -> &'static str {
@@ -264,6 +243,9 @@ pub fn assign(w: &World, surface: &Grid<f64>, landmarks: &mut [Landmark], struct
             ..Traits::default()
         };
         match (l.settlement, l.structure) {
+            (None, None) if l.feature.is_some() => {
+                // Features keep their setting, cover and height.
+            }
             (Some(s), _) => {
                 let mut tallest: Option<(f64, StructureKind)> = None;
                 let mut worst = 0usize;
@@ -308,6 +290,7 @@ pub fn assign(w: &World, surface: &Grid<f64>, landmarks: &mut [Landmark], struct
                     j != i
                         && o.settlement.is_none()
                         && o.structure.is_none()
+                        && o.feature.is_none()
                         && o.pos.dist(l.pos) < 2500.0
                         && (*surface.get(o.pos.cell().0, o.pos.cell().1) - h).abs() < 80.0
                 });
@@ -337,6 +320,15 @@ fn candidates(l: &Landmark) -> Vec<&'static str> {
     let t = &l.traits;
     let mut out = Vec::new();
     match (l.settlement, l.structure) {
+        (None, None) if l.feature.is_some() => {
+            out.push(t.setting);
+            out.push(t.cover);
+            out.push(match t.height {
+                "low" => "lowland",
+                _ => "upland",
+            });
+            out.push("lone");
+        }
         (Some(_), _) => {
             if t.walls {
                 out.push("walled");

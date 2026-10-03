@@ -43,19 +43,8 @@ pub const BIOMES: &[&str] = &[
     "rock",
     "snow",
 ];
-pub const STRUCTURES: &[&str] = &[
-    "house",
-    "temple",
-    "storehouse",
-    "archive",
-    "tomb",
-    "cemetery",
-    "tower",
-    "wall",
-    "waystation",
-    "bridge",
-    "mine",
-];
+/// Every kind of building, by id (D03: from the world's kinds table).
+pub const STRUCTURES: &[&str] = &scraped_world::structures::IDS;
 pub const CONDITIONS: &[&str] = &["intact", "worn", "damaged", "ruined", "buried"];
 pub const PURPOSES: &[&str] = &[
     "hall",
@@ -84,6 +73,67 @@ pub const PURPOSES: &[&str] = &[
     "span",
     "adit",
     "gallery",
+    "millroom",
+    "loft",
+    "grain-floor",
+    "bakery",
+    "brewhouse",
+    "cellar",
+    "changing-room",
+    "warm-room",
+    "cold-room",
+    "furnace",
+    "cistern-head",
+    "cistern-hall",
+    "channel",
+    "market-floor",
+    "weighhouse",
+    "warehouse-floor",
+    "counting-room",
+    "quay",
+    "harbour-office",
+    "keeper's room",
+    "stairwell",
+    "lamp-room",
+    "forge",
+    "potter's workshop",
+    "kiln-room",
+    "tanning-yard",
+    "drying-room",
+    "dye-yard",
+    "loom-room",
+    "writing-room",
+    "schoolroom",
+    "yard",
+    "lower hall",
+    "platform",
+    "gate-court",
+    "throne-room",
+    "residence",
+    "treasury",
+    "council-chamber",
+    "court",
+    "holding cell",
+    "cells",
+    "pit",
+    "dormitory",
+    "mess",
+    "armoury-store",
+    "gate-passage",
+    "beacon-platform",
+    "cell",
+    "shrine",
+    "bone-hall",
+    "catacomb-entrance",
+    "garden",
+    "orchard",
+    "arena",
+    "mausoleum-hall",
+    "maze-entrance",
+    "turning",
+    "heart",
+    "way",
+    "fountain-room",
 ];
 pub const KINDS: &[&str] = &[
     "hearth",
@@ -126,6 +176,32 @@ pub const KINDS: &[&str] = &[
     "old_scraper",
     "first_scraper",
     "first_lens",
+    "millstone",
+    "waterwheel",
+    "bin",
+    "oven",
+    "vat",
+    "cask",
+    "bench",
+    "pool",
+    "pillar",
+    "pier",
+    "fountain",
+    "stall",
+    "scales",
+    "crate",
+    "bollard",
+    "beacon",
+    "anvil",
+    "potter's wheel",
+    "kiln",
+    "loom",
+    "desk",
+    "dial",
+    "throne",
+    "bars",
+    "tree",
+    "seat",
 ];
 pub const NEEDS: &[&str] = &["warmth", "thirst", "hunger", "rest", "injury", "wet"];
 pub const ALL_NEED_STATES: &[&str] = &[
@@ -192,23 +268,15 @@ pub const ALL_DIRECTIONS: &[&str] = &[
     "southeast",
     "southwest",
 ];
-pub const LANDMARKS: &[&str] = &[
-    "town",
-    "ruins",
-    "hill",
-    "mountain",
-    "house",
-    "temple",
-    "storehouse",
-    "archive",
-    "tomb",
-    "cemetery",
-    "tower",
-    "wall",
-    "waystation",
-    "bridge",
-    "mine",
-];
+/// Every kind of landmark: settlements, summits, lone buildings and the
+/// natural features and old marks seen from afar (D03).
+pub fn landmarks() -> Vec<&'static str> {
+    ["town", "ruins", "hill", "mountain"]
+        .into_iter()
+        .chain(scraped_world::structures::IDS)
+        .chain(scraped_world::features::KINDS.iter().map(|k| k.id))
+        .collect()
+}
 pub const TERRAINS: &[&str] = &["flat", "slope", "hilltop", "valley"];
 pub const SIDES: &[&str] = &[
     "here",
@@ -1317,7 +1385,7 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(120)
             .sampler(s_edge),
         SlotDef::new("land.name", "A landmark's short name as seen from afar and typed by the player ('the split peak', 'the walled town'). Include the kind word. Never use the place's real name: the player can't know it. Two alike landmarks in view must read differently: 'mark' is the trait that sets this one apart from others of its kind nearby (and 'mark2' a second, when one isn't enough), so a variant that uses them is always safe. The same landmark always gets the same name, which is what lets players draw maps.")
-            .var("kind", e(LANDMARKS), "What it is: a town, ruins, a hill or mountain, or a lone building.")
+            .var("kind", e(&landmarks()), "What it is: a town, ruins, a hill or mountain, or a lone building.")
             .var("size", VarType::Number, "Towns: 1 hamlet to 4 city. Hills: height above the land around, in hundreds of metres.")
             .var("biome", e(BIOMES), "The land it stands in.")
             .var("mark", e(&scraped_sim::traits::MARKS), "The trait that sets it apart from others of its kind nearby. Shapes (peaked, rounded, flat, twin, long), heights (low, high, towering), covers (snowy, bare, wooded, grassy, sandy), settings (riverside, lakeside, coastal, hilltop, valley, plain), conditions (intact … buried), walled, small, large, towered/templed/tombed (a tower, temple or tomb on it or its tallest building), lone (a building on its own).")
@@ -1335,7 +1403,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_land_name),
         SlotDef::new("land.landmark", "One distant landmark in a look: what it is, which way, how far by eye ('a tower stands far off to the north-east'). Never exact numbers.")
             .var("name", VarType::Text, "The landmark, from land.name.")
-            .var("kind", e(LANDMARKS), "What it is.")
+            .var("kind", e(&landmarks()), "What it is.")
             .var("bearing", e(&BEARINGS), "Which way it lies.")
             .var("distance", e(&DISTANCES), "How far by eye: near (under ~400 m), short (~1 km), middle (a few km), far (up to ~10 km), horizon (beyond).")
             .max_len(160)
@@ -1373,7 +1441,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_place_name),
         SlotDef::new("travel.interrupt", "Something comes into view for the first time, and the player stops to look.")
             .var("name", VarType::Text, "What they see, from land.name.")
-            .var("kind", e(LANDMARKS), "What it is.")
+            .var("kind", e(&landmarks()), "What it is.")
             .var("bearing", e(&BEARINGS), "Which way.")
             .var("distance", e(&DISTANCES), "How far by eye.")
             .max_len(200)
