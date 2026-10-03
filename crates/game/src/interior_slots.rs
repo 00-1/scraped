@@ -121,6 +121,10 @@ fn s_name(_: u64) -> Vec<Context> {
                 ("style", Value::from(styles()[i % styles().len()])),
                 ("level", Value::Number((i % 5) as i64 - 2)),
                 ("marked", Value::Bool(i % 4 == 0)),
+                (
+                    "landmark",
+                    Value::from(crate::quiet_slots::LANDMARKS[i % 4]),
+                ),
             ])
         })
         .collect()
@@ -177,6 +181,15 @@ pub fn slots() -> Vec<SlotDef> {
             .var("direction", e(INSIDE_DIRECTIONS), "Where it leads.")
             .max_len(140)
             .sampler(s_found),
+        SlotDef::new("hazard.air", "The air here is bad (deep in a mine, cave or catacomb): a flame gutters, breath comes short, a headache. Staying hurts; going back up helps. Physical cues, no explanation.")
+            .max_len(120)
+            .sampler(s_none),
+        SlotDef::new("hazard.air_hurt", "The player has stayed too long in bad air and it hurts them (dizziness, a pounding head).")
+            .max_len(100)
+            .sampler(s_none),
+        SlotDef::new("move.squeeze", "The player squeezes through a tight crawl with a heavy load, slowly, scraping and pushing the load ahead.")
+            .max_len(100)
+            .sampler(s_none),
         SlotDef::new("room.mark", "A mark the player made here earlier (chalk, scratches) is on the wall: they have been here.")
             .max_len(80)
             .sampler(s_none),
@@ -190,6 +203,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("style", e(&styles()), "How it was built.")
             .var("level", VarType::Number, "Floor: 0 ground, below 0 underground.")
             .var("marked", VarType::Bool, "Whether the player marked it.")
+            .var("landmark", e(&crate::quiet_slots::LANDMARKS), "What makes it one to know again: vast, lofty, lone; empty for most.")
             .max_len(60)
             .sampler(s_name),
     ]

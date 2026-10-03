@@ -274,7 +274,11 @@ impl Game {
     /// told, keeps the best within the budget (and every interruption),
     /// renders them and remembers what was said.
     pub(crate) fn attend(&mut self, facts: Vec<Fact>, response: Response) -> Vec<String> {
-        let budget = response.budget();
+        // Facts this response has already said (a move report) count.
+        let budget = response
+            .budget()
+            .saturating_sub(std::mem::take(&mut self.said_already))
+            .max(1);
         let now = self.state.minutes;
         let mut scored: Vec<(f64, bool, Fact)> = facts
             .into_iter()
@@ -951,6 +955,7 @@ impl Game {
                         "water",
                         Value::from(if r.water.is_empty() { "none" } else { r.water }),
                     ),
+                    ("landmark", Value::from(r.landmark)),
                 ]),
             )
         });

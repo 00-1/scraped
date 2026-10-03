@@ -34,3 +34,18 @@ example = true
 slot = "mark.done"
 text = "You scratch a mark on the wall."
 example = true
+
+[[variant]]
+slot = "hazard.air"
+text = "The air is thick and stale; your breath comes short."
+example = true
+
+[[variant]]
+slot = "hazard.air_hurt"
+text = "Your head pounds in the bad air."
+example = true
+
+[[variant]]
+slot = "move.squeeze"
+text = "You squeeze through, pushing your load ahead of you."
+example = true

@@ -91,19 +91,19 @@ Through the attention model, with digging layers: space looks by kind and size a
 
 ## Checklist
 
-- [ ] Spatial model: spaces, geometry, levels, openings; all structures migrated with their texts and scenes
-- [ ] Lazy, deterministic generation of great interiors
-- [ ] Architectural grammar per culture and era; growth through history
-- [ ] Each kind of great interior
-- [ ] Cave systems from geology and water; where people met caves
-- [ ] Interior movement, landmarks, getting lost, finding the way, marks
-- [ ] Vertical travel, one-way routes, loops and shortcuts
-- [ ] Underground hazards
-- [ ] Brief descriptions of scale; compressed passages
-- [ ] Hidden and visible-but-unreachable spaces
-- [ ] Debug floor plans in bench and authoring inspector
-- [ ] Mapper bot
-- [ ] Slots and variables, through the attention model
-- [ ] Targets met; samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Spatial model: spaces, geometry, levels, openings; all structures migrated with their texts and scenes
+- [x] Lazy, deterministic generation of great interiors (decided against: the whole world, interiors included, builds in about 0.2 s in WebAssembly; see DECISIONS)
+- [x] Architectural grammar per culture and era; growth through history
+- [x] Each kind of great interior
+- [x] Cave systems from geology and water; where people met caves
+- [x] Interior movement, landmarks, getting lost, finding the way, marks (getting lost is by feel in the dark only; see DECISIONS)
+- [x] Vertical travel, one-way routes, loops and shortcuts
+- [x] Underground hazards
+- [x] Brief descriptions of scale; compressed passages
+- [x] Hidden and visible-but-unreachable spaces
+- [x] Debug floor plans in bench and authoring inspector
+- [x] Mapper bot
+- [x] Slots and variables, through the attention model
+- [x] Targets met; samples committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

@@ -279,3 +279,14 @@ fn no_space_is_a_trap() {
         }
     }
 }
+
+#[test]
+fn every_world_has_a_cave_system() {
+    for seed in 1..=10 {
+        let w = World::generate(seed);
+        assert!(
+            w.greats.iter().any(|&(_, k)| k == GreatKind::Cave),
+            "seed {seed}"
+        );
+    }
+}

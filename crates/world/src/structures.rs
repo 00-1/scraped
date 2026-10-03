@@ -986,6 +986,12 @@ pub struct Room {
     pub hidden: bool,
     /// Water in it: "", "pool", "stream", "river", "flooded", "sump".
     pub water: &'static str,
+    /// What makes it a landmark inside a great interior (D04): "vast" (one
+    /// of its largest spaces), "lofty" (one of its highest) or "lone" (the
+    /// only space of its purpose); "" for most.
+    pub landmark: &'static str,
+    /// "foul" where the air is bad (deep mines, caves, catacombs), else "".
+    pub air: &'static str,
 }
 
 impl Room {
@@ -1093,6 +1099,8 @@ impl Interior {
             outside: false,
             hidden: false,
             water: "",
+            landmark: "",
+            air: "",
         });
         self.rooms.len() - 1
     }

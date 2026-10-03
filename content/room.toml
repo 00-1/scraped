@@ -2,7 +2,7 @@ notes = "A room: its whole, its ways out, and what stands out in it."
 
 [[variant]]
 slot = "room.whole"
-text = "{cap a purpose}[if level < 0], below ground[end][if light == 'dim'], dim and close[end]."
+text = "{cap a purpose}[if landmark == 'vast'], vast, your steps echoing[end][if landmark == 'lofty'], its roof lost in shadow[end][if level < 0], below ground[end][if light == 'dim'], dim and close[end]."
 example = true
 
 [[variant]]
@@ -37,5 +37,5 @@ example = true
 
 [[variant]]
 slot = "room.name"
-text = "the [if marked]marked [end]{style} {purpose}"
+text = "the [if marked]marked [end][if landmark == 'vast']great [end][if landmark == 'lofty']high [end]{style} {purpose}"
 example = true

@@ -35,6 +35,10 @@ const TOWN_BUILDINGS: usize = 4;
 /// Minutes the explorer spends in one building before making its way out.
 const BUILDING_MINUTES: u32 = 45;
 
+/// Minutes in a great interior (more than eight spaces seen) before
+/// making its way out.
+const GREAT_MINUTES: u32 = 180;
+
 /// What to type to go through a way: a direction as it is, a way given
 /// by name ("the western door north") with `go`.
 fn way_command(exit: &str) -> String {
@@ -215,6 +219,10 @@ pub struct DepthBot {
     followed: BTreeSet<(String, String)>,
     /// A building it has given up on and is making its way out of.
     leaving: Option<String>,
+    /// What each building's entrance was for ("gate-court"), to walk back
+    /// to it by name; and the great buildings whose entrance it marked.
+    entrances: BTreeMap<String, String>,
+    marked: BTreeSet<String>,
     /// Whether it has put its cloak on.
     cloak_on: bool,
     /// The building it is in, and when it went in.
@@ -268,6 +276,8 @@ impl DepthBot {
             leaving: None,
             inside_since: None,
             cloak_on: false,
+            entrances: BTreeMap::new(),
+            marked: BTreeSet::new(),
             idle: 0,
             notes: Vec::new(),
         }
@@ -333,6 +343,15 @@ impl DepthBot {
         self.fresh = self.renders.min(g.renders.len());
         let s = &last.state;
         let here = s.place.clone();
+        if let Some(b) = here.strip_suffix(" room 0") {
+            for x in &g.renders[self.renders.min(g.renders.len())..] {
+                if x.trace.slot == "room.whole" {
+                    if let Some(Value::Text(p)) = x.vars.get("purpose") {
+                        self.entrances.insert(b.to_string(), p.replace('_', " "));
+                    }
+                }
+            }
+        }
         if here != "outside" {
             let r = self.rooms.entry(here.clone()).or_default();
             r.exits = s.exits.clone();
@@ -602,13 +621,49 @@ impl DepthBot {
             }
         }
         if let Some((b, _)) = here.rsplit_once(" room ") {
+            // A great interior is worth hours.
+            let prefix = format!("{b} room ");
+            let great = self.rooms.keys().filter(|p| p.starts_with(&prefix)).count() > 8;
+            let stay = if great {
+                GREAT_MINUTES
+            } else {
+                BUILDING_MINUTES
+            };
             let long = !self.scholar()
                 && self
                     .inside_since
                     .as_ref()
-                    .is_some_and(|(_, t)| s.minutes > t + BUILDING_MINUTES);
+                    .is_some_and(|(_, t)| s.minutes > t + stay);
             if self.leaving.as_deref() == Some(b) || long {
+                // Far in: back to the entrance by name, by the ways known.
+                let last = self
+                    .last
+                    .as_ref()
+                    .map(|(c, _, _)| c.clone())
+                    .unwrap_or_default();
+                if great && !self.scholar() && !here.ends_with(" room 0") {
+                    if let Some(p) = self.entrances.get(b) {
+                        let c = format!("go to the {p}");
+                        if last != c {
+                            return c;
+                        }
+                    }
+                }
                 return self.towards_entrance(&here);
+            }
+            // A great interior: mark its entrance to know it again, and
+            // follow its long passages in one go now and then.
+            if great && !self.scholar() {
+                if here.ends_with(" room 0") && self.marked.insert(b.to_string()) {
+                    return "mark".into();
+                }
+                let corridor = g.renders[self.fresh.min(g.renders.len())..].iter().any(|x| {
+                    x.trace.slot == "room.whole"
+                        && matches!(x.vars.get("space"), Some(Value::Text(t)) if t == "corridor")
+                });
+                if corridor && self.roll(11) % 100 < 30 {
+                    return "follow the passage".into();
+                }
             }
         }
         // A curious player digs in where it is, and follows what catches
@@ -1062,7 +1117,9 @@ impl DepthBot {
         for (i, name) in s.things.iter().enumerate() {
             let n = noun(&s.things, i);
             let thing_kind = name.split_whitespace().last().unwrap_or("");
-            let dull = !scholar && self.dull.get(thing_kind).copied().unwrap_or(0) >= 3;
+            // Nor what it already carries one of.
+            let known = s.carried.iter().any(|c| c == name);
+            let dull = !scholar && (known || self.dull.get(thing_kind).copied().unwrap_or(0) >= 3);
             if !dull && room.done.insert((name.clone(), "examine")) {
                 return Some(format!("examine {n}"));
             }
@@ -1996,7 +2053,11 @@ pub fn play_with(
     // DESIGN-Q: the scholar plays sustained.
     g.sustain = kind == "scholar";
     let mut out = g.start();
+    let before = g.state.place;
     setup(&mut g);
+    if g.state.place != before {
+        out = g.step("look");
+    }
     let mut bot = DepthBot::new(kind, seed);
     let start = g.state.minutes;
     let mut run = BotRun {
@@ -2046,16 +2107,17 @@ pub fn play_with(
         }
         *taken = g.renders.len();
     };
-    // A fact: a render of a slot that says one thing (no lists), outside
-    // the parser's replies, whose text the player was actually shown.
+    // A fact: a render of a slot, outside the parser's replies, whose text
+    // the player was actually shown.
     // Facts are said as sentences, so compare without case.
     // A name said inside a sentence is part of that fact, not another.
+    // A list ("Ways out: …") is one fact, as the attention model weighs it;
+    // the names within it are part of it.
     let count_facts = |rs: &[Rendered], text: &str| {
         let text = text.to_lowercase();
         let shown: Vec<String> = rs
             .iter()
             .filter(|r| !r.trace.slot.starts_with("say."))
-            .filter(|r| !r.vars.values().any(|v| matches!(v, Value::List(_))))
             .map(|r| r.trace.text.trim().to_lowercase())
             .filter(|t| !t.is_empty() && text.contains(t.as_str()))
             .collect();

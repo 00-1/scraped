@@ -1470,13 +1470,26 @@ impl Interior {
 /// fracture directions, chambers where passages meet, pits down toward
 /// the water, formations in soluble rock, sumps at the bottom, and other
 /// mouths to the outside.
-pub fn grow_cave(seed: u64, st: &mut Structure, f: &LandFeature, rock: Rock, sea: bool) {
+pub fn grow_cave(
+    seed: u64,
+    st: &mut Structure,
+    f: &LandFeature,
+    rock: Rock,
+    sea: bool,
+    system: bool,
+) {
     let mut rng = Rng::new(
         seed ^ (st.id as u64).wrapping_mul(0xc2b2_ae3d_27d4_eb4f),
         Stream::World(11),
     );
     let (low, _, mut target) = shape_of(GreatKind::Cave, &mut rng);
-    let size = f.inside.as_ref().map_or(1, |i| i.size);
+    // Every world has at least one cave system (D04): the largest mouth
+    // grows as one if no mouth is large enough of itself.
+    let size = if system {
+        4
+    } else {
+        f.inside.as_ref().map_or(1, |i| i.size)
+    };
     // Small caves stay small; the largest are systems.
     if size < 4 {
         target = 20 + usize::from(size) * 25;
@@ -1723,6 +1736,14 @@ pub fn grow(
         grow_building(seed, &mut structures[i], kind, h);
     }
     // Caves: a structure at every cave mouth and sea cave.
+    let size = |f: &LandFeature| f.inside.as_ref().map_or(0, |i| i.size);
+    let none_large = !features.iter().any(|f| size(f) >= 4);
+    let system = features
+        .iter()
+        .filter(|f| f.inside.is_some() && f.kind != "sea cave")
+        .max_by_key(|f| (size(f), std::cmp::Reverse(f.id)))
+        .map(|f| f.id)
+        .filter(|_| none_large);
     for f in features.iter().filter(|f| f.inside.is_some()) {
         let id = structures.len();
         let sea = f.kind == "sea cave";
@@ -1744,15 +1765,84 @@ pub fn grow(
             outside: Vec::new(),
             district: None,
         };
-        grow_cave(seed, &mut st, f, g.at(f.cell.ux(), f.cell.uy()), sea);
+        grow_cave(
+            seed,
+            &mut st,
+            f,
+            g.at(f.cell.ux(), f.cell.uy()),
+            sea,
+            system == Some(f.id),
+        );
         let big = st.interior.rooms.len() >= 200;
         structures.push(st);
         if big {
             greats.push((id, GreatKind::Cave));
         }
     }
+    for &(i, kind) in &greats {
+        landmarks(&mut structures[i].interior);
+        foul_air(seed, &mut structures[i].interior, kind, i);
+    }
     let _ = t;
     greats
+}
+
+/// Spaces a player would know again in a great interior (D04): a few of
+/// the largest, a couple of the highest, and those whose purpose occurs
+/// only once. Corridors and passages are never landmarks.
+// DESIGN-Q: how many landmarks, and by what traits.
+fn landmarks(i: &mut Interior) {
+    let through = ["corridor", "passage", "crawl", "stair", "tunnel"];
+    let open: Vec<usize> = (0..i.rooms.len())
+        .filter(|&r| !i.rooms[r].collapsed && !through.contains(&i.rooms[r].space))
+        .collect();
+    let mut by_area = open.clone();
+    by_area.sort_by_key(|&r| (std::cmp::Reverse(i.rooms[r].area()), r));
+    let vast = (i.rooms.len() / 80).clamp(2, 6);
+    for &r in by_area.iter().take(vast) {
+        i.rooms[r].landmark = "vast";
+    }
+    let mut by_height = open.clone();
+    by_height.sort_by_key(|&r| (std::cmp::Reverse(i.rooms[r].h), r));
+    let lofty: Vec<usize> = by_height
+        .into_iter()
+        .filter(|&r| i.rooms[r].landmark.is_empty())
+        .take(2)
+        .collect();
+    for r in lofty {
+        i.rooms[r].landmark = "lofty";
+    }
+    let mut count: std::collections::BTreeMap<&str, usize> = Default::default();
+    for &r in &open {
+        *count.entry(i.rooms[r].purpose).or_default() += 1;
+    }
+    for &r in open.iter().filter(|&&r| r > 0).take(400) {
+        if count[i.rooms[r].purpose] == 1 && i.rooms[r].landmark.is_empty() {
+            i.rooms[r].landmark = "lone";
+        }
+    }
+}
+
+/// Bad air in the deepest reaches of mines, caves and catacombs (D04): a
+/// share of the spaces four levels down or more.
+// DESIGN-Q: foul air in about a third of the spaces four levels down or
+// deeper in mines, caves, necropolises and refuges (underground cities).
+fn foul_air(seed: u64, i: &mut Interior, kind: GreatKind, id: usize) {
+    if !matches!(
+        kind,
+        GreatKind::Mine | GreatKind::Cave | GreatKind::Necropolis | GreatKind::Refuge
+    ) {
+        return;
+    }
+    for (n, r) in i.rooms.iter_mut().enumerate() {
+        let mut v = seed ^ (id as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15) ^ (n as u64) << 20;
+        v ^= v >> 29;
+        v = v.wrapping_mul(0xbf58_476d_1ce4_e5b9);
+        v ^= v >> 32;
+        if r.level <= -4 && v.is_multiple_of(3) {
+            r.air = "foul";
+        }
+    }
 }
 
 /// Cells of the world a space's way outside opens onto: the structure's

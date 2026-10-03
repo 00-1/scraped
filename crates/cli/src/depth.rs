@@ -14,15 +14,17 @@ depth instruments:
       measures each world, and an explorer's H hours in it (default 24)
   scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H] [--json]
       plays the depth bots and reports how far they got
-  scraped-lang samples MILESTONE [--hours H]
+  scraped-lang samples MILESTONE [--hours H] [--inside]
       writes explorer transcripts for seeds 1, 42 and 9001 (default 3 hours)
-      to docs/samples/MILESTONE/
+      to docs/samples/MILESTONE/; --inside starts at the largest great
+      interior's entrance with a lamp
   --content DIR    the content pack (default: content)";
 
 struct Opts {
     seeds: Vec<u64>,
     hours: Option<f64>,
     json: bool,
+    inside: bool,
     bot: Option<String>,
     content: PathBuf,
     rest: Vec<String>,
@@ -33,6 +35,7 @@ fn opts(args: &[String]) -> Result<Opts, String> {
         seeds: Vec::new(),
         hours: None,
         json: false,
+        inside: false,
         bot: None,
         content: PathBuf::from("content"),
         rest: Vec::new(),
@@ -57,6 +60,7 @@ fn opts(args: &[String]) -> Result<Opts, String> {
             "--bot" => o.bot = Some(it.next().ok_or("--bot needs a name")?.clone()),
             "--content" => o.content = PathBuf::from(it.next().ok_or("--content needs a folder")?),
             "--json" => o.json = true,
+            "--inside" => o.inside = true,
             other if other.starts_with("--") => return Err(USAGE.to_string()),
             other => o.rest.push(other.to_string()),
         }
@@ -151,7 +155,13 @@ pub fn samples(args: &[String]) -> Result<String, String> {
     let hours = o.hours.unwrap_or(3.0);
     let mut out = String::new();
     for seed in SAMPLE_SEEDS {
-        let r = play(&p, seed, "explorer", hours, 5_000);
+        let r = if o.inside {
+            scraped_game::bots::play_with(&p, seed, "explorer", hours, 5_000, |g| {
+                g.begin_inside_great()
+            })
+        } else {
+            play(&p, seed, "explorer", hours, 5_000)
+        };
         let mut md = format!(
             "# {milestone}: the curious explorer, seed {seed}\n\n{} commands, {:.1} hours of game time. Example text only; spoiler-free.\n\n", // DEBUG-TEXT
             r.commands.len(),

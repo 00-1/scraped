@@ -223,7 +223,13 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Hidden spaces | At least 6 per great building: bays reached only by a hidden panel, each with a visible twin across its corridor, so a careful plan shows the gap; in caves, crawls behind rubble off chambers | `crates/world/src/interiors.rs` (`hide`, `grow_cave`) | D11 |
 | How is a hidden way found? | `look closer` (search) in its room always finds it | `crates/game/src/interior.rs` | now |
 | How fast does one walk inside? | 70 m a minute in light, 30 by feel | `crates/game/src/lib.rs` (`go_way`) | now |
-| Should the scholar have to reach the deepest text in 5 of 10? | Lowered to 3 for now: the root's archive is a great library and its vault is harder to reach; restore after S01's bot rewrite | `crates/game/tests/depth.rs` | S01 |
+| Lazy generation? | No: every interior is built with the world. The whole world builds in about 0.2 s in WebAssembly and saves are the commands typed, so lazy generation would add machinery for nothing yet. Revisit if worlds grow | `crates/world/src/interiors.rs` (`grow`) | D06 |
+| Landmarks inside | In each great interior: the largest few spaces (one per 80, 2 to 6) are "vast", the two highest of the rest "lofty", and spaces whose purpose occurs only once "lone"; corridors and passages never. Given to `room.whole` and `room.name` | `crates/world/src/interiors.rs` (`landmarks`) | D05 |
+| Bad air | About a third of the spaces four levels down or deeper in mines, caves, necropolises and refuges; a level of injury every 20 minutes there | `crates/world/src/interiors.rs` (`foul_air`), `crates/game/src/interior.rs` (`breathe`) | D06 |
+| Getting stuck | A crawl with a load over two thirds of what can be carried takes 10 minutes more | `crates/game/src/lib.rs` (`go_way`) | D05 |
+| Getting lost inside | Only by feel: in the dark a move gives its direction but no distance. Moves in light are honest, so a careful map comes out true; drift inside (as outdoors) is left for later | `crates/game/src/lib.rs` (`move_report`) | D06 |
+| A cave system in every world | If no cave mouth is large enough, the largest land cave mouth grows as a system | `crates/world/src/interiors.rs` (`grow`) | now |
+| How long does the explorer stay inside? | 45 minutes in an ordinary building, 3 hours once it has seen more than eight spaces; it marks a great interior's entrance and walks back to it by name | `crates/game/src/bots.rs` | now |
 
 
 ## Course corrections (S01)

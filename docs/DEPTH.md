@@ -55,7 +55,7 @@ Measured by `scraped-lang depth --seeds A-B [--hours H] [--json]` (and the web c
 | `magic.places_with_writing_cause` | Buildings within reach of a live spell |
 | `magic.strange_without_writing_share` | Share of strange places with no writing cause (natural oddities) |
 | `variety.combinations` | Distinct (slot, variable combination) pairs the explorer met; per slot family in the JSON |
-| `brevity.<kind>.words_*`, `brevity.<kind>.facts_*` | Median and 95th percentile of words, and of facts, per response, for `look`, `arrival` (into a new place), `travel` and `other`. A fact is a rendered slot that says one thing (no list variable), outside the parser's replies, whose text was in the response |
+| `brevity.<kind>.words_*`, `brevity.<kind>.facts_*` | Median and 95th percentile of words, and of facts, per response, for `look`, `arrival` (into a new place), `travel` and `other`. A fact is a rendered slot, outside the parser's replies, whose text was in the response; a list ("Ways out: …") is one fact, and names said inside another fact are part of it (since D04) |
 | `depth_on_demand.per_place` | At each arrival somewhere (D02 on): how many facts digging there could turn up (median): what `look closer` and `look around` would weigh, sounds and smells, the ground, and writing to read. Until D02 it counted things to examine in each room, plus one for each with writing |
 | `depth_on_demand.per_fact_shown` | At each arrival, those facts for each fact shown on arriving (median) |
 | `play.novel_per_hour` | New things perceived per hour: first renders of a (slot, kind) pair |
@@ -131,6 +131,22 @@ The explorer was rewritten to play like a curious person (S01), so earlier numbe
 Why features fall short: the explorer sees a town first (it must find a firesteel and a cloak), its body sends it back to shelter from the afternoon or when cold, it sleeps three or four hours in the ten, and features lie 4 km or more apart, so most journeys end at towns or landmarks. Seeds with a mild start and features near the road reach 4–5. Facts per arrival rose with D04's move reports inside buildings (a fact before each room); D04's "brevity inside great interiors" item is to bring that back to 3.
 
 New metrics: `play.verbs.<family>_share` (look, dig, examine, read, move, handle, writing, body, other), `play.visited.features`, `play.visited.feature_kinds`, `play.visited.buildings`, `play.visited.towns`, `reading.words_per_read`, `reading.words_per_page`, `reading.words_per_page_heard`, `reading.unique_impression_share`, `reading.heard_scholar_10h`.
+
+### After D04 (seeds 1–10, explorer 24 h)
+
+| Metric | Before | D04 | Target |
+|---|---|---|---|
+| Spaces in the largest interior | about 6 | 492 | at least 400 |
+| Great interiors (200+ spaces) per world | 0 | 9.5, a cave system in every world | at least 4, with a cave system |
+| Levels in the deepest interior | 2 | 7.4 | at least 6 |
+| Independent loops in a great interior (least) | 0 | 26.9 | at least 15 |
+| Hidden spaces per great interior (least) | 0 | 6, each with a visible twin | at least 5, inferable |
+| Mapper bot plan error / topology | – | 0 / exact | within 10% / exact |
+| Facts per arrival (median / p95) | 3 / 4.4 | 3 / 3.4 | 3 (D02) |
+| Facts per `look` (median / p95) | 2 / 2.3 | 2 / 6 | at most 4 / 6 (D02) |
+| Time to walk every reachable space of the largest (mapper, never resting) | minutes | 34 h | several in-game days |
+
+The mapper walks without sleeping, eating or getting lost, so 34 hours of walking is several days of play. Since D04 a fact count treats a list ("Ways out: …") as one fact, as the attention model does.
 
 ### The bots (D01)
 

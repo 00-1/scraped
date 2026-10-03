@@ -34,6 +34,17 @@ impl Game {
         let Place::Room { structure, room } = self.state.place else {
             return;
         };
+        if self.site.structure(structure).interior.rooms[room].air == "foul" {
+            out.push(
+                Fact::new(
+                    "hazard.air",
+                    format!("air:{structure}:{room}"),
+                    85.0,
+                    Default::default(),
+                )
+                .interrupting(),
+            );
+        }
         if self.state.marks.contains(&(structure, room)) {
             out.push(
                 Fact::new(
@@ -95,6 +106,51 @@ impl Game {
         }
     }
 
+    /// Foul air hurts the longer one stays in it (D04): every 20 minutes.
+    // DESIGN-Q: a level of injury per 20 minutes in foul air.
+    pub(crate) fn breathe(&mut self) {
+        let foul = match self.state.place {
+            Place::Room { structure, room } => {
+                self.site.structure(structure).interior.rooms[room].air == "foul"
+            }
+            Place::Outside => false,
+        };
+        let now = self.state.minutes;
+        match (foul, self.state.foul_since) {
+            (false, _) => self.state.foul_since = None,
+            (true, None) => self.state.foul_since = Some(now),
+            (true, Some(t)) if now >= t + 20 => {
+                self.state.foul_since = Some(now);
+                let t = self.say("hazard.air_hurt", Default::default());
+                self.notes.push(t);
+                self.hurt(1, "bad air");
+            }
+            _ => {}
+        }
+    }
+
+    /// For samples and tests: the player at the entrance of the world's
+    /// largest great interior, with a lamp, oil and a firesteel.
+    pub fn begin_inside_great(&mut self) {
+        let Some(&(i, _)) = self
+            .site
+            .world
+            .greats
+            .iter()
+            .max_by_key(|(i, _)| self.site.world.structures[*i].interior.rooms.len())
+        else {
+            return;
+        };
+        for kind in ["lamp", "oil", "firesteel"] {
+            self.make_item(kind, true);
+        }
+        self.state.place = Place::Room {
+            structure: i,
+            room: 0,
+        };
+        self.state.pos = self.site.land.structure_pos[i];
+    }
+
     /// `mark`: a scratch on the wall, to know this space again.
     pub(crate) fn mark_here(&mut self) -> Output {
         let Place::Room { structure, room } = self.state.place else {
@@ -116,6 +172,7 @@ impl Game {
             ("size", Value::from(crate::quiet_slots::size_band(r.area()))),
             ("style", Value::from(r.style)),
             ("level", Value::Number(i64::from(r.level))),
+            ("landmark", Value::from(r.landmark)),
             (
                 "marked",
                 Value::Bool(self.state.marks.contains(&(structure, room))),
@@ -218,6 +275,7 @@ impl Game {
                 ("metres", Value::Number((metres / 2.0).round() as i64 * 2)),
             ]),
         );
+        self.said_already = 1;
         let look = self.look();
         self.output(vec![t, look], None)
     }
@@ -299,6 +357,7 @@ impl Game {
                 ),
             ]),
         );
+        self.said_already = 1;
         let look = self.look();
         self.output(vec![t, look], None)
     }

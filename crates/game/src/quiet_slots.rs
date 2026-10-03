@@ -385,10 +385,14 @@ fn s_room_whole(_: u64) -> Vec<Context> {
                 ("height", Value::from(HEIGHTS[i % HEIGHTS.len()])),
                 ("style", Value::from(styles()[i % styles().len()])),
                 ("water", Value::from(WATERS[i % WATERS.len()])),
+                ("landmark", Value::from(LANDMARKS[i % LANDMARKS.len()])),
             ])
         })
         .collect()
 }
+
+/// What makes a space a landmark inside a great interior (D04).
+pub const LANDMARKS: [&str; 4] = ["", "vast", "lofty", "lone"];
 
 fn s_ways(_: u64) -> Vec<Context> {
     vec![
@@ -707,6 +711,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("height", e(HEIGHTS), "How high: low, tall, lofty, or open (to the sky).")
             .var("style", e(&styles()), "How it was built, which tells old work from new: rough-hewn, dressed stone, vaulted, brick and plaster, fine ashlar, painted (oldest to newest), natural (a cave), or empty when not known.")
             .var("water", e(WATERS), "Water in it: none, a pool, a stream, a river, flooded, or a sump (a passage full of water).")
+            .var("landmark", e(&LANDMARKS), "In a great interior, what makes this space one to know again: vast (one of its largest), lofty (one of its highest), lone (the only one of its kind there); empty for most. Make it memorable, so the player can name it and find it again.")
             .max_len(200)
             .sampler(s_room_whole),
         SlotDef::new("room.ways", "The ways out of a room, as one fact ('Ways lead north and up.').")

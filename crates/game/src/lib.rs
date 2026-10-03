@@ -180,6 +180,9 @@ pub struct State {
     /// the one thing the game keeps for them (S01).
     #[serde(default)]
     pub heard: BTreeSet<(u32, usize)>,
+    /// When the player came into foul air, while they stay in it (D04).
+    #[serde(default)]
+    pub foul_since: Option<u32>,
     /// A text being traced: the thing, and the next sign to trace.
     #[serde(default)]
     pub tracing: Option<(usize, usize)>,
@@ -361,6 +364,9 @@ pub struct Game {
     impression_cache: BTreeMap<u32, Vec<String>>,
     /// Whether the last command was reading, so `look closer` reads on.
     reading_now: bool,
+    /// Facts already said in this response before the description (a move
+    /// report inside), taken off its budget (D04).
+    said_already: usize,
     /// The facts about where a journey just arrived, said first (S01).
     arrival_keys: Vec<String>,
     /// Whether the last command was `listen`, and so whether the player
@@ -481,6 +487,7 @@ impl Game {
             reading: None,
             last_read: None,
             heard: BTreeSet::new(),
+            foul_since: None,
             tracing: None,
             doors: BTreeMap::new(),
             pending: None,
@@ -531,6 +538,7 @@ impl Game {
             listening: false,
             attentive: false,
             arrival_keys: Vec::new(),
+            said_already: 0,
             last_travel: None,
             extra: Vec::new(),
             notes: Vec::new(),
@@ -1113,6 +1121,7 @@ impl Game {
     }
 
     fn command(&mut self, cmd: Command) -> Output {
+        self.breathe();
         let was_reading = std::mem::take(&mut self.reading_now);
         self.attentive = std::mem::take(&mut self.listening);
         let rule = parser::verbs()
@@ -1784,10 +1793,27 @@ impl Game {
             return self.output(fall.into_iter().collect(), None);
         }
         let report = self.move_report(&way);
+        // A tight crawl with a heavy load: slow going (D04).
+        let squeeze = if way.passage == Some(Passage::Crawlway)
+            && self.weight() * 3 > scraped_sim::items::CARRY * 2
+        {
+            self.pass(10);
+            Some(self.say("move.squeeze", Context::new()))
+        } else {
+            None
+        };
         self.last_link = Some(way.link);
         self.state.place = way.to;
+        self.said_already = usize::from(report.is_some());
         let t = self.look();
-        self.output(fall.into_iter().chain(report).chain([t]).collect(), None)
+        self.output(
+            fall.into_iter()
+                .chain(report)
+                .chain(squeeze)
+                .chain([t])
+                .collect(),
+            None,
+        )
     }
 
     // ---------- reading ----------

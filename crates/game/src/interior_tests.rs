@@ -205,3 +205,47 @@ fn passages_are_followed_in_one_go() {
         );
     }
 }
+
+#[test]
+fn great_interiors_have_landmarks_to_know_again() {
+    for seed in SEEDS {
+        let g = Game::new(seed, pack());
+        for &(i, _) in &g.site.world.greats {
+            let int = &g.site.world.structures[i].interior;
+            let marks = int.rooms.iter().filter(|r| !r.landmark.is_empty()).count();
+            assert!(marks >= 3, "seed {seed} structure {i}: {marks} landmarks");
+        }
+    }
+}
+
+#[test]
+fn foul_air_hurts_those_who_stay() {
+    for seed in SEEDS {
+        let g = Game::new(seed, pack());
+        let found = g.site.world.greats.iter().find_map(|&(i, _)| {
+            let int = &g.site.world.structures[i].interior;
+            int.rooms
+                .iter()
+                .position(|r| r.air == "foul")
+                .map(|r| (i, r))
+        });
+        let Some((i, room)) = found else { continue };
+        let mut g = g;
+        g.trace = true;
+        g.forced_light = true;
+        g.start();
+        g.state.place = Place::Room { structure: i, room };
+        let o = g.step("look");
+        assert!(
+            o.renders.iter().any(|r| r.trace.slot == "hazard.air"),
+            "{}",
+            o.text
+        );
+        let before = g.state.body.injury;
+        g.step("wait 30 minutes");
+        g.step("look");
+        assert!(g.state.body.injury > before || g.state.dead.is_some());
+        return;
+    }
+    panic!("no foul air in any great interior");
+}

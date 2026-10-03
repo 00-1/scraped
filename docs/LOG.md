@@ -632,3 +632,13 @@
 **New content slots (one example variant each):** `glyph.impression`, `glyph.closer`, `glyph.heard`, `read.whole`, `sign.name`, `trace.frame`, `trace.sign`, `trace.lost`, `trace.more`, `trace.dark`, `write.unheard`. Changed: `read.glyph` (impression, heard, sound), `write.done` (signs by sound or look), `say.door_stuck` (cause), `end.chronicle`. Removed: `say.define`, `say.define_bad`.
 
 **Next:** resume D04: brevity inside great interiors (a move report adds a fact to each room arrival: facts per arrival 3.7 against 3), the lazy-generation decision, hazards, interior landmarks, samples and notes.
+
+## 2026-10-03 — D04 done
+
+**Done since S01:** brevity inside (a move report takes a place in the room's budget; facts per arrival back to 3); landmarks inside great interiors (vast, lofty, lone, in `room.whole` and `room.name`); bad air deep down, crawls slow with a heavy load; a cave system in every world; the explorer stays longer in great interiors, marks their entrance and follows passages; D04 samples (`scraped-lang samples D04 --inside`). Lazy generation decided against (the whole world builds in about 0.2 s in WebAssembly). Targets met (see DEPTH.md).
+
+**Open questions:** "Great interiors (D04)" in DECISIONS: landmark traits, bad air, getting stuck, getting lost only by feel, no lazy generation.
+
+**New content slots:** `hazard.air`, `hazard.air_hurt`, `move.squeeze`; `room.whole` and `room.name` gain `landmark`.
+
+**Next:** D05.
