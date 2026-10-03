@@ -118,6 +118,8 @@ pub(crate) enum Response {
     Look,
     /// Entering a room.
     Room,
+    /// The end of a journey, after the report of it.
+    Travel,
     /// `look closer`, `search`: down a level.
     Closer,
     /// `look around`: the wider view outdoors.
@@ -125,10 +127,12 @@ pub(crate) enum Response {
 }
 
 impl Response {
-    // DESIGN-Q: budgets: arrival 3, look 4, room entry 3, closer and around
-    // 6; a look with nothing new or changed says at most 2.
+    // DESIGN-Q: budgets: arrival 3, look 4, room entry 3, the end of a
+    // journey 2 (after the report and whatever stopped it), closer and
+    // around 6; a look with nothing new or changed says at most 2.
     pub fn budget(self) -> usize {
         match self {
+            Response::Travel => 2,
             Response::Arrival | Response::Room => 3,
             Response::Look => 4,
             Response::Closer | Response::Around => 6,
@@ -304,6 +308,19 @@ impl Game {
                 .then(b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal))
                 .then_with(|| a.2.key.cmp(&b.2.key))
         });
+        if self.spoil {
+            for (score, fresh, f) in &scored {
+                self.attended.push(serde_json::json!({
+                    "slot": f.slot,
+                    "key": f.key,
+                    "salience": f.salience,
+                    "score": score,
+                    "fresh": fresh,
+                    "interrupt": f.interrupt,
+                    "vars": f.vars,
+                }));
+            }
+        }
         // Nothing new or changed: say little.
         let anything_new = scored.iter().any(|(_, fresh, _)| *fresh);
         let budget = if anything_new { budget } else { budget.min(2) };
@@ -362,12 +379,38 @@ impl Game {
         out
     }
 
+    /// Notes facts as said without saying them (already said another way).
+    fn remember_said<'a>(&mut self, facts: impl Iterator<Item = &'a Fact>) {
+        let now = self.state.minutes;
+        let told: Vec<(String, u64)> = facts.map(|f| (f.key.clone(), f.signature())).collect();
+        for (key, signature) in told {
+            self.state.told.insert(
+                key,
+                Told {
+                    minutes: now,
+                    signature,
+                    said: true,
+                },
+            );
+        }
+    }
+
     /// Describes where the player is, for a kind of response.
     pub(crate) fn describe(&mut self, response: Response) -> String {
-        let facts = match self.state.place {
+        self.describe_except(response, None)
+    }
+
+    /// Describes where the player is, leaving out a fact just said another
+    /// way (the landmark that stopped a journey).
+    pub(crate) fn describe_except(&mut self, response: Response, skip: Option<&str>) -> String {
+        let mut facts = match self.state.place {
             Place::Outside => self.outdoor_facts(response),
             Place::Room { .. } => self.room_facts(response),
         };
+        if let Some(skip) = skip {
+            self.remember_said(facts.iter().filter(|f| f.key == skip));
+            facts.retain(|f| f.key != skip);
+        }
         let parts = self.attend(facts, response);
         parts.join(" ")
     }

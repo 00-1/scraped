@@ -331,6 +331,43 @@ impl Game {
         out
     }
 
+    /// How many facts digging here could turn up: what `look closer` and
+    /// `look around` would weigh, what can be heard and smelt, the ground
+    /// and sky, and writing to read. Measured for D02 (depth on demand),
+    /// leaving the game as it was.
+    pub fn on_demand(&mut self) -> usize {
+        let saved = self.state.clone();
+        let renders = self.renders.len();
+        let mut keys: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+        let outside = matches!(self.state.place, crate::site::Place::Outside);
+        let responses: &[Response] = if outside {
+            &[Response::Closer, Response::Around]
+        } else {
+            &[Response::Closer]
+        };
+        for &r in responses {
+            let facts = if outside {
+                self.outdoor_facts(r)
+            } else {
+                self.room_facts(r)
+            };
+            keys.extend(facts.into_iter().map(|f| f.key));
+        }
+        let mut n = keys.len();
+        n += self.sounds().len().min(3) + self.smells().len().min(2);
+        let mut ground = Vec::new();
+        self.ground_evidence(&mut ground);
+        n += ground.len();
+        n += self
+            .here()
+            .into_iter()
+            .filter(|&t| !self.thing(t).texts.is_empty())
+            .count();
+        self.state = saved;
+        self.renders.truncate(renders);
+        n
+    }
+
     /// `listen`: up to three sounds, loudest first.
     pub(crate) fn listen(&mut self) -> Output {
         self.pass(1);
@@ -348,7 +385,8 @@ impl Game {
                 ),
                 ("indoors", Value::Bool(indoors)),
             ]);
-            parts.push(self.say("sense.sound", c));
+            let t = self.say("sense.sound", c);
+            parts.push(crate::attention::sentence(&t));
         }
         if parts.is_empty() {
             parts.push(self.say("sense.silence", ctx(&[("indoors", Value::Bool(indoors))])));
@@ -372,7 +410,8 @@ impl Game {
                 ),
                 ("indoors", Value::Bool(indoors)),
             ]);
-            parts.push(self.say("sense.smell", c));
+            let t = self.say("sense.smell", c);
+            parts.push(crate::attention::sentence(&t));
         }
         if parts.is_empty() {
             parts.push(self.say("sense.no_smell", ctx(&[("indoors", Value::Bool(indoors))])));
@@ -413,7 +452,7 @@ impl Game {
                 Material::Stone => "rough",
                 Material::Clay => "gritty",
                 Material::Wood => "grained",
-                Material::Metal => "cold_smooth",
+                Material::Metal => "cold and smooth",
                 Material::Plaster => "chalky",
                 Material::Vellum => "soft",
             }
@@ -463,9 +502,9 @@ impl Game {
                 self.site.world.terrain.biome.get(x, y),
                 Biome::Marsh | Biome::Shore
             ) {
-                "brackish_water"
+                "brackish water"
             } else {
-                "fresh_water"
+                "fresh water"
             }
         } else if self.biome_here() == Biome::Desert {
             "dust"
@@ -488,11 +527,11 @@ impl Game {
         let time = time_of_day(self.state.minutes);
         let sky = match (weather, light, time) {
             (_, "dark", _) if weather == "clear" => "stars",
-            (_, "dark", _) => "overcast_night",
+            (_, "dark", _) => "overcast night",
             ("rain" | "fog", _, _) => "grey",
-            (_, _, "dawn" | "morning") => "sun_low_east",
-            (_, _, "evening") => "sun_low_west",
-            _ => "sun_high",
+            (_, _, "dawn" | "morning") => "sun low in the east",
+            (_, _, "evening") => "sun low in the west",
+            _ => "sun high",
         };
         let season = scraped_sim::region::season(self.state.minutes);
         let birds = light != "dark" && season != 3 && self.biome_here() != Biome::Snow;
@@ -606,32 +645,20 @@ impl Game {
         const BATCH: usize = 3;
         let mut parts = Vec::new();
         match target {
-            Target::Buildings(k) => {
+            Target::Buildings(k, c) => {
                 let kind = crate::slots::STRUCTURES.get(k).copied().unwrap_or("house");
-                let all: Vec<usize> = self
+                let condition = c.and_then(|c| crate::slots::CONDITIONS.get(c)).copied();
+                let mut all: Vec<usize> = self
                     .local_structures()
                     .into_iter()
                     .filter(|&s| label(&self.site.world.structures[s].kind) == kind)
+                    .filter(|&s| {
+                        condition
+                            .is_none_or(|c| label(&self.site.world.structures[s].condition) == c)
+                    })
                     .collect();
-                let mut fresh: Vec<usize> = all
-                    .iter()
-                    .copied()
-                    .filter(|s| !self.state.told.contains_key(&format!("member:{s}")))
-                    .collect();
-                if fresh.is_empty() {
-                    // All named before: start the round again.
-                    for s in &all {
-                        self.state.told.remove(&format!("member:{s}"));
-                    }
-                    fresh = all.clone();
-                }
-                fresh.sort_by_key(|&s| (self.site.world.structures[s].condition, s));
-                let shown: Vec<usize> = fresh.into_iter().take(BATCH).collect();
-                let left = all
-                    .iter()
-                    .filter(|s| !shown.contains(s))
-                    .filter(|s| !self.state.told.contains_key(&format!("member:{s}")))
-                    .count();
+                all.sort_by_key(|&s| (self.site.world.structures[s].condition, s));
+                let (shown, left) = self.next_members("member", &all, BATCH);
                 for (i, &s) in shown.iter().enumerate() {
                     let name = self.structure_name(s);
                     let at = self.site.land.structure_pos[s];
@@ -651,14 +678,6 @@ impl Game {
                             Value::Number(if i + 1 == shown.len() { left as i64 } else { 0 }),
                         ),
                     ]);
-                    self.state.told.insert(
-                        format!("member:{s}"),
-                        crate::attention::Told {
-                            minutes: self.state.minutes,
-                            signature: 0,
-                            said: true,
-                        },
-                    );
                     parts.push(self.say("place.member", c));
                 }
             }
@@ -669,7 +688,8 @@ impl Game {
                     .into_iter()
                     .filter(|&t| self.thing(t).kind == kind)
                     .collect();
-                for (i, &t) in all.iter().enumerate().take(BATCH) {
+                let (shown, left) = self.next_members("tmember", &all, BATCH);
+                for (i, &t) in shown.iter().enumerate() {
                     let name = self.thing_name(t);
                     let c = ctx(&[
                         ("bearing", Value::from("here")),
@@ -679,11 +699,7 @@ impl Game {
                         ("rank", Value::Number(i as i64 + 1)),
                         (
                             "more",
-                            Value::Number(if i + 1 == all.len().min(BATCH) {
-                                all.len().saturating_sub(BATCH) as i64
-                            } else {
-                                0
-                            }),
+                            Value::Number(if i + 1 == shown.len() { left as i64 } else { 0 }),
                         ),
                     ]);
                     parts.push(self.say("place.member", c));
@@ -692,6 +708,37 @@ impl Game {
             _ => {}
         }
         self.output(vec![parts.join(" ")], None)
+    }
+
+    /// The next few members of a group not yet named (in the given order),
+    /// remembered as named, and how many are left after them. Once all
+    /// have been named the round starts again, so every member is reached.
+    fn next_members(&mut self, prefix: &str, all: &[usize], batch: usize) -> (Vec<usize>, usize) {
+        let key = |m: usize| format!("{prefix}:{m}");
+        let mut fresh: Vec<usize> = all
+            .iter()
+            .copied()
+            .filter(|&m| !self.state.told.contains_key(&key(m)))
+            .collect();
+        if fresh.is_empty() {
+            for &m in all {
+                self.state.told.remove(&key(m));
+            }
+            fresh = all.to_vec();
+        }
+        let shown: Vec<usize> = fresh.iter().copied().take(batch).collect();
+        for &m in &shown {
+            self.state.told.insert(
+                key(m),
+                crate::attention::Told {
+                    minutes: self.state.minutes,
+                    signature: 0,
+                    said: true,
+                },
+            );
+        }
+        let left = fresh.len() - shown.len();
+        (shown, left)
     }
 
     /// A second look at a thing finds what the first glance missed.
@@ -740,13 +787,19 @@ impl Game {
 impl Game {
     /// For "go to a tomb": the nearest building of a kind here that the
     /// player hasn't been into, or the nearest at all.
-    pub(crate) fn pick_member(&self, k: usize) -> Option<usize> {
+    pub(crate) fn pick_member(&self, k: usize, condition: Option<usize>) -> Option<usize> {
         let kind = crate::slots::STRUCTURES.get(k)?;
+        let condition = condition
+            .and_then(|c| crate::slots::CONDITIONS.get(c))
+            .copied();
         let p = self.state.pos;
         let mut all: Vec<usize> = self
             .local_structures()
             .into_iter()
             .filter(|&s| label(&self.site.world.structures[s].kind) == *kind)
+            .filter(|&s| {
+                condition.is_none_or(|c| label(&self.site.world.structures[s].condition) == c)
+            })
             .collect();
         all.sort_by_key(|&s| {
             (

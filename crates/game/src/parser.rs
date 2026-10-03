@@ -93,7 +93,7 @@ pub fn parse(input: &str) -> Result<Command, ParseError> {
 
 /// Little words that never pick out a thing.
 const FILLER: &[&str] = &[
-    "the", "a", "an", "to", "into", "through", "at", "on", "in", "of", "with",
+    "the", "a", "an", "to", "into", "through", "at", "on", "in", "of", "with", "among",
 ];
 
 const ORDINALS: &[&str] = &[

@@ -385,6 +385,14 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 .ok_or(format!("no slot '{}'", v.slot))?;
             Ok(json!({ "issues": scraped_content::lint::lint_variant(&registry, slot, &v) }))
         }
+        // Responses as the attention model assembles them (D02), so a
+        // writer sees a piece among its neighbours and writes for the budget.
+        "in_context" => {
+            let (pack, _) = pack(req)?;
+            let slot: String = opt(req, "slot", String::new());
+            let count: usize = opt(req, "count", 6);
+            Ok(json!({ "rows": scraped_game::bots::in_context(&pack, seed(req), &slot, count) }))
+        }
         "preview" => {
             let (pack, _) = pack(req)?;
             let slot: String = field(req, "slot")?;

@@ -58,19 +58,19 @@ pub const TEXTURES: &[&str] = &[
     "gritty",
     "grained",
     "chalky",
-    "cold_smooth",
+    "cold and smooth",
     "soft",
     "crumbling",
 ];
 /// What the tongue says.
-pub const TASTES: &[&str] = &["fresh_water", "brackish_water", "salt", "dust", "nothing"];
+pub const TASTES: &[&str] = &["fresh water", "brackish water", "salt", "dust", "nothing"];
 /// How the sun or the night sky stands.
 pub const SKIES: &[&str] = &[
-    "sun_low_east",
-    "sun_high",
-    "sun_low_west",
+    "sun low in the east",
+    "sun high",
+    "sun low in the west",
     "stars",
-    "overcast_night",
+    "overcast night",
     "grey",
 ];
 /// Ages as the body feels them.
@@ -137,7 +137,14 @@ fn s_group(_: u64) -> Vec<Context> {
 fn s_group_name(_: u64) -> Vec<Context> {
     STRUCTURES
         .iter()
-        .map(|k| ctx(&[("kind", Value::from(*k))]))
+        .enumerate()
+        .map(|(i, k)| {
+            let condition = if i % 2 == 0 { "" } else { "worn" };
+            ctx(&[
+                ("kind", Value::from(*k)),
+                ("condition", Value::from(condition)),
+            ])
+        })
         .collect()
 }
 
@@ -554,6 +561,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_group),
         SlotDef::new("place.group_name", "Alike buildings or things as a group, as the player refers to them ('the tombs').")
             .var("kind", VarType::Text, "What they are (a building or thing kind).")
+            .var("condition", e(&["", "intact", "worn", "damaged", "ruined", "buried"]), "Only those in this state ('the worn tombs'), or empty for all of them.")
             .max_len(60)
             .sampler(s_group_name),
         SlotDef::new("place.member", "One building of a group the player is looking at ('look at the tombs'), a few at a time: just this one, by what sets it apart.")

@@ -24,7 +24,7 @@ Measured on the M14 build (seed 42 unless noted).
 | Lexicon | 113 concepts | Too small for rich texts or place names |
 | Spells (potent texts) | 6 per world; 3 verbs (open, burn, break); 3 properties | The heart of the game is thin |
 | Discovery | Scraper placed beside a "pivot" spell; a storylet announces the tool | Points straight at the mechanic, contrary to the design |
-| Response length | Arrival lists weather, ground, every building, horizon, season, land state, creatures | Each system appended a line; more depth would mean walls of text |
+| Response length | D02: an attention budget per response (arrival 3 facts, `look` 4); the rest is found by digging | Was: each system appended a line |
 
 ## Metrics
 
@@ -56,8 +56,8 @@ Measured by `scraped-lang depth --seeds A-B [--hours H] [--json]` (and the web c
 | `magic.strange_without_writing_share` | Share of strange places with no writing cause (natural oddities) |
 | `variety.combinations` | Distinct (slot, variable combination) pairs the explorer met; per slot family in the JSON |
 | `brevity.<kind>.words_*`, `brevity.<kind>.facts_*` | Median and 95th percentile of words, and of facts, per response, for `look`, `arrival` (into a new place), `travel` and `other`. A fact is a rendered slot that says one thing (no list variable), outside the parser's replies, whose text was in the response |
-| `depth_on_demand.per_place` | For each room the explorer stood in, what it holds for the asking: each thing to look at closely, plus one for each with writing |
-| `depth_on_demand.senses` | Further details by listening, smelling, touching (no such verbs yet) |
+| `depth_on_demand.per_place` | At each arrival somewhere (D02 on): how many facts digging there could turn up (median): what `look closer` and `look around` would weigh, sounds and smells, the ground, and writing to read. Until D02 it counted things to examine in each room, plus one for each with writing |
+| `depth_on_demand.per_fact_shown` | At each arrival, those facts for each fact shown on arriving (median) |
 | `play.novel_per_hour` | New things perceived per hour: first renders of a (slot, kind) pair |
 | `play.minutes_between_new_kinds` | Median minutes between new kinds of thing (first word of the kind, per slot family) |
 
@@ -76,6 +76,21 @@ Measured by `scraped-lang depth --seeds A-B [--hours H] [--json]` (and the web c
 | Brevity (facts, median / p95) | look 29 / 45; arrival 14 / 41; travel 26 / 49 |
 | Depth on demand | 3.4 details per room; senses 0 |
 | Novelty | 3.6 new things per hour; a new kind of thing every 1.1 minutes (median) early on |
+
+### After D02 (seeds 1–10, explorer 24 h)
+
+A fact is now counted once even when a name is rendered inside it.
+
+| Metric | D01 | D02 | Target |
+|---|---|---|---|
+| Words per arrival (median / p95) | 30 / 109 | 17 / 21 | at most 60 |
+| Facts per arrival (median / p95) | 14 / 41 | 3 / 4.4 | 3 |
+| Words per `look` (median / p95) | 88 / 117 | 12 / 14 | |
+| Facts per `look` (median / p95) | 29 / 45 | 2 / 2.3 | at most 4 / 6 |
+| Facts per journey (median / p95) | 26 / 49 | 4.2 / 5.1 | report, what stopped it, 2 more |
+| Stated season, regional state or status lines | many | none (tested) | 0 unless asked |
+| Facts digging could find per arrival | 3.4 per room | 13.1, 4× those shown | at least 3× |
+| A repeated `look` with nothing changed | full repeat | at most 2 facts (tested) | at most 2 |
 
 ### The bots (D01)
 

@@ -445,6 +445,7 @@ impl Game {
         let mut wi = 0;
         self.interrupted = false;
         let mut event: Option<(&str, Context)> = None;
+        let mut sighted: Option<usize> = None;
         for step in 0..max {
             let now = self.state.minutes;
             let (weather, light, range) = self.conditions_at(pos, now);
@@ -546,6 +547,7 @@ impl Game {
                     .position(|l| l.settlement == Some(t))
                 {
                     if Some(i) != dest_landmark && self.state.seen.insert(i) {
+                        sighted = Some(i);
                         let name = self.landmark_name(i);
                         let c = ctx(&[
                             ("name", Value::from(name)),
@@ -584,6 +586,7 @@ impl Game {
                 }
             }
             if let Some(v) = stop {
+                sighted = Some(v.landmark);
                 let name = self.landmark_name(v.landmark);
                 let c = ctx(&[
                     ("name", Value::from(name)),
@@ -661,7 +664,8 @@ impl Game {
             parts.push(self.say(slot, c));
         }
         if moved && self.state.dead.is_none() {
-            parts.push(self.describe(crate::attention::Response::Arrival));
+            let skip = sighted.map(|i| format!("landmark:{i}"));
+            parts.push(self.describe_except(crate::attention::Response::Travel, skip.as_deref()));
         }
         let truth = serde_json::json!({
             "pos": [pos.x, pos.y],

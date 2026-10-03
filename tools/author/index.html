@@ -306,8 +306,13 @@ function renderSlot() {
         </div>
       </div>
       <div class="scroll"><table class="preview" id="preview"></table></div>
+    </section>
+    <section class="card">
+      <h3>In a response</h3>
+      <p class="help">Whole responses as the game assembles them on this seed (the digging verbs, then an explorer's first steps), where this slot was said. Each response says only a few facts, so write each piece to stand among its neighbours.</p>
+      <div class="scroll"><table class="preview" id="inContext"></table></div>
     </section>`;
-  renderSlotIssues(); renderPreview(); renderBeats();
+  renderSlotIssues(); renderPreview(); renderBeats(); renderInContext();
 }
 
 // ---------- storylets ----------
@@ -420,6 +425,22 @@ function renderPreview() {
   }, 150);
 }
 
+// Whole responses, assembled by the attention model (D02). Slower than a
+// preview (it plays the game), so it waits for a pause in typing.
+let contextTimer;
+function renderInContext() {
+  clearTimeout(contextTimer);
+  contextTimer = setTimeout(() => {
+    const t = $("inContext"); if (!t) return;
+    const r = api({ cmd: "in_context", pack: state.pack, slot: state.slot, seed: state.seed, count: 4 });
+    if (r.error) { t.innerHTML = `<tr><td class="empty">${esc(r.error)}</td></tr>`; return; }
+    t.innerHTML = r.rows.map(row => `<tr>
+      <td class="ex">${row.command ? "&gt; " + esc(row.command) : "(start)"}</td>
+      <td class="out" style="white-space:pre-wrap">${esc(row.text.trim())}</td></tr>`).join("")
+      || `<tr><td class="empty">This slot wasn't said in the first steps on this seed.</td></tr>`;
+  }, 700);
+}
+
 // ---------- editing ----------
 function variantAt(el) { const f = state.pack.files.find(f => f.path === el.dataset.file); return { f, i: +el.dataset.index, v: f.variants[+el.dataset.index] }; }
 document.addEventListener("input", e => {
@@ -434,7 +455,7 @@ document.addEventListener("input", e => {
   if (field === "when") { if (e.target.value.trim()) v.when = e.target.value; else delete v.when; }
   if (field === "weight") { v.weight = Math.max(1, parseInt(e.target.value, 10) || 1); }
   if (field === "example") { if (e.target.checked) v.example = true; else delete v.example; card.classList.toggle("example", !!v.example); }
-  persist(); updateStatus(); relint(); renderPreview();
+  persist(); updateStatus(); relint(); renderPreview(); renderInContext();
 });
 document.addEventListener("click", async e => {
   const mode = e.target.closest("[data-mode]");
@@ -494,7 +515,7 @@ document.addEventListener("change", e => {
     setStoryField(st.s, e.target.dataset.sfield, e.target);
     persist(); relint(); renderSlot(); return;
   }
-  if (e.target.id === "seed") { state.seed = e.target.value || "42"; renderPreview(); }
+  if (e.target.id === "seed") { state.seed = e.target.value || "42"; renderPreview(); renderInContext(); }
   if (e.target.id === "spoil") { state.spoil = e.target.checked; renderPreview(); }
 });
 $("search").addEventListener("input", e => { state.search = e.target.value; renderList(); });

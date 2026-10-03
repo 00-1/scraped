@@ -115,14 +115,14 @@ Replace stated facts with evidence the player can read:
 
 ## Checklist
 
-- [ ] Attention model: candidates, salience, novelty, budgets, interruptions, memory
-- [ ] Seeing a place as a whole: whole, group and individual levels; vague counts; digging down; group references in the parser
-- [ ] Digging verbs and layered examine
-- [ ] Sound, smell and touch as simulated channels
-- [ ] Season, time, regional state and needs shown by evidence
-- [ ] `check myself` replaces the status line
-- [ ] Slots reshaped into fact kinds plus digging variants; authoring preview assembles responses
-- [ ] JSON protocol keeps full state
-- [ ] Targets met; samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Attention model: candidates, salience, novelty, budgets, interruptions, memory
+- [x] Seeing a place as a whole: whole, group and individual levels; vague counts; digging down; group references in the parser
+- [x] Digging verbs and layered examine
+- [x] Sound, smell and touch as simulated channels
+- [x] Season, time, regional state and needs shown by evidence
+- [x] `check myself` replaces the status line
+- [x] Slots reshaped into fact kinds plus digging variants; authoring preview assembles responses
+- [x] JSON protocol keeps full state
+- [x] Targets met; samples committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

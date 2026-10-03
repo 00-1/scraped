@@ -26,7 +26,7 @@ Every response is one line of JSON:
 | `state.wrote`, `state.scraped` | 1 | What the last `write` or `scrape` did. |
 | `state.body`, `state.light`, `state.load` | 1 | Needs by coarse state, light, weight carried. |
 | `state.dead` | 1 | How the run ended, once it has. |
-| `truth` | 1 | Only with `--spoil`: position, live claims, understanding, regions, storylets; at the end, the run record and the chronicle's gloss. |
+| `truth` | 1 | Only with `--spoil`: position, live claims, understanding, regions, storylets; `attention`, every fact the description weighed (slot, key, salience, score, whether new, variables), said or not; at the end, the run record and the chronicle's gloss. |
 
 Session commands are handled by the client, not the game: `save [FILE]`,
 `load [FILE]`, `transcript on|off`, `export [PREFIX]`, `code`, `quit`.

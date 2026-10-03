@@ -1336,6 +1336,9 @@ pub struct BotRun {
     /// For each response, how many facts it mentioned: renders of slots
     /// that say one thing (no lists), outside the parser's replies.
     pub facts: Vec<u32>,
+    /// For each arrival somewhere, the facts shown and how many more
+    /// digging there could turn up.
+    pub on_demand: Vec<(u32, u32)>,
     #[serde(skip)]
     pub renders: Vec<Rendered>,
 }
@@ -1401,6 +1404,7 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
         walked: Vec::new(),
         words: Vec::new(),
         facts: Vec::new(),
+        on_demand: Vec::new(),
         renders: Vec::new(),
     };
     let mut seen: BTreeSet<String> = BTreeSet::new();
@@ -1427,14 +1431,22 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
     // A fact: a render of a slot that says one thing (no lists), outside
     // the parser's replies, whose text the player was actually shown.
     // Facts are said as sentences, so compare without case.
+    // A name said inside a sentence is part of that fact, not another.
     let count_facts = |rs: &[Rendered], text: &str| {
         let text = text.to_lowercase();
-        rs.iter()
+        let shown: Vec<String> = rs
+            .iter()
             .filter(|r| !r.trace.slot.starts_with("say."))
             .filter(|r| !r.vars.values().any(|v| matches!(v, Value::List(_))))
-            .filter(|r| {
-                let t = r.trace.text.trim().to_lowercase();
-                !t.is_empty() && text.contains(&t)
+            .map(|r| r.trace.text.trim().to_lowercase())
+            .filter(|t| !t.is_empty() && text.contains(t.as_str()))
+            .collect();
+        shown
+            .iter()
+            .filter(|t| {
+                !shown
+                    .iter()
+                    .any(|o| o.len() > t.len() && o.contains(t.as_str()))
             })
             .count() as u32
     };
@@ -1463,6 +1475,10 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
         run.texts.push(out.text.clone());
         let before_novel = run.novelty.len();
         run.facts.push(count_facts(&g.renders[taken..], &out.text));
+        if matches!(run.kinds.last(), Some(&"arrival" | &"travel")) && g.state.dead.is_none() {
+            let shown = run.facts.last().copied().unwrap_or(0);
+            run.on_demand.push((shown, g.on_demand() as u32));
+        }
         note(&g, &mut run, &mut taken);
         if run.novelty.len() == before_novel {
             bot.idle += 1;
@@ -1496,4 +1512,63 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
     run.entered = g.state.visited.iter().copied().collect();
     run.renders = std::mem::take(&mut g.renders);
     run
+}
+
+/// One response as the player would see it, with the slots behind it.
+#[derive(Debug, Clone, Serialize)]
+pub struct Assembled {
+    pub command: String,
+    pub text: String,
+    pub slots: Vec<String>,
+}
+
+/// The digging verbs tried first, so a writer sees every kind of response.
+const DIGGING: &[&str] = &[
+    "look",
+    "look closer",
+    "look around",
+    "listen",
+    "smell",
+    "look up",
+    "look down",
+    "touch ground",
+    "check myself",
+];
+
+/// Responses as the attention model assembles them, for the authoring
+/// tool: the digging verbs, then an explorer's first steps, keeping those
+/// in which `slot` was said (all of them when `slot` is empty), up to
+/// `max`. Jb writes for the budget by seeing a piece among its
+/// neighbours.
+pub fn in_context(pack: &Pack, seed: u64, slot: &str, max: usize) -> Vec<Assembled> {
+    let mut g = Game::new(seed, pack.clone());
+    g.trace = true;
+    let mut out = g.start();
+    let mut bot = DepthBot::new("explorer", seed);
+    let mut found = Vec::new();
+    let keep = |command: &str, out: &Output, found: &mut Vec<Assembled>| {
+        let slots: Vec<String> = out.renders.iter().map(|r| r.trace.slot.clone()).collect();
+        if slot.is_empty() || slots.iter().any(|s| s == slot) {
+            found.push(Assembled {
+                command: command.to_string(),
+                text: out.text.clone(),
+                slots,
+            });
+        }
+    };
+    keep("", &out, &mut found);
+    for c in DIGGING {
+        out = g.step(c);
+        keep(c, &out, &mut found);
+    }
+    for _ in 0..120 {
+        if found.len() >= max || g.state.dead.is_some() {
+            break;
+        }
+        let c = bot.next(&g, &out);
+        out = g.step(&c);
+        keep(&c, &out, &mut found);
+    }
+    found.truncate(max);
+    found
 }

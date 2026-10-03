@@ -52,5 +52,5 @@ example = true
 
 [[variant]]
 slot = "place.group_name"
-text = "the {plural kind 2}"
+text = "the [if condition != '']{condition} [end]{plural kind 2}"
 example = true

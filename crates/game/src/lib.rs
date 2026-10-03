@@ -8,6 +8,8 @@
 
 pub use scraped_sim::outdoors;
 pub mod attention;
+#[cfg(test)]
+mod attention_tests;
 pub mod bots;
 pub mod composing;
 #[cfg(test)]
@@ -95,8 +97,9 @@ pub enum Target {
     /// The fire burning here.
     Fire,
     /// Alike buildings here, as a group, by kind (index into
-    /// `slots::STRUCTURES`).
-    Buildings(usize),
+    /// `slots::STRUCTURES`), and perhaps only those in one condition
+    /// (index into `slots::CONDITIONS`): "the worn tombs".
+    Buildings(usize, Option<usize>),
     /// Alike things here, as a group, by kind (index into `slots::KINDS`).
     Things(usize),
 }
@@ -309,6 +312,10 @@ pub struct Game {
     log: Vec<String>,
     /// Whether outputs include ground truth.
     pub spoil: bool,
+    /// Every fact the attention model weighed this command, said or not,
+    /// for the JSON protocol's truth (only gathered when spoiling), so
+    /// agents aren't limited by the human budget.
+    attended: Vec<Json>,
     /// Debug and tests: fixed weather and light outdoors.
     pub forced: Option<(&'static str, &'static str)>,
     glyph_cache: BTreeMap<(u32, usize), String>,
@@ -460,6 +467,7 @@ impl Game {
             memory: BTreeMap::new(),
             log: Vec::new(),
             spoil: false,
+            attended: Vec::new(),
             forced: None,
             glyph_cache: BTreeMap::new(),
             last_travel: None,
@@ -770,13 +778,30 @@ impl Game {
         }
         // Alike things together, by their plural ("the tombs", "the jars").
         let mut groups: BTreeMap<(bool, usize), usize> = BTreeMap::new();
+        // Alike buildings in one condition, when the group is mixed.
+        let mut by_condition: BTreeMap<(usize, usize), usize> = BTreeMap::new();
         if self.state.place == Place::Outside {
             for s in self.local_structures() {
                 let kind = label(&self.site.structure(s).kind);
+                let condition = label(&self.site.structure(s).condition);
                 if let Some(k) = slots::STRUCTURES.iter().position(|x| *x == kind) {
                     *groups.entry((true, k)).or_default() += 1;
+                    if let Some(c) = slots::CONDITIONS.iter().position(|x| *x == condition) {
+                        *by_condition.entry((k, c)).or_default() += 1;
+                    }
                 }
             }
+        }
+        for (&(k, c), &n) in &by_condition {
+            let all = groups.get(&(true, k)).copied().unwrap_or(0);
+            if all < 2 || n == all {
+                continue;
+            }
+            let target = Target::Buildings(k, Some(c));
+            let name = self.target_name(target);
+            let many = senses::plural(slots::STRUCTURES[k]);
+            let condition = slots::CONDITIONS[c];
+            out.push(Candidate::new(target, &name, &[condition, &many, "ones"]));
         }
         if !self.is_dark() {
             for t in self.here() {
@@ -790,7 +815,7 @@ impl Game {
                 continue;
             }
             let (target, kind) = if building {
-                (Target::Buildings(k), slots::STRUCTURES[k])
+                (Target::Buildings(k, None), slots::STRUCTURES[k])
             } else {
                 (Target::Things(k), slots::KINDS[k])
             };
@@ -912,6 +937,12 @@ impl Game {
                 "storylets": self.storylets_truth(),
             }))
         });
+        let truth = truth.map(|mut t| {
+            if !self.attended.is_empty() {
+                t["attention"] = Json::from(std::mem::take(&mut self.attended));
+            }
+            t
+        });
         if let Some(cmd) = self.log.last() {
             if self.transcript.len() < self.log.len() {
                 self.transcript.push((cmd.clone(), text.clone()));
@@ -936,6 +967,7 @@ impl Game {
         if !self.keep_renders {
             self.renders.clear();
         }
+        self.attended.clear();
         self.log.push(input.to_string());
         self.sync_made();
         self.sync_written();
@@ -1071,7 +1103,18 @@ impl Game {
             "smell" => self.smell(),
             "taste" => self.taste(),
             "count" => self.count(&cmd.words),
-            "touch" if cmd.words.is_empty() => self.touch(None),
+            // The ground, the floor or the air: what's all around.
+            "touch"
+                if cmd.words.is_empty()
+                    || cmd.words.iter().all(|w| {
+                        matches!(
+                            w.as_str(),
+                            "the" | "ground" | "floor" | "earth" | "air" | "soil" | "dirt"
+                        )
+                    }) =>
+            {
+                self.touch(None)
+            }
             "write" => self.write(&cmd.words),
             "go" => {
                 // "go north" is a direction; anything else names a place.
@@ -1102,7 +1145,22 @@ impl Game {
             "take" if cands.iter().any(|c| !held(c)) => cands.retain(|c| !held(c)),
             _ => {}
         }
-        match resolve(words, &cands, self.state.it.as_ref()) {
+        // "another tomb", "the nearest tomb": the choosing word isn't part
+        // of any name, so resolve without it (and any one will do, below).
+        const CHOOSING: [&str; 6] = ["a", "an", "another", "any", "nearest", "closest"];
+        let any_one = words.iter().any(|w| CHOOSING.contains(&w.as_str()));
+        let bare: Vec<String> = words
+            .iter()
+            .filter(|w| !CHOOSING.contains(&w.as_str()))
+            .cloned()
+            .collect();
+        let resolved = match resolve(words, &cands, self.state.it.as_ref()) {
+            Resolution::None if any_one && !bare.is_empty() => {
+                resolve(&bare, &cands, self.state.it.as_ref())
+            }
+            r => r,
+        };
+        match resolved {
             Resolution::One(t) => self.act(verb, t),
             Resolution::None if verb == "go" && self.state.place == Place::Outside => {
                 let t = self.say(
@@ -1120,14 +1178,7 @@ impl Game {
             }
             // "a tomb", "another tomb", "the nearest tomb": any one will do,
             // so take the nearest not yet been into.
-            Resolution::Many(options)
-                if words.iter().any(|w| {
-                    matches!(
-                        w.as_str(),
-                        "a" | "an" | "another" | "any" | "nearest" | "closest"
-                    )
-                }) =>
-            {
+            Resolution::Many(options) if any_one => {
                 let p = self.state.pos;
                 let pick = options
                     .iter()
@@ -1176,13 +1227,26 @@ impl Game {
             Target::Edge(e) => self.edge_name(e),
             Target::Mechanism(m) => self.mech_name(m),
             Target::Fire => self.fire_name(),
-            Target::Buildings(k) => {
+            Target::Buildings(k, c) => {
                 let kind = slots::STRUCTURES.get(k).copied().unwrap_or("house");
-                self.say("place.group_name", ctx(&[("kind", Value::from(kind))]))
+                let condition = c
+                    .and_then(|c| slots::CONDITIONS.get(c))
+                    .copied()
+                    .unwrap_or("");
+                self.say(
+                    "place.group_name",
+                    ctx(&[
+                        ("kind", Value::from(kind)),
+                        ("condition", Value::from(condition)),
+                    ]),
+                )
             }
             Target::Things(k) => {
                 let kind = slots::KINDS.get(k).copied().unwrap_or("jar");
-                self.say("place.group_name", ctx(&[("kind", Value::from(kind))]))
+                self.say(
+                    "place.group_name",
+                    ctx(&[("kind", Value::from(kind)), ("condition", Value::from(""))]),
+                )
             }
         }
     }
@@ -1190,10 +1254,10 @@ impl Game {
     fn act(&mut self, verb: &str, target: Target) -> Output {
         // Groups: looking at them lists their members; going to one goes to
         // the nearest member not yet entered.
-        if let Target::Buildings(k) | Target::Things(k) = target {
+        if let Target::Buildings(k, _) | Target::Things(k) = target {
             if verb == "go" {
-                if let Target::Buildings(_) = target {
-                    if let Some(s) = self.pick_member(k) {
+                if let Target::Buildings(_, c) = target {
+                    if let Some(s) = self.pick_member(k, c) {
                         return self.act("go", Target::Structure(s));
                     }
                 }
@@ -1201,7 +1265,7 @@ impl Game {
             if matches!(verb, "examine" | "count" | "go" | "look") {
                 return if verb == "count" {
                     let kind = match target {
-                        Target::Buildings(_) => slots::STRUCTURES.get(k).copied(),
+                        Target::Buildings(..) => slots::STRUCTURES.get(k).copied(),
                         _ => slots::KINDS.get(k).copied(),
                     }
                     .unwrap_or("house");

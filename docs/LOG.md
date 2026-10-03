@@ -461,3 +461,65 @@
 **Open questions:** see the new "Instruments (D01)" section of `docs/DECISIONS.md`.
 
 **New content slots:** none. `land.name` gains variables: mark, mark2, shape, height, cover, top, walls, tallest, setting, condition.
+
+## 2026-10-03 — D02 Quiet text
+
+**Done**
+- **The attention model** (`crates/game/src/attention.rs`). Every description path builds candidate facts. Each fact has a slot, a key, a salience, and optionally an interrupt or anchor flag. The model weighs them by novelty against `State.told`, which remembers what was said and what was only noticed. It keeps the best within the response's budget, renders each as a sentence in a natural order, and remembers what it said.
+  - Memory hashes a fact's meaning, not its prose, so a hot reload never changes state.
+  - Budgets: arrival 3, room entry 3, `look` 4, the end of a journey 2, `look closer` and `look around` 6. With nothing new, at most 2.
+- **Places seen as a whole.** A place is one whole fact ("an intact town of several tombs") plus at most two standouts.
+  - Digging moves down a level: `look closer` gives the groups, and `look at the tombs` names members three at a time, round again until every one is reached.
+  - Counts are vague; `count the tombs` gives the exact number.
+  - The parser understands "the tombs", "the worn tombs", "the worn ones", "a tomb", "another tomb", "the nearest tomb" and "go among the tombs".
+- **Digging verbs** (`crates/game/src/senses.rs`): `look around`, `look closer`/`search`, `look up`, `look down`, `listen`, `smell`, `touch`, `taste`, `count` and `check myself`. A second `examine` finds more (`thing.closer`).
+  - Sound has sources that carry by distance and walls.
+  - Smell drifts with a wind that turns every six hours.
+  - Touch reports material, texture, temperature and wet.
+- **Shown, not stated.**
+  - The season comes through as evidence: at least 3 kinds per season per biome, tested.
+  - The region's state shows on the ground (cracked mud, withered growth, frost out of season).
+  - Needs appear as sensations and in `check myself`.
+  - Weather comes only when it changes or matters, or on `look up`.
+  - Retired slots: `place.site`, `place.room`, `land.weather`, `land.area`, `land.horizon`, `prop.cues`, `region.cues`, `region.changed`, `time.status`, `creature.near`, `body.status`.
+- **Authoring:** the tool's new "In a response" panel shows whole responses as the attention model assembles them, where the open slot was said (web `in_context`).
+- **JSON protocol:** with `--spoil`, `truth.attention` lists every fact weighed, said or not.
+- **Measures:** facts are counted once even with names inside them. `depth_on_demand` now counts what digging could find at each arrival.
+- **Results (seeds 1–10):**
+
+  | Measure | Before | After |
+  |---|---|---|
+  | Arrival, median | 30 words, 14 facts | 17 words, 3 facts |
+  | `look`, median | 88 words, 29 facts | 12 words, 2 facts |
+  | Journey, median facts | 26 | 4.2 |
+
+  Digging finds 4× what arrival shows. The explorer survives three days on 9 of 10 seeds.
+- **Samples:** `docs/samples/D02/`, with the seed 42 opening fixture before and after in `NOTES.md`.
+- **Tests** (`crates/game/src/attention_tests.rs`):
+  - budgets hold except for interruptions;
+  - selection is deterministic;
+  - repeated looks say less;
+  - at most two buildings are named;
+  - every group member is reachable;
+  - each season has evidence;
+  - no season, region or need is stated;
+  - digging finds at least 3× what arrival shows;
+  - spoiled truth lists everything weighed;
+  - the parser understands groups.
+
+**Open questions:** see the new "Quiet text (D02)" section of `docs/DECISIONS.md`: budgets, interruptions, fading, the evidence lists, wind, vague counts, the size of member batches, and storylet variables.
+
+**New content slots (one example variant each):**
+- place: `whole`, `standout`, `group`, `group_name`, `member`, `count`, `thing`
+- land, sky, air: `land.ground`, `land.unseen`, `sky.weather`, `air.felt`, `air.moving`, `air.uncanny`
+- other world facts: `ground.wet`, `danger.unstable`, `fire.near`, `evidence.season`, `evidence.region`
+- room: `whole`, `ways`, `group`, `thing`
+- sense: `sound`, `silence`, `smell`, `no_smell`, `touch`, `touch_air`, `taste`, `sky`, `ground`
+- `thing.closer`
+- body: `felt`, `well`, `age`
+
+**For Jb**
+- The example text is thin and sometimes prints ids ("Faintly, lake from the west"). These are short pieces that combine, so your variants will carry the voice. The "In a response" panel shows each one among its neighbours.
+- Members of a group look alike ("the intact tomb, to the east" twice). D03 gives buildings more to tell them apart by.
+
+**Parked** at Jb's request after D02. The next agent starts D03; see `docs/HANDOFF.md`.

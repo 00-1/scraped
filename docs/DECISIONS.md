@@ -182,3 +182,18 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | How long does light last? | A torch an hour, a lamp four (oil refills it); deep rooms are dark | `crates/sim/src/items.rs` | D04, D05 |
 | How is a landmark told apart? | By the first of its traits (shape, walls, size, setting, tallest building, roads, cover, height…) that no alike landmark within 40 km goes by, or a pair of them | `crates/sim/src/traits.rs` | D03 |
 | Which words name a landmark loosely? | All its traits, and each half of a compound bearing; exact words win when several match | `crates/game/src/travel.rs`, `crates/game/src/parser.rs` | now |
+
+## Quiet text (D02)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How many facts does each response say? | Arrival 3, room entry 3, `look` 4, the end of a journey 2 (after the report and whatever stopped it), `look closer` and `look around` 6; one of each kind of fact in short responses; with nothing new, at most 2 | `crates/game/src/attention.rs` (`Response::budget`) | D03–D12 |
+| What breaks through the budget? | Unstable ground, a dangerous creature close by, a great inscription | `crates/game/src/attention.rs` (`interrupting`) | D06, D11 |
+| How fast do told facts fade? | Said and unchanged: a quarter of their weight for six hours, then 60% as a reminder; changed facts weigh almost as much as new ones | `crates/game/src/attention.rs` (`attend`) | now |
+| Which signs show each season? | A list of evidence per season and biome (blossom, lambs, meltwater, birdsong at dawn, frost, fallen leaves…), at least 3 in each; one is picked per day and place | `crates/game/src/attention.rs` (`SEASON_EVIDENCE`) | D06 |
+| Which signs show a region's state? | Water and life away from usual (cracked mud, dry stream beds, sodden ground, standing water; bare earth, withered, thick or rampant growth), unstable ground (fresh rockfalls, cracked ground), colder or warmer than usual (frost or heat haze out of season) | `crates/game/src/attention.rs` (`REGION_EVIDENCE`) | D06 |
+| How does the wind blow? | It turns every six hours, at random but deterministically; smells drift downwind | `crates/game/src/senses.rs` (`wind_from`) | D06 |
+| Vague counts | none, one, two, a few (3–4), several (5–8), many (9–15), dozens (16–40), a crowd (more) | `crates/game/src/attention.rs` (`vague`) | now |
+| How many members does `look at the tombs` name? | Three at a time, those not yet named first, then round again | `crates/game/src/senses.rs` (`examine_group`) | D03 |
+| May storylets use the season and the region's state? | Yes, as variables for conditions; the example text never says them | `crates/game/src/attention_tests.rs` | now |
+

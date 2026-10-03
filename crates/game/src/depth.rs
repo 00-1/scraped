@@ -19,7 +19,6 @@ use scraped_world::terrain::SIZE;
 use crate::bots;
 use crate::composing::concepts_of;
 use crate::fairness::names as names_in;
-use crate::site::Place;
 use crate::Game;
 
 /// Median and 95th percentile.
@@ -302,36 +301,16 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
         put(&format!("brevity.{k}.facts_median"), f.median);
         put(&format!("brevity.{k}.facts_p95"), f.p95);
     }
-    // Depth on demand: what each room the explorer stood in holds for the
-    // asking (things to look at closely, writing, mechanisms), and what the
-    // senses could add (no listen, smell or touch yet).
-    let places: BTreeSet<Place> = run
-        .rooms
+    // Depth on demand: at each arrival, how many facts digging could turn
+    // up for each one shown.
+    let ratios: Vec<f64> = run
+        .on_demand
         .iter()
-        .filter_map(|p| {
-            let p = p.trim_end_matches(" (dark)");
-            let rest = p.strip_prefix("structure ")?;
-            let (s, r) = rest.split_once(" room ")?;
-            Some(Place::Room {
-                structure: s.parse().ok()?,
-                room: r.parse().ok()?,
-            })
-        })
+        .map(|&(shown, more)| f64::from(more) / f64::from(shown.max(1)))
         .collect();
-    let details: usize = places
-        .iter()
-        .map(|p| {
-            let things = site.things.iter().filter(|t| t.home == *p);
-            things
-                .map(|t| 1 + usize::from(!t.texts.is_empty()))
-                .sum::<usize>()
-        })
-        .sum();
-    put(
-        "depth_on_demand.per_place",
-        details as f64 / places.len().max(1) as f64,
-    );
-    put("depth_on_demand.senses", 0.0);
+    put("depth_on_demand.per_fact_shown", spread(ratios).median);
+    let more: Vec<f64> = run.on_demand.iter().map(|&(_, m)| f64::from(m)).collect();
+    put("depth_on_demand.per_place", spread(more).median);
     put("play.hours", run.hours);
     put(
         "play.novel_per_hour",
