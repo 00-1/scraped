@@ -4,7 +4,7 @@
 
 **Goal:** fix what Jb's review of D01–D03 found. Two of these change how every later milestone is judged (the explorer bot, and reading), so they come first.
 
-**Done when:** the D03 samples are regenerated with the new explorer and show it digging and travelling; reading reads as an impression first; the script is learnable through familiarity, naming and heard sounds; and the listed bugs are gone.
+**Done when:** the D03 samples are regenerated with the new explorer and show it digging and travelling; reading works in the three layers of `docs/DESIGN.md` ("How the script is perceived"); signs have stable shape impressions and can be learned by their heard sounds; arbitrary labels are gone; and the listed bugs are gone.
 
 ## 1. An explorer that explores like a player
 
@@ -20,58 +20,51 @@ Review of the D03 samples (three seeds, ten hours each): the explorer never used
 
 Reaching the standing stones on seed 1 printed "A rock pillar to the south. Here and there: bare earth." and nothing about the stones. When the player arrives at a place they set out for (a feature, a district, a building, a landmark, a named place), that place is the most salient fact in the arrival response. Test: on arrival at any target, the first fact rendered is about the target.
 
-## 3. Reading: impression first
+## 3. Reading in layers
 
-Reading is about a sixth of all commands, and `read` prints every glyph description over several pages, which is the longest text in the game. Following "Say little; let the player dig":
+Reading is about a sixth of all commands, and `read` prints every sign's stroke-by-stroke description over several pages, which is the longest and most mechanical text in the game. Jb's decisions (`docs/DESIGN.md`, "How the script is perceived" and "The game is not your notebook") replace this with three layers:
 
-- `read <thing>` gives an **impression**: how many marks and lines, how they're made and their condition, whether it's scraped and what shows beneath, and which signs recur or are already known to the player. A few short facts through the attention model, no glyph list.
-- `read closely` (also `read on`, `copy`, `study`) gives the sequence sign by sign, paged as now, rendered according to section 4 so it gets shorter as the player learns.
-- Short texts (a few signs) may go straight to the sequence.
+1. **`read <thing>`: the whole text, at a glance.** An impression of the mass of writing: how much there is, in how many lines or bands, how it's made (cut, incised, painted, scratched), its condition, whether it was scraped and something shows beneath, and perhaps that a few shapes keep recurring. A few short facts through the attention model. No sign-by-sign listing.
+2. **`read closely` (also `read on`, `study`, `look closer` while reading): an impression of each character in turn**, paged as now. Each sign is given as a short **shape impression**: something a person would see and remember (tall and hooked; a ring like an eye; a squat cross with a dot beside it), with word breaks shown. A sign whose sound the player has heard is shown by its sound instead (section 4).
+3. **`examine the fourth sign` (also `trace`, `copy` a sign): the exact strokes** of that one sign, as the current `glyph.describe` gives them, precise enough to draw. This is the only way to get the stroke-level description.
 
-## 4. A script that is obscure but learnable
+Short texts (a few signs) may go straight to layer 2.
 
-Jb's concern: a text as a long list of stroke descriptions may be too obscure. It should stay obscure at first, but become legible as the player learns it.
+## 4. Signs: impressions and heard sounds
 
-### 4a. Signs the player can talk about
+### 4a. Shape impressions
 
-- Each glyph of each era is a **sign** with a stable identity the player can refer to, independent of where it appears.
-- `signs` (also `my signs`) lists the signs met so far: a short handle or the player's name for each, how many times seen, and any heard sound (4d). Paged, brief.
-- Refer to a sign by its position in the text being read (`the third sign`, `sign 3`), by its handle (`the hooked bar`), or by the player's name for it.
+- Generate an **impression** for every sign of every era from its strokes: overall silhouette (tall, squat, round, angular, open, closed), its dominant stroke, its most distinctive mark, and where it fits, a resemblance (a comb, a bird's foot, an eye, a hook on a bar).
+- Impressions are **stable**: the same sign always gives the same impression, so a player can recognise repeats and match signs across texts by themselves.
+- Impressions should tell signs apart: on gentle and standard difficulty, no two signs in one era's script share an impression; on archaeologist, a few deliberately confusable pairs are allowed and recorded.
+- Related signs (the script logic from M02, where voiced sounds add a shared mark) should read as related ("like the hooked sign, with a dot").
+- Rendered through a new slot, `glyph.impression`, with the features above as variables, so Jb words them. `glyph.describe` and `glyph.stroke` remain for layer 3.
+- Eras: the script changes between eras (M02), so a sign's impression in an older era may differ, which is a real clue for a player comparing layers.
 
-### 4b. Familiarity compresses
+### 4b. No lists, no labels
 
-- **First meetings** show the full description (the existing `glyph.describe` slot).
-- After a sign has been seen a few times (proposed: 3), it is shown by a **handle**: a short name built from its most distinctive strokes ("the hooked bar", "the ringed cross"), generated to be unique within the era's script. Handles are a new slot (`glyph.handle`) with the strokes as variables, so Jb words them.
-- `examine the hooked bar` or `look closer` while reading still gives the full description.
+- **No `signs` command** and no in-game list of signs met. Keeping track is the player's job.
+- **Retire arbitrary labels:** remove `define`/`label`/`call` for signs, and the labels in game state. Keep save files loading (ignore old labels). Update help and the manual slots.
+- **Writing without labels** (DESIGN-Q, proposed default): the player writes with **heard sounds** (`write "ka ti mo" on the wall`), and can include signs they haven't heard by **copying** them from a text in view (`copy the fourth sign of the stele`, or by position while reading). Agents use the same inputs. Update `crates/game/src/composing.rs`, the protocol docs and the tests.
 
-### 4c. Naming
+### 4c. Heard sounds (the one place the game keeps something)
 
-- `call <sign> <name>` (also the existing `define`, `label`) names a sign with any short string the player chooses, usually a guessed sound. Names are never checked against the truth.
-- **A named sign renders as its name alone.** A text whose signs the player has named reads as a line of their own transliteration, with word breaks: `ka ti / mo ra / ...`. Unnamed signs show by handle or full description.
-- Make this discoverable without pointing at the writing mechanic: it is note-taking, like naming places. Mention it in help and the manual slots.
-
-### 4d. Heard sounds (design gate)
-
-Real decipherment usually found sounds before meanings. The game should offer in-world ways to learn what a sign sounds like.
-
-**Proposed default (Jb's idea): scraping makes the sound.**
-
-- As strokes come away under a blade, each sign gives a faint sound. A player who scrapes while listening, or in a quiet place, hears them, and the heard sound attaches to the sign, shown distinctly from the player's own names (for example ⟨ka⟩ beside or instead of a name).
-- Scraping everyday writing releases nothing, but it costs legibility (scraped text is partly lost, as now). So learning sounds and keeping texts readable pull against each other, which is a real choice.
+- **Signs make their own sounds.** As a sign's strokes come away under a blade, it gives its sound, faintly. A player who is listening (`listen` while scraping, or anywhere quiet) hears each sign as it goes.
+- **The sound attaches to the sign.** From then on, wherever that sign appears (in that era's script), layer 2 shows it by its sound, romanised, instead of its shape impression. This is the one exception to "the game is not your notebook", and it is recorded in `docs/DECISIONS.md` as such: without it, matching a heard sound to one of dozens of described shapes would be unreasonably obscure.
+- **It's a choice.** Scraping everyday writing releases nothing, but the scraped text is partly lost (as now), so learning sounds costs legibility.
 - Scraping potent writing sounds too, and then acts.
-- Keep it faint and easy to miss, so it doesn't point at the mechanic: it is one of the first uncanny hints that the writing is more than marks, in keeping with "Writing is background, at first". Heard only on `listen` while scraping, or unprompted in quiet places.
-- Sounds are rendered through a slot (`glyph.heard`) with the phoneme's romanisation and features as variables, so Jb decides how sounds are written.
+- **Faint, easy to miss:** the sounds are one of the first uncanny hints that the writing is more than marks, in keeping with "Writing is background, at first". They don't announce themselves; a player has to notice.
+- Sounds go through a slot (`glyph.heard`) with the romanisation and phonetic features as variables, so Jb decides how sounds are written and how hearing them feels.
+- Syllabaries give syllables; alphabets and abjads give single sounds. Logographic signs, if ever added, would need another source.
 
-**Alternatives or additions** (record in `docs/DECISIONS.md` for Jb):
-- **Names from nature:** some animals and birds (D06) are named after their calls; a carving or label pairs the creature with its written name.
-- **An earlier decipherer's notes:** traces of a previous explorer (the D06 gate) include their sign list with some sound values, some wrong. Their notes are storylets in Jb's words; the values come from the engine.
-- **Acoustic places:** a whispering gallery or a ringing stone where inscriptions are tied to sounds.
+**Alternatives or additions** for Jb (record in `docs/DECISIONS.md`, leave hooks, don't build):
+- **Names from nature:** some animals and birds (D06) named after their calls, with a carving or label pairing the creature and its written name.
+- **An earlier decipherer's notes:** traces of a previous explorer (the D06 gate), giving some sound values, some wrong. Their notes are storylets in Jb's words.
+- **Acoustic places:** a whispering gallery or ringing stones tied to inscriptions.
 
-Build the default; leave hooks for the alternatives.
+### 4d. Metrics
 
-### 4e. Metrics
-
-Add to `scraped-lang depth`: words per `read` (impression) and per page of `read closely`, before and after a simulated player has named the commonest signs; signs met per hour; and how many signs a scraping-curious bot learns the sound of in ten hours.
+Add to `scraped-lang depth`: words per `read` (layer 1) and per page of `read closely` (layer 2), with no sounds known and with the commonest signs heard; the share of signs in an era's script with a unique impression; and how many sign sounds a scraping-curious bot hears in ten hours.
 
 ## 5. Bugs
 
@@ -85,11 +78,12 @@ Add to `scraped-lang depth`: words per `read` (impression) and per page of `read
 - [ ] Explorer bot plays like a curious player; verb-mix and places-visited metrics; targets met
 - [ ] D03 samples regenerated (old kept as `D03-old/`), notes rewritten, D02/D03 numbers re-checked
 - [ ] Arrival describes the place arrived at; test
-- [ ] `read` gives an impression; `read closely` gives the sequence
-- [ ] Signs with stable identities; `signs` command; referring to signs
-- [ ] Familiarity handles (`glyph.handle` slot)
-- [ ] Naming; named signs render as names
-- [ ] Heard sounds from scraping (`glyph.heard` slot); alternatives recorded in `docs/DECISIONS.md`
+- [ ] Reading in three layers: whole text, sign impressions, exact strokes on examining one sign
+- [ ] Shape impressions per sign and era (`glyph.impression` slot); uniqueness by difficulty
+- [ ] Arbitrary labels and their commands removed; old saves still load
+- [ ] Writing with heard sounds and copied signs (DESIGN-Q); composing, protocol and tests updated
+- [ ] Heard sounds from scraping (`glyph.heard` slot), attached to signs; recorded in `docs/DECISIONS.md` as the exception
+- [ ] Alternatives recorded in `docs/DECISIONS.md`
 - [ ] Reading metrics
 - [ ] Bugs: identical options, dangling reference, raw ids, unexplained closed doors
 - [ ] LOG.md entry; then resume D04
