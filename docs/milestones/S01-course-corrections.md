@@ -4,7 +4,7 @@
 
 **Goal:** fix what Jb's review of D01–D03 found. Two of these change how every later milestone is judged (the explorer bot, and reading), so they come first.
 
-**Done when:** the D03 samples are regenerated with the new explorer and show it digging and travelling; reading works in the three layers of `docs/DESIGN.md` ("How the script is perceived"); signs have stable shape impressions and can be learned by their heard sounds; arbitrary labels are gone; and the listed bugs are gone.
+**Done when:** the D03 samples are regenerated with the new explorer and show it digging and travelling; reading works in the layers of `docs/DESIGN.md` ("How the script is perceived"); signs have stable shape impressions and can be learned by their heard sounds; arbitrary labels are gone; and the listed bugs are gone.
 
 ## 1. An explorer that explores like a player
 
@@ -26,7 +26,12 @@ Reading is about a sixth of all commands, and `read` prints every sign's stroke-
 
 1. **`read <thing>`: the whole text, at a glance.** An impression of the mass of writing: how much there is, in how many lines or bands, how it's made (cut, incised, painted, scratched), its condition, whether it was scraped and something shows beneath, and perhaps that a few shapes keep recurring. A few short facts through the attention model. No sign-by-sign listing.
 2. **`read closely` (also `read on`, `study`, `look closer` while reading): an impression of each character in turn**, paged as now. Each sign is given as a short **shape impression**: something a person would see and remember (tall and hooked; a ring like an eye; a squat cross with a dot beside it), with word breaks shown. A sign whose sound the player has heard is shown by its sound instead (section 4).
-3. **`examine the fourth sign` (also `trace`, `copy` a sign): the exact strokes** of that one sign, as the current `glyph.describe` gives them, precise enough to draw. This is the only way to get the stroke-level description.
+3. **`examine the fourth sign`: a fuller impression** of that one sign (its proportions, its most distinctive part, what it resembles, how it's cut), still how it looks rather than how it's built.
+4. **`trace the fourth sign` (also `copy`, `make a rubbing of`): the exact strokes**, as the current `glyph.describe` gives them, precise enough to draw. Jb: breaking a sign down stroke by stroke is a task in itself, so tracing is a deliberate activity:
+   - it takes in-game time (proposed: several minutes per sign; tracing a whole text is a long job, and can be interrupted);
+   - it needs enough light, and a sign that's legible (worn or scraped signs trace partly or not at all);
+   - it may use materials (charcoal, a cloth or paper for rubbings) where the world has them, as a DESIGN-Q;
+   - the result is given once, in the moment; the game doesn't keep it (the player's notebook does).
 
 Short texts (a few signs) may go straight to layer 2.
 
@@ -45,7 +50,7 @@ Short texts (a few signs) may go straight to layer 2.
 
 - **No `signs` command** and no in-game list of signs met. Keeping track is the player's job.
 - **Retire arbitrary labels:** remove `define`/`label`/`call` for signs, and the labels in game state. Keep save files loading (ignore old labels). Update help and the manual slots.
-- **Writing without labels** (DESIGN-Q, proposed default): the player writes with **heard sounds** (`write "ka ti mo" on the wall`), and can include signs they haven't heard by **copying** them from a text in view (`copy the fourth sign of the stele`, or by position while reading). Agents use the same inputs. Update `crates/game/src/composing.rs`, the protocol docs and the tests.
+- **Writing without labels** (DESIGN-Q, proposed default): the player writes with **heard sounds** (`write "ka ti mo" on the wall`), and can include signs they haven't heard by **tracing** them from a text in view (`trace the fourth sign of the stele`), which takes the time and light that tracing takes. Agents use the same inputs. Update `crates/game/src/composing.rs`, the protocol docs and the tests.
 
 ### 4c. Heard sounds (the one place the game keeps something)
 
@@ -78,10 +83,11 @@ Add to `scraped-lang depth`: words per `read` (layer 1) and per page of `read cl
 - [ ] Explorer bot plays like a curious player; verb-mix and places-visited metrics; targets met
 - [ ] D03 samples regenerated (old kept as `D03-old/`), notes rewritten, D02/D03 numbers re-checked
 - [ ] Arrival describes the place arrived at; test
-- [ ] Reading in three layers: whole text, sign impressions, exact strokes on examining one sign
+- [ ] Reading in layers: whole text, sign impressions, a fuller impression on examining one sign
+- [ ] Tracing as a task: time, light, legibility, optional materials; the only source of exact strokes
 - [ ] Shape impressions per sign and era (`glyph.impression` slot); uniqueness by difficulty
 - [ ] Arbitrary labels and their commands removed; old saves still load
-- [ ] Writing with heard sounds and copied signs (DESIGN-Q); composing, protocol and tests updated
+- [ ] Writing with heard sounds and traced signs (DESIGN-Q); composing, protocol and tests updated
 - [ ] Heard sounds from scraping (`glyph.heard` slot), attached to signs; recorded in `docs/DECISIONS.md` as the exception
 - [ ] Alternatives recorded in `docs/DECISIONS.md`
 - [ ] Reading metrics

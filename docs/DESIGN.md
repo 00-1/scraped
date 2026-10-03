@@ -52,7 +52,8 @@ Decided by Jb (2026-10-03). Unknown writing is experienced the way a person woul
 
 1. **The whole text, at a glance:** an impression of the mass of writing. How much, in what lines, how cut or painted, how worn, perhaps that some shapes recur. Never a list of signs.
 2. **Looking closely:** an impression of each character in turn. A shape you could recognise again (tall and hooked, a ring like an eye, a squat cross with a dot), consistent for the same sign every time, so a player can learn to spot repeats themselves. Not a geometric specification.
-3. **Examining one sign:** only on deliberately examining a particular sign does the player get its exact strokes, precise enough to draw.
+3. **Examining one sign** gives a fuller impression of that sign: still how it looks, not how it's built.
+4. **Tracing a sign is a task in itself.** Breaking a sign down into its exact strokes, precise enough to draw, is a deliberate piece of work, like taking a rubbing or making a careful copy. It takes time, needs good light and a legible sign, and is something the player chooses to sit down and do. Only tracing gives the stroke-by-stroke description.
 
 A sign whose sound the player has heard (see "Heard sounds") is shown by that sound from then on.
 
@@ -145,7 +146,7 @@ The top scraped layer teaches vocabulary; the layer beneath teaches where those 
 The language is built the way conlangers build real languages, not as random strings, and each stage becomes a step in the generator.
 
 1. **Sounds:** a plausible sound inventory and rules for how syllables form.
-2. **Script:** alphabet, syllabary or word-signs. Glyphs are described in words, never shown: as impressions at first, and as exact strokes only when the player examines a sign (see "How the script is perceived").
+2. **Script:** alphabet, syllabary or word-signs. Glyphs are described in words, never shown: as impressions, and as exact strokes only when the player sets out to trace a sign (see "How the script is perceived").
 3. **Word-building:** how roots and affixes combine. Clean, regular affixes are most decipherable; messier forms suit hard mode.
 4. **Grammar:** word order and how plurals, tense, possession and so on are marked.
 5. **Vocabulary from culture:** generate the civilisation first, so its lexicon reflects what it cared about.
