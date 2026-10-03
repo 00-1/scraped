@@ -12,7 +12,7 @@ example = true
 
 [[variant]]
 slot = "say.take_fixed"
-text = "{cap thing} will not move[if cause == 'rubble']: rubble chokes the doorway[end][if cause == 'fallen']: it gives a little, then stops, and dust sifts from the sill[end]."
+text = "{cap thing} will not move[if cause == 'rubble']: rubble chokes the doorway[end][if cause == 'fallen']: it gives a little, then stops, and dust sifts from the sill[end][if cause == 'locked']: it is locked[end]."
 example = true
 
 [[variant]]

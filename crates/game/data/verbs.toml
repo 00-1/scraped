@@ -305,3 +305,8 @@ object = "optional"
 id = "mark"
 words = ["mark", "mark here", "mark the wall", "mark wall", "scratch a mark", "chalk"]
 object = "none"
+
+[[verb]]
+id = "dig"
+words = ["dig", "dig here", "excavate", "dig up"]
+object = "optional"

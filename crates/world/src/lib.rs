@@ -62,6 +62,8 @@ pub struct World {
     pub greats: Vec<(usize, interiors::GreatKind)>,
     /// Things people made, used and left behind, with their owners (D05).
     pub objects: Vec<objects::Object>,
+    /// Locked doors and their keys (D05).
+    pub locks: Vec<objects::DoorLock>,
     /// The language at each era, oldest first.
     #[serde(skip)]
     pub languages: Vec<Language>,
@@ -108,7 +110,8 @@ impl World {
             &structures,
             &features,
         );
-        let objects = objects::place(seed, &history, &structures);
+        let mut objects = objects::place(seed, &history, &structures);
+        let locks = objects::hide_and_lock(seed, &history, &structures, &features, &mut objects);
         let names = history.people.iter().map(|p| p.name.clone()).collect();
         World {
             seed,
@@ -126,6 +129,7 @@ impl World {
             scenes,
             greats,
             objects,
+            locks,
             languages,
             names,
         }

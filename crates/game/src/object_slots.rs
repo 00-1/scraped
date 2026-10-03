@@ -84,6 +84,107 @@ fn s_emblem(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_thing(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("thing", Value::from("a bronze casket"))]),
+        ctx(&[("thing", Value::from("a door north"))]),
+    ]
+}
+
+fn s_locked(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("thing", Value::from("a wood coffer")),
+        ("emblem", Value::from("a twin falcon in a beaded border")),
+    ])]
+}
+
+fn s_opened(_: u64) -> Vec<Context> {
+    [
+        vec![],
+        vec!["a bone comb"],
+        vec!["a gold ring", "a bronze coin"],
+    ]
+    .into_iter()
+    .map(|c| {
+        ctx(&[
+            ("thing", Value::from("a wood casket")),
+            ("count", Value::Number(c.len() as i64)),
+            (
+                "contents",
+                Value::List(c.into_iter().map(Value::from).collect()),
+            ),
+        ])
+    })
+    .collect()
+}
+
+fn s_cache(_: u64) -> Vec<Context> {
+    ["floor", "wall"]
+        .iter()
+        .map(|p| {
+            ctx(&[
+                ("place", Value::from(*p)),
+                ("emblem", Value::from("a crowned bee")),
+                ("thing", Value::from("a silver coin")),
+            ])
+        })
+        .collect()
+}
+
+fn s_dig(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[("things", Value::List(vec![Value::from("a gold diadem")]))]),
+        ctx(&[("indoors", Value::Bool(false))]),
+        ctx(&[("indoors", Value::Bool(true))]),
+    ]
+}
+
+fn s_map(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            (
+                "places",
+                Value::List(vec![
+                    Value::from("a town to the north"),
+                    Value::from("a town to the east, far"),
+                ]),
+            ),
+            ("cross", Value::Bool(true)),
+            ("cross_bearing", Value::from("southwest")),
+            ("cross_distance", Value::from("middle")),
+            ("cross_by", Value::from("standing stones")),
+            ("border", Value::from("beaded")),
+        ]),
+        ctx(&[
+            ("places", Value::List(vec![])),
+            ("cross", Value::Bool(false)),
+            ("cross_bearing", Value::from("here")),
+            ("cross_distance", Value::from("near")),
+            ("cross_by", Value::from("")),
+            ("border", Value::from("plain")),
+        ]),
+    ]
+}
+
+fn s_place(_: u64) -> Vec<Context> {
+    (0..4)
+        .map(|i| {
+            ctx(&[
+                ("what", Value::from("town")),
+                (
+                    "bearing",
+                    Value::from(scraped_sim::outdoors::BEARINGS[i * 2]),
+                ),
+                (
+                    "distance",
+                    Value::from(["near", "short", "middle", "far"][i]),
+                ),
+                ("gone", Value::Bool(i == 2)),
+            ])
+        })
+        .collect()
+}
+
 /// Every slot of objects.
 pub fn slots() -> Vec<SlotDef> {
     let obj = |s: SlotDef| {
@@ -104,6 +205,64 @@ pub fn slots() -> Vec<SlotDef> {
             .var("border", e(BORDERS), "The border style of the era it was made in: the same in every object of that era.")
             .max_len(240)
             .sampler(s_object),
+        SlotDef::new("object.not_open", "The player tries to open something that doesn't open or hold anything.")
+            .var("thing", VarType::Text, "The thing, as named.")
+            .max_len(80)
+            .sampler(s_thing),
+        SlotDef::new("object.locked", "A box or chest is locked. Its lock carries an emblem: the key, wherever it is, carries the same one. Describe the lock and its emblem.")
+            .var("thing", VarType::Text, "The thing, as named.")
+            .var("emblem", VarType::Text, "The emblem on the lock (from emblem.describe).")
+            .max_len(160)
+            .sampler(s_locked),
+        SlotDef::new("object.unlocked", "A key the player carries turns in a lock (a box's or a door's).")
+            .var("thing", VarType::Text, "What it unlocks, as named.")
+            .max_len(100)
+            .sampler(s_thing),
+        SlotDef::new("door.unlocked", "A key the player carries turns in a door's lock.")
+            .var("thing", VarType::Text, "The door, as named.")
+            .max_len(100)
+            .sampler(s_thing),
+        SlotDef::new("object.opened", "The player opens a box, jar or bag: what is inside (each named), or that it is empty.")
+            .var("thing", VarType::Text, "The container, as named.")
+            .var("count", VarType::Number, "How many things inside.")
+            .var("contents", VarType::List, "What is inside, each by thing.name.")
+            .max_len(200)
+            .sampler(s_opened),
+        SlotDef::new("cache.sign", "A sign that something is hidden here: the owner's emblem cut into a floor stone or the wall, as one fact. Low-key; looking closer finds what's there.")
+            .var("place", e(&["floor", "wall"]), "Where: a floor stone or the wall.")
+            .var("emblem", VarType::Text, "The emblem, from emblem.describe.")
+            .max_len(140)
+            .sampler(s_cache),
+        SlotDef::new("cache.found", "Looking closely, the player finds something hidden under a floor stone or in the wall, marked with an emblem.")
+            .var("place", e(&["floor", "wall"]), "Where it was hidden.")
+            .var("emblem", VarType::Text, "The emblem marking the spot.")
+            .var("thing", VarType::Text, "What was hidden, by thing.name.")
+            .max_len(160)
+            .sampler(s_cache),
+        SlotDef::new("dig.found", "Digging by a feature out on the land, the player turns up something buried.")
+            .var("things", VarType::List, "What came up, by thing.name.")
+            .max_len(160)
+            .sampler(s_dig),
+        SlotDef::new("dig.nothing", "The player digs and finds nothing (or tries to dig indoors).")
+            .var("indoors", VarType::Bool, "Whether they tried indoors.")
+            .max_len(100)
+            .sampler(s_dig),
+        SlotDef::new("map.read", "An old map, drawn as the land was in its era around the town it was made for: the towns it shows (each from map.place; some may be gone now, and towns founded since are missing), and a cross where something lies. Shows, never explains.")
+            .var("places", VarType::List, "The towns it shows, each from map.place.")
+            .var("cross", VarType::Bool, "Whether it has a cross.")
+            .var("cross_bearing", e(&[&["here"][..], &scraped_sim::outdoors::BEARINGS].concat()), "Which way the cross lies from the map's centre.")
+            .var("cross_distance", e(&["near", "short", "middle", "far", "horizon"]), "How far, as the map draws it.")
+            .var("cross_by", VarType::Text, "What the cross is drawn by (a feature kind, e.g. standing stones), or empty.")
+            .var("border", e(BORDERS), "The border style of its era.")
+            .max_len(400)
+            .sampler(s_map),
+        SlotDef::new("map.place", "One town drawn on an old map: which way and how far from the map's centre. A phrase.")
+            .var("what", e(&["town"]), "What is drawn.")
+            .var("bearing", e(&[&["here"][..], &scraped_sim::outdoors::BEARINGS].concat()), "Which way.")
+            .var("distance", e(&["near", "short", "middle", "far", "horizon"]), "How far.")
+            .var("gone", VarType::Bool, "Whether it has since been abandoned (the writer knows; the map doesn't).")
+            .max_len(60)
+            .sampler(s_place),
         SlotDef::new("emblem.describe", "An emblem as it looks: a motif, how it is set, its border ('a twin falcon in a beaded border'). A phrase. The same emblem is always worded the same.")
             .var("motif", e(MOTIFS), "What it shows.")
             .var("device", e(DEVICES), "How the motif is set: single, twin, crowned, in a ring, on a bar, crossed.")

@@ -452,7 +452,7 @@ fn s_thing(seed: u64) -> Vec<Context> {
 }
 
 fn s_door_stuck(_: u64) -> Vec<Context> {
-    ["rubble", "fallen", "not_door"]
+    ["rubble", "fallen", "not_door", "locked"]
         .iter()
         .map(|c| {
             ctx(&[
@@ -1404,7 +1404,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.door_already_closed", "The door is already closed.").var("thing", VarType::Text, "The door.").sampler(s_named),
         SlotDef::new("say.door_stuck", "The way cannot be opened or closed. Give the player a cue to why, something they can notice, never a rule: rubble in the doorway; or, beyond the door, the space has fallen in (dust at the sill, the door gives a little then stops); or it is not a door at all (an arch, a stair).")
             .var("thing", VarType::Text, "The way.")
-            .var("cause", e(&["rubble", "fallen", "not_door"]), "Why: rubble in the way; the space beyond has collapsed; or it is not something that opens.")
+            .var("cause", e(&["rubble", "fallen", "not_door", "locked"]), "Why: rubble in the way; the space beyond has collapsed; it is not something that opens; or it is locked (a keyhole; the key is elsewhere).")
             .sampler(s_door_stuck),
         SlotDef::new("say.buried", "The player tries to enter a building too buried to get into.")
             .var("thing", VarType::Text, "The building's name.")

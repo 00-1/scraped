@@ -210,17 +210,28 @@ impl Site {
         }
         // Objects with histories (D05), where their lives left them.
         for o in &world.objects {
+            // Buried things lie out by their feature.
+            let (home, pos) = match o.feature {
+                Some(f) => {
+                    let c = world.features[f].cell;
+                    (Place::Outside, Pos::of_cell(c.ux(), c.uy()))
+                }
+                None => (
+                    Place::Room {
+                        structure: o.structure,
+                        room: o.room,
+                    },
+                    land.structure_pos[o.structure],
+                ),
+            };
             things.push(Thing {
                 id: things.len(),
                 kind: o.kind,
                 material: object_material(o.stuff),
-                home: Place::Room {
-                    structure: o.structure,
-                    room: o.room,
-                },
+                home,
                 portable: true,
                 texts: Vec::new(),
-                pos: land.structure_pos[o.structure],
+                pos,
                 surface: None,
                 object: Some(o.id),
             });

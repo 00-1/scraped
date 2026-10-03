@@ -184,6 +184,13 @@ pub struct State {
     /// the one thing the game keeps for them (S01).
     #[serde(default)]
     pub heard: BTreeSet<(u32, usize)>,
+    /// Containers opened, caches uncovered and doors unlocked (D05).
+    #[serde(default)]
+    pub opened: BTreeSet<usize>,
+    #[serde(default)]
+    pub uncovered: BTreeSet<usize>,
+    #[serde(default)]
+    pub unlocked: BTreeSet<(usize, usize)>,
     /// When the player came into foul air, while they stay in it (D04).
     #[serde(default)]
     pub foul_since: Option<u32>,
@@ -492,6 +499,9 @@ impl Game {
             last_read: None,
             heard: BTreeSet::new(),
             foul_since: None,
+            opened: BTreeSet::new(),
+            uncovered: BTreeSet::new(),
+            unlocked: BTreeSet::new(),
             tracing: None,
             doors: BTreeMap::new(),
             pending: None,
@@ -816,6 +826,7 @@ impl Game {
             .filter(|&t| {
                 self.where_is(t) == Some(self.state.place)
                     && (self.state.place != Place::Outside || self.local(self.thing_pos(t)))
+                    && self.in_sight(t)
             })
             .collect()
     }
@@ -1184,6 +1195,7 @@ impl Game {
             "follow" if self.state.place != Place::Outside => self.follow_passage(),
             "follow" => self.follow(&cmd.words),
             "mark" => self.mark_here(),
+            "dig" => self.dig(),
             "back" => self.go_back(),
             "name" => self.name_place(&cmd.words),
             "light" => self.light(&cmd.words),
@@ -1550,6 +1562,14 @@ impl Game {
                 let t = self.say("say.drop", named);
                 self.output(vec![t], None)
             }
+            ("read", Target::Thing(i))
+                if self
+                    .thing(i)
+                    .object
+                    .is_some_and(|o| self.site.world.objects[o].map.is_some()) =>
+            {
+                self.read_map(i)
+            }
             ("read", Target::Thing(i)) => {
                 if self.thing(i).texts.is_empty() {
                     let t = self.say("read.nothing", named);
@@ -1579,6 +1599,8 @@ impl Game {
                 self.output(vec![t], None)
             }
             ("open", Target::Way(l)) | ("close", Target::Way(l)) => self.door(verb == "open", l),
+            ("open", Target::Thing(t)) => self.open_object(t),
+
             ("examine", Target::Way(l)) => {
                 let w = self
                     .ways()
@@ -1627,6 +1649,23 @@ impl Game {
                 }
             }
         }
+        // A locked door: its key opens it; without, a keyhole (D05).
+        let mut unlocked = None;
+        if movable && open && !already {
+            let was = self.state.unlocked.contains(&(structure, w.link));
+            match self.locked_door(structure, w.link) {
+                Some(true) => {
+                    let mut c = named.clone();
+                    c.insert("cause".into(), Value::from("locked"));
+                    let t = self.say("say.door_stuck", c);
+                    return self.output(vec![t], None);
+                }
+                Some(false) if !was => {
+                    unlocked = Some(self.say("door.unlocked", named.clone()));
+                }
+                _ => {}
+            }
+        }
         if movable && open && !already && self.barred(structure, w.link) {
             if self.carrying_pry_bar() {
                 self.pass(10);
@@ -1667,7 +1706,7 @@ impl Game {
             named.insert("cause".into(), Value::from(cause));
         }
         let t = self.say(slot, named);
-        self.output(vec![t], None)
+        self.output(unlocked.into_iter().chain([t]).collect(), None)
     }
 
     fn go_out(&mut self) -> Output {

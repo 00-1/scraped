@@ -1119,7 +1119,12 @@ impl DepthBot {
             let thing_kind = name.split_whitespace().last().unwrap_or("");
             // Nor what it already carries one of.
             let known = s.carried.iter().any(|c| c == name);
-            let dull = !scholar && (known || self.dull.get(thing_kind).copied().unwrap_or(0) >= 3);
+            // The scholar looks for writing, which objects never bear.
+            let object = scraped_world::objects::KINDS
+                .iter()
+                .any(|k| name.ends_with(k.id));
+            let dull = (scholar && object)
+                || (!scholar && (known || self.dull.get(thing_kind).copied().unwrap_or(0) >= 3));
             if !dull && room.done.insert((name.clone(), "examine")) {
                 return Some(format!("examine {n}"));
             }

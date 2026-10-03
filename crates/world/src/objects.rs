@@ -203,6 +203,8 @@ pub const KINDS: &[Kind] = &[
     k("hook", Family::Everyday, &["iron", "bronze"], 1),
     k("whistle", Family::Everyday, &["bone", "clay"], 1),
     k("broom", Family::Everyday, &["reed", "wood"], 1),
+    k("key", Family::Everyday, &["bronze", "iron"], 1),
+    k("map", Family::Writing, &["vellum", "cloth"], 1),
 ];
 
 /// The kind with this id.
@@ -320,6 +322,46 @@ pub struct Object {
     pub condition: &'static str,
     /// The event that left it here, if any (a war, a plague, a flight).
     pub event: Option<usize>,
+    /// The container it lies in, unseen until that is opened.
+    pub inside: Option<usize>,
+    /// For a locked container: the key that opens it.
+    pub key: Option<usize>,
+    /// For a key: what it opens.
+    pub opens: Option<Opens>,
+    /// Hidden: "floor" or "wall" in a room (found by looking closer), or
+    /// "buried" at a feature out on the land (found by digging); "" if not.
+    pub cache: &'static str,
+    /// For something buried: the feature it lies by (index into
+    /// `World::features`).
+    pub feature: Option<usize>,
+    /// For an old map: what it shows.
+    pub map: Option<OldMap>,
+}
+
+/// What a key opens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(tag = "lock", rename_all = "lowercase")]
+pub enum Opens {
+    Object { id: usize },
+    Door { structure: usize, link: usize },
+}
+
+/// An old map (D05): drawn around a settlement as the land was in its
+/// era, with a cross where something was buried.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct OldMap {
+    pub centre: usize,
+    pub era: u32,
+    /// The buried object the cross marks.
+    pub cross: Option<usize>,
+}
+
+/// A locked door and its key.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct DoorLock {
+    pub structure: usize,
+    pub link: usize,
+    pub key: usize,
 }
 
 /// Conditions an object may be in.
@@ -441,7 +483,11 @@ pub fn place(seed: u64, h: &History, structures: &[Structure]) -> Vec<Object> {
             for j in 0..n.min(3) {
                 let w = mix(&[v, j as u64]);
                 let fam = fams[(w % fams.len() as u64) as usize];
-                let kinds: Vec<&Kind> = KINDS.iter().filter(|k| k.family == fam).collect();
+                // Keys and maps come only with their locks and crosses.
+                let kinds: Vec<&Kind> = KINDS
+                    .iter()
+                    .filter(|k| k.family == fam && !matches!(k.id, "key" | "map"))
+                    .collect();
                 let kd = kinds[((w >> 8) % kinds.len() as u64) as usize];
                 let stuff = kd.stuffs[((w >> 16) % kd.stuffs.len() as u64) as usize];
                 let owner = match (st.kind, family) {
@@ -474,6 +520,12 @@ pub fn place(seed: u64, h: &History, structures: &[Structure]) -> Vec<Object> {
                     era: st.era,
                     condition,
                     event: st.event,
+                    inside: None,
+                    key: None,
+                    opens: None,
+                    cache: "",
+                    feature: None,
+                    map: None,
                 });
             }
         }
@@ -490,6 +542,337 @@ fn eldest(h: &History, mut p: usize) -> usize {
         }
     }
     p
+}
+
+/// A new object like `o` (same owner, era, place) of another kind.
+fn like(o: &Object, id: usize, kind: &'static str, stuff: &'static str) -> Object {
+    Object {
+        id,
+        kind,
+        family: self::kind(kind).map_or(Family::Everyday, |k| k.family),
+        stuff,
+        marked: true,
+        maker: None,
+        condition: "worn",
+        inside: None,
+        key: None,
+        opens: None,
+        cache: "",
+        feature: None,
+        map: None,
+        ..o.clone()
+    }
+}
+
+/// Containers, locks, caches and old maps (D05), laid over the objects:
+/// small things put into boxes and jars; some boxes and strongroom doors
+/// locked, their keys (with the owner's emblem) left in another room or
+/// house of the same owner; valuables hidden under floors and in walls;
+/// a few things buried by features out on the land, and old maps, kept in
+/// libraries, archives and palaces, with a cross where one lies.
+// DESIGN-Q: how many locks, caches and maps (about one locked box in
+// three, a strongroom door per palace or temple, a hidden cache per town,
+// two to four buried caches and at least two maps a world).
+pub fn hide_and_lock(
+    seed: u64,
+    h: &History,
+    structures: &[Structure],
+    features: &[crate::features::Feature],
+    objects: &mut Vec<Object>,
+) -> Vec<DoorLock> {
+    let n0 = objects.len();
+    // Small things into boxes and jars in the same room.
+    for c in 0..n0 {
+        let holds = objects[c].family == Family::Box
+            || matches!(objects[c].kind, "urn" | "amphora" | "jug" | "pitcher");
+        if !holds {
+            continue;
+        }
+        let (st, room) = (objects[c].structure, objects[c].room);
+        let mut put = 0;
+        for o in 0..n0 {
+            if put >= 2 || o == c {
+                continue;
+            }
+            let small = kind(objects[o].kind).is_some_and(|k| k.weight <= 1)
+                && objects[o].family != Family::Box;
+            if objects[o].structure == st
+                && objects[o].room == room
+                && objects[o].inside.is_none()
+                && small
+                && objects.iter().all(|x| x.inside != Some(o))
+            {
+                objects[o].inside = Some(c);
+                put += 1;
+            }
+        }
+    }
+    // Rooms of the same owner, for keys: another room of the building, or
+    // a room of another building of the same family or town.
+    let elsewhere = |objects: &[Object], o: &Object, salt: u64| -> (usize, usize) {
+        let st = &structures[o.structure];
+        let v = mix(&[seed, o.id as u64, salt]);
+        let others: Vec<(usize, usize)> = objects
+            .iter()
+            .filter(|x| x.owner == o.owner && x.structure != o.structure && x.feature.is_none())
+            .filter(|x| {
+                !["treasury", "vault", "strongroom"].iter().any(|w| {
+                    structures[x.structure].interior.rooms[x.room]
+                        .purpose
+                        .contains(w)
+                })
+            })
+            .map(|x| (x.structure, x.room))
+            .collect();
+        if !others.is_empty() && v.is_multiple_of(2) {
+            return others[((v >> 8) % others.len() as u64) as usize];
+        }
+        // Never in a strongroom (it may be the one the key opens).
+        let strong = |r: usize| {
+            ["treasury", "vault", "strongroom"]
+                .iter()
+                .any(|w| st.interior.rooms[r].purpose.contains(w))
+        };
+        let rooms: Vec<usize> = (0..st.interior.rooms.len())
+            .filter(|&r| {
+                r != o.room
+                    && !st.interior.rooms[r].collapsed
+                    && !st.interior.rooms[r].hidden
+                    && !strong(r)
+            })
+            .collect();
+        match rooms.is_empty() {
+            true => (o.structure, o.room),
+            false => (
+                o.structure,
+                rooms[((v >> 16) % rooms.len() as u64) as usize],
+            ),
+        }
+    };
+    // Locked boxes.
+    for c in 0..n0 {
+        if !matches!(objects[c].kind, "coffer" | "casket")
+            || !mix(&[seed, c as u64, 0x10c]).is_multiple_of(3)
+        {
+            continue;
+        }
+        let id = objects.len();
+        let (ks, kr) = elsewhere(objects, &objects[c], 0x4e1);
+        let mut key = like(&objects[c], id, "key", "bronze");
+        key.structure = ks;
+        key.room = kr;
+        key.opens = Some(Opens::Object { id: c });
+        objects[c].key = Some(id);
+        objects[c].marked = true;
+        objects.push(key);
+    }
+    // Strongroom doors: the door into a treasury, vault or strongroom.
+    let mut locks = Vec::new();
+    for st in structures {
+        // Not where old writing is kept: its vaults stay open to readers.
+        if matches!(st.kind, StructureKind::Archive | StructureKind::Library) {
+            continue;
+        }
+        let Some(link) = st.interior.links.iter().position(|l| {
+            l.passage == crate::structures::Passage::Door
+                && ["treasury", "vault", "strongroom"]
+                    .iter()
+                    .any(|w| st.interior.rooms[l.b].purpose.contains(w))
+        }) else {
+            continue;
+        };
+        let room = st.interior.links[link].a;
+        let owner = match st.kind {
+            StructureKind::Temple => Owner::Temple(st.id),
+            _ => Owner::Faction(st.settlement.map_or(0, |s| h.settlements[s].faction)),
+        };
+        let id = objects.len();
+        let base = Object {
+            id,
+            kind: "key",
+            family: Family::Everyday,
+            stuff: "iron",
+            structure: st.id,
+            room,
+            owner,
+            marked: true,
+            maker: None,
+            era: st.era,
+            condition: "worn",
+            event: None,
+            inside: None,
+            key: None,
+            opens: Some(Opens::Door {
+                structure: st.id,
+                link,
+            }),
+            cache: "",
+            feature: None,
+            map: None,
+        };
+        let (ks, kr) = elsewhere(objects, &base, 0xd00);
+        objects.push(Object {
+            structure: ks,
+            room: kr,
+            ..base
+        });
+        locks.push(DoorLock {
+            structure: st.id,
+            link,
+            key: id,
+        });
+    }
+    // A cache in one house or temple room of each settlement.
+    for s in &h.settlements {
+        let homes: Vec<&Structure> = structures
+            .iter()
+            .filter(|st| {
+                st.settlement == Some(s.id)
+                    && matches!(st.kind, StructureKind::House | StructureKind::Temple)
+                    && st.condition != Condition::Buried
+            })
+            .collect();
+        if homes.is_empty() {
+            continue;
+        }
+        let v = mix(&[seed, s.id as u64, 0xcac]);
+        let st = homes[(v % homes.len() as u64) as usize];
+        let room = ((v >> 8) % st.interior.rooms.len() as u64) as usize;
+        if st.interior.rooms[room].collapsed || st.interior.rooms[room].hidden {
+            continue;
+        }
+        let owner = match st.kind {
+            StructureKind::Temple => Owner::Temple(st.id),
+            _ => Owner::Faction(s.faction),
+        };
+        let hoard = ["coin", "ring", "bracelet", "ingot", "necklace"][((v >> 16) % 5) as usize];
+        let id = objects.len();
+        objects.push(Object {
+            id,
+            kind: hoard,
+            family: kind(hoard).map_or(Family::Coin, |k| k.family),
+            stuff: if (v >> 20).is_multiple_of(2) {
+                "silver"
+            } else {
+                "gold"
+            },
+            structure: st.id,
+            room,
+            owner,
+            marked: true,
+            maker: None,
+            era: st.era,
+            condition: "whole",
+            event: st.event,
+            inside: None,
+            key: None,
+            opens: None,
+            cache: if (v >> 24).is_multiple_of(2) {
+                "floor"
+            } else {
+                "wall"
+            },
+            feature: None,
+            map: None,
+        });
+    }
+    // Things buried by features near towns, and old maps with a cross.
+    let near = |f: &crate::features::Feature, s: &crate::history::Settlement| {
+        let dx = f.cell.x as i64 - s.cell.x as i64;
+        let dy = f.cell.y as i64 - s.cell.y as i64;
+        dx * dx + dy * dy <= 40 * 40
+    };
+    let markable = [
+        "cairn",
+        "standing stones",
+        "ancient tree",
+        "boulder field",
+        "burial mound",
+        "rock pillar",
+        "natural arch",
+        "spring",
+    ];
+    let keepers: Vec<&Structure> = structures
+        .iter()
+        .filter(|st| {
+            matches!(
+                st.kind,
+                StructureKind::Library
+                    | StructureKind::Archive
+                    | StructureKind::Palace
+                    | StructureKind::Temple
+            ) && st.settlement.is_some()
+                && st.condition != Condition::Buried
+        })
+        .collect();
+    let mut maps = 0;
+    for (n, st) in keepers.iter().enumerate() {
+        if maps >= 4 {
+            break;
+        }
+        let s = &h.settlements[st.settlement.expect("a town")];
+        let Some(f) = features
+            .iter()
+            .filter(|f| markable.contains(&f.kind) && near(f, s))
+            .find(|f| !objects.iter().any(|o| o.feature == Some(f.id)))
+        else {
+            continue;
+        };
+        let v = mix(&[seed, n as u64, 0xb0b]);
+        let hoard = ["coin", "ingot", "diadem", "amulet", "signet"][(v % 5) as usize];
+        let buried = objects.len();
+        objects.push(Object {
+            id: buried,
+            kind: hoard,
+            family: kind(hoard).map_or(Family::Coin, |k| k.family),
+            stuff: "gold",
+            structure: st.id,
+            room: 0,
+            owner: Owner::Faction(s.faction),
+            marked: true,
+            maker: None,
+            era: st.era,
+            condition: "whole",
+            event: None,
+            inside: None,
+            key: None,
+            opens: None,
+            cache: "buried",
+            feature: Some(f.id),
+            map: None,
+        });
+        let rooms: Vec<usize> = (0..st.interior.rooms.len())
+            .filter(|&r| !st.interior.rooms[r].collapsed && !st.interior.rooms[r].hidden)
+            .collect();
+        let room = rooms[((v >> 8) % rooms.len().max(1) as u64) as usize % rooms.len().max(1)];
+        let id = objects.len();
+        objects.push(Object {
+            id,
+            kind: "map",
+            family: Family::Writing,
+            stuff: "vellum",
+            structure: st.id,
+            room,
+            owner: Owner::Faction(s.faction),
+            marked: true,
+            maker: None,
+            era: st.era,
+            condition: "worn",
+            event: None,
+            inside: None,
+            key: None,
+            opens: None,
+            cache: "",
+            feature: None,
+            map: Some(OldMap {
+                centre: s.id,
+                era: st.era,
+                cross: Some(buried),
+            }),
+        });
+        maps += 1;
+    }
+    locks
 }
 
 #[cfg(test)]

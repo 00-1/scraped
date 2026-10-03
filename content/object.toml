@@ -14,3 +14,58 @@ example = true
 slot = "emblem.describe"
 text = "{a device} {motif}[if border != 'none'] in a {border} border[end]"
 example = true
+
+[[variant]]
+slot = "object.not_open"
+text = "{cap thing} doesn't open."
+example = true
+
+[[variant]]
+slot = "object.locked"
+text = "{cap thing} is locked. The lock bears {emblem}."
+example = true
+
+[[variant]]
+slot = "object.unlocked"
+text = "The key turns in {thing}."
+example = true
+
+[[variant]]
+slot = "door.unlocked"
+text = "Your key turns in the lock of {thing}."
+example = true
+
+[[variant]]
+slot = "object.opened"
+text = "You open {thing}.[if count > 0] Inside: {list contents}.[else] It is empty.[end]"
+example = true
+
+[[variant]]
+slot = "cache.sign"
+text = "[if place == 'floor']A floor stone[else]A stone in the wall[end] is cut with {emblem}"
+example = true
+
+[[variant]]
+slot = "cache.found"
+text = "Under the stone marked with {emblem}: {thing}"
+example = true
+
+[[variant]]
+slot = "dig.found"
+text = "You dig, and turn up {list things}."
+example = true
+
+[[variant]]
+slot = "dig.nothing"
+text = "[if indoors]There's nowhere to dig here.[else]You dig a while and find nothing.[end]"
+example = true
+
+[[variant]]
+slot = "map.read"
+text = "An old map, its edge in a {border} style.[if places] It shows {list places}.[end][if cross] A cross is drawn to the {cross_bearing}[if cross_by], by {a cross_by}[end].[end]"
+example = true
+
+[[variant]]
+slot = "map.place"
+text = "a town to the {bearing}"
+example = true

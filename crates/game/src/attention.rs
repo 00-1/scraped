@@ -1024,6 +1024,7 @@ impl Game {
         }
         self.room_scene_facts(response, &mut out);
         self.interior_facts(response, &mut out);
+        self.cache_facts(response == Response::Closer, &mut out);
         self.felt_facts(&mut out);
         if self.great_here() {
             self.hook("great_reached", "", "");

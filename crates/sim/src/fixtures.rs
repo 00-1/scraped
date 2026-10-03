@@ -707,7 +707,14 @@ impl Fixtures {
             i += 1;
             for &(other, li) in &next[r] {
                 let l = &st.interior.links[li];
+                // Locked doors (D05) count as shut: nothing the player
+                // must find lies behind one.
+                let locked = w
+                    .locks
+                    .iter()
+                    .any(|k| k.structure == structure && k.link == li);
                 if (l.state == PassageState::Blocked && !self.cleared.contains(&(structure, li)))
+                    || locked
                     || rooms[other].collapsed
                     || flooded[other]
                     || have[other]
