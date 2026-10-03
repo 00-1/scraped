@@ -104,12 +104,7 @@ impl Game {
     }
 
     pub(crate) fn landmark_name(&mut self, i: usize) -> String {
-        let l = &self.site.land.landmarks[i];
-        let c = ctx(&[
-            ("kind", Value::from(l.kind)),
-            ("size", Value::Number(l.size)),
-            ("biome", Value::from(self.site.biome_at(l.pos))),
-        ]);
+        let c = self.site.landmark_vars(i);
         self.stable("land.name", c, 3_000_000 + i as u64)
     }
 
@@ -126,6 +121,15 @@ impl Game {
             ("side", Value::from(b.map_or("here", |b| BEARINGS[b]))),
         ]);
         self.say("land.edge", c)
+    }
+
+    /// A landmark as offered in "which do you mean?": by its name, which
+    /// way and how far, so alike landmarks read apart.
+    pub(crate) fn landmark_choice(&mut self, i: usize) -> String {
+        match self.in_view().into_iter().find(|v| v.landmark == i) {
+            Some(v) => self.landmark_phrase(&v),
+            None => self.landmark_name(i),
+        }
     }
 
     fn landmark_phrase(&mut self, v: &InView) -> String {
@@ -154,9 +158,19 @@ impl Game {
                 .into_iter()
                 .filter(|p| b.contains(p))
                 .collect();
-            let mut extra = vec![kind, b];
-            extra.extend(parts);
-            out.push(Candidate::new(Target::Landmark(v.landmark), &name, &extra));
+            // Trait words name it too, whatever words the text used.
+            let t = &self.site.land.landmarks[v.landmark].traits;
+            let mut extra = vec![kind, b, t.mark, t.mark2];
+            extra.retain(|w| !w.is_empty());
+            // Every trait names it, loosely, as do the halves of a
+            // compound bearing ("west" for the north-west).
+            let mut loose = parts;
+            loose.extend([t.shape, t.cover, t.setting, t.condition, t.height]);
+            if t.walls {
+                loose.push("walled");
+            }
+            loose.retain(|w| !w.is_empty());
+            out.push(Candidate::new(Target::Landmark(v.landmark), &name, &extra).loosely(&loose));
         }
         for (i, (name, _)) in self.state.names.clone().iter().enumerate() {
             out.push(Candidate::new(Target::Named(i), name, &["place"]));
@@ -1046,5 +1060,107 @@ mod tests {
             "crossed {:.1} km in {took:?}",
             start.dist(g.state.pos) / 1000.0
         );
+    }
+
+    /// Land positions spread over the map, for looking around from.
+    fn spots(g: &Game, n: u64) -> Vec<Pos> {
+        let w = &g.site.world;
+        let size = scraped_world::terrain::SIZE as u64;
+        (0..n * 8)
+            .map(|k| hash(&[g.seed(), 0x5907, k]))
+            .map(|h| ((h % size) as usize, ((h >> 20) % size) as usize))
+            .filter(|&(x, y)| w.terrain.is_land(x, y))
+            .take(n as usize)
+            .map(|(x, y)| Pos::of_cell(x, y))
+            .collect()
+    }
+
+    #[test]
+    fn alike_landmarks_in_view_read_apart() {
+        for seed in 1..=10 {
+            let mut g = game(seed, CLEAR);
+            for p in spots(&g, 30) {
+                g.state.pos = p;
+                let view = g.in_view();
+                let names: Vec<String> = view.iter().map(|v| g.landmark_name(v.landmark)).collect();
+                let mut seen = std::collections::BTreeSet::new();
+                for n in &names {
+                    assert!(
+                        seen.insert(n.clone()),
+                        "seed {seed}: two '{n}' in view: {names:?}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn landmarks_read_the_same_from_everywhere() {
+        let mut g = game(42, CLEAR);
+        let mut names: std::collections::BTreeMap<usize, String> = Default::default();
+        for p in spots(&g, 30) {
+            g.state.pos = p;
+            for v in g.in_view() {
+                let n = g.landmark_name(v.landmark);
+                assert_eq!(names.entry(v.landmark).or_insert_with(|| n.clone()), &n);
+            }
+        }
+    }
+
+    #[test]
+    fn qualified_references_resolve() {
+        use crate::parser::{resolve, tokens, Resolution};
+        let mut checked = 0;
+        for seed in 1..=10 {
+            let mut g = game(seed, CLEAR);
+            for p in spots(&g, 30) {
+                g.state.pos = p;
+                let view = g.in_view();
+                let cands = g.outdoor_targets();
+                let find = |words: &str| resolve(&tokens(words), &cands, None);
+                for (a, va) in view.iter().enumerate() {
+                    let la = &g.site.land.landmarks[va.landmark];
+                    let alike: Vec<&InView> = view
+                        .iter()
+                        .filter(|v| g.site.land.landmarks[v.landmark].kind == la.kind)
+                        .collect();
+                    if alike.len() < 2 {
+                        continue;
+                    }
+                    let me = Target::Landmark(va.landmark);
+                    // By the trait that sets it apart.
+                    let t = &la.traits;
+                    let by_trait = format!("the {} {} {}", t.mark, t.mark2, la.kind);
+                    assert_eq!(
+                        find(&by_trait),
+                        Resolution::One(me),
+                        "seed {seed}: {by_trait}"
+                    );
+                    // By bearing, when no alike landmark shares it.
+                    let b = BEARINGS[va.bearing];
+                    if alike.iter().filter(|v| v.bearing == va.bearing).count() == 1 {
+                        let by_way = format!("the {} to the {b}", la.kind);
+                        assert_eq!(find(&by_way), Resolution::One(me), "seed {seed}: {by_way}");
+                    }
+                    // By ordinal, in the order they are offered.
+                    let k = alike
+                        .iter()
+                        .position(|v| v.landmark == va.landmark)
+                        .unwrap();
+                    let ordinals = ["first", "second", "third", "fourth", "fifth"];
+                    if k < ordinals.len() {
+                        let by_order = format!("the {} {}", ordinals[k], la.kind);
+                        assert_eq!(
+                            find(&by_order),
+                            Resolution::One(me),
+                            "seed {seed}: {by_order}"
+                        );
+                    }
+                    let _ = a;
+                    checked += 1;
+                }
+            }
+        }
+        assert!(checked > 50, "too few alike landmarks to test: {checked}");
     }
 }

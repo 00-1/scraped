@@ -1,0 +1,173 @@
+# Open decisions
+
+Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker in the code, each open question from `docs/LOG.md`, and the design gates of the depth roadmap (`docs/DEPTH.md` and the D milestone specs). Nothing here has been resolved; each row shows what the game does **today** until you say otherwise.
+
+**How to use it**
+
+- Read down a table. If the current default is fine, leave it; it stays as built.
+- To change one, tell Claude ("make torches burn two hours", "players should have a name, not 'self'"), or edit the row's *Current default* and ask Claude to make the code match.
+- *Where* points at the code (or doc) that holds the decision. *Affects* is the milestone that will build on it ("now" means it shapes the game as it stands).
+- Rows marked **(accepted)** are M01–M02 questions whose defaults you accepted on 2 October; their markers stay in the code so they can be revisited.
+
+## Language
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How is "made this for X" said? | A fourth case ending for "for" (a dative), not a separate word like "for" (accepted) | `crates/lang/src/morphology.rs:28` | D07 |
+| How does a command look? | A bare verb with no subject; there is no command ending (accepted) | `crates/lang/src/corpus.rs:514` | D07 |
+| Where do numbers, "this", adverbs and "for X" go? | Numbers and "this" sit where adjectives do; adverbs and "for X" follow the verb/object order (accepted) | `crates/lang/src/syntax.rs:74` | D07 |
+| Where do titles and "child of X" go? | Always after the name, in every language (accepted) | `crates/lang/src/render.rs:345` | D07 |
+| Where does the spell word sit? | Always right before the verb, whatever the word order (accepted) | `crates/lang/src/render.rs:219` | D09 |
+| How are ambiguous sounds spelt in romanisation? | A single special letter (ŋ, ñ, š, ĥ…) rather than plain letters with a separator like `n'g` (accepted) | `crates/lang/src/phonology.rs:737` | now |
+| How is a text presented by default? | Spaces between words, names unmarked, script chosen by seed, three eras, regular endings (accepted) | `crates/lang/src/difficulty.rs:52` | now |
+| How does an abjad write a word that starts with a vowel? | One "carrier" sign marks it (accepted) | `crates/lang/src/script.rs:24` | D07 |
+| Does back-and-forth writing mirror the glyphs? | No; reversed lines keep the same glyph shapes (accepted) | `crates/lang/src/script.rs:39` | now |
+| Should ledgers write numbers as signs? | Every script has number signs, but texts spell numbers as words (accepted) | `crates/lang/src/numerals.rs:183` | D05, D08 |
+| How fast do word endings wear away? | Besides forced changes, one ending wears away by chance in about one era in five (accepted) | `crates/lang/src/lib.rs:215` | D07 |
+| How often are words replaced between eras? | About one word in 25 per era by chance, plus any forced by sound changes (accepted) | `crates/lang/src/lib.rs:238` | D07 |
+| How many named people recur in texts? | 24; names recur enough to cross-check, and the same tomb can now and then appear twice (accepted) | `crates/lang/src/corpus.rs:20` | D08 |
+| How long is a line of glyphs? | Always 16 glyphs, whatever the surface (accepted) | `crates/lang/src/corpus.rs:213` | D04, D08 |
+| How does content show a word's glyphs? | `{lang.glyphs …}` lists glyph table numbers; no drawn or described form yet | `crates/lang/src/slots.rs:245` | now |
+| Which era does the player write in? | Only the newest era's language and script | `crates/game/src/composing.rs:75` | D11 |
+| Can players write personal names? | Not yet | `crates/game/src/composing.rs` | D07, D11 |
+
+## Writing and magic
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Which verbs can spells use? | Only open, burn and break, with the thing as subject ("let the gate not open") | `crates/lang/src/corpus.rs:477`, `crates/world/src/history.rs:833` | D09 |
+| What can each spell verb do? | Burn adds or takes 12°; open and break on doors both hold them open; break on stone makes rooms unstable | `crates/sim/data/claims.toml:91` | D09 |
+| Is a box a door? | Yes: a box counts as a passage (its lid) until containers exist | `crates/sim/data/claims.toml:28` | D05 |
+| How do layers stack? | All texts on one feature form one stack in date order (king lists too); only history's spells start scraped | `crates/sim/src/writing.rs:467` | D09 |
+| How far does a released spell reach? | By surface: stone 900 m, metal 700, clay 500, wood and plaster 400, vellum 300 | `crates/sim/src/writing.rs:236` | D09 |
+| How far does the root inscription act locally? | Within 900 m (its wider pull is through the regions) | `crates/sim/src/writing.rs:774` | D09 |
+| How does a better scraper change a release? | Fine scraper or better: three times the reach; old and first scrapers also push whole regions | `crates/game/src/writing.rs:144` | D09, D10 |
+| What does a spell do to a region? | Warmth ±6°; opening or sealing water ±0.3; breaking or holding ground ±0.4 | `crates/sim/src/region.rs:111` | D09 |
+| Which inscriptions are "great"? | The root plus the two widest-reaching other spells in history | `crates/sim/src/region.rs:556` | D11 |
+| How far do great inscriptions reach? | The root three regions out, the others two | `crates/game/src/site.rs:186` | D11 |
+| How many scrapers, and can they be made? | Four, of rising power, all found, none made | `crates/sim/src/items.rs:154` | D10 |
+| How much of a scraped text can be read by eye? | 60% of glyphs in daylight, 40% in dim light | `crates/game/src/writing.rs:100` | D10 |
+| How much does the lens show of the layer beneath? | Lens: 35% daylight, 20% dim. First lens: 80% and 60% | `crates/game/src/writing.rs:107` | D10 |
+| What does the first lens show? | Every faint layer at once | `crates/game/src/writing.rs:76` | D10 |
+| How many scribal hands are there? | Six, one per author; anonymous spells get one by era and building | `crates/game/src/writing.rs:20` | D08 |
+| How long does fresh writing take to dry? | Half an hour | `crates/game/src/writing.rs:16` | D11 |
+| When does a player know a word well enough to write it? | After meeting it in 2 texts; partly scraped readings count; spell formulae and "and" are free | `crates/game/src/composing.rs:49` | D11 |
+| What must new writing over a trace match? | The whole trace beneath, even lost words: register, roles, number and kind of noun | `crates/game/src/composing.rs:428` | D11 |
+| Where can the player write? | Walls, steles, altars, niches, lintels and similar; never over unscraped writing | `crates/game/src/composing.rs:55` | D10, D11 |
+| What happens when a spell is garbled? | A spell-framed text that doesn't parse hurts its writer when scraped; word-order slips are simply inert | `crates/game/src/composing.rs:161` | D09 |
+| How is the scraper's discovery set up? | A "pivot" spell beside the scraper with a plain, safe effect, plus four more latent spells farther out | `crates/sim/src/writing.rs:281` | D10 |
+| How common is old magic? (gate) | Several small live spells per settlement, a few in the land between, at least one large one per region | `docs/DEPTH.md:69`, `docs/milestones/D09-magic.md:5` | D09 |
+| Was writing the old civilisation's technology? (gate) | Yes: everyday spells kept larders cold, lamps lit, mills turning; their ruins are much of the strangeness | `docs/DEPTH.md:70`, `docs/milestones/D09-magic.md:5` | D09 |
+
+## World and history
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How big is the world? | 48 km across (two to three days' walk), not "a week's walk"; bigger costs browser time | `crates/world/src/terrain.rs:14` | D03 |
+| How busy is history? | 5–8 first towns, 8–14 events per era, 3–6 notable people per town per era | `crates/world/src/history.rs:555`, `crates/world/src/history.rs:657`, `crates/world/src/history.rs:628` | D08 |
+| Rivers on smooth slopes | Can still run as straight parallel lines; a better erosion pass later | `crates/world/src/water.rs` | D03 |
+| How are regions drawn? | Drainage basins cut into 32-cell blocks (about 10 km); basins under 40 cells join a neighbour | `crates/sim/src/region.rs:125` | now |
+| What counts as a summit? | Highest point within 1.5 km, 120 m above the land within 2.4 km; "mountain" from 700 m, else "hill" | `crates/sim/src/outdoors.rs:806` | D01 |
+| Where does play start? | The most-written living town that isn't the capital | `crates/game/src/site.rs:85` | D03, D10 |
+| Starting towns in hollows | Some start with nothing in view; kept as is rather than biasing towards a view | `crates/game/src/site.rs:85` | D01 |
+| Buildings with the same name | Several can share a name ("the intact tomb"); players use "second tomb" | `crates/game/src/site.rs` | D01, D03 |
+| How common are obstacles? | Barred doors 30%, flooded cellars 35%, raised bridges 40%, unstable rooms in damaged buildings; the starting town always has firesteel, water container, provisions, wood and pry bar | `crates/sim/src/fixtures.rs:137` | D05 |
+| Can great inscriptions be blocked by rubble? | No: the way to each has been dug through | `crates/sim/src/fixtures.rs:306` | D04 |
+| Where do the writing tools lie? | Scraper, stylus and lens each in an archive or temple, never in the starting town | `crates/sim/src/fixtures.rs:563` | D10 |
+| Where do the stronger tools lie? | Fine scraper about halfway out, old scraper far, first scraper with the root, first lens nearly as far as anything | `crates/sim/src/fixtures.rs:599` | D10 |
+| How are shortages shown? | Up to four shortage ledgers in storehouses of the most depleted regions; no migration graffiti yet | `crates/sim/src/writing.rs:392` | D08 |
+| Is anyone else here? (gate) | No living people; traces of earlier explorers can appear as storylets in Jb's words | `docs/DEPTH.md:67`, `docs/milestones/D06-living-world.md:5` | D06 |
+
+## Travel, senses and interface
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How far can you see? | Clear daylight 20 km, rain 3 km, fog 200 m; dawn and dusk 40% of that; night 500 m at most | `crates/sim/src/outdoors.rs:275` | D02, D06 |
+| Does the sun keep you on course? | Yes: in clear daylight outside woods you never drift; drift comes with fog, rain, dark and forest | `crates/game/src/travel.rs:572` | D06 |
+| How does weather work? | Three-hour spells of clear, rain or fog from local moisture; days run 05:00–21:00 all year | `crates/sim/src/outdoors.rs:247` | D06 |
+| How precise are travel reports? | Rounded metres and quarter hours go to content; your text decides how to say them | `crates/sim/src/outdoors.rs:203` | D02 |
+| How far does one command walk? | `head` about 3 km, `follow` up to about 12 km, unless something stops it | `crates/game/src/travel.rs:18`, `crates/game/src/travel.rs:22` | D02 |
+| How dark is it indoors? | Underground rooms and indoors at night count as "dim" but readable (marker predates lamps) | `crates/game/src/site.rs:358` | D04 |
+| How is the chronicle shown? | As glyph numbers or the player's own labels, "/" between words | `crates/game/src/ending.rs:433` | now |
+
+## Survival and body
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How fast do needs bite? | Thirsty after 8 h, dead after 60; hungry after 16 h, dead after 240; tired after 18 h awake; cold below a felt 12°, dead after 130 degree-hours; a wound heals a level a day | `crates/sim/src/body.rs:55` | D06 |
+| Does age slow healing? | Past 30, healing slows by a sixtieth a year (none at 90) | `crates/sim/src/body.rs:151` | now |
+| How does temperature swing? | 13° between night and day, ±3° from day to day, with seasons on top | `crates/sim/src/env.rs:53` | D06 |
+| How warm are buildings and cellars? | Underground: the yearly mean less 1°; buildings 2° above the mean, with some of the outside swing | `crates/sim/src/env.rs:449` | D04 |
+| Items and their numbers | A torch burns an hour, wood gives two hours of fire, provisions last 12 h, berries 4 | `crates/sim/src/items.rs:36` | D05 |
+| How much can you carry? | 15 (a torch weighs 1) | `crates/sim/src/items.rs:175` | D05 |
+| What creatures are there? | Four kinds: scavengers (steal food, fear fire and noise), grazers (charge up close), predators (strike from hiding, fear fire), deep things (dark underground, fear light, stir once before striking) | `crates/sim/src/creatures.rs:34` | D06 |
+| How many creatures, and where? | About two dozen outdoors, none within 2 km of the start; a deep thing in 40% of dry tomb and mine cellars | `crates/sim/src/fixtures.rs:450` | D06 |
+| How dangerous are dark stairs? | One climb in three ends in a fall (one or two levels of injury) | `crates/game/src/physical.rs:1243` | D04 |
+| How risky is crossing water? | Wading below twice river strength (one in ten swept and hurt); swimming deeper rivers drowns one in three; lakes too wide to swim | `crates/game/src/physical.rs:1273` | D06 |
+| How thick must ice be? | 8 cm bears you; thinner breaks | `crates/sim/src/rules.rs:220` | D06 |
+| How do rivers respond to a region drying or flooding? | Flow scales with the region's water, between a fifth and double | `crates/sim/src/env.rs:258` | D06 |
+| How easy is foraging? | Forest 60%, shore 50%, grassland 45%, marsh 40%, scrub 35%, pine 30%, tundra 15%, desert and rock 10%; fires only outdoors or at a hearth or brazier | `crates/game/src/physical.rs:946` | D06 |
+
+## Regions, time and endings
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How long is a year? | 360 days: four 90-day seasons from spring; summer 5° warmer, winter 6° colder | `crates/sim/src/region.rs:28` | D06 |
+| How old is the player at the start? | 25 | `crates/game/src/trajectory.rs:14` | now |
+| When does a life end of old age? | At 80 | `crates/game/src/ending.rs:28` | now |
+| When is the player overtaken by collapse? | When ground and life where they stand both fall under 0.1 | `crates/game/src/ending.rs:33` | now |
+| What does land naturally hold? | Water follows moisture; life follows water and warmth, best near 15° | `crates/sim/src/region.rs:277` | D06 |
+| How worn is a world at the start? | Dying: a quarter less life and water; stagnant: 15% less; recovering: a tenth less | `crates/sim/src/region.rs:363` | now |
+| Where is each kind of world heading? | Dying 60% of natural life and water, stagnant 85%, balanced 100%, recovering 115% | `crates/sim/src/region.rs:445` | now |
+| How do regions affect each other? | Water flows downstream, life follows water and warmth and spreads, cracks spread with drought; a few percent a day | `crates/sim/src/region.rs:421` | D06 |
+| What are the words for leaving? | "Let the self depart"; is "self" right, or should the player have a name? | `crates/sim/src/writing.rs:495` | D07 |
+| What counts as writing yourself in? | Any other spell about the self, scraped ("let the self not depart" is the plainest) | `crates/game/src/ending.rs:195` | D11 |
+| What does the deepest text say? | "The king/priest/scribe scraped the tablet. The walls did not break. The self did not depart.", padded by repeating the middle sentence | `crates/sim/src/writing.rs:495` | D08 |
+| If the root can't be reached, what is the recopy? | A scraped recopy in a reachable room, as an account that never acts | `crates/sim/src/writing.rs:510` | D04 |
+| Where does a previous run's legacy go? | Beneath a reachable history spell outside the starting town, in the first era's language; it never acts | `crates/sim/src/writing.rs:633` | now |
+| How are changes told in the chronicle? | Life falling: "the fields burned"; water rising: "the people drank the water"; ground failing: "the walls broke"; warmth: "the sun burned"; verdict honour or fear by net change | `crates/game/src/ending.rs:585` | D07 |
+| How long is the chronicle? | At most six clauses: arrival, up to two outcomes, the people's verdict, the ending | `crates/game/src/ending.rs:620` | D07 |
+| Can a player leave without writing? (gate) | Yes, by a long, hard journey to the world's edge found by exploring; writing offers stranger ways out | `docs/DEPTH.md:68`, `docs/milestones/D10-slow-realisation.md:5` | D10 |
+
+## Content and tools
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Are two glyph slots the right split? | One slot for a single stroke, one for the whole glyph | `crates/lang/src/slots.rs:28` | now |
+| When does a slot "need more" variants? | When a player would see the same variant 4+ times in a run | `crates/game/src/coverage.rs:165` | now |
+| What counts as an echo? | A phrase of four or more words shared between slots | `crates/content/src/voice.rs:123` | now |
+| In what order does Review mode list families? | Opening (story, say, place, thing), early (land, travel, reading, survival…), late (tools, writing, regions, endings) | `crates/game/src/slots.rs:2142` | now |
+| Which pack changes break saves? | Any change to a storylet's rules or effects; text never does | `crates/content/src/voice.rs:251` | now |
+| How close must you come to an outdoor storylet? | 300 m, about one travel step | `crates/game/src/storylets.rs:68` | now |
+| How many storylets per building? | One; placed in pack order, so earlier ones choose first | `crates/game/src/storylets.rs:320` | D03 |
+| Where does a storylet's generated writing go? | A new stone inscription in the building's furthest reachable room, or outdoors at the spot | `crates/game/src/storylets.rs:337` | D08 |
+| Where does a hook storylet's text appear? | After the command's own text; the opening replaces the wake-up; the ending comes before the summary | `crates/game/src/lib.rs:482` | now |
+| Should "first…" beats ever repeat? | No, once a run | `crates/game/src/storylets.rs:469` | D10 |
+| Are the bots good enough? | Simple; endings and late writing show as "never reached" until D01's bots | `crates/game/src/coverage.rs` | D01 |
+| How are the player's interface labels written? | One slot (`ui.label`) with an id per control | `crates/game/src/slots.rs:1990` | now |
+
+## Apps, release and integrations
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Publishing the web tools | Needs a one-time switch: repository Settings → Pages → Source: "GitHub Actions" | `.github/workflows/pages.yml` | now |
+| Should players be told when a seed is swapped for a fair one? | No; unfair seeds are replaced silently | `crates/play/src/main.rs:105`, `crates/play/src/mcp.rs:76` | D12 |
+| What is the first release tag? | Not chosen (`v0.1.0`?); the release gate waits for your text | `.github/workflows/release.yml` | now |
+| Android signing | Until `ANDROID_KEYSTORE_B64` and `ANDROID_KEYSTORE_PASSWORD` are set, each build needs an uninstall to update | `docs/ANDROID.md:152` | now |
+| Android package name | `org.scrapedagain` (permanent once published) | `android/app/build.gradle.kts:22` | now |
+| Which commands do the Android chips offer? | look, exits, out, read/take/examine plus things in view, inventory, status, wait; shown as typed verbs, not slot labels | `android/app/src/main/java/org/scrapedagain/AppModel.kt:220` | now |
+| Can a cloud agent play on your phone? | Local network only; the internet would need a relay service | `android/app/src/main/java/org/scrapedagain/AgentServer.java` | now |
+| The backdrop's look | Lamp colour on dark, ink colour on light; a minute-long breath | `crates/android/src/atmosphere.rs:62` | now |
+
+## Balance and difficulty
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| What do the difficulty presets set? | Gentle: alphabet, names marked, two eras. Standard: the defaults. Archaeologist: word dividers, fused endings, four eras | `crates/lang/src/difficulty.rs:72` | D07 |
+| What makes a world fair for its preset? | At least 8 anchors and 2 texts per concept; gentle needs 3 per concept and under 5% look-alike words | `crates/game/src/fairness.rs:376` | D12 |
+| How many words must link oldest and newest writing? | 10 shared words | `crates/game/src/fairness.rs:39` | D07, D12 |
+| How long do regions settle before play? | Two years under history's spells | `crates/sim/src/region.rs:395` | now |
+| Where does ground start? | Mid "high" (0.7), so small drift isn't news | `crates/sim/src/region.rs:380` | now |
+| How fast does life change? | Half a percent of the way a day (a quarter in winter), so seasons, not weeks | `crates/sim/src/region.rs:490` | now |
+| How harsh can a great inscription be? | A perpetual winter can kill a region's life within a year; is that intended? | `crates/sim/src/region.rs:421` | D11 |
+| How long before a player realises writing matters? (gate) | Many hours: first accidental release after 3–10 hours; nothing in the first hour points at writing | `docs/DEPTH.md:71` | D10 |

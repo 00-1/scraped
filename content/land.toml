@@ -22,7 +22,7 @@ example = true
 
 [[variant]]
 slot = "land.name"
-text = "the {kind}"
+text = "the {mark}[if mark2 != \"\"] {mark2}[end] {kind}"
 example = true
 
 [[variant]]

@@ -55,7 +55,7 @@ pub enum ParseError {
     UnknownVerb(String),
 }
 
-fn tokens(input: &str) -> Vec<String> {
+pub(crate) fn tokens(input: &str) -> Vec<String> {
     input
         .to_lowercase()
         .split(|c: char| c.is_whitespace() || matches!(c, ',' | '.' | '!' | ';'))
@@ -105,20 +105,47 @@ const ORDINALS: &[&str] = &[
 pub struct Candidate<T> {
     pub target: T,
     pub words: BTreeSet<String>,
+    /// Words that name it only loosely ("west" for something to the
+    /// north-west): when several things match, the one named without loose
+    /// words wins.
+    pub loose: BTreeSet<String>,
+    /// The words of its displayed name: when names nest ("the hilltop
+    /// mountain", "the twin hilltop mountain"), saying all of one name
+    /// picks that one.
+    pub name: BTreeSet<String>,
 }
 
 impl<T> Candidate<T> {
     /// Names a target by the words of its displayed name plus extra words
     /// (such as its kind id).
     pub fn new(target: T, name: &str, extra: &[&str]) -> Self {
-        let mut words: BTreeSet<String> = tokens(name)
+        let name: BTreeSet<String> = tokens(name)
             .into_iter()
             .filter(|w| !FILLER.contains(&w.as_str()))
             .collect();
+        let mut words = name.clone();
         for e in extra {
             words.extend(tokens(e));
         }
-        Candidate { target, words }
+        Candidate {
+            target,
+            words,
+            loose: BTreeSet::new(),
+            name,
+        }
+    }
+
+    /// Adds words that name it only loosely.
+    pub fn loosely(mut self, extra: &[&str]) -> Self {
+        for e in extra {
+            for t in tokens(e) {
+                if !self.words.contains(&t) {
+                    self.words.insert(t.clone());
+                    self.loose.insert(t);
+                }
+            }
+        }
+        self
     }
 }
 
@@ -158,9 +185,24 @@ pub fn resolve<T: Clone + PartialEq>(
             _ => Resolution::None,
         };
     }
-    let matches: Vec<T> = cands
+    let all: Vec<&Candidate<T>> = cands
         .iter()
         .filter(|c| !wanted.is_empty() && wanted.iter().all(|w| c.words.contains(*w)))
+        .collect();
+    // Prefer the things named most exactly.
+    let score = |c: &Candidate<T>| {
+        let loose = wanted.iter().filter(|w| c.loose.contains(**w)).count();
+        let unsaid = c
+            .name
+            .iter()
+            .filter(|n| !wanted.contains(&n.as_str()))
+            .count();
+        (loose, unsaid)
+    };
+    let best = all.iter().map(|c| score(c)).min().unwrap_or((0, 0));
+    let matches: Vec<T> = all
+        .iter()
+        .filter(|c| ordinal.is_some() || score(c) == best)
         .map(|c| c.target.clone())
         .collect();
     match (matches.len(), ordinal) {

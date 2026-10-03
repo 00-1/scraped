@@ -314,6 +314,8 @@ pub struct Landmark {
     pub size: i64,
     /// How much it draws the eye at close range.
     pub weight: f64,
+    /// What sets it apart from others of its kind (D01).
+    pub traits: crate::traits::Traits,
 }
 
 /// The land prepared for perception and travel.
@@ -393,9 +395,11 @@ impl Land {
                 structure: Some(st.id),
                 size: 1,
                 weight,
+                traits: Default::default(),
             });
         }
         landmarks.extend(peaks(w, &surface));
+        crate::traits::assign(w, &surface, &mut landmarks, &structure_pos);
 
         let mut edges = Grid::new(s, 0u8);
         let set = |g: &mut Grid<u8>, x: usize, y: usize, e: usize| {
@@ -799,6 +803,7 @@ fn town_landmark(s: &Settlement) -> Landmark {
         structure: None,
         size,
         weight: if alive { 30.0 } else { 20.0 } + 15.0 * size as f64,
+        traits: Default::default(),
     }
 }
 
@@ -840,6 +845,7 @@ fn peaks(w: &World, surface: &Grid<f64>) -> Vec<Landmark> {
                     structure: None,
                     size: (prominence / 100.0).floor() as i64,
                     weight: prominence / 8.0,
+                    traits: Default::default(),
                 });
             }
         }

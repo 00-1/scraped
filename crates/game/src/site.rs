@@ -318,6 +318,28 @@ impl Site {
         self.biome_at(self.start())
     }
 
+    /// What a landmark's name can draw on: its kind and size, the land it
+    /// stands in, and the traits that set it apart (D01).
+    pub fn landmark_vars(&self, i: usize) -> Context {
+        let l = &self.land.landmarks[i];
+        let t = &l.traits;
+        ctx(&[
+            ("kind", Value::from(l.kind)),
+            ("size", Value::Number(l.size)),
+            ("biome", Value::from(self.biome_at(l.pos))),
+            ("mark", Value::from(t.mark)),
+            ("mark2", Value::from(t.mark2)),
+            ("shape", Value::from(t.shape)),
+            ("height", Value::from(t.height)),
+            ("cover", Value::from(t.cover)),
+            ("top", Value::from(t.top)),
+            ("walls", Value::Bool(t.walls)),
+            ("tallest", Value::from(t.tallest)),
+            ("setting", Value::from(t.setting)),
+            ("condition", Value::from(t.condition)),
+        ])
+    }
+
     pub fn biome_at(&self, p: Pos) -> String {
         let (x, y) = p.cell();
         label(self.world.terrain.biome.get(x, y))

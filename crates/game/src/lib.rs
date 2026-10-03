@@ -1087,7 +1087,10 @@ impl Game {
             Resolution::Many(options) => {
                 let names: Vec<Value> = options
                     .iter()
-                    .map(|o| Value::from(self.target_name(*o)))
+                    .map(|o| match *o {
+                        Target::Landmark(i) => Value::from(self.landmark_choice(i)),
+                        t => Value::from(self.target_name(t)),
+                    })
                     .collect();
                 self.state.pending = Some(Pending {
                     verb: verb.to_string(),

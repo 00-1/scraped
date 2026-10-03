@@ -13,4 +13,5 @@ pub mod items;
 pub mod outdoors;
 pub mod region;
 pub mod rules;
+pub mod traits;
 pub mod writing;

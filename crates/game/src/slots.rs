@@ -19,6 +19,16 @@ fn e(values: &[&str]) -> VarType {
     }
 }
 
+/// An enum that may also be empty, when the variable doesn't apply.
+fn e_or_empty(values: &[&str]) -> VarType {
+    VarType::Enum {
+        values: std::iter::once("")
+            .chain(values.iter().copied())
+            .map(|s| s.to_string())
+            .collect(),
+    }
+}
+
 pub const BIOMES: &[&str] = &[
     "sea",
     "lake",
@@ -471,16 +481,8 @@ fn s_way(seed: u64) -> Vec<Context> {
 
 fn s_land_name(seed: u64) -> Vec<Context> {
     let site = sample_site(seed);
-    site.land
-        .landmarks
-        .iter()
-        .map(|l| {
-            ctx(&[
-                ("kind", Value::from(l.kind)),
-                ("size", Value::Number(l.size)),
-                ("biome", Value::from(site.biome_at(l.pos))),
-            ])
-        })
+    (0..site.land.landmarks.len())
+        .map(|i| site.landmark_vars(i))
         .collect()
 }
 
@@ -1562,10 +1564,20 @@ pub fn slots() -> Vec<SlotDef> {
             .var("side", e(SIDES), "Where it is: 'here' (underfoot or alongside) or a compass point.")
             .max_len(120)
             .sampler(s_edge),
-        SlotDef::new("land.name", "A landmark's short name as seen from afar and typed by the player ('the twin-peaked hill', 'the tower'). Include the kind word. Never use the place's real name: the player can't know it.")
+        SlotDef::new("land.name", "A landmark's short name as seen from afar and typed by the player ('the split peak', 'the walled town'). Include the kind word. Never use the place's real name: the player can't know it. Two alike landmarks in view must read differently: 'mark' is the trait that sets this one apart from others of its kind nearby (and 'mark2' a second, when one isn't enough), so a variant that uses them is always safe. The same landmark always gets the same name, which is what lets players draw maps.")
             .var("kind", e(LANDMARKS), "What it is: a town, ruins, a hill or mountain, or a lone building.")
             .var("size", VarType::Number, "Towns: 1 hamlet to 4 city. Hills: height above the land around, in hundreds of metres.")
             .var("biome", e(BIOMES), "The land it stands in.")
+            .var("mark", e(&scraped_sim::traits::MARKS), "The trait that sets it apart from others of its kind nearby. Shapes (peaked, rounded, flat, twin, long), heights (low, high, towering), covers (snowy, bare, wooded, grassy, sandy), settings (riverside, lakeside, coastal, hilltop, valley, plain), conditions (intact … buried), walled, small, large, towered/templed/tombed (a tower, temple or tomb on it or its tallest building), lone (a building on its own).")
+            .var("mark2", e_or_empty(&scraped_sim::traits::MARKS), "A second distinguishing trait, only when one isn't enough; otherwise empty.")
+            .var("shape", e_or_empty(&scraped_sim::traits::SHAPES), "Summits: the shape of the top. Empty for other landmarks.")
+            .var("height", e_or_empty(&scraped_sim::traits::HEIGHTS), "Summits: how high above the sea (low under ~400 m, towering over ~1200 m). Empty otherwise.")
+            .var("cover", e_or_empty(&scraped_sim::traits::COVERS), "Summits: what covers them. Empty otherwise.")
+            .var("top", VarType::Text, "Summits: the kind of building on or by the top (tower, temple, tomb…), or empty.")
+            .var("walls", VarType::Bool, "Settlements: whether walls stand there.")
+            .var("tallest", VarType::Text, "Settlements: the kind of the tallest building (tower, temple…), or empty.")
+            .var("setting", e(&scraped_sim::traits::SETTINGS), "Where it stands.")
+            .var("condition", e_or_empty(&scraped_sim::traits::CONDITIONS), "Buildings and settlements: their state (for a settlement, its buildings on average). Empty for summits.")
             .min_variants(1)
             .max_len(60)
             .sampler(s_land_name),
