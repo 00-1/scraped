@@ -51,6 +51,9 @@ Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs
 - `cargo test` must pass. Prefer many small unit tests plus a few seed-snapshot tests.
 - Public items get short doc comments explaining *why*, not just *what*.
 - Commit in small, coherent steps with clear messages.
+- Check in proportion. On every commit: `fmt`, `clippy`, `cargo test --release` (fast). Before a milestone's last commit, or when a change touches what they cover: the slow bot tests (`cargo test --release -p scraped-game --test depth -- --ignored`), `tools/build.sh` and the browser smokes. Iterate on bots with 3 seeds; run 10 once at the end.
+- Don't chase a numeric target past two or three focused attempts: report it as not met, with why, and move on.
+- Write each fact once: the LOG says what was done and what's open; `docs/DEPTH.md` holds the numbers; sample NOTES say only what the transcripts show.
 - When finishing a session, update the checklist in the milestone spec and add a short entry to `docs/LOG.md`: date, what was done, open questions, new content slots added, and approximate usage cost if known.
 
 ## Working with Jb
