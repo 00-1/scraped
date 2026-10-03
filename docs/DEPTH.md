@@ -126,6 +126,7 @@ New metrics: `places.scenes_per_settlement(_min)`, `places.scenes_outside`, `pla
 | D01 | [Instruments](milestones/D01-instruments.md) | Depth and brevity metrics, a curious-explorer bot and a scholar bot that reach the late game, sample transcripts, a decisions list, distinct landmarks |
 | D02 | [Quiet text](milestones/D02-quiet-text.md) | An attention budget for every response, senses and digging as actions, facts shown by evidence instead of stated, slots reshaped into short combinable pieces |
 | D03 | [Places with character](milestones/D03-places.md) | Natural features, many more building and settlement types, deeper interiors with secrets, scenes that tell what happened |
+| S01 | [Course corrections](milestones/S01-course-corrections.md) | From Jb's review of D01–D03: an explorer bot that plays like a person, arrivals that describe the place, reading in layers (the whole text, then each sign's shape; exact strokes only by tracing, a task in itself), signs learned by the sounds they make when scraped, no arbitrary labels, and bug fixes |
 | D04 | [Great interiors](milestones/D04-great-interiors.md) | Vast, intricate buildings and cave systems on a real spatial model: hundreds of spaces, many levels, loops, shortcuts, secrets; architecture that grew through history; navigation and mapping as a pleasure |
 | D05 | [Things and mechanisms](milestones/D05-things-and-mechanisms.md) | A rich object model, keys and caches, old maps, multi-step machines, and non-linguistic puzzles: symbols, measures, calendars |
 | D06 | [A living world](milestones/D06-living-world.md) | Ecology with signs and rhythms, weather and seasons with consequences, the sky, natural phenomena |
@@ -149,7 +150,8 @@ These add to `CLAUDE.md`.
 5. **Everything has a cause.** If something is in the world, history or physics put it there, and the evidence of why is findable.
 6. **Writing stays in the background.** No new system may point the player at the writing mechanic. Reviews check this.
 7. **Say little; let the player dig.** Every new thing the player can perceive goes through the D02 attention model, with a salience and a digging layer. Richer worlds must not mean longer responses: brevity targets hold in every milestone after D02.
-8. **Keep what works.** Determinism, meaning-first language, slots instead of prose, browser and Android builds, fairness and tests all stay green throughout.
+8. **The game is not your notebook.** No new system may keep lists or records for the player (no glossaries, journals, clue lists, sign lists). Any exception must be argued for and recorded in `docs/DECISIONS.md` (see `docs/DESIGN.md`).
+9. **Keep what works.** Determinism, meaning-first language, slots instead of prose, browser and Android builds, fairness and tests all stay green throughout.
 
 ## Design gates
 

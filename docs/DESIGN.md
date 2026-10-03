@@ -38,6 +38,29 @@ Decided by Jb (2026-10-02). As the world gets richer, the text must not get long
 - **Change over inventory.** What's new or different gets mentioned; what's the same as last time stays quiet unless asked about.
 - **The body speaks rarely.** Needs show as sensations when they cross a threshold, and as detail when the player checks themselves, not as a status line.
 
+## The game is not your notebook
+
+Decided by Jb (2026-10-03).
+
+- **The player keeps the records.** The game keeps no lists of what the player has learned or seen: no sign lists, no glossaries, no journals of clues. Tracking, cross-referencing and mapping are the player's work, on paper or with their own tools. That need is part of the game (see "Tools required" above).
+- **Help only where obscurity would become unreasonable.** There is no exact rule. Each case where the game does keep something for the player must be argued for and listed in `docs/DECISIONS.md`. Current cases: a sign's heard sound stays attached to it (below); travel reports give rough bearings and distances.
+- **No arbitrary labels.** The game doesn't let the player attach their own names to signs. Their guesses live in their notebook. The only names a sign takes in the game are what it truly sounds like, learned from the world.
+
+## How the script is perceived
+
+Decided by Jb (2026-10-03). Unknown writing is experienced the way a person would experience it, in layers:
+
+1. **The whole text, at a glance:** an impression of the mass of writing. How much, in what lines, how cut or painted, how worn, perhaps that some shapes recur. Never a list of signs.
+2. **Looking closely:** an impression of each character in turn. A shape you could recognise again (tall and hooked, a ring like an eye, a squat cross with a dot), consistent for the same sign every time, so a player can learn to spot repeats themselves. Not a geometric specification.
+3. **Examining one sign** gives a fuller impression of that sign: still how it looks, not how it's built.
+4. **Tracing a sign is a task in itself.** Breaking a sign down into its exact strokes, precise enough to draw, is a deliberate piece of work, like taking a rubbing or making a careful copy. It takes time, needs good light and a legible sign, and is something the player chooses to sit down and do. Only tracing gives the stroke-by-stroke description.
+
+A sign whose sound the player has heard (see "Heard sounds") is shown by that sound from then on.
+
+### Heard sounds
+
+Signs make their own sounds: as a sign's strokes come away under a blade, it gives its sound, faintly. A player who is listening hears it, and from then on that sign is shown by its sound, romanised. This is the one way signs get names in the game, and it is real: the sound is the sign's true value. Scraping costs legibility, so learning sounds and keeping texts readable pull against each other. (Details and alternatives in `docs/milestones/S01-course-corrections.md`.)
+
 ## The three laws
 
 The world runs on three rules about writing.
@@ -123,7 +146,7 @@ The top scraped layer teaches vocabulary; the layer beneath teaches where those 
 The language is built the way conlangers build real languages, not as random strings, and each stage becomes a step in the generator.
 
 1. **Sounds:** a plausible sound inventory and rules for how syllables form.
-2. **Script:** alphabet, syllabary or word-signs. Glyphs are described in words, never shown, so players must draw them.
+2. **Script:** alphabet, syllabary or word-signs. Glyphs are described in words, never shown: as impressions, and as exact strokes only when the player sets out to trace a sign (see "How the script is perceived").
 3. **Word-building:** how roots and affixes combine. Clean, regular affixes are most decipherable; messier forms suit hard mode.
 4. **Grammar:** word order and how plurals, tense, possession and so on are marked.
 5. **Vocabulary from culture:** generate the civilisation first, so its lexicon reflects what it cared about.
