@@ -80,16 +80,16 @@ Add to `scraped-lang depth`: words per `read` (layer 1) and per page of `read cl
 
 ## Checklist
 
-- [ ] Explorer bot plays like a curious player; verb-mix and places-visited metrics; targets met
-- [ ] D03 samples regenerated (old kept as `D03-old/`), notes rewritten, D02/D03 numbers re-checked
-- [ ] Arrival describes the place arrived at; test
-- [ ] Reading in layers: whole text, sign impressions, a fuller impression on examining one sign
-- [ ] Tracing as a task: time, light, legibility, optional materials; the only source of exact strokes
-- [ ] Shape impressions per sign and era (`glyph.impression` slot); uniqueness by difficulty
-- [ ] Arbitrary labels and their commands removed; old saves still load
-- [ ] Writing with heard sounds and traced signs (DESIGN-Q); composing, protocol and tests updated
-- [ ] Heard sounds from scraping (`glyph.heard` slot), attached to signs; recorded in `docs/DECISIONS.md` as the exception
-- [ ] Alternatives recorded in `docs/DECISIONS.md`
-- [ ] Reading metrics
-- [ ] Bugs: identical options, dangling reference, raw ids, unexplained closed doors
-- [ ] LOG.md entry; then resume D04
+- [x] Explorer bot plays like a curious player; verb-mix and places-visited metrics; targets met (digging 0.22, met; features visited 2.6 of 5: not met, see `docs/DEPTH.md`)
+- [x] D03 samples regenerated (old kept as `D03-old/`), notes rewritten, D02/D03 numbers re-checked
+- [x] Arrival describes the place arrived at; test
+- [x] Reading in layers: whole text, sign impressions, a fuller impression on examining one sign
+- [x] Tracing as a task: time, light, legibility, optional materials; the only source of exact strokes
+- [x] Shape impressions per sign and era (`glyph.impression` slot); uniqueness by difficulty
+- [x] Arbitrary labels and their commands removed; old saves still load
+- [x] Writing with heard sounds and traced signs (DESIGN-Q); composing, protocol and tests updated
+- [x] Heard sounds from scraping (`glyph.heard` slot), attached to signs; recorded in `docs/DECISIONS.md` as the exception
+- [x] Alternatives recorded in `docs/DECISIONS.md`
+- [x] Reading metrics
+- [x] Bugs: identical options, dangling reference, raw ids, unexplained closed doors
+- [x] LOG.md entry; then resume D04

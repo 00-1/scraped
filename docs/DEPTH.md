@@ -107,11 +107,36 @@ A fact is now counted once even when a name is rendered inside it.
 
 New metrics: `places.scenes_per_settlement(_min)`, `places.scenes_outside`, `places.towns_sharing_layout`, `places.town_roles`, `play.new_kinds_hour5`. `places.natural_kinds` now counts natural features (not old marks), and `places.per_km2` counts features.
 
+### After S01 (seeds 1–10)
+
+The explorer was rewritten to play like a curious person (S01), so earlier numbers were re-checked with it (explorer 24 h unless said).
+
+| Metric | D03 (old explorer) | S01 | Target |
+|---|---|---|---|
+| Digging verbs (`look closer`, `look around`, `listen`, `smell`, `look up`/`down`, `touch`, group looks), share of commands, 10 h | about 0 | 0.22 (at least 0.20 on 9 of 10) | at least 0.20 |
+| Natural features visited in 10 h (within 300 m) | 0–2 | 2.6 (5 on 1 of 10) | at least 5 on most seeds: **not met** |
+| Buildings entered / towns in 10 h | 15–20 / 1 | 13 / 1.5 | |
+| Words per arrival (median / p95) | 17 / – | 20 / 32 | at most 60 (D02) |
+| Facts per arrival (median / p95) | 3 / 4.4 | 3.7 / 8.1 | 3 (D02) |
+| Facts per `look` (median / p95) | 2 / 2.3 | 2 / 6.3 | at most 4 / 6 (D02) |
+| Facts digging could find per arrival | 13.1, 4× those shown | 12.1, 3.1× | at least 3× (D02) |
+| New kinds of thing in the fifth hour | 6.0 | 5.9 | still finding (D03) |
+| Words per `read` (a glance) | 100s (every sign) | 22 | |
+| Words per page of `read closely`: none heard / commonest 12 heard | – | 174 / 113 | |
+| Signs with an impression of their own (least over eras) | – | 1.00 (archaeologist: about one alike pair per script) | all, on gentle and standard |
+| Sign sounds a scraping scholar hears in 10 h (scraper in hand) | – | 33 | |
+| Explorer survives three days | 8 of 10 | 8 of 10 | 8 of 10 |
+| Scholar reads the deepest text in 90 days | 5 of 10 (3 during D04) | 5 of 10 | 5 of 10 (8 asked) |
+
+Why features fall short: the explorer sees a town first (it must find a firesteel and a cloak), its body sends it back to shelter from the afternoon or when cold, it sleeps three or four hours in the ten, and features lie 4 km or more apart, so most journeys end at towns or landmarks. Seeds with a mild start and features near the road reach 4–5. Facts per arrival rose with D04's move reports inside buildings (a fact before each room); D04's "brevity inside great interiors" item is to bring that back to 3.
+
+New metrics: `play.verbs.<family>_share` (look, dig, examine, read, move, handle, writing, body, other), `play.visited.features`, `play.visited.feature_kinds`, `play.visited.buildings`, `play.visited.towns`, `reading.words_per_read`, `reading.words_per_page`, `reading.words_per_page_heard`, `reading.unique_impression_share`, `reading.heard_scholar_10h`.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
 
-- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 (16 of 1–20; after D03, 8 of 10 and 17 of 20). Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
+- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 (16 of 1–20; after D03, 8 of 10 and 17 of 20; after S01, 8 of 10). Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
 - **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 5 of seeds 1–10 and a great inscription on 6. The spec asks for 8. What stops it is in the game, not the bot:
   - **Held doors.** Old writing holds whole towns' doors shut. The only counter is to write "open" with a passage word (door, gate, tomb, box), and those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets the scholar write them.
   - **Scarce light.** Torches burn an hour, lamps four. Deep rooms are often dark, and the scholar must come back later with fuel.

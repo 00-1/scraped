@@ -11,9 +11,9 @@
 1 brevity.other.words_median 4.0000
 1 brevity.other.words_p95 35.0000
 1 brevity.travel.facts_median 4.0000
-1 brevity.travel.facts_p95 5.0000
+1 brevity.travel.facts_p95 4.0000
 1 brevity.travel.words_median 27.0000
-1 brevity.travel.words_p95 35.0000
+1 brevity.travel.words_p95 30.0000
 1 depth_on_demand.per_fact_shown 3.0000
 1 depth_on_demand.per_place 11.0000
 1 history.event_kinds 5.0000

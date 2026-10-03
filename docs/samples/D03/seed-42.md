@@ -1,17 +1,35 @@
 # D03: the curious explorer, seed 42
 
-270 commands, 13.3 hours of game time. Example text only; spoiler-free.
+283 commands, 13.2 hours of game time. Example text only; spoiler-free.
 
 ```
 You wake in a grassland, with no memory of arriving.
 
-An intact refuge of several tombs. Among them stands the worn temple. Here and there: bare earth.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. Here and there: bare earth.
 ```
 
 **> look**
 
 ```
-An intact refuge of several tombs. Among them stands the damaged storehouse.
+An intact refuge of several tombs. The damaged storehouse stands alone of its kind here.
+```
+
+**> look around**
+
+```
+A refuge by a hilltop, terraced. Parts: upper town, farmyards, graves and old town. A terraces to the north. The hilltop rock pillar to the north (horizon). The flat mountain to the east (middle). The plain standing stones to the southeast (middle). Here and there: cracked mud.
+```
+
+**> smell**
+
+```
+A smell of flowers. A smell of water, from the west.
+```
+
+**> look up**
+
+```
+The sky: sun low in the east. Birds wheel overhead.
 ```
 
 **> operate well**
@@ -23,7 +41,25 @@ You drink from the well.
 **> go worn temple**
 
 ```
-A forecourt, dim and close. A stone stele stands here. Ways out: a door north and the way out.
+A forecourt. A stone stele stands here. Ways out: a door north and the way out.
+```
+
+**> look closer**
+
+```
+A forecourt. A stone basin stands here.
+```
+
+**> listen**
+
+```
+You hear nothing but your own breath.
+```
+
+**> smell**
+
+```
+You smell nothing worth noting.
 ```
 
 **> examine stone stele**
@@ -35,86 +71,7 @@ A stone stele. Marks are cut into it: writing. You could read it.
 **> read stone stele**
 
 ```
-On a stone stele, eighty-four glyphs (page 1 of 6):
-
-1. A bar turned right, centre and a hook turned right, centre.
-2. A tail turned right, centre.
-3. A wedge turned up, left and a zigzag turned right, right.
-4. An arc turned left, right.
-
-5. An arc turned down, left and a zigzag turned left, right.
-6. An arc turned left, right.
-7. A bar turned right, centre.
-8. An arc turned left, bottom and a cross, top.
-
-9. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-10. An arc turned left, right.
-11. An arc turned down, left and a zigzag turned left, right.
-12. An arc turned left, bottom and a cross, top.
-13. A bar turned up, right and a cross, right.
-14. A tail turned right, centre.
-
-15. A dot, right and an arc turned right, bottom.
-16. A zigzag turned right, left.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone stele, eighty-four glyphs (page 2 of 6):
-
-17. A bar turned right, centre and a hook turned right, centre.
-18. An arc turned left, bottom and a cross, top.
-19. A bar turned right, centre.
-20. An arc turned left, bottom and a cross, top.
-
-21. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-22. A tail turned right, centre.
-23. A bar turned right, centre.
-24. A ring, right.
-
-25. A bar turned right, centre and a hook turned down, right.
-26. A tail turned right, centre.
-27. A bar turned right, centre.
-28. An arc turned left, bottom and a cross, top.
-29. A cross, bottom.
-30. An arc turned left, right.
-—
-31. A hook turned left, centre.
-32. A ring, right.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone stele, eighty-four glyphs (page 3 of 6):
-
-33. A bar turned right, centre and a hook turned down, right.
-34. A tail turned right, centre.
-
-35. An arc turned down, left and a zigzag turned left, right.
-36. A cross, top.
-37. A bar turned right, centre.
-
-38. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-39. A cross, top.
-40. An arc turned down, left and a zigzag turned left, right.
-41. A bar turned up, right and a cross, right.
-42. A tail turned right, centre.
-
-43. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-44. A ring, right.
-45. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-46. A bar turned right, centre.
-47. A cross, top.
-
-48. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-
-(Type 'more' to read on.)
+On a stone stele, eighty-four signs in eighteen groups, about seven lines, in a fine hand.
 ```
 
 **> examine stone basin**
@@ -123,79 +80,10 @@ On a stone stele, eighty-four glyphs (page 3 of 6):
 A stone basin.
 ```
 
-**> more**
-
-```
-On a stone stele, eighty-four glyphs (page 4 of 6):
-
-49. A tail turned right, centre.
-50. A bar turned right, centre.
-
-51. A bar turned right, centre and a hook turned down, right.
-52. A tail turned right, centre.
-53. A bar turned right, centre.
-54. A cross, top.
-55. A cross, bottom.
-—
-56. A hook turned up, right, a wedge turned up, bottom and a wedge turned right, bottom.
-57. A cross, top.
-58. A bar turned up, right and a cross, right.
-59. A tail turned right, centre.
-60. A bar turned right, centre.
-61. A ring, right.
-
-62. An arc turned down, left and a zigzag turned left, right.
-63. A cross, top.
-64. A bar turned right, centre.
-
-(Type 'more' to read on.)
-```
-
 **> examine lamp**
 
 ```
 A lamp.
-```
-
-**> more**
-
-```
-On a stone stele, eighty-four glyphs (page 5 of 6):
-
-65. A wedge turned up, left and a zigzag turned right, right.
-66. A cross, top.
-67. A hook turned left, centre.
-68. A tail turned right, centre.
-69. A cross, bottom.
-70. A bar turned up, right and a cross, right.
-71. A tail turned right, centre.
-
-72. A hook turned left, centre.
-73. A cross, top.
-74. A bar turned right, centre.
-75. A bar turned right, centre.
-76. A cross, top.
-
-77. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-78. A tail turned right, centre.
-79. A bar turned right, centre.
-
-80. A bar turned right, centre and a hook turned down, right.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone stele, eighty-four glyphs (page 6 of 6):
-
-81. A tail turned right, centre.
-82. A bar turned right, centre.
-83. A cross, top.
-84. A cross, bottom.
-
-That is all of it.
 ```
 
 **> take lamp**
@@ -207,7 +95,15 @@ You take a lamp.
 **> north**
 
 ```
+North by the door, some 10 metres.
+
 A hall, dim and close. A clay wall stands here. Ways out: a door south and an arch north.
+```
+
+**> smell**
+
+```
+You smell nothing worth noting.
 ```
 
 **> examine clay wall**
@@ -219,85 +115,7 @@ A clay wall. Marks are cut into it: writing. You could read it.
 **> read clay wall**
 
 ```
-On a clay wall, fifty-two glyphs (page 1 of 4):
-
-1. A hook turned left, centre.
-2. A ring, right.
-3. A bar turned right, centre and a hook turned right, centre.
-4. A tail turned right, centre.
-
-5. A wedge turned up, left and a zigzag turned right, right.
-6. A zigzag turned right, left.
-7. A hook turned left, centre.
-8. A tail turned right, centre.
-9. A cross, bottom.
-10. A bar turned up, right and a cross, right.
-11. A tail turned right, centre.
-
-12. A bar turned right, right and a tail turned right, bottom.
-13. A zigzag turned right, left.
-14. A cross, bottom.
-15. A bar turned right, centre.
-16. A cross, top.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a clay wall, fifty-two glyphs (page 2 of 4):
-
-17. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-18. A tail turned right, centre.
-19. A bar turned right, centre.
-
-20. A bar turned right, centre and a hook turned down, right.
-21. A tail turned right, centre.
-22. A bar turned right, centre.
-23. A cross, top.
-24. A cross, bottom.
-—
-25. A hook turned up, right, a wedge turned up, bottom and a wedge turned right, bottom.
-26. A cross, top.
-27. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-28. A ring, right.
-29. A bar turned right, right and a tail turned right, bottom.
-30. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-31. A tail turned right, centre.
-
-32. An arc turned down, left and a zigzag turned left, right.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a clay wall, fifty-two glyphs (page 3 of 4):
-
-33. A cross, top.
-34. A bar turned right, centre.
-
-35. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-36. A cross, top.
-37. An arc turned down, left and a zigzag turned left, right.
-38. A bar turned up, right and a cross, right.
-39. A tail turned right, centre.
-
-40. A dot, right and an arc turned right, bottom.
-41. A ring, right.
-42. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-43. A bar turned right, centre.
-44. A cross, top.
-
-45. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-46. A tail turned right, centre.
-47. A bar turned right, centre.
-
-48. A bar turned right, centre and a hook turned down, right.
-
-(Type 'more' to read on.)
+On a clay wall, fifty-two signs in eleven groups, about five lines, in a fine hand.
 ```
 
 **> examine stone statue**
@@ -306,130 +124,66 @@ On a clay wall, fifty-two glyphs (page 3 of 4):
 A stone statue. Marks are cut into it: writing. You could read it.
 ```
 
-**> more**
-
-```
-On a clay wall, fifty-two glyphs (page 4 of 4):
-
-49. A tail turned right, centre.
-50. A bar turned right, centre.
-51. A cross, top.
-52. A cross, bottom.
-
-That is all of it.
-```
-
 **> read stone statue**
 
 ```
-On a stone statue, fifty-five glyphs (page 1 of 4):
+On a stone statue, fifty-five signs in twelve groups, about five lines, in a slanted hand. A few shapes keep coming back.
+```
 
-1. A bar turned right, right and a tail turned right, bottom.
-2. A dot, centre.
-3. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-4. A hook turned right, centre and a hook turned left, centre.
-5. A dot, centre.
+**> read closely**
+
+```
+On a stone statue, fifty-five signs (page 1 of 4):
+
+1. a plain sign, a tail turned right, with a bar, right
+2. a slight sign, a dot
+3. like a wide sign, a zigzag turned left, with a dot, right, with a hook turned down, right
+4. like a plain sign, a hook turned left, with a hook turned right, centre
+5. a slight sign, a dot
+6. an angular sign, a cross at the bottom
+7. a round sign, a ring
+
+8. a wide sign, a zigzag turned left, with an arc, left
+9. an angular sign, a cross at the top
+10. a wide sign, a bar turned right
+
+11. a wide sign, a bar turned right
+12. an angular sign, a cross at the top
+13. like a plain sign, a tail turned right, with a bar, right, with a hook turned right, centre
+14. an angular sign, a cross, with a bar, right
+15. a plain sign, a tail turned right
+
+16. a plain sign, a hook turned left
+
+(Read on for more.)
+```
+
+**> trace sign 6**
+
+```
+You trace sign 6 of a stone statue, stroke by stroke (about five minutes):
+
 6. A cross, bottom.
-7. A ring, right.
-
-8. An arc turned down, left and a zigzag turned left, right.
-9. A cross, top.
-10. A bar turned right, centre.
-
-11. A bar turned right, centre.
-12. A cross, top.
-13. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-14. A bar turned up, right and a cross, right.
-15. A tail turned right, centre.
-
-16. A hook turned left, centre.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone statue, fifty-five glyphs (page 2 of 4):
-
-17. A cross, top.
-18. A bar turned right, centre.
-19. A bar turned right, centre.
-20. A cross, top.
-
-21. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-22. A tail turned right, centre.
-23. A bar turned right, centre.
-
-24. A bar turned right, centre and a hook turned down, right.
-25. A tail turned right, centre.
-26. A bar turned right, centre.
-27. A cross, top.
-28. A cross, bottom.
-—
-29. A bar turned right, centre and a hook turned right, centre.
-30. A ring, right.
-31. A dot, right and an arc turned right, bottom.
-32. A cross, top.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone statue, fifty-five glyphs (page 3 of 4):
-
-33. An arc turned down, left and a zigzag turned left, right.
-34. A cross, top.
-35. A bar turned right, centre.
-
-36. A wedge turned up, left and a zigzag turned right, right.
-37. A cross, top.
-38. A hook turned left, centre.
-39. A tail turned right, centre.
-40. A cross, bottom.
-41. A bar turned up, right and a cross, right.
-42. A tail turned right, centre.
-
-43. A dot, right and an arc turned right, bottom.
-44. A cross, top.
-45. A bar turned right, centre and a hook turned right, centre.
-46. A bar turned right, centre.
-47. A cross, top.
-
-48. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-
-(Type 'more' to read on.)
 ```
 
 **> operate brazier**
 
 ```
-You can't make fire: no_flame.
-```
-
-**> more**
-
-```
-On a stone statue, fifty-five glyphs (page 4 of 4):
-
-49. A tail turned right, centre.
-50. A bar turned right, centre.
-
-51. A bar turned right, centre and a hook turned down, right.
-52. A tail turned right, centre.
-53. A bar turned right, centre.
-54. A cross, top.
-55. A cross, bottom.
-
-That is all of it.
+You can't make fire: no flame.
 ```
 
 **> north**
 
 ```
+North by the arch, some 10 metres.
+
 A sanctum, dim and close. A stone altar stands here. Ways out: an arch south.
+```
+
+**> look up**
+
+```
+A sanctum, dim and close. A clay wall stands here.
 ```
 
 **> examine stone altar**
@@ -441,85 +195,7 @@ A stone altar. Marks are cut into it: writing. You could read it.
 **> read stone altar**
 
 ```
-On a stone altar, fifty-six glyphs (page 1 of 4):
-
-1. A hook turned left, centre.
-2. A cross, top.
-3. A bar turned right, centre.
-4. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-5. A tail turned right, centre.
-6. A hook turned right, centre and a hook turned left, centre.
-
-7. An arc turned down, left and a zigzag turned left, right.
-8. A cross, top.
-9. A bar turned right, centre.
-
-10. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-11. A cross, top.
-12. An arc turned down, left and a zigzag turned left, right.
-13. A bar turned up, right and a cross, right.
-14. A tail turned right, centre.
-
-15. A dot, right and an arc turned right, bottom.
-16. A cross, top.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone altar, fifty-six glyphs (page 2 of 4):
-
-17. A bar turned right, centre and a hook turned right, centre.
-18. A bar turned right, centre.
-19. A cross, top.
-
-20. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-21. A tail turned right, centre.
-22. A bar turned right, centre.
-
-23. A bar turned right, centre and a hook turned down, right.
-24. A tail turned right, centre.
-25. A bar turned right, centre.
-26. A cross, top.
-27. A cross, bottom.
-—
-28. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-29. A cross, top.
-30. A bar turned right, right and a tail turned right, bottom.
-31. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-32. A dot, centre.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone altar, fifty-six glyphs (page 3 of 4):
-
-33. A bar turned right, centre and a hook turned right, centre.
-
-34. An arc turned down, left and a zigzag turned left, right.
-35. A cross, top.
-36. A bar turned right, centre.
-
-37. A bar turned right, right and a tail turned right, bottom.
-38. A tail turned right, centre.
-39. A hook turned left, right, a wedge turned right, left and a tail turned right, left.
-40. A ring, right.
-41. A bar turned right, centre.
-42. A bar turned up, right and a cross, right.
-43. A tail turned right, centre.
-
-44. A hook turned left, centre.
-45. A cross, top.
-46. A bar turned right, centre.
-47. A bar turned right, centre.
-48. A cross, top.
-
-(Type 'more' to read on.)
+On a stone altar, fifty-six signs in twelve groups, about five lines, in a fine hand. A few shapes keep coming back.
 ```
 
 **> examine clay wall**
@@ -528,96 +204,10 @@ On a stone altar, fifty-six glyphs (page 3 of 4):
 A clay wall. Marks are cut into it: writing. You could read it.
 ```
 
-**> more**
-
-```
-On a stone altar, fifty-six glyphs (page 4 of 4):
-
-49. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-50. A tail turned right, centre.
-51. A bar turned right, centre.
-
-52. A bar turned right, centre and a hook turned down, right.
-53. A tail turned right, centre.
-54. A bar turned right, centre.
-55. A cross, top.
-56. A cross, bottom.
-
-That is all of it.
-```
-
 **> read clay wall**
 
 ```
-On a clay wall, forty glyphs (page 1 of 3):
-
-1. A hook turned left, centre.
-2. A tail turned right, centre.
-3. A wedge turned up, left and a zigzag turned right, right.
-4. A dot, right and an arc turned right, bottom.
-5. A cross, top.
-6. A bar turned right, centre.
-7. A cross, bottom.
-8. A tail turned right, centre.
-9. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-10. An arc turned down, left and a zigzag turned left, right.
-11. A cross, top.
-12. A bar turned right, centre.
-
-13. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-14. A cross, top.
-15. An arc turned down, left and a zigzag turned left, right.
-16. A bar turned up, right and a cross, right.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a clay wall, forty glyphs (page 2 of 3):
-
-17. A tail turned right, centre.
-
-18. A dot, right and an arc turned right, bottom.
-19. A cross, top.
-20. A bar turned right, centre and a hook turned right, centre.
-21. A bar turned right, centre.
-22. A cross, top.
-
-23. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-24. A tail turned right, centre.
-25. A bar turned right, centre.
-
-26. A bar turned right, centre and a hook turned down, right.
-27. A tail turned right, centre.
-28. A bar turned right, centre.
-29. A cross, top.
-30. A cross, bottom.
-—
-31. A hook turned left, centre.
-32. A dot, centre.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a clay wall, forty glyphs (page 3 of 3):
-
-33. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-34. A bar turned right, centre.
-35. A cross, top.
-
-36. A wedge turned up, left and a zigzag turned right, right.
-37. A tail turned right, centre.
-38. A dot, right and an arc turned right, bottom.
-39. A ring, right.
-40. A hook turned left, right, a wedge turned right, left and a tail turned right, left.
-
-That is all of it.
+On a clay wall, forty signs in eight groups, about four lines, in a slanted hand. A few shapes keep coming back.
 ```
 
 **> examine oil**
@@ -647,25 +237,41 @@ You take a torch.
 **> south**
 
 ```
+South by the arch, some 10 metres.
+
 A hall, dim and close. A stone statue stands here.
 ```
 
 **> south**
 
 ```
-A forecourt, dim and close. A stone basin stands here.
+South by the door, some 10 metres.
+
+A forecourt. Ways out: a door north and the way out.
 ```
 
 **> out**
 
 ```
-The road runs here. The flat mountain to the east (middle). Here and there: cracked mud.
+The square. The road runs here. You notice birdsong at dawn.
 ```
 
 **> go 1 worn house**
 
 ```
 A hall, dim and close. A stone hearth stands here. Ways out: a door north (closed) and the way out.
+```
+
+**> look closer**
+
+```
+A hall, dim and close. A plaster wall stands here.
+```
+
+**> listen**
+
+```
+You hear nothing but your own breath.
 ```
 
 **> examine stone hearth**
@@ -683,28 +289,34 @@ A plaster wall. Marks are cut into it: writing. You could read it.
 **> read plaster wall**
 
 ```
-On a plaster wall, twenty-six glyphs (page 1 of 2):
+On a plaster wall, twenty-six signs in five groups, about three lines, in a fine hand. A few shapes keep coming back.
+```
 
-1. A hook turned left, centre.
-2. A ring, right.
-3. A bar turned right, centre and a hook turned right, centre.
-4. A tail turned right, centre.
+**> read closely**
 
-5. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-6. A dot, centre.
-7. A wedge turned up, left and a zigzag turned right, right.
-8. A tail turned right, centre.
-9. A bar turned right, centre.
-10. A bar turned up, right and a cross, right.
-11. A tail turned right, centre.
+```
+On a plaster wall, twenty-six signs (page 1 of 2):
 
-12. A bar turned right, centre and a hook turned down, right.
-13. A tail turned right, centre.
-14. A dot, right and an arc turned right, bottom.
-15. A zigzag turned right, left.
-16. A hook turned right, centre and a hook turned left, centre.
+1. a plain sign, a hook turned left
+2. a round sign, a ring
+3. like a wide sign, a bar turned right, with a hook turned right, centre
+4. a plain sign, a tail turned right
 
-(Type 'more' to read on.)
+5. a wide sign, a zigzag turned left, with a dot, right
+6. a slight sign, a dot
+7. a wide sign, a zigzag turned right
+8. a plain sign, a tail turned right
+9. a wide sign, a bar turned right
+10. an angular sign, a cross, with a bar, right
+11. a plain sign, a tail turned right
+
+12. like a wide sign, a bar turned right, with a hook turned down, right
+13. a plain sign, a tail turned right
+14. a plain sign, an arc turned right
+15. an angular sign, a zigzag turned right
+16. like a plain sign, a hook turned left, with a hook turned right, centre
+
+(Read on for more.)
 ```
 
 **> examine firesteel**
@@ -717,26 +329,6 @@ A firesteel.
 
 ```
 You take a firesteel.
-```
-
-**> more**
-
-```
-On a plaster wall, twenty-six glyphs (page 2 of 2):
-
-17. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-18. A cross, top.
-19. A hook turned left, centre.
-20. A bar turned right, centre.
-21. A cross, top.
-
-22. A wedge turned up, left and a zigzag turned right, right.
-23. A tail turned right, centre.
-24. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-25. A zigzag turned right, left.
-26. A bar turned right, right and a tail turned right, bottom.
-
-That is all of it.
 ```
 
 **> examine waterskin**
@@ -772,6 +364,8 @@ You open a door north (closed).
 **> north**
 
 ```
+North by the door, some 8 metres.
+
 A store, dim and close. A wood shelf stands here. Ways out: a door south.
 ```
 
@@ -779,6 +373,18 @@ A store, dim and close. A wood shelf stands here. Ways out: a door south.
 
 ```
 You can't fill a waterskin here.
+```
+
+**> listen**
+
+```
+You hear nothing but your own breath.
+```
+
+**> look down**
+
+```
+The floor is dry.
 ```
 
 **> examine wood shelf**
@@ -796,13 +402,15 @@ A jar. It holds 0 of 3 drinks.
 **> south**
 
 ```
-A hall, dim and close. A plaster wall stands here. Ways out: a door north and the way out.
+South by the door, some 8 metres.
+
+A hall, dim and close. A stone hearth stands here. Ways out: a door north and the way out.
 ```
 
 **> out**
 
 ```
-The square. The lakeshore lies to the west. The plain standing stones to the southeast (middle).
+An intact refuge of several tombs. The lakeshore lies to the west. Grassland, slope ground.
 ```
 
 **> fill waterskin**
@@ -817,6 +425,12 @@ You fill a waterskin.
 A storeroom. A clay wall stands here. Ways out: a door east and the way out.
 ```
 
+**> look closer**
+
+```
+A storeroom. A provisions lies here.
+```
+
 **> examine clay jar**
 
 ```
@@ -826,18 +440,24 @@ A clay jar. Marks are cut into it: writing. You could read it.
 **> read clay jar**
 
 ```
-On a clay jar, nine glyphs:
+On a clay jar, nine signs in two groups, about one line, in a heavy hand.
+```
 
-1. A cross, bottom.
-2. A cross, top.
-3. A bar turned up, right and a cross, right.
-4. A bar turned right, centre and a hook turned right, centre.
-5. A cross, top.
+**> read closely**
 
-6. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-7. A ring, right.
-8. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-9. A tail turned right, centre.
+```
+On a clay jar, nine signs:
+
+1. an angular sign, a cross at the bottom
+2. an angular sign, a cross at the top
+3. an angular sign, a cross, with a bar, right
+4. like a wide sign, a bar turned right, with a hook turned right, centre
+5. an angular sign, a cross at the top
+
+6. like a plain sign, a tail turned right, with a bar, right, with a hook turned down, right
+7. a round sign, a ring
+8. like a wide sign, a zigzag turned left, with a dot, right, with a hook turned down, right
+9. a plain sign, a tail turned right
 
 That is all of it.
 ```
@@ -875,7 +495,15 @@ You take a wood.
 **> east**
 
 ```
+East by the door, some 6 metres.
+
 A tally-room. A wood table stands here. Ways out: a door west. Loose stone hangs overhead.
+```
+
+**> smell**
+
+```
+You smell nothing worth noting.
 ```
 
 **> examine wood table**
@@ -893,45 +521,35 @@ A clay tablet. Marks are cut into it: writing. You could read it.
 **> read clay tablet**
 
 ```
-On a clay tablet, twenty-two glyphs (page 1 of 2):
-
-1. A hook turned left, centre and a zigzag turned up, left.
-2. An arc turned left, bottom and a cross, top.
-3. A bar turned right, centre.
-4. A tail turned right, centre.
-5. A bar turned right, centre and a hook turned right, centre.
-6. An arc turned left, right.
-
-7. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-8. An arc turned left, right.
-9. A bar turned right, centre and a hook turned right, centre.
-10. A tail turned right, centre.
-
-11. A bar turned right, centre and a hook turned right, centre.
-12. A zigzag turned right, left.
-13. A bar turned right, centre and a hook turned right, centre.
-14. A tail turned right, centre.
-
-15. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-16. A zigzag turned right, left.
-
-(Type 'more' to read on.)
+On a clay tablet, twenty-two signs in five groups, about two lines, in a cramped hand. A few shapes keep coming back.
 ```
 
-**> more**
+**> read closely**
 
 ```
-On a clay tablet, twenty-two glyphs (page 2 of 2):
+On a clay tablet, twenty-two signs (page 1 of 2):
 
-17. A bar turned up, right and a cross, right.
-18. A tail turned right, centre.
+1. an angular sign, a hook turned left
+2. a tall sign, a cross
+3. a wide sign, a bar turned right
+4. a plain sign, a tail turned right
+5. like a wide sign, a bar turned right, with a hook turned right, centre
+6. a plain sign, an arc turned left
 
-19. A bar turned up, right and a cross, right.
-20. A zigzag turned right, left.
-21. A bar turned right, centre.
-22. A tail turned right, centre.
+7. like a plain sign, a tail turned right, with a bar, right, with a hook turned down, right
+8. a plain sign, an arc turned left
+9. like a wide sign, a bar turned right, with a hook turned right, centre
+10. a plain sign, a tail turned right
 
-That is all of it.
+11. like a wide sign, a bar turned right, with a hook turned right, centre
+12. an angular sign, a zigzag turned right
+13. like a wide sign, a bar turned right, with a hook turned right, centre
+14. a plain sign, a tail turned right
+
+15. like a plain sign, a tail turned right, with a bar, right, with a hook turned right, centre
+16. an angular sign, a zigzag turned right
+
+(Read on for more.)
 ```
 
 **> examine 1 provisions**
@@ -949,19 +567,27 @@ You take a provisions.
 **> west**
 
 ```
+West by the door, some 6 metres.
+
 A storeroom. A clay jar lies here.
 ```
 
 **> out**
 
 ```
-Grassland, slope ground. Wind pulls at your clothes. You notice birdsong at dawn.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. Wind pulls at your clothes.
 ```
 
 **> go damaged cemetery**
 
 ```
 A graves. Two stone gravestones. Ways out: the way out.
+```
+
+**> listen**
+
+```
+Creaking.
 ```
 
 **> examine 1 stone gravestone**
@@ -973,122 +599,13 @@ A stone gravestone. Marks are cut into it: writing. You could read it.
 **> read 1 stone gravestone**
 
 ```
-On a stone gravestone, ninety-nine glyphs (page 1 of 7):
-
-1. A wedge turned up, left and a zigzag turned right, right.
-2. A cross, top.
-3. A cross, bottom.
-4. A ring, right.
-5. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-
-6. A hook turned left, centre.
-7. A ring, right.
-8. A bar turned right, centre and a hook turned right, centre.
-9. A tail turned right, centre.
-10. A hook turned right, centre and a hook turned left, centre.
-11. A tail turned right, centre.
-
-12. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-13. A cross, top.
-14. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-
-15. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-16. A ring, right.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone gravestone, ninety-nine glyphs (page 2 of 7):
-
-17. A bar turned up, right and a cross, right.
-
-18. A bar turned right, right and a tail turned right, bottom.
-19. A ring, right.
-20. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-21. A hook turned right, centre and a hook turned left, centre.
-22. A ring, right.
-23. A bar turned right, centre and a hook turned right, centre.
-—
-24. A hook turned left, centre.
-25. A ring, right.
-26. A bar turned right, centre and a hook turned right, centre.
-27. A tail turned right, centre.
-
-28. A bar turned right, right and a tail turned right, bottom.
-29. A ring, right.
-30. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-31. A hook turned right, centre and a hook turned left, centre.
-32. A ring, right.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone gravestone, ninety-nine glyphs (page 3 of 7):
-
-33. A bar turned right, centre and a hook turned right, centre.
-—
-34. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-35. A dot, centre.
-36. A wedge turned up, left and a zigzag turned right, right.
-37. A tail turned right, centre.
-38. A bar turned right, centre.
-
-39. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-40. A ring, right.
-41. A bar turned up, right and a cross, right.
-
-42. A bar turned right, right and a tail turned right, bottom.
-43. A ring, right.
-44. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-45. A hook turned right, centre and a hook turned left, centre.
-46. A ring, right.
-47. A bar turned right, centre and a hook turned right, centre.
-—
-48. A bar turned right, right and a tail turned right, bottom.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone gravestone, ninety-nine glyphs (page 4 of 7):
-
-49. A cross, top.
-50. A bar turned right, centre.
-51. A ring, right.
-52. A hook turned left, centre.
-53. A bar turned right, centre.
-54. A cross, top.
-55. A cross, bottom.
-
-56. A hook turned left, right, a wedge turned right, left and a tail turned right, left.
-57. A tail turned right, centre.
-58. An arc turned down, left and a zigzag turned left, right.
-59. A cross, bottom.
-60. A cross, top.
-61. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-62. A bar turned right, right and a tail turned right, bottom.
-63. A ring, right.
-64. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-(Type 'more' to read on.)
+On a stone gravestone, ninety-nine signs in twenty-five groups, about nine lines, in a careful hand.
 ```
 
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. Wind pulls at your clothes.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. Wind pulls at your clothes.
 ```
 
 **> go 1 intact tomb**
@@ -1097,73 +614,10 @@ An intact refuge of several tombs. Among them stands the worn temple. Wind pulls
 A tomb-entrance, dim and close. A stone door-slab stands here. Ways out: a stair down and the way out.
 ```
 
-**> more**
+**> look closer**
 
 ```
-On a stone gravestone, ninety-nine glyphs (page 5 of 7):
-
-65. A hook turned right, centre and a hook turned left, centre.
-66. A ring, right.
-67. A bar turned right, centre and a hook turned right, centre.
-—
-68. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-69. A cross, top.
-70. A hook turned left, right, a wedge turned right, left and a tail turned right, left.
-71. A cross, top.
-72. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-73. A bar turned right, right and a tail turned right, bottom.
-74. A ring, right.
-75. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-76. A hook turned right, centre and a hook turned left, centre.
-77. A ring, right.
-78. A bar turned right, centre and a hook turned right, centre.
-—
-79. A wedge turned up, left and a zigzag turned right, right.
-80. A cross, top.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone gravestone, ninety-nine glyphs (page 6 of 7):
-
-81. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-82. A cross, top.
-
-83. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-84. A dot, centre.
-85. A bar turned right, centre.
-86. A cross, top.
-87. A bar turned up, right and a cross, right.
-88. A dot, centre.
-89. A hook turned right, centre and a hook turned left, centre.
-90. A tail turned right, centre.
-
-91. A cross, bottom.
-92. A ring, right.
-93. A cross, bottom.
-
-94. A bar turned right, right and a tail turned right, bottom.
-95. A ring, right.
-96. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone gravestone, ninety-nine glyphs (page 7 of 7):
-
-97. A hook turned right, centre and a hook turned left, centre.
-98. A ring, right.
-99. A bar turned right, centre and a hook turned right, centre.
-
-That is all of it.
+A tomb-entrance, dim and close. A pry bar lies here.
 ```
 
 **> examine stone door-slab**
@@ -1175,75 +629,33 @@ A stone door-slab. Marks are cut into it: writing. You could read it.
 **> read stone door-slab**
 
 ```
-On a stone door-slab, thirty-two glyphs (page 1 of 2):
-
-1. A bar turned right, right and a tail turned right, bottom.
-2. A dot, centre.
-3. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-4. A hook turned right, centre and a hook turned left, centre.
-5. A dot, centre.
-6. A cross, bottom.
-7. A ring, right.
-
-8. An arc turned down, left and a zigzag turned left, right.
-9. A cross, top.
-10. A bar turned right, centre.
-
-11. A bar turned right, right and a tail turned right, bottom.
-12. A ring, right.
-13. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-14. A hook turned right, centre and a hook turned left, centre.
-15. A ring, right.
-16. A bar turned right, centre and a hook turned right, centre.
-
-(Type 'more' to read on.)
+On a stone door-slab, thirty-two signs in eight groups, about three lines, in a heavy hand. A few shapes keep coming back.
 ```
 
-**> examine pry_bar**
+**> examine pry bar**
 
 ```
-A pry_bar.
+A pry bar.
 ```
 
 **> down**
 
 ```
+Down by the stair, some 6 metres.
+
 It is too dark to see anything here. You can feel your way to a stair up and a door north. The air is cool.
-```
-
-**> more**
-
-```
-On a stone door-slab, thirty-two glyphs (page 2 of 2):
-
-17. A bar turned right, right and a tail turned right, bottom.
-18. A dot, centre.
-19. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-20. A hook turned right, centre and a hook turned left, centre.
-21. A dot, centre.
-22. A cross, bottom.
-23. A ring, right.
-
-24. An arc turned down, left and a zigzag turned left, right.
-25. A cross, top.
-26. A bar turned right, centre.
-
-27. A bar turned right, right and a tail turned right, bottom.
-28. A ring, right.
-29. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-30. A hook turned right, centre and a hook turned left, centre.
-31. A ring, right.
-32. A bar turned right, centre and a hook turned right, centre.
-
-That is all of it.
 ```
 
 **> light lamp**
 
 ```
 The lamp is lit.
+```
+
+**> look up**
+
+```
+A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north. The air is cool.
 ```
 
 **> examine stone wall**
@@ -1255,7 +667,15 @@ A stone wall.
 **> north**
 
 ```
+North by the door, some 8 metres.
+
 A burial, below ground, dim and close. A stone sarcophagus stands here. Ways out: a door south and an opening east.
+```
+
+**> smell**
+
+```
+A smell of damp stone. A smell of rot.
 ```
 
 **> examine stone sarcophagus**
@@ -1273,6 +693,8 @@ A stone wall.
 **> east**
 
 ```
+East by the opening, some 8 metres.
+
 An offerings, below ground, dim and close. A stone shelf stands here. Ways out: an opening west.
 ```
 
@@ -1291,25 +713,31 @@ A stone shelf.
 **> west**
 
 ```
+West by the opening, some 8 metres.
+
 A burial, below ground, dim and close. A stone wall stands here.
 ```
 
 **> south**
 
 ```
-A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north.
+South by the door, some 8 metres.
+
+A passage, below ground, dim and close. Ways out: a stair up and a door north.
 ```
 
 **> up**
 
 ```
-A tomb-entrance, dim and close. A pry_bar lies here. Ways out: a stair down and the way out.
+Up by the stair, some 6 metres.
+
+A tomb-entrance, dim and close. Ways out: a stair down and the way out. The air is mild.
 ```
 
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. You notice birdsong at dawn.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The grassy rock pillar to the northeast (far).
 ```
 
 **> extinguish lamp**
@@ -1324,6 +752,12 @@ You put out the lamp.
 A cistern-head, dim and close. A stone basin stands here. Ways out: a stair down and the way out.
 ```
 
+**> smell**
+
+```
+You smell nothing worth noting.
+```
+
 **> examine stone basin**
 
 ```
@@ -1333,13 +767,33 @@ A stone basin.
 **> down**
 
 ```
-It is too dark to see anything here. You can feel your way to a stair up. The air is cool.
+Down by the stair, some 6 metres.
+
+It is too dark to see anything here. You can feel your way to a stair up, an arch east, an arch north and an arch west. The air is cool.
 ```
 
 **> light lamp**
 
 ```
 The lamp is lit.
+```
+
+**> look closer**
+
+```
+A cistern-hall, below ground, dim and close. A stone pillar stands here. A waterskin lies here. Ways out: a stair up, an arch east, an arch north and an arch west. The air is cool.
+```
+
+**> smell**
+
+```
+A smell of damp stone.
+```
+
+**> look down**
+
+```
+The floor is damp.
 ```
 
 **> examine stone pillar**
@@ -1351,43 +805,53 @@ A stone pillar.
 **> examine waterskin**
 
 ```
-Which do you mean: a waterskin and a waterskin?
-```
-
-**> first**
-
-```
 A waterskin. It holds 0 of 4 drinks.
 ```
 
-**> up**
+**> east**
 
 ```
-A cistern-head, dim and close. Ways out: a stair down and the way out. The air is mild.
+East by the arch, some 10 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch west, a door north, a door south and a door east. The air is cool.
 ```
 
-**> out**
+**> look closer**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. The grassy rock pillar to the northeast (far).
+A corridor, below ground, dim and close. Ways out: an arch west, a door north, a door south and a door east.
 ```
 
-**> extinguish torch**
+**> north**
 
 ```
-You can't make fire: not_lit.
+North by the door, some 8 metres.
+
+A storeroom, below ground, dim and close. A wood shelf stands here. Ways out: a door south, the western arch north, the eastern door north and a hole down.
 ```
 
-**> go worn kiln**
+**> look closer**
 
 ```
-A potter's workshop, dim and close. A wood potter's wheel stands here. Ways out: a door north and the way out.
+A storeroom, below ground, dim and close. A clay jar lies here.
 ```
 
-**> examine wood potter's wheel**
+**> listen**
 
 ```
-A wood potter's wheel.
+Dripping.
+```
+
+**> look down**
+
+```
+The floor is damp.
+```
+
+**> touch**
+
+```
+The air is cool; the ground is damp.
 ```
 
 **> examine wood shelf**
@@ -1396,10 +860,200 @@ A wood potter's wheel.
 A wood shelf.
 ```
 
+**> examine clay jar**
+
+```
+A jar. It holds 0 of 3 drinks.
+```
+
+**> examine waterskin**
+
+```
+A waterskin. It holds 0 of 4 drinks.
+```
+
+**> go western arch north**
+
+```
+North by the arch, some 14 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch south, the northern door east and the southern door east. The air is cool.
+```
+
+**> look closer**
+
+```
+A corridor, below ground, dim and close. Ways out: an arch south, the northern door east and the southern door east.
+```
+
+**> smell**
+
+```
+A smell of damp stone.
+```
+
+**> look down**
+
+```
+The floor is damp.
+```
+
+**> touch**
+
+```
+The air is cool; the ground is damp.
+```
+
+**> south**
+
+```
+South by the arch, some 14 metres.
+
+A storeroom, below ground, dim and close. A waterskin lies here.
+```
+
+**> go eastern door north**
+
+```
+North by the door, some 12 metres.
+
+A shrine, below ground, dim and close. A stone niche stands here. Ways out: a door west and a door south (barred).
+```
+
+**> listen**
+
+```
+Dripping.
+```
+
+**> smell**
+
+```
+A smell of damp stone.
+```
+
+**> examine stone niche**
+
+```
+A stone niche.
+```
+
+**> examine stone altar**
+
+```
+A stone altar.
+```
+
+**> west**
+
+```
+West by the door, some 8 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch south, the northern door east and the southern door east.
+```
+
+**> go northern door east**
+
+```
+East by the door, some 8 metres.
+
+A workshop, below ground, dim and close. A wood table stands here. Ways out: a door west.
+```
+
+**> west**
+
+```
+West by the door, some 8 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch south, the northern door east and the southern door east.
+```
+
+**> south**
+
+```
+South by the arch, some 14 metres.
+
+A storeroom, below ground, dim and close. Ways out: a door south, the western arch north, the eastern door north and a hole down.
+```
+
+**> south**
+
+```
+South by the door, some 8 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch west, a door north, a door south and a door east.
+```
+
+**> west**
+
+```
+West by the arch, some 10 metres.
+
+A cistern-hall, below ground, dim and close. Ways out: a stair up, an arch east, an arch north and an arch west.
+```
+
+**> up**
+
+```
+Up by the stair, some 6 metres.
+
+A cistern-head, dim and close. Ways out: a stair down and the way out. The air is mild.
+```
+
+**> out**
+
+```
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
+```
+
+**> extinguish torch**
+
+```
+You can't make fire: not lit.
+```
+
+**> go worn kiln**
+
+```
+A potter's workshop, dim and close. A wood potter's wheel stands here. Ways out: a door north and the way out.
+```
+
+**> look closer**
+
+```
+A potter's workshop, dim and close. A wood shelf stands here.
+```
+
+**> look up**
+
+```
+A potter's workshop, dim and close. Ways out: a door north and the way out.
+```
+
+**> touch**
+
+```
+The air is mild; the ground is dry.
+```
+
+**> examine wood potter's wheel**
+
+```
+A wood potter's wheel.
+```
+
 **> north**
 
 ```
+North by the door, some 6 metres.
+
 A kiln-room, dim and close. A clay kiln stands here. Ways out: a door south.
+```
+
+**> look up**
+
+```
+A kiln-room, dim and close. A clay jar lies here.
 ```
 
 **> examine clay kiln**
@@ -1417,31 +1071,39 @@ A jar. It holds 0 of 3 drinks.
 **> examine torch**
 
 ```
-Which do you mean: a torch and a torch?
-```
-
-**> first**
-
-```
 A torch.
 ```
 
 **> south**
 
 ```
-A potter's workshop, dim and close. A wood shelf stands here.
+South by the door, some 6 metres.
+
+A potter's workshop, dim and close. Ways out: a door north and the way out.
 ```
 
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
 ```
 
 **> go intact granary**
 
 ```
 A grain-floor, dim and close. A wood bin stands here. Ways out: a stair up and the way out.
+```
+
+**> look closer**
+
+```
+A grain-floor, dim and close. A clay jar lies here.
+```
+
+**> look down**
+
+```
+The floor is dry.
 ```
 
 **> examine wood bin**
@@ -1459,18 +1121,14 @@ A jar. It holds 0 of 3 drinks.
 **> examine provisions**
 
 ```
-Which do you mean: a provisions, a provisions and a provisions?
-```
-
-**> first**
-
-```
 A provisions.
 ```
 
 **> up**
 
 ```
+Up by the stair, some 6 metres.
+
 A loft, dim and close. A wood bin stands here. Ways out: a stair down.
 ```
 
@@ -1483,31 +1141,27 @@ A wood bin.
 **> examine provisions**
 
 ```
-Which do you mean: a provisions, a provisions and a provisions?
-```
-
-**> first**
-
-```
 A provisions.
 ```
 
 **> down**
 
 ```
+Down by the stair, some 6 metres.
+
 A grain-floor, dim and close. A provisions lies here.
 ```
 
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
 ```
 
 **> go worn orchard**
 
 ```
-An orchard, dim and close. A wood tree stands here. Ways out: the way out.
+An orchard. A wood tree stands here. Ways out: the way out.
 ```
 
 **> examine wood tree**
@@ -1516,16 +1170,10 @@ An orchard, dim and close. A wood tree stands here. Ways out: the way out.
 A wood tree.
 ```
 
-**> examine clay wall**
-
-```
-A clay wall.
-```
-
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. You notice birdsong at dawn.
 ```
 
 **> go intact house**
@@ -1540,19 +1188,7 @@ A hall, dim and close. A stone hearth stands here. Ways out: a door north (close
 A stone hearth.
 ```
 
-**> examine plaster wall**
-
-```
-A plaster wall.
-```
-
 **> examine torch**
-
-```
-Which do you mean: a torch and a torch?
-```
-
-**> first**
 
 ```
 A torch.
@@ -1573,13 +1209,15 @@ You open a door north (closed).
 **> north**
 
 ```
+North by the door, some 8 metres.
+
 A store, dim and close. A wood shelf stands here. Ways out: a door south.
 ```
 
-**> examine wood shelf**
+**> look up**
 
 ```
-A wood shelf.
+A store, dim and close. A provisions lies here.
 ```
 
 **> examine clay jar**
@@ -1591,31 +1229,33 @@ A jar. It holds 0 of 3 drinks.
 **> examine provisions**
 
 ```
-Which do you mean: a provisions, a provisions and a provisions?
-```
-
-**> first**
-
-```
 A provisions.
 ```
 
 **> south**
 
 ```
+South by the door, some 8 metres.
+
 A hall, dim and close. A plaster wall stands here. Ways out: a door north and the way out.
 ```
 
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
 ```
 
 **> go 2 intact tomb**
 
 ```
 A tomb-entrance, dim and close. A stone door-slab stands here. Ways out: a stair down and the way out.
+```
+
+**> look down**
+
+```
+The floor is dry.
 ```
 
 **> examine stone door-slab**
@@ -1627,51 +1267,57 @@ A stone door-slab. Marks are cut into it: writing. You could read it.
 **> read stone door-slab**
 
 ```
-On a stone door-slab, twenty-nine glyphs (page 1 of 2):
-
-1. A hook turned left, centre.
-2. A cross, top.
-3. A bar turned right, centre.
-4. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-5. A tail turned right, centre.
-6. A hook turned right, centre and a hook turned left, centre.
-
-7. A bar turned right, right and a tail turned right, bottom.
-8. A dot, centre.
-9. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-10. A hook turned right, centre and a hook turned left, centre.
-11. A dot, centre.
-12. A cross, bottom.
-13. A ring, right.
-14. A hook turned right, centre and a hook turned left, centre.
-15. A tail turned right, centre.
-
-16. A hook turned right, centre and a hook turned left, centre.
-
-(Type 'more' to read on.)
+On a stone door-slab, twenty-nine signs in six groups, about three lines, in a heavy hand. A few shapes keep coming back.
 ```
 
-**> more**
+**> read closely**
 
 ```
-On a stone door-slab, twenty-nine glyphs (page 2 of 2):
+On a stone door-slab, twenty-nine signs (page 1 of 2):
 
-17. A dot, centre.
-18. A dot, right and an arc turned right, bottom.
-19. A cross, top.
-20. A bar turned right, right and a tail turned right, bottom.
+1. a plain sign, a hook turned left
+2. an angular sign, a cross at the top
+3. a wide sign, a bar turned right
+4. like a wide sign, a zigzag turned left, with a dot, right, with a hook turned down, right
+5. a plain sign, a tail turned right
+6. like a plain sign, a hook turned left, with a hook turned right, centre
 
-21. An arc turned down, left and a zigzag turned left, right.
-22. A cross, top.
-23. A bar turned right, centre.
+7. a plain sign, a tail turned right, with a bar, right
+8. a slight sign, a dot
+9. like a wide sign, a zigzag turned left, with a dot, right, with a hook turned down, right
+10. like a plain sign, a hook turned left, with a hook turned right, centre
+11. a slight sign, a dot
+12. an angular sign, a cross at the bottom
+13. a round sign, a ring
+14. like a plain sign, a hook turned left, with a hook turned right, centre
+15. a plain sign, a tail turned right
 
-24. A bar turned right, right and a tail turned right, bottom.
-25. A ring, right.
-26. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
+16. like a plain sign, a hook turned left, with a hook turned right, centre
 
-27. A hook turned right, centre and a hook turned left, centre.
-28. A ring, right.
-29. A bar turned right, centre and a hook turned right, centre.
+(Read on for more.)
+```
+
+**> read closely**
+
+```
+On a stone door-slab, twenty-nine signs (page 2 of 2):
+
+17. a slight sign, a dot
+18. a plain sign, an arc turned right
+19. an angular sign, a cross at the top
+20. a plain sign, a tail turned right, with a bar, right
+
+21. a wide sign, a zigzag turned left, with an arc, left
+22. an angular sign, a cross at the top
+23. a wide sign, a bar turned right
+
+24. a plain sign, a tail turned right, with a bar, right
+25. a round sign, a ring
+26. like a plain sign, a tail turned right, with a bar, right, with a hook turned right, centre
+
+27. like a plain sign, a hook turned left, with a hook turned right, centre
+28. a round sign, a ring
+29. like a wide sign, a bar turned right, with a hook turned right, centre
 
 That is all of it.
 ```
@@ -1679,18 +1325,28 @@ That is all of it.
 **> down**
 
 ```
+Down by the stair, some 6 metres.
+
 A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north.
 ```
 
-**> examine stone wall**
+**> look closer**
 
 ```
-A stone wall.
+A passage, below ground, dim and close. Ways out: a stair up and a door north.
+```
+
+**> listen**
+
+```
+Dripping.
 ```
 
 **> north**
 
 ```
+North by the door, some 8 metres.
+
 A burial, below ground, dim and close. A stone sarcophagus stands here. Ways out: a door south and an opening east.
 ```
 
@@ -1700,16 +1356,24 @@ A burial, below ground, dim and close. A stone sarcophagus stands here. Ways out
 A stone sarcophagus.
 ```
 
-**> examine stone wall**
-
-```
-A stone wall.
-```
-
 **> east**
 
 ```
+East by the opening, some 8 metres.
+
 An offerings, below ground, dim and close. A stone shelf stands here. Ways out: an opening west.
+```
+
+**> look closer**
+
+```
+An offerings, below ground, dim and close. A clay jar lies here.
+```
+
+**> listen**
+
+```
+Dripping.
 ```
 
 **> examine clay jar**
@@ -1718,34 +1382,40 @@ An offerings, below ground, dim and close. A stone shelf stands here. Ways out: 
 A jar. It holds 0 of 3 drinks.
 ```
 
-**> examine stone shelf**
-
-```
-A stone shelf.
-```
-
 **> west**
 
 ```
+West by the opening, some 8 metres.
+
 A burial, below ground, dim and close. A stone wall stands here.
 ```
 
 **> south**
 
 ```
+South by the door, some 8 metres.
+
 A passage, below ground, dim and close. Ways out: a stair up and a door north.
 ```
 
 **> up**
 
 ```
+Up by the stair, some 6 metres.
+
 A tomb-entrance, dim and close. Ways out: a stair down and the way out. The air is mild.
 ```
 
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
+```
+
+**> extinguish lamp**
+
+```
+You put out the lamp.
 ```
 
 **> go 2 worn house**
@@ -1754,49 +1424,55 @@ An intact refuge of several tombs. Among them stands the worn temple. The air is
 A hall, dim and close. A stone hearth stands here. Ways out: a door north (closed) and the way out.
 ```
 
+**> look closer**
+
+```
+A hall, dim and close. A plaster wall stands here.
+```
+
+**> listen**
+
+```
+You hear nothing but your own breath.
+```
+
+**> look up**
+
+```
+A hall, dim and close. A wood lies here.
+```
+
+**> look down**
+
+```
+The floor is dry.
+```
+
 **> examine stone hearth**
 
 ```
 A stone hearth.
 ```
 
-**> examine plaster wall**
-
-```
-A plaster wall.
-```
-
 **> examine wood**
-
-```
-Which do you mean: a wood and a wood?
-```
-
-**> first**
 
 ```
 A wood.
 ```
 
+**> take wood**
+
+```
+You take a wood.
+```
+
 **> examine waterskin**
-
-```
-Which do you mean: a waterskin and a waterskin?
-```
-
-**> first**
 
 ```
 A waterskin. It holds 0 of 4 drinks.
 ```
 
 **> examine provisions**
-
-```
-Which do you mean: a provisions, a provisions and a provisions?
-```
-
-**> first**
 
 ```
 A provisions.
@@ -1817,13 +1493,27 @@ You open a door north (closed).
 **> north**
 
 ```
+North by the door, some 8 metres.
+
 A store, dim and close. A wood shelf stands here. Ways out: a door south.
 ```
 
-**> examine wood shelf**
+**> listen**
 
 ```
-A wood shelf.
+You hear nothing but your own breath.
+```
+
+**> look up**
+
+```
+A store, dim and close. A cloak lies here.
+```
+
+**> look down**
+
+```
+The floor is dry.
 ```
 
 **> examine clay jar**
@@ -1838,6 +1528,24 @@ A jar. It holds 0 of 3 drinks.
 A cloak.
 ```
 
+**> drop oil**
+
+```
+You put down an oil.
+```
+
+**> examine oil**
+
+```
+Looking closer: a small clay oil.
+```
+
+**> drop 1 wood**
+
+```
+You put down a wood.
+```
+
 **> take cloak**
 
 ```
@@ -1847,239 +1555,107 @@ You take a cloak.
 **> examine provisions**
 
 ```
-Which do you mean: a provisions, a provisions and a provisions?
-```
-
-**> first**
-
-```
 A provisions.
 ```
 
-**> south**
+**> examine wood**
 
 ```
-A hall, dim and close. A plaster wall stands here. Ways out: a door north and the way out.
-```
-
-**> out**
-
-```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
-```
-
-**> go 1 worn tomb**
-
-```
-A tomb-entrance, dim and close. A stone door-slab stands here. Ways out: a stair down and the way out.
-```
-
-**> examine stone door-slab**
-
-```
-A stone door-slab. Marks are cut into it: writing. You could read it.
-```
-
-**> read stone door-slab**
-
-```
-On a stone door-slab, thirty-one glyphs (page 1 of 2):
-
-1. A hook turned left, centre.
-2. A tail turned right, centre.
-3. A wedge turned up, left and a zigzag turned right, right.
-4. A dot, right and an arc turned right, bottom.
-5. A cross, top.
-6. A bar turned right, centre.
-7. A cross, bottom.
-8. A tail turned right, centre.
-9. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-10. A hook turned left, centre.
-11. A cross, top.
-12. A bar turned right, centre.
-13. A hook turned down, right, a dot, right, a wedge turned up, left and a zigzag turned left, left.
-14. A tail turned right, centre.
-15. A hook turned right, centre and a hook turned left, centre.
-16. A hook turned right, centre and a hook turned left, centre.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone door-slab, thirty-one glyphs (page 2 of 2):
-
-17. A tail turned right, centre.
-
-18. A hook turned right, centre and a hook turned left, centre.
-19. A dot, centre.
-20. A dot, right and an arc turned right, bottom.
-21. A cross, top.
-22. A bar turned right, right and a tail turned right, bottom.
-
-23. An arc turned down, left and a zigzag turned left, right.
-24. A cross, top.
-25. A bar turned right, centre.
-
-26. A bar turned right, right and a tail turned right, bottom.
-27. A ring, right.
-28. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-29. A hook turned right, centre and a hook turned left, centre.
-30. A ring, right.
-31. A bar turned right, centre and a hook turned right, centre.
-
-That is all of it.
-```
-
-**> down**
-
-```
-A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north.
-```
-
-**> examine stone wall**
-
-```
-A stone wall.
-```
-
-**> north**
-
-```
-A burial, below ground, dim and close. A stone sarcophagus stands here. Ways out: a door south and an opening east.
-```
-
-**> examine stone sarcophagus**
-
-```
-A stone sarcophagus.
-```
-
-**> examine stone wall**
-
-```
-A stone wall.
-```
-
-**> east**
-
-```
-An offerings, below ground, dim and close. A stone shelf stands here. Ways out: an opening west.
-```
-
-**> examine clay jar**
-
-```
-A jar. It holds 0 of 3 drinks.
-```
-
-**> examine stone shelf**
-
-```
-A stone shelf.
-```
-
-**> west**
-
-```
-A burial, below ground, dim and close. A stone wall stands here.
+Looking closer: a large wood wood.
 ```
 
 **> south**
 
 ```
-A passage, below ground, dim and close. Ways out: a stair up and a door north.
-```
+South by the door, some 8 metres.
 
-**> up**
-
-```
-A tomb-entrance, dim and close. Ways out: a stair down and the way out. The air is mild.
+A hall, dim and close. A waterskin lies here. Ways out: a door north and the way out.
 ```
 
 **> out**
 
 ```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
 ```
 
-**> extinguish lamp**
+**> go to the terraces**
 
 ```
-You put out the lamp.
+A terraces, in granite. It looks very old.
 ```
 
-**> go 2 worn tomb**
+**> look**
 
 ```
-A tomb-entrance, dim and close. A stone door-slab stands here. Ways out: a stair down and the way out.
+An intact refuge of several tombs. The worn kiln stands alone of its kind here. The farmyards. A terraces here.
 ```
 
-**> examine stone door-slab**
+**> look around**
 
 ```
-A stone door-slab. Marks are cut into it: writing. You could read it.
+An intact refuge of several tombs. A refuge by a hilltop, terraced. Parts: upper town, farmyards, graves and old town. The worn temple stands alone of its kind here. A field walls to the south. The grassy rock pillar to the east (far). You notice young animals.
 ```
 
-**> read stone door-slab**
+**> smell**
 
 ```
-On a stone door-slab, twenty-nine glyphs (page 1 of 2):
-
-1. A hook turned left, centre.
-2. A ring, right.
-3. A bar turned right, centre and a hook turned down, right.
-4. A tail turned right, centre.
-
-5. A hook turned left, centre.
-6. A tail turned right, centre.
-7. A wedge turned up, left and a zigzag turned right, right.
-8. A dot, right and an arc turned right, bottom.
-9. A cross, top.
-10. A bar turned right, centre.
-11. A cross, bottom.
-12. A tail turned right, centre.
-13. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-14. A hook turned right, centre and a hook turned left, centre.
-15. A tail turned right, centre.
-
-16. A hook turned right, centre and a hook turned left, centre.
-
-(Type 'more' to read on.)
+A smell of flowers.
 ```
 
-**> more**
+**> look down**
 
 ```
-On a stone door-slab, twenty-nine glyphs (page 2 of 2):
+Here and there: bare earth. Slope grassland underfoot, dry.
+```
 
-17. A dot, centre.
-18. A dot, right and an arc turned right, bottom.
-19. A cross, top.
-20. A bar turned right, right and a tail turned right, bottom.
+**> go worn temple**
 
-21. An arc turned down, left and a zigzag turned left, right.
-22. A cross, top.
-23. A bar turned right, centre.
+```
+A forecourt. Ways out: a door north and the way out. The air is mild.
+```
 
-24. A bar turned right, right and a tail turned right, bottom.
-25. A ring, right.
-26. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
+**> out**
 
-27. A hook turned right, centre and a hook turned left, centre.
-28. A ring, right.
-29. A bar turned right, centre and a hook turned right, centre.
+```
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
+```
 
-That is all of it.
+**> go damaged storehouse**
+
+```
+A storeroom. Ways out: a door east and the way out. A draught stirs.
+```
+
+**> out**
+
+```
+An intact refuge of several tombs. The worn temple stands alone of its kind here. Wind pulls at your clothes.
+```
+
+**> go damaged cemetery**
+
+```
+A graves. Ways out: the way out. A draught stirs.
+```
+
+**> out**
+
+```
+An intact refuge of several tombs. The worn temple stands alone of its kind here. Wind pulls at your clothes.
+```
+
+**> go intact cistern**
+
+```
+A cistern-head, dim and close. Ways out: a stair down and the way out. The air is mild.
 ```
 
 **> down**
 
 ```
-It is too dark to see anything here. You can feel your way to a stair up and a door north. The air is cool.
+Down by the stair, some 6 metres.
+
+It is too dark to see anything here. You can feel your way to a stair up, an arch east, an arch north and an arch west. The air is cool.
 ```
 
 **> light lamp**
@@ -2088,358 +1664,250 @@ It is too dark to see anything here. You can feel your way to a stair up and a d
 The lamp is lit.
 ```
 
-**> examine stone wall**
+**> north**
 
 ```
-A stone wall.
+North by the arch, some 10 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch south and a door north. The air is cool.
+```
+
+**> look closer**
+
+```
+A corridor, below ground, dim and close. Ways out: an arch south and a door north.
+```
+
+**> listen**
+
+```
+Dripping.
 ```
 
 **> north**
 
 ```
-A burial, below ground, dim and close. A stone sarcophagus stands here. Ways out: a door south.
+North by the door, some 10 metres.
+
+A dwelling, below ground, dim and close. A wood cot stands here. Ways out: a door south.
 ```
 
-**> examine stone sarcophagus**
+**> look closer**
 
 ```
-A stone sarcophagus.
+A dwelling, below ground, dim and close. A waterskin lies here.
 ```
 
-**> examine stone wall**
+**> listen**
 
 ```
-A stone wall.
+Dripping.
+```
+
+**> examine wood cot**
+
+```
+A wood cot.
+```
+
+**> examine waterskin**
+
+```
+A waterskin. It holds 0 of 4 drinks.
 ```
 
 **> south**
 
 ```
-A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north.
+South by the door, some 10 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch south and a door north.
 ```
 
-**> up**
+**> south**
 
 ```
-A tomb-entrance, dim and close. Ways out: a stair down and the way out. The air is mild.
-```
+South by the arch, some 10 metres.
 
-**> out**
-
-```
-An intact refuge of several tombs. The ground is wet. It is raining, afternoon.
-```
-
-**> extinguish torch**
-
-```
-You can't make fire: not_lit.
-```
-
-**> go 3 intact tomb**
-
-```
-A tomb-entrance, dim and close. A stone door-slab stands here. Ways out: a stair down and the way out.
-```
-
-**> examine stone door-slab**
-
-```
-A stone door-slab. Marks are cut into it: writing. You could read it.
-```
-
-**> read stone door-slab**
-
-```
-On a stone door-slab, twenty-five glyphs (page 1 of 2):
-
-1. A hook turned up, right, a wedge turned up, bottom and a wedge turned right, bottom.
-2. A cross, top.
-3. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-4. A ring, right.
-5. A bar turned right, right and a tail turned right, bottom.
-6. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-7. A tail turned right, centre.
-
-8. A hook turned left, centre.
-9. A ring, right.
-10. A bar turned right, centre and a hook turned down, right.
-11. A tail turned right, centre.
-12. A hook turned right, centre and a hook turned left, centre.
-13. A tail turned right, centre.
-
-14. A hook turned left, right, a wedge turned right, left and a tail turned right, left.
-15. A cross, top.
-16. A cross, bottom.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone door-slab, twenty-five glyphs (page 2 of 2):
-
-17. An arc turned down, left and a zigzag turned left, right.
-18. A cross, top.
-19. A bar turned right, centre.
-
-20. A bar turned right, right and a tail turned right, bottom.
-21. A ring, right.
-22. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-23. A hook turned right, centre and a hook turned left, centre.
-24. A ring, right.
-25. A bar turned right, centre and a hook turned right, centre.
-
-That is all of it.
-```
-
-**> down**
-
-```
-A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north.
-```
-
-**> examine stone wall**
-
-```
-A stone wall.
-```
-
-**> north**
-
-```
-A burial, below ground, dim and close. A stone sarcophagus stands here. Ways out: a door south and an opening east.
-```
-
-**> examine stone sarcophagus**
-
-```
-A stone sarcophagus.
-```
-
-**> examine stone wall**
-
-```
-A stone wall.
-```
-
-**> east**
-
-```
-An offerings, below ground, dim and close. A stone shelf stands here. Ways out: an opening west.
-```
-
-**> examine clay jar**
-
-```
-A jar. It holds 0 of 3 drinks.
-```
-
-**> examine stone shelf**
-
-```
-A stone shelf.
+A cistern-hall, below ground, dim and close. A stone pillar stands here. Ways out: a stair up, an arch east, an arch north and an arch west.
 ```
 
 **> west**
 
 ```
-A burial, below ground, dim and close. A stone wall stands here.
+West by the arch, some 8 metres.
+
+A corridor, below ground, dim and close. A waterskin lies here. Ways out: an arch east, a door north, a door south and a door west.
 ```
 
-**> south**
+**> look closer**
 
 ```
-A passage, below ground, dim and close. Ways out: a stair up and a door north.
+A corridor, below ground, dim and close. Ways out: an arch east, a door north, a door south and a door west.
 ```
 
-**> up**
+**> examine waterskin**
 
 ```
-A tomb-entrance, dim and close. Ways out: a stair down and the way out. The air is mild.
-```
-
-**> out**
-
-```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
-```
-
-**> go 4 intact tomb**
-
-```
-A tomb-entrance, dim and close. A stone door-slab stands here. Ways out: a stair down and the way out.
-```
-
-**> examine stone door-slab**
-
-```
-A stone door-slab. Marks are cut into it: writing. You could read it.
-```
-
-**> read stone door-slab**
-
-```
-On a stone door-slab, twenty-seven glyphs (page 1 of 2):
-
-1. A bar turned right, centre and a hook turned right, centre.
-2. A ring, right.
-3. A dot, right and an arc turned right, bottom.
-4. A cross, top.
-
-5. A hook turned up, right, a wedge turned up, bottom and a wedge turned right, bottom.
-6. A cross, top.
-7. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-8. A ring, right.
-9. A bar turned right, right and a tail turned right, bottom.
-10. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-11. A tail turned right, centre.
-12. A hook turned right, centre and a hook turned left, centre.
-13. A tail turned right, centre.
-
-14. A hook turned right, centre and a hook turned left, centre.
-15. A dot, centre.
-16. A dot, right and an arc turned right, bottom.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone door-slab, twenty-seven glyphs (page 2 of 2):
-
-17. A cross, top.
-18. A bar turned right, right and a tail turned right, bottom.
-
-19. An arc turned down, left and a zigzag turned left, right.
-20. A cross, top.
-21. A bar turned right, centre.
-
-22. A bar turned right, right and a tail turned right, bottom.
-23. A ring, right.
-24. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-25. A hook turned right, centre and a hook turned left, centre.
-26. A ring, right.
-27. A bar turned right, centre and a hook turned right, centre.
-
-That is all of it.
-```
-
-**> operate drain_lever**
-
-```
-You work the drain_lever. It is pulled now.
-```
-
-**> down**
-
-```
-A stair down leads into water.
-```
-
-**> open down**
-
-```
-A stair down will not move.
-```
-
-**> down**
-
-```
-A stair down leads into water.
-```
-
-**> out**
-
-```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
-```
-
-**> go 5 intact tomb**
-
-```
-A tomb-entrance, dim and close. A stone door-slab stands here. Ways out: a stair down and the way out.
-```
-
-**> examine stone door-slab**
-
-```
-A stone door-slab. Marks are cut into it: writing. You could read it.
-```
-
-**> read stone door-slab**
-
-```
-On a stone door-slab, twenty-four glyphs (page 1 of 2):
-
-1. A bar turned right, right, a hook turned down, right and a tail turned right, bottom.
-2. A cross, top.
-3. A bar turned right, right and a tail turned right, bottom.
-4. A dot, right, a wedge turned up, left and a zigzag turned left, left.
-5. A dot, centre.
-6. A bar turned right, centre and a hook turned right, centre.
-
-7. A bar turned right, centre and a hook turned right, centre.
-8. A ring, right.
-9. A dot, right and an arc turned right, bottom.
-10. A cross, top.
-11. A hook turned right, centre and a hook turned left, centre.
-12. A tail turned right, centre.
-
-13. A hook turned left, right, a wedge turned right, left and a tail turned right, left.
-14. A cross, top.
-15. A cross, bottom.
-
-16. An arc turned down, left and a zigzag turned left, right.
-
-(Type 'more' to read on.)
-```
-
-**> more**
-
-```
-On a stone door-slab, twenty-four glyphs (page 2 of 2):
-
-17. A cross, top.
-18. A bar turned right, centre.
-
-19. A bar turned right, right and a tail turned right, bottom.
-20. A ring, right.
-21. A bar turned right, right, a hook turned right, centre and a tail turned right, bottom.
-
-22. A hook turned right, centre and a hook turned left, centre.
-23. A ring, right.
-24. A bar turned right, centre and a hook turned right, centre.
-
-That is all of it.
-```
-
-**> down**
-
-```
-A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north (closed).
-```
-
-**> examine stone wall**
-
-```
-A stone wall.
+A waterskin. It holds 0 of 4 drinks.
 ```
 
 **> north**
 
 ```
-The door north cannot be passed: it is closed.
+North by the door, some 8 metres.
+
+A kitchen, below ground, dim and close. A stone hearth stands here. Ways out: a door south, the northern arch west, the southern door west and a hole down.
 ```
 
-**> open north**
+**> look closer**
 
 ```
-You open a door north (closed).
+A kitchen, below ground, dim and close. A wood table stands here.
+```
+
+**> listen**
+
+```
+Dripping.
+```
+
+**> smell**
+
+```
+A smell of damp stone.
+```
+
+**> examine wood table**
+
+```
+A wood table.
+```
+
+**> examine waterskin**
+
+```
+A waterskin. It holds 0 of 4 drinks.
+```
+
+**> go northern arch west**
+
+```
+West by the arch, some 6 metres.
+
+A stairwell, below ground, dim and close. Ways out: an arch east and a stair down. The air is cool.
+```
+
+**> look closer**
+
+```
+A stairwell, below ground, dim and close. Ways out: an arch east and a stair down.
+```
+
+**> east**
+
+```
+East by the arch, some 6 metres.
+
+A kitchen, below ground, dim and close. A waterskin lies here.
+```
+
+**> go southern door west**
+
+```
+West by the door, some 12 metres.
+
+A shrine, below ground, dim and close. A stone niche stands here. Ways out: the southern door east and the northern door east.
+```
+
+**> look closer**
+
+```
+A shrine, below ground, dim and close. A stone altar stands here.
+```
+
+**> listen**
+
+```
+Dripping.
+```
+
+**> examine stone niche**
+
+```
+A stone niche.
+```
+
+**> examine stone altar**
+
+```
+A stone altar.
+```
+
+**> go southern door east**
+
+```
+East by the door, some 10 metres.
+
+A corridor, below ground, dim and close. Ways out: an arch east, a door north, a door south and a door west.
+```
+
+**> east**
+
+```
+East by the arch, some 8 metres.
+
+A cistern-hall, below ground, dim and close. Ways out: a stair up, an arch east, an arch north and an arch west.
+```
+
+**> up**
+
+```
+Up by the stair, some 6 metres.
+
+A cistern-head, dim and close. Ways out: a stair down and the way out. The air is mild.
+```
+
+**> out**
+
+```
+An intact refuge of several tombs. The worn temple stands alone of its kind here. The air is mild.
+```
+
+**> extinguish lamp**
+
+```
+You put out the lamp.
+```
+
+**> head south**
+
+```
+You travel south, about 3000 metres, in about 45 minutes.
+
+The flat mountain to the northeast (middle). Here and there: bare earth.
+```
+
+**> look**
+
+```
+It is raining, afternoon. You notice blossom.
+```
+
+**> look around**
+
+```
+A field walls to the north. The ground is wet. The flat mountain to the northeast (middle). The plain standing stones to the northeast (short). Here and there: bare earth. Here and there: cracked mud.
+```
+
+**> head north**
+
+```
+You travel north, about 3000 metres, in about 45 minutes.
+
+Grassland, slope ground. Here and there: bare earth.
+
+Water soaks through your clothes.
 
 Your mouth is dry.
 ```
@@ -2448,68 +1916,14 @@ Your mouth is dry.
 
 ```
 You drink.
+
+Water soaks through your clothes.
 ```
 
 **> fill waterskin**
 
 ```
 You can't fill a waterskin here.
-```
-
-**> north**
-
-```
-A burial, below ground, dim and close. A stone sarcophagus stands here. Ways out: a door south.
-
-Your thirst eases.
-```
-
-**> fill waterskin**
-
-```
-You can't fill a waterskin here.
-```
-
-**> examine stone sarcophagus**
-
-```
-A stone sarcophagus.
-```
-
-**> examine stone wall**
-
-```
-A stone wall.
-```
-
-**> south**
-
-```
-A passage, below ground, dim and close. A stone wall stands here. Ways out: a stair up and a door north.
-```
-
-**> up**
-
-```
-A tomb-entrance, dim and close. Ways out: a stair down and the way out.
-```
-
-**> fill waterskin**
-
-```
-You can't fill a waterskin here.
-```
-
-**> out**
-
-```
-An intact refuge of several tombs. Among them stands the worn temple. The air is mild.
-```
-
-**> fill waterskin**
-
-```
-You fill a waterskin.
 ```
 
 **> wait 1 hour**
@@ -2517,9 +1931,7 @@ You fill a waterskin.
 ```
 You wait about an hour.
 
-Your lamp goes out.
-
-Water soaks through your clothes.
+Your thirst eases.
 ```
 
 **> go 1 worn house**

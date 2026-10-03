@@ -293,9 +293,12 @@ impl Game {
                 (score, fresh, f)
             })
             .collect();
+        // Where the player set out for is weighed first, within the budget.
+        let target = |f: &Fact| self.arrival_keys.contains(&f.key);
         scored.sort_by(|a, b| {
-            b.2.anchor
-                .cmp(&a.2.anchor)
+            target(&b.2)
+                .cmp(&target(&a.2))
+                .then(b.2.anchor.cmp(&a.2.anchor))
                 .then(b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal))
                 .then_with(|| a.2.key.cmp(&b.2.key))
         });

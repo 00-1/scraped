@@ -240,6 +240,14 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | How does the end chronicle show? | Each sign by its sound where heard, else a dot, `/` between words | `crates/game/src/ending.rs` (`chronicle_glyphs`) | D12 |
 | What does writing echo? | Each sign written by its sound where heard, else its impression | `crates/game/src/composing.rs` | now |
 
+| Can a feature seen at a distance be gone to? | Yes, by name, within 1.5 km (the `look around` range); close by is 300 m | `crates/game/src/places.rs` (`place_targets`) | D06 |
+| How does the explorer split its time? | About four buildings of a town once it has a firesteel and a cloak; 45 minutes in any building; then features and landmarks it has noticed, odd ones (pillars, stones) before heights and towns in the morning | `crates/game/src/bots.rs` (`TOWN_BUILDINGS`, `BUILDING_MINUTES`) | now |
+| Ids in text | Templates see ids with spaces ("pry bar"), in variables, enum values and condition words alike; code keeps its ids | `crates/content/src/slot.rs` (`readable`) | now |
+| Several ways one way | Each is listed by its name ("the western door north") among the exits; one alone by its direction | `crates/game/src/lib.rs` (summary) | now |
+| Alike options | When "which?" options read the same, one of each is offered; if only one is left, it is taken | `crates/game/src/lib.rs` (`with_target`) | now |
+| Why a door won't move | Rubble in the doorway, the space beyond fallen in, or not a door at all (`say.door_stuck`'s `cause`); held by writing shows nothing (`effect.held`); barred from the far side gives a finger's width (`hazard.barred`). Locked, stuck and swollen doors wait for D05's keys | `crates/game/src/lib.rs` (`door`) | D05 |
+| Can a drop trap the player? | No: each building is checked as if writing held every door shut, and a drop that lands where only doors lead on is made climbable | `crates/world/src/interiors.rs` (`trapped`) | D04 |
+
 **Other ways to learn sounds** (recorded for Jb, hooks only, not built):
 - *Names from nature:* some animals and birds (D06) named after their calls, with a carving or label pairing the creature and its written name.
 - *An earlier decipherer's notes:* traces of a previous explorer (the D06 gate), giving some sound values, some wrong, as storylets in Jb's words.

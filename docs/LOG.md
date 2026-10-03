@@ -612,3 +612,23 @@
 
 **Revised the same day after Jb's feedback:** no arbitrary naming of signs (the only in-game names are real sounds, heard as signs are scraped off); no `signs` list (the game is not the player's notebook; exceptions must be argued for); and unknown writing is perceived in layers: an impression of the whole text, then an impression of each sign's shape, then exact strokes only when one sign is examined. Both principles added to `docs/DESIGN.md`. Writing with labels gives way to writing with heard sounds and copied signs (DESIGN-Q). Worth Jb's review against the new rule: named places (`name this place`, `go to <name>`) are a record the game keeps for the player.
 
+
+## 2026-10-03 — S01 done; D04 part-way
+
+**D04 step committed first** (great interiors, caves, mapper bot; tool placement routes each home once, site setup about 90 ms faster).
+
+**S01 — Course corrections**
+- **Reading in layers** (`crates/game/src/reading.rs`): `read` is a glance at the whole text; `read closely` (`study`, `read on`, `more`, `look closer` while reading) goes sign by sign by impression, or by sound once heard; `examine sign 4` gives a fuller impression; `trace sign 4` / `trace the stele` gives the exact strokes, 4 minutes a sign, in light, eight signs at a go.
+- **Sign impressions** (`crates/lang/src/impression.rs`): outline, main stroke and only as many other marks as needed to tell every sign of a script apart; related signs told as "like that sign, with…"; about one alike pair per script on archaeologist.
+- **Labels gone**, old saves load. **Heard sounds**: scraping where it's quiet, or after `listen`, lets each sign's sound be heard; it then reads by its sound. The one exception to "the game is not your notebook", recorded in DECISIONS with the alternatives. **Writing by sound**: `write kati mo on wall`, `#4` copies a sign of the last text read.
+- **Curious explorer**: digs (0.22 of commands), follows features, sounds and smells, stops examining what gives nothing, leaves towns and buildings in time, avoids drops. Survives three days on 8 of 10. Features visited in ten hours: 2.6, short of the target of 5 (see DEPTH.md). The scholar reaches the deepest text on 5 of 10 again (bar restored).
+- **Arrival** leads with the place set out for; features in view within 1.5 km can be gone to.
+- **Bugs**: ids readable everywhere templates see them (a test checks no response has an underscore); alike options offered once; several ways one way listed by name; standouts stand alone; doors that won't move give a cause.
+- **Also fixed**: drops into spaces where only held doors lead on (world); two hash picks that differed in WebAssembly (usize is 32 bits there). The bench has a `transcript` debug command for comparing platforms.
+- D03 samples regenerated (old kept in `docs/samples/D03-old/`), notes rewritten; D02/D03 numbers re-checked in DEPTH.md.
+
+**Open questions:** see "Course corrections (S01)" in `docs/DECISIONS.md`: tracing time and materials, writing by sound and `#N`, the chronicle's dots, features in reach at 1.5 km, the explorer's time split.
+
+**New content slots (one example variant each):** `glyph.impression`, `glyph.closer`, `glyph.heard`, `read.whole`, `sign.name`, `trace.frame`, `trace.sign`, `trace.lost`, `trace.more`, `trace.dark`, `write.unheard`. Changed: `read.glyph` (impression, heard, sound), `write.done` (signs by sound or look), `say.door_stuck` (cause), `end.chronicle`. Removed: `say.define`, `say.define_bad`.
+
+**Next:** resume D04: brevity inside great interiors (a move report adds a fact to each room arrival: facts per arrival 3.7 against 3), the lazy-generation decision, hazards, interior landmarks, samples and notes.

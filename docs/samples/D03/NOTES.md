@@ -1,19 +1,24 @@
-# D03 samples: notes
+# D03 samples (regenerated in S01): notes
 
-The curious explorer's first ten hours on seeds 1, 42 and 9001, with the example text. Regenerate with `scraped-lang samples D03 --hours 10`. Ten hours rather than three, because the point of D03 is what turns up over hours.
+The curious explorer's first ten hours on seeds 1, 42 and 9001, with the example text. Regenerate with `scraped-lang samples D03 --hours 10`. The samples from before S01 are kept in `../D03-old/` for comparison. The world is the same; the explorer and the reading are new.
 
-## What changed since D02
+## What the new explorer does
 
-- **Towns have roles.** The opening now says what kind of place it is: "An intact holy city of a few houses" (seed 1), "A worn holy city of several tombs" (seed 9001). Seed 42's town is a refuge on a hilltop. Over seeds 1–10, a world has 5 or 6 of the 8 roles, and no two towns of one role and size share a layout.
-- **New kinds of building, found by going in.** In the first town, the explorer goes into a processional way, a school, a scriptorium and a garden (seed 1). On seed 42 it finds a cistern, a kiln, a granary and an orchard. On seed 9001 it finds a library and a mausoleum. In the next town on seed 9001 it finds a granary, an orchard, a brewery, a kiln and a wayside shrine. A world has about 38 kinds of building (target: at least 25 of 35+).
-- **The land between towns has places in it.** The explorer walks to a rock pillar and standing stones (seed 1), and to an ancient tree (seed 9001). A world has about 22 natural feature kinds, against about 3 before. The tall ones (waterfalls, rock pillars, sea stacks, glaciers, cairns, standing stones) are landmarks.
-- **`look around` in a town gives its layout:** "A refuge by a hilltop, terraced. Parts: upper town, farmyards, graves and old town." `go to the farmyards` walks there.
-- **Scenes wait to be found.** Each town has 3 to 5 (a meal left on a table, tools dropped, a barricade, a flood line), and there are about 19 out on the land. They weigh little at first glance, so they mostly turn up on `look closer`.
-- **Still finding new kinds of thing in the fifth hour:** 6 new kinds in hour 5, averaged over seeds 1–10.
+- **It digs where it arrives, but not everywhere.** On reaching a spot outside it looks, often looks around, and sometimes listens, smells, or looks up or down. In a room it often looks closer, and sometimes listens, smells or touches. Over seeds 1–10 these are about a fifth of its commands (none before S01).
+- **It follows what it notices.** On seed 9001, after taking in the town, it goes to the terraces it was told of, then to a burial mound, an old road and a dead forest. On seed 42 it goes to the terraces by its town. It heads towards sounds and smells from somewhere, and looks at groups of alike buildings ("look at the tombs").
+- **It stops examining what gives nothing.** After three walls or tables that turned up nothing, it stops examining that kind of thing. Before S01 it spent most of its time examining every wall in the first town.
+- **It splits its time.** It sees about four buildings of a town once it has a firesteel and a cloak, leaves any building after about 45 minutes, and goes out to features and landmarks. Over seeds 1–10 that is 13 buildings in about 1.5 towns, and 2.6 features, in ten hours. The features target (5) is not met: the body sends it back to shelter in the afternoon and to sleep, and features lie far apart.
+
+## Reading in layers
+
+- `read the stele` is now a glance: "On a stone stele, sixty-six signs in twelve groups, about six lines, in a cramped hand." About 22 words, against a page of stroke descriptions before.
+- `read closely` goes sign by sign by impression ("an angular sign, a wedge turned up, with a tail"). Related signs read as related ("like an angular sign, a cross, with a hook turned up"). Recurring signs are easy to spot down a page (seed 9001's stele repeats a handful).
+- `examine sign 1` gives a fuller impression; `trace sign 6` (seed 42) gives the exact strokes and takes minutes.
+- The explorer never scrapes, so it hears no sounds. The scholar, with a scraper in hand, hears about 33 signs' sounds in ten hours.
 
 ## What still reads flat (for Jb and later milestones)
 
-- **The example text is placeholder.** "A wood tree", "A standing stones to the southeast", "Here: bones, bundle and bowl" print ids. Each new slot has a description and its variables in the authoring tool for Jb's own pieces.
-- **New buildings are thin inside.** A mill is one room with a millstone and a waterwheel. D04 replaces every interior.
-- **A scene is only its list of things.** What the things say together (the barricade facing the door, the meal's bowls still set) is for Jb's variants of `place.scene`, which gets the scene's kind, its things and its cause.
-- **Reading still dominates the first hours** in towns with much writing (seed 42).
+- **The example text is placeholder.** "A terraces, in granite", "A provisions lies here" are example wording, not Jb's. The new slots (`read.whole`, `glyph.impression`, `glyph.closer`, `glyph.heard`, `trace.*`, `write.unheard`, `sign.name`) each have a description and variables for Jb.
+- **Impressions are long when a sign is told by its relation** ("like an angular sign, a wedge turned up, with a tail, centre, with a hook turned up, centre"). Jb's wording of `glyph.impression` can shorten this, for example by naming the related sign's most striking stroke only.
+- **A close page is still about 170 words** (16 signs). Once common signs are heard it falls to about 110. Whether a page should hold fewer signs is for Jb.
+- **Doors held by writing say only that they won't move.** That is the cue (nothing to see), but it may read as a bug until the player learns it.
