@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**D05 — Things and machines** (`docs/milestones/D05-things-and-machines.md`), the fifth milestone of the depth roadmap in `docs/DEPTH.md`. D01–D04 and S01 are done (instruments, quiet text, places with character, course corrections, great interiors). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
+**D05 — Things and mechanisms** (`docs/milestones/D05-things-and-mechanisms.md`), the fifth milestone of the depth roadmap in `docs/DEPTH.md`. D01–D04 and S01 are done (instruments, quiet text, places with character, course corrections, great interiors). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
 
