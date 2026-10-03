@@ -42,6 +42,9 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   await page.waitForFunction(() => document.querySelector('#worldText').textContent.startsWith('LIVE CLAIMS'));
   await page.click('#regionsView');
   await page.waitForFunction(() => document.querySelector('#worldText').textContent.startsWith('TRAJECTORY'), null, { timeout: 30000 });
+  // D01: the depth metrics for this world.
+  await page.click('[data-tab=depth]');
+  await page.waitForFunction(() => document.querySelector('#panel').textContent.includes('landmarks_unique_share'), null, { timeout: 60000 });
   await browser.close();
   if (errors.length) throw new Error('page errors: ' + errors.join('; '));
   if (!site.startsWith('SITE 0')) throw new Error('site view missing: ' + site.slice(0, 80));

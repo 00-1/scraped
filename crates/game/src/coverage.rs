@@ -13,8 +13,9 @@ use scraped_sim::outdoors::hash;
 
 use crate::{Game, Output, Rendered};
 
-/// Bots that play for coverage.
-pub const BOTS: &[&str] = &["wanderer", "scholar"];
+/// Bots that play for coverage: the depth bots (D01). The old wanderer
+/// below stays as the scripted player behind the determinism fixtures.
+pub const BOTS: &[&str] = crate::bots::DEPTH_BOTS;
 
 /// A deterministic player: looks, reads, takes, walks in and out of
 /// buildings and across the land, and looks after its body. The scholar
@@ -167,21 +168,8 @@ pub const REPEAT: f64 = 4.0;
 
 /// One bot's run on one seed: the renders it caused and the hours played.
 pub fn play(pack: &Pack, seed: u64, kind: &'static str, steps: usize) -> (Vec<Rendered>, f64) {
-    let mut g = Game::new(seed, pack.clone());
-    g.keep_renders = true;
-    let mut out = g.start();
-    let mut bot = Bot::new(kind, seed);
-    bot.prepare(&mut g);
-    let start = g.state.minutes;
-    for _ in 0..steps {
-        if g.state.dead.is_some() {
-            break;
-        }
-        let cmd = bot.next(&g, &out);
-        out = g.step(&cmd);
-    }
-    let hours = f64::from(g.state.minutes - start) / 60.0;
-    (g.renders, hours.max(0.1))
+    let run = crate::bots::play(pack, seed, kind, 24.0 * 365.0, steps);
+    (run.renders, run.hours.max(0.1))
 }
 
 /// A fingerprint of a whole scripted run: every command, everything the
@@ -212,7 +200,7 @@ pub fn transcript_hash(pack: &Pack, seed: u64, preset: &str, steps: usize) -> St
     format!("{h:016x}")
 }
 
-fn combo(vars: &scraped_content::Context) -> String {
+pub(crate) fn combo(vars: &scraped_content::Context) -> String {
     vars.iter()
         .filter(|(_, v)| {
             matches!(v, Value::Bool(_))

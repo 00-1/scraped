@@ -285,6 +285,21 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 steps.min(1000)
             )))
         }
+        // The D01 depth metrics, for the bench and the authoring tool.
+        "depth" => {
+            let (pack, _) = pack(req)?;
+            let seeds: Vec<u64> = opt::<Vec<String>>(req, "seeds", vec!["1".into()])
+                .iter()
+                .filter_map(|s| s.parse().ok())
+                .take(5)
+                .collect();
+            let hours: f64 = opt(req, "hours", 6.0);
+            Ok(json!(scraped_game::depth::report(
+                &pack,
+                &seeds,
+                hours.clamp(1.0, 72.0)
+            )))
+        }
         "voice" => {
             let (pack, _) = pack(req)?;
             Ok(json!({

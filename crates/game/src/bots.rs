@@ -102,6 +102,8 @@ struct Room {
     ghosts: Option<u8>,
     /// Old writing holds a way shut here: the way, and claims cast.
     held: Option<(String, u8)>,
+    /// A hearth to make a fire in.
+    hearth: bool,
 }
 
 impl Room {
@@ -162,6 +164,10 @@ pub struct DepthBot {
     abandoned: BTreeSet<String>,
     lens: u8,
     lamp_empty: bool,
+    /// Whether the waterskin has been drunk from since it was last filled.
+    skin_used: bool,
+    /// Outdoor squares looked around.
+    looked: BTreeSet<(i32, i32)>,
     /// The last place outdoors with buildings to shelter in.
     shelter: Option<(i32, i32)>,
     /// Recent places, to notice going round in circles.
@@ -196,6 +202,8 @@ impl DepthBot {
             abandoned: BTreeSet::new(),
             lens: 0,
             lamp_empty: false,
+            skin_used: true,
+            looked: BTreeSet::new(),
             shelter: None,
             recent: VecDeque::new(),
             renders: 0,
@@ -252,7 +260,9 @@ impl DepthBot {
         let s = &last.state;
         let here = s.place.clone();
         if here != "outside" {
-            self.rooms.entry(here.clone()).or_default().exits = s.exits.clone();
+            let r = self.rooms.entry(here.clone()).or_default();
+            r.exits = s.exits.clone();
+            r.hearth |= s.things.iter().any(|t| t.contains("hearth"));
         }
         if let Some((cmd, from, pos)) = self.last.clone() {
             // Inside, through a way: note where it led, both ways.
@@ -314,6 +324,18 @@ impl DepthBot {
             }
             if cmd == "use oil" {
                 self.lamp_empty = false;
+            }
+            if cmd == "drink from waterskin" {
+                self.skin_used = true;
+            }
+            if cmd == "fill waterskin" && !s.carried.is_empty() {
+                // Filled if it said so; otherwise there was no water here.
+                let filled = g.renders[self.renders.min(g.renders.len())..]
+                    .iter()
+                    .any(|r| r.trace.slot == "fill.done");
+                if filled {
+                    self.skin_used = false;
+                }
             }
             // What close looking showed.
             if let Some(rest) = cmd.strip_prefix("examine ") {
@@ -446,6 +468,10 @@ impl DepthBot {
                 }
             }
         }
+        // A curious newcomer looks around each new spot outdoors.
+        if here == "outside" && !self.scholar() && self.looked.insert(square_of(g)) {
+            return "look".into();
+        }
         // What's here first, then errands elsewhere.
         if let Some(c) = self.handle_things(last) {
             return c;
@@ -544,6 +570,8 @@ impl DepthBot {
             need("warmth").as_str(),
             "cold" | "chilled" | "shivering" | "hypothermic"
         );
+        // Shivering is a warning: get under a roof, whatever the hour.
+        let shivering = matches!(need("warmth").as_str(), "shivering" | "hypothermic");
         let hour = (s.minutes / 60) % 24;
         let night = !(6..20).contains(&hour);
         // Evening: find shelter before dark rather than roam.
@@ -560,7 +588,20 @@ impl DepthBot {
                 return Some("make fire".into());
             }
         }
-        if outside && (night || evening) && s.exits.is_empty() {
+        if outside && (night || evening) && g.fire_here_pub() {
+            // Camped by a fire: stay by it till morning, and keep it fed.
+            if has("wood") && self.worth(g, s, "feed") {
+                return Some("feed".into());
+            }
+            if !has("wood") && self.worth(g, s, "gather") {
+                return Some("gather".into());
+            }
+            if self.worth(g, s, "sleep") {
+                return Some("sleep".into());
+            }
+            return Some("wait 1 hour".into());
+        }
+        if outside && (night || evening || shivering) && s.exits.is_empty() {
             // The nearest town or building in view, while it's still light.
             let order = ["near", "short", "middle", "far", "horizon"];
             let shelter = s
@@ -586,7 +627,7 @@ impl DepthBot {
                 }
             }
         }
-        if outside && (night || evening) {
+        if outside && (night || evening || shivering) {
             // Shelter: a house, where there's a hearth, if there is one.
             let sq = square_of(g);
             let open: Vec<usize> = (0..s.exits.len())
@@ -600,8 +641,24 @@ impl DepthBot {
                 return Some(format!("go {}", noun(&s.exits, i)));
             }
         }
-        if cold && !outside && has("wood") && has("firesteel") && self.worth(g, s, "make fire") {
-            return Some("make fire".into());
+        if cold && !outside && has("wood") && has("firesteel") {
+            // A fire needs a hearth: go to one in this building if known.
+            let here_hearth = self.rooms.get(&s.place).is_some_and(|r| r.hearth);
+            if here_hearth {
+                if self.worth(g, s, "make fire") {
+                    return Some("make fire".into());
+                }
+            } else if let Some((b, _)) = s.place.rsplit_once(" room ") {
+                let prefix = format!("{b} room ");
+                let hearth = self
+                    .rooms
+                    .iter()
+                    .find(|(p, r)| p.starts_with(&prefix) && r.hearth)
+                    .map(|(p, _)| p.clone());
+                if let Some(step) = hearth.and_then(|h| self.route(&s.place, &h)) {
+                    return Some(step);
+                }
+            }
         }
         if matches!(need("rest").as_str(), "tired" | "exhausted") && self.worth(g, s, "sleep") {
             return Some("sleep".into());
@@ -615,7 +672,8 @@ impl DepthBot {
             }
             return Some("wait 1 hour".into());
         }
-        if has("waterskin") && self.worth(g, s, "fill waterskin") {
+        // Refill the waterskin after drinking from it, when water's to hand.
+        if has("waterskin") && self.skin_used && self.worth(g, s, "fill waterskin") {
             return Some("fill waterskin".into());
         }
         None
@@ -998,6 +1056,7 @@ impl DepthBot {
         let s = &last.state;
         let p = g.state.pos;
         let square = square_of(g);
+
         // The scholar names the spot before going in, to find it again.
         if self.scholar() && !s.exits.is_empty() && !self.named.contains_key(&square) {
             // Letters, not numbers: a number reads as "the third".
@@ -1274,6 +1333,9 @@ pub struct BotRun {
     pub walked: Vec<(i32, i32)>,
     /// How many texts the words of an opening claim were met in.
     pub words: Vec<(String, usize)>,
+    /// For each response, how many facts it mentioned: renders of slots
+    /// that say one thing (no lists), outside the parser's replies.
+    pub facts: Vec<u32>,
     #[serde(skip)]
     pub renders: Vec<Rendered>,
 }
@@ -1338,6 +1400,7 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
         rooms: BTreeSet::new(),
         walked: Vec::new(),
         words: Vec::new(),
+        facts: Vec::new(),
         renders: Vec::new(),
     };
     let mut seen: BTreeSet<String> = BTreeSet::new();
@@ -1361,6 +1424,16 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
         }
         *taken = g.renders.len();
     };
+    // A fact: a render of a slot that says one thing (no lists), outside
+    // the parser's replies, whose text the player was actually shown.
+    let count_facts = |rs: &[Rendered], text: &str| {
+        rs.iter()
+            .filter(|r| !r.trace.slot.starts_with("say."))
+            .filter(|r| !r.vars.values().any(|v| matches!(v, Value::List(_))))
+            .filter(|r| !r.trace.text.trim().is_empty() && text.contains(r.trace.text.trim()))
+            .count() as u32
+    };
+    run.facts.push(count_facts(&g.renders, &out.text));
     note(&g, &mut run, &mut taken);
     for _ in 0..max_steps {
         if g.state.dead.is_some() || f64::from(g.state.minutes - start) >= hours * 60.0 {
@@ -1384,6 +1457,7 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
         }
         run.texts.push(out.text.clone());
         let before_novel = run.novelty.len();
+        run.facts.push(count_facts(&g.renders[taken..], &out.text));
         note(&g, &mut run, &mut taken);
         if run.novelty.len() == before_novel {
             bot.idle += 1;

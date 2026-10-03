@@ -115,6 +115,7 @@ footer { color: var(--muted); font-size: .85rem; }
       <button type="button" role="tab" data-tab="script" aria-selected="false">Script</button>
       <button type="button" role="tab" data-tab="grammar" aria-selected="false">Grammar</button>
       <button type="button" role="tab" data-tab="world" aria-selected="false">World</button>
+      <button type="button" role="tab" data-tab="depth" aria-selected="false">Depth</button>
     </div>
     <div class="chips" id="eraChips"></div>
   </div>
@@ -202,7 +203,7 @@ function render() {
   document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === state.tab));
   document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === state.view));
   $("viewChips").hidden = state.tab !== "corpus";
-  $("eraChips").hidden = ["eras", "world", "play"].includes(state.tab);
+  $("eraChips").hidden = ["eras", "world", "play", "depth"].includes(state.tab);
   $("eraChips").innerHTML = d.eras.length > 1 ? d.eras.map(e =>
     `<button type="button" data-era="${e.era}" aria-pressed="${e.era === state.era}">Era ${e.era}</button>`).join("") : "";
   const p = $("panel");
@@ -245,6 +246,22 @@ function render() {
     p.innerHTML = `${rules}<div class="scroll"><table class="eras"><thead><tr><th>#</th>${d.eras.map(e => `<th>Era ${e.era}</th>`).join("")}${spoil ? "<th>Meaning</th>" : ""}</tr></thead><tbody>
       ${d.eras[0].plain.map((_, n) => `<tr><td class="n">${n + 1}</td>${d.eras.map(e => `<td>${esc(e.plain[n])}</td>`).join("")}${spoil ? `<td class="tr">${esc(d.eras[0].corpus.inscriptions[n].translation)}</td>` : ""}</tr>`).join("")}
       </tbody></table></div>`;
+  } else if (state.tab === "depth") {
+    // D01: how much this world holds, and how much an explorer is told at
+    // once (six hours of the curious explorer, example text).
+    if (!state.depth || state.depth.seed !== d.seed) {
+      $("status").textContent = "Measuring depth…";
+      const r = api({ cmd: "depth", seeds: [String(d.seed)], hours: 6, files: BUNDLED });
+      state.depth = { seed: d.seed, w: r.worlds ? r.worlds[0] : null };
+      $("status").textContent = `Depth for seed ${d.seed}`;
+    }
+    const w = state.depth.w;
+    if (!w) { p.innerHTML = `<p class="note">Couldn't measure this world.</p>`; return; }
+    const groups = {};
+    for (const [k, v] of Object.entries(w.metrics)) (groups[k.split(".")[0]] ||= []).push([k.slice(k.indexOf(".") + 1), v]);
+    p.innerHTML = `<p class="note">Depth metrics (defined in docs/DEPTH.md): the world itself, and six hours of the curious explorer, measured with the example text.</p>
+      <div class="scroll">${Object.entries(groups).map(([g, rows]) => `<h2>${esc(g)}</h2><table class="eras"><tbody>${rows.map(([k, v]) =>
+        `<tr><td>${esc(k)}</td><td class="n">${(+v).toFixed(2)}</td></tr>`).join("")}</tbody></table>`).join("")}</div>`;
   } else if (state.tab === "world") {
     if (!spoil) { p.innerHTML = needSpoil("world map and history"); return; }
     if (!state.world || state.world.seed !== d.seed) {

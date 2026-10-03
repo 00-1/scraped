@@ -627,7 +627,7 @@ function renderGaps() {
   $("modeView").innerHTML = `<section class="card">
     <div class="row" style="justify-content:space-between"><h3>Gaps players will meet</h3>
       <div class="row"><label for="gapSeeds">Worlds <input type="text" id="gapSeeds" value="${esc(state.gapSeeds || "1 42 7 99")}"></label><label for="gapSteps">Commands each <input type="number" id="gapSteps" value="${esc(state.gapSteps || "120")}" min="10" max="1000"></label><button type="button" id="runGaps" class="primary">Run bots</button></div></div>
-    <p class="help">Two bots (a wanderer, and a scholar who starts with the writing tools) play each world. Slots are ranked by how often a player meets a placeholder or an example per hour of play: write the top ones first.</p>
+    <p class="help">Two bots play each world: a curious explorer who never writes, and a scholar who knows the grammar and goes as deep as it can. Slots are ranked by how often a player meets a placeholder or an example per hour of play: write the top ones first.</p>
     <div id="gapOut">${g ? gapTables(g) : `<p class="empty">Not run yet.</p>`}</div>
   </section>`;
 }

@@ -14,6 +14,7 @@ mod composing_tests;
 pub mod coverage;
 #[cfg(test)]
 mod coverage_tests;
+pub mod depth;
 pub mod ending;
 #[cfg(test)]
 mod ending_tests;
@@ -1653,7 +1654,7 @@ impl Game {
             .any(|&t| self.thing(t).kind == "pry_bar")
     }
 
-    fn fire_here_pub(&self) -> bool {
+    pub(crate) fn fire_here_pub(&self) -> bool {
         self.env().fire_at(self.spot()).is_some()
     }
 }

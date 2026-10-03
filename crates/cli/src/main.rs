@@ -4,6 +4,7 @@
 //! browser later.
 
 mod content;
+mod depth;
 mod fair;
 mod world;
 
@@ -42,7 +43,7 @@ difficulty dials:
   --fused                fuse a few affix combinations
 
 see also: scraped-lang content (content pack tools), scraped-lang world (world views),
-          scraped-lang fair (solvability)";
+          scraped-lang fair (solvability), scraped-lang depth | bots | samples (depth instruments)";
 
 #[derive(Debug, PartialEq)]
 enum Command {
@@ -275,6 +276,9 @@ fn main() -> ExitCode {
         Some("content") => Some(content::run),
         Some("world") => Some(world::run),
         Some("fair") => Some(fair::run),
+        Some("depth") => Some(depth::depth),
+        Some("bots") => Some(depth::bots),
+        Some("samples") => Some(depth::samples),
         _ => None,
     };
     if let Some(sub) = sub {

@@ -26,6 +26,69 @@ Measured on the M14 build (seed 42 unless noted).
 | Discovery | Scraper placed beside a "pivot" spell; a storylet announces the tool | Points straight at the mechanic, contrary to the design |
 | Response length | Arrival lists weather, ground, every building, horizon, season, land state, creatures | Each system appended a line; more depth would mean walls of text |
 
+## Metrics
+
+Measured by `scraped-lang depth --seeds A-B [--hours H] [--json]` (and the web crate's `depth` call, shown in the bench's Depth tab). World measures read the generated world. Variety, brevity and depth on demand come from the curious explorer's first H hours (24 by default), rendered with the example variants, so they measure the engine, not the prose.
+
+| Metric | Definition |
+|---|---|
+| `places.structure_kinds` | Distinct kinds of building in the world |
+| `places.room_purposes` | Distinct room purposes across all interiors |
+| `places.natural_kinds` | Distinct natural features: edges other than roads (river, stream, lake, coast, treeline…) and summit kinds |
+| `places.landmarks` | Landmarks: settlements, lone buildings, summits |
+| `places.landmarks_unique_share` | Share of landmarks whose rendered name no other landmark in the world shares |
+| `places.per_km2` | Buildings and summits per km² of land |
+| `things.kinds` | Distinct kinds of thing (features and items) |
+| `things.per_structure` | Things per building |
+| `things.mechanisms` | Mechanisms (wells, sluices, levers, braziers…) |
+| `things.longest_chain` | Steps in the longest mechanism chain (a lever and what it moves is 2) |
+| `life.species` | Distinct creature kinds |
+| `life.with_signs` | Kinds that leave signs (tracks, nests) to find without seeing them |
+| `history.event_kinds`, `history.events` | Kinds of history event, and how many |
+| `history.people_with_traces` | Named people met in more than one text |
+| `writing.texts`, `writing.genres` | Texts, and genres among them |
+| `writing.largest_genre_share` | The commonest genre's share of all texts |
+| `writing.sentence_shapes` | Distinct meanings once names and numbers are abstracted away |
+| `writing.words_per_text` | Mean words per text |
+| `writing.concepts` | Distinct concepts attested in the texts |
+| `magic.live_spells`, `magic.claim_types` | Live (released) spells at the start, and distinct kinds of claim among them |
+| `magic.places_with_writing_cause` | Buildings within reach of a live spell |
+| `magic.strange_without_writing_share` | Share of strange places with no writing cause (natural oddities) |
+| `variety.combinations` | Distinct (slot, variable combination) pairs the explorer met; per slot family in the JSON |
+| `brevity.<kind>.words_*`, `brevity.<kind>.facts_*` | Median and 95th percentile of words, and of facts, per response, for `look`, `arrival` (into a new place), `travel` and `other`. A fact is a rendered slot that says one thing (no list variable), outside the parser's replies, whose text was in the response |
+| `depth_on_demand.per_place` | For each room the explorer stood in, what it holds for the asking: each thing to look at closely, plus one for each with writing |
+| `depth_on_demand.senses` | Further details by listening, smelling, touching (no such verbs yet) |
+| `play.novel_per_hour` | New things perceived per hour: first renders of a (slot, kind) pair |
+| `play.minutes_between_new_kinds` | Median minutes between new kinds of thing (first word of the kind, per slot family) |
+
+### Baseline (D01, seeds 1–10, explorer 24 h)
+
+| Area | Baseline |
+|---|---|
+| Places | 8.7 building kinds; 22.2 room purposes; 5.8 natural kinds; 29.3 landmarks, 85% uniquely named; 0.08 places per km² |
+| Things | 37.2 kinds; 6.6 per building; 57 mechanisms; longest chain 2 |
+| Life | 4 species; none leave signs |
+| History | 6.2 event kinds, 215 events; 72 people met in more than one text |
+| Writing | 262 texts in 8 genres; the largest genre is 52%; 103 sentence shapes; 5.3 words per text; 70 concepts |
+| Magic | 9.5 live spells of 5.4 kinds; 65 buildings within a spell's reach; no natural oddities |
+| Variety | 240 slot × variable combinations met in 24 hours |
+| Brevity (words, median / p95) | look 88 / 117; arrival 30 / 109; travel 91 / 127 |
+| Brevity (facts, median / p95) | look 29 / 45; arrival 14 / 41; travel 26 / 49 |
+| Depth on demand | 3.4 details per room; senses 0 |
+| Novelty | 3.6 new things per hour; a new kind of thing every 1.1 minutes (median) early on |
+
+### The bots (D01)
+
+`scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
+
+- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 (16 of 1–20). Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
+- **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 5 of seeds 1–10 and a great inscription on 6. The spec asks for 8. What stops it is in the game, not the bot:
+  - **Held doors.** Old writing holds whole towns' doors shut. The only counter is to write "open" with a passage word (door, gate, tomb, box), and those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets the scholar write them.
+  - **Scarce light.** Torches burn an hour, lamps four. Deep rooms are often dark, and the scholar must come back later with fuel.
+  - **Distance.** The first lens is placed in roughly the 90th-percentile building by distance from the start, so reaching it means exploring most of the world.
+
+  D07 (a larger lexicon) and D09 (the magic, deepened) should lift this; the test holds at 5 of 10 until then.
+
 ## Milestones
 
 | # | Milestone | Delivers |

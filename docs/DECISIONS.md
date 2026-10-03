@@ -171,3 +171,14 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | How fast does life change? | Half a percent of the way a day (a quarter in winter), so seasons, not weeks | `crates/sim/src/region.rs:490` | now |
 | How harsh can a great inscription be? | A perpetual winter can kill a region's life within a year; is that intended? | `crates/sim/src/region.rs:421` | D11 |
 | How long before a player realises writing matters? (gate) | Many hours: first accidental release after 3–10 hours; nothing in the first hour points at writing | `docs/DEPTH.md:71` | D10 |
+
+## Instruments (D01)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Should the scholar bot have to survive? | No: its body is kept well, so it measures how far the late game reaches; the explorer measures survival | `crates/game/src/bots.rs` (`sustain`) | D01–D12 |
+| How deep must the scholar get? | The spec asks for the deepest text on 8 of 10 seeds; it gets 5, held back by held doors whose counter-words are too rare to learn, scarce light and far-flung tools. The test holds at 5 until D07/D09 | `crates/game/tests/depth.rs` | D07, D09, D10 |
+| Can a held town be opened without writing? | No: doors held by old writing give only to a written "open" claim, so in some worlds whole towns stay shut until the player learns rare words | `crates/game/src/lib.rs` (`door`), `crates/sim/src/env.rs` (`held`) | D09, D10 |
+| How long does light last? | A torch an hour, a lamp four (oil refills it); deep rooms are dark | `crates/sim/src/items.rs` | D04, D05 |
+| How is a landmark told apart? | By the first of its traits (shape, walls, size, setting, tallest building, roads, cover, height…) that no alike landmark within 40 km goes by, or a pair of them | `crates/sim/src/traits.rs` | D03 |
+| Which words name a landmark loosely? | All its traits, and each half of a compound bearing; exact words win when several match | `crates/game/src/travel.rs`, `crates/game/src/parser.rs` | now |

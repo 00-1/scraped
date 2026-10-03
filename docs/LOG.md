@@ -425,3 +425,39 @@
 **Next**
 - D01 — Instruments.
 - Added **D04 — Great interiors** at Jb's request (vast, intricate buildings and caverns): a real spatial model for all interiors, architecture that grows through history, cave systems from geology, navigation and mapping inside. Later milestones renumbered D05–D12.
+
+## 2026-10-03 — D01 Instruments
+
+**Done**
+- **Landmarks read apart** (`crates/sim/src/traits.rs`). Every landmark has traits read from the world:
+  - a summit's shape, height, cover and what stands on it;
+  - a settlement's walls, size, setting, tallest building, roads and bridges;
+  - a lone building's setting and condition.
+
+  Each gets a *mark*: the trait no alike landmark that could share a view goes by. `land.name` offers them all. The parser takes trait words, bearings and ordinals, and prefers the most exact match ("the town to the west" over the north-west one; "the hilltop mountain" over "the twin hilltop mountain"). "Which do you mean?" lists landmarks with their bearings.
+- **The depth bots** (`crates/game/src/bots.rs`): both play only from what the player is shown, plus their own memory.
+  - The **curious explorer** survives three days on 8 of 10 seeds.
+  - The **scholar** (grammar spoilers, no map, body kept well) reads the deepest text on 5 of 10 seeds in 90 days. It:
+    - comes back to rooms that were too dark, had writing too faint for its lens, or had a door it couldn't open;
+    - counters doors held shut by old writing with an "open" claim of its own.
+
+  The authoring tool's Gaps mode now uses both. `scraped-lang bots`.
+- **Depth metrics** (`crates/game/src/depth.rs`): `scraped-lang depth`, the web `depth` call, and the bench's new Depth tab. Defined and baselined in `docs/DEPTH.md`.
+- **Samples:** `scraped-lang samples D01` wrote `docs/samples/D01/` with a note.
+- **`docs/DECISIONS.md`**: every open question in one place (118 rows, plus the D01 ones).
+- **Game fixes the bots found:**
+  - answering "which do you mean?" with a bare "first" never worked;
+  - "drop" and "take" asked about things you couldn't drop or take.
+
+  The summary (JSON protocol) also lists mechanisms now.
+- **Tests:** metric snapshots for seeds 1, 42 and 9001; explorer survival and scholar depth (run in release in CI); landmark names apart in view and the same from every side; qualified references resolve.
+
+**Findings for Jb**
+1. **Sealed towns.** Old writing holds the doors of whole towns shut, and the only counter is to write "open" with door, gate, tomb or box. Those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets them be written. A player can find the late game sealed. D07 and D09 should fix this. Until then, the scholar test is held at 5 of 10 (D01 asks for 8).
+2. **Light is very scarce.** Torches burn an hour, lamps four. Deep rooms stay dark until the player comes back with fuel.
+3. **Cold kills.** Most explorer deaths are worlds whose start lies under a cold spell.
+4. **The baseline reads as the review said.** A look has 88 words and 29 facts at the median, and it states facts ("It is spring") rather than showing them. D02 is next.
+
+**Open questions:** see the new "Instruments (D01)" section of `docs/DECISIONS.md`.
+
+**New content slots:** none. `land.name` gains variables: mark, mark2, shape, height, cover, top, walls, tallest, setting, condition.

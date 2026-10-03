@@ -16,6 +16,8 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
+      # The depth bots go as deep as D01 asks (slow, so in release).
+      - run: cargo test --release -p scraped-game --test depth -- --ignored
       # Library crates must stay WebAssembly-compatible.
       - run: cargo build -p scraped-lang -p scraped-content -p scraped-world -p scraped-sim -p scraped-game --target wasm32-unknown-unknown
       - run: cargo clippy -p scraped-web --target wasm32-unknown-unknown -- -D warnings

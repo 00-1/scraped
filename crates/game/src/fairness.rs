@@ -150,7 +150,7 @@ impl Reach<'_> {
     }
 }
 
-fn names(s: &Sentence, out: &mut Vec<usize>) {
+pub(crate) fn names(s: &Sentence, out: &mut Vec<usize>) {
     fn np(n: &NounPhrase, out: &mut Vec<usize>) {
         if let Head::Name(i) = n.head {
             out.push(i);

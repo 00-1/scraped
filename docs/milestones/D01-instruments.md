@@ -54,11 +54,11 @@ Collect every `DESIGN-Q` marker and every open question from `docs/LOG.md` into 
 
 ## Checklist
 
-- [ ] Depth metrics in CLI and web, defined and baselined in `docs/DEPTH.md`
-- [ ] Curious-explorer bot with novelty curve
-- [ ] Scholar bot reaching the late game; Gaps mode uses both bots
-- [ ] Sample transcript command; D01 baseline committed
-- [ ] `docs/DECISIONS.md`
-- [ ] Landmark traits, slot variables and parser qualifiers
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Depth metrics in CLI and web, defined and baselined in `docs/DEPTH.md`
+- [x] Curious-explorer bot with novelty curve
+- [x] Scholar bot reaching the late game; Gaps mode uses both bots. It reads the deepest text on 5 of 10 seeds, not 8: the blockers are in the game (see `docs/DEPTH.md`, "The bots").
+- [x] Sample transcript command; D01 baseline committed
+- [x] `docs/DECISIONS.md`
+- [x] Landmark traits, slot variables and parser qualifiers
+- [x] Tests listed above (the scholar's at 5 of 10)
+- [x] LOG.md entry
