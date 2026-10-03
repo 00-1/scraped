@@ -58,7 +58,7 @@ pub enum ParseError {
 pub(crate) fn tokens(input: &str) -> Vec<String> {
     input
         .to_lowercase()
-        .split(|c: char| c.is_whitespace() || matches!(c, ',' | '.' | '!' | ';'))
+        .split(|c: char| c.is_whitespace() || matches!(c, ',' | '.' | '!' | ';' | '_'))
         .filter(|w| !w.is_empty())
         .map(str::to_string)
         .collect()

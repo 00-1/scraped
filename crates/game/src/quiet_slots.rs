@@ -601,7 +601,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("biome", e(BIOMES), "The land they stand in.")
             .max_len(200)
             .sampler(s_whole),
-        SlotDef::new("place.standout", "One building that stands out from the rest of the place, named on its own ('Above them all, a worn temple.'). Only for the tallest, the only one of its kind, or one unlike the rest.")
+        SlotDef::new("place.standout", "One building that stands out from the rest of the place, named on its own ('Above the roofs rises a worn temple.'). Only for the tallest, the only one of its kind, or one unlike the rest. It must make sense alone: the description of the whole place may not be said in the same response, so don't refer back to it ('among them').")
             .var("name", VarType::Text, "Its name, from place.structure.")
             .var("kind", e(STRUCTURES), "What it is.")
             .var("condition", e(CONDITIONS), "Its state.")

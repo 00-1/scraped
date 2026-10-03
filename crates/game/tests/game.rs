@@ -125,19 +125,19 @@ fn no_text_is_ever_empty_or_an_error() {
 }
 
 #[test]
-fn reading_and_labels_work() {
+fn reading_comes_in_layers() {
     let mut g = Game::new(42, pack());
     g.start();
-    // Find something readable here or in the first building.
-    for c in ["go temple", "read stele"] {
-        g.step(c);
-    }
-    let before = g.step("read stele").text;
-    let defined = g.step("define 1 as zo").text;
-    assert!(defined.contains("zo"), "{defined}");
-    let after = g.step("read stele").text;
-    assert_ne!(before, after);
-    assert!(after.contains("«zo»") || after.contains("zo"));
+    g.step("go temple");
+    // At a glance: the whole text, no sign by sign.
+    let glance = g.step("read stele").text;
+    assert!(!glance.contains("\n1. "), "{glance}");
+    // Closely: sign by sign, numbered.
+    let close = g.step("read closely").text;
+    assert!(close.contains("1. "), "{close}");
+    // Labels are gone; an old command is simply not understood.
+    let old = g.step("define 1 as zo").text;
+    assert!(!old.contains("zo"), "{old}");
 }
 
 /// Player-visible English must come from content slots. String literals in
@@ -151,6 +151,8 @@ fn no_prose_in_code() {
         "game/src/lib.rs",
         "game/src/site.rs",
         "game/src/parser.rs",
+        "game/src/reading.rs",
+        "game/src/interior.rs",
         "play/src/lib.rs",
         "play/src/main.rs",
     ];

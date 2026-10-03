@@ -290,6 +290,13 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             None => Err("no game started".to_string()),
         }),
         // Determinism across platforms: the same as the native test's hash.
+        // Debug: the lines the hash is made of.
+        "transcript" => {
+            let (pack, _) = pack(req)?;
+            let preset: String = opt(req, "difficulty", "standard".to_string());
+            let steps: usize = opt(req, "steps", 40);
+            Ok(json!({ "lines": scraped_game::coverage::transcript_lines(&pack, seed(req), &preset, steps) }))
+        }
         "transcript_hash" => {
             let (pack, _) = pack(req)?;
             let preset: String = opt(req, "difficulty", "standard".to_string());

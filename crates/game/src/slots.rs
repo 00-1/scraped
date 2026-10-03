@@ -421,6 +421,18 @@ fn s_thing(seed: u64) -> Vec<Context> {
     site.things.iter().map(|t| site.thing_vars(t)).collect()
 }
 
+fn s_door_stuck(_: u64) -> Vec<Context> {
+    ["rubble", "fallen", "not_door"]
+        .iter()
+        .map(|c| {
+            ctx(&[
+                ("thing", Value::from("a door north")),
+                ("cause", Value::from(*c)),
+            ])
+        })
+        .collect()
+}
+
 fn s_named(seed: u64) -> Vec<Context> {
     s_thing(seed)
         .into_iter()
@@ -1360,9 +1372,10 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.door_close", "The player closes a door.").var("thing", VarType::Text, "The door, as named by place.exit.").sampler(s_named),
         SlotDef::new("say.door_already_open", "The door is already open.").var("thing", VarType::Text, "The door.").sampler(s_named),
         SlotDef::new("say.door_already_closed", "The door is already closed.").var("thing", VarType::Text, "The door.").sampler(s_named),
-        SlotDef::new("say.door_stuck", "The way cannot be opened or closed: it is not a door, or it is blocked or collapsed.")
+        SlotDef::new("say.door_stuck", "The way cannot be opened or closed. Give the player a cue to why, something they can notice, never a rule: rubble in the doorway; or, beyond the door, the space has fallen in (dust at the sill, the door gives a little then stops); or it is not a door at all (an arch, a stair).")
             .var("thing", VarType::Text, "The way.")
-            .sampler(s_named),
+            .var("cause", e(&["rubble", "fallen", "not_door"]), "Why: rubble in the way; the space beyond has collapsed; or it is not something that opens.")
+            .sampler(s_door_stuck),
         SlotDef::new("say.buried", "The player tries to enter a building too buried to get into.")
             .var("thing", VarType::Text, "The building's name.")
             .sampler(s_named),
@@ -1599,7 +1612,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("hazard.fall", "A fall on a stair in the dark.").var("hurt", VarType::Number, "Levels of injury (1 or 2).").sampler(s_hurt),
         SlotDef::new("hazard.collapse", "Noise brings loose stone down in this room: a way may close, another open, and the player may be hurt.").var("hurt", VarType::Number, "Levels of injury.").sampler(s_hurt),
         SlotDef::new("hazard.flooded", "The way leads into a room under water; the player can't go that way until it drains.").var("thing", VarType::Text, "The way, from place.exit.").sampler(s_named),
-        SlotDef::new("hazard.barred", "A door is barred or stuck fast: it won't open by hand. (A pry bar would do it.)").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
+        SlotDef::new("hazard.barred", "A door is barred or stuck fast: it won't open by hand. (A pry bar would do it.) Give a cue the player can notice: it gives a finger's width and stops, as if a bar lay across it.").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
         SlotDef::new("door.pried", "The player forces a barred door open with a pry bar.").var("thing", VarType::Text, "The door.").sampler(s_named),
         SlotDef::new("shout.done", "The player shouts or makes a din.").sampler(s_none),
         SlotDef::new("cross.done", "The player gets across water: walking on ice, wading, or swimming.")
@@ -1740,7 +1753,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("indoors", VarType::Bool, "Whether the player is indoors.")
             .max_len(300)
             .sampler(s_effect),
-        SlotDef::new("effect.held", "A door won't move, though nothing bars it: it is held (writing's doing; never say so).").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
+        SlotDef::new("effect.held", "A door won't move, though nothing bars it: it is held (writing's doing; never say so). The cue is that there is nothing to see: no bar, no rubble, no lock, and still it won't move.").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
         SlotDef::new("tool.found", "The player first picks up one of the three writing tools: the scraper, the stylus or the lens. A moment of discovery; don't explain what it does.")
             .var("kind", e(&["scraper", "stylus", "lens", "fine_scraper", "old_scraper", "first_scraper", "first_lens"]), "Which tool: the scraper, the stylus, the lens, one of the stronger scrapers (fine, old, and the first, strongest of all), or the first lens, which reads the faintest layers.")
             .max_len(400)

@@ -326,7 +326,9 @@ impl Game {
                 _ => 1,
             };
             let room = per_slot.get(f.slot).copied().unwrap_or(0) < cap;
-            if f.interrupt || (taken < budget && room) {
+            // Where the player set out for is always said (S01).
+            let target = self.arrival_keys.contains(&f.key);
+            if f.interrupt || target || (taken < budget && room) {
                 *per_slot.entry(f.slot).or_default() += 1;
                 if !f.interrupt {
                     taken += 1;
@@ -349,7 +351,9 @@ impl Game {
         }
         // Said in a natural order: the place, then what's close, then what's
         // far, then the sky, the air and the rest.
-        keep.sort_by_key(|f| order(f.slot));
+        // Where the player set out for comes first.
+        let keys = std::mem::take(&mut self.arrival_keys);
+        keep.sort_by_key(|f| (!keys.contains(&f.key), order(f.slot)));
         let mut out = Vec::new();
         for f in keep {
             let sig = f.signature();

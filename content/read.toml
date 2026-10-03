@@ -2,7 +2,7 @@ notes = "Reading: the frame around a text, each glyph, and paging."
 
 [[variant]]
 slot = "read.frame"
-text = "On {thing}, {count glyphs glyph}[if pages > 1] (page {page} of {pages})[end]:"
+text = "On {thing}, {count glyphs sign}[if pages > 1] (page {page} of {pages})[end]:"
 example = true
 
 [[variant]]

@@ -28,6 +28,26 @@ use crate::{Game, Output, Place, Rendered, Summary};
 /// The depth bots.
 pub const DEPTH_BOTS: &[&str] = &["explorer", "scholar"];
 
+/// Buildings the explorer goes into at one spot before moving on (S01:
+/// time split between towns, the land between and interiors).
+const TOWN_BUILDINGS: usize = 4;
+
+/// Minutes the explorer spends in one building before making its way out.
+const BUILDING_MINUTES: u32 = 45;
+
+/// What to type to go through a way: a direction as it is, a way given
+/// by name ("the western door north") with `go`.
+fn way_command(exit: &str) -> String {
+    if opposite(exit).is_some() || matches!(exit, "out") {
+        exit.to_string()
+    } else {
+        format!(
+            "go {}",
+            exit.trim_start_matches("the ").trim_start_matches("a ")
+        )
+    }
+}
+
 /// The direction back through an exit.
 fn opposite(d: &str) -> Option<&'static str> {
     Some(match d {
@@ -104,6 +124,10 @@ struct Room {
     held: Option<(String, u8)>,
     /// A hearth to make a fire in.
     hearth: bool,
+    /// Ways that are holes or shafts down: a drop there may not climb back.
+    drops: BTreeSet<String>,
+    /// Ways tried that left it where it was.
+    failed: BTreeSet<String>,
 }
 
 impl Room {
@@ -131,6 +155,9 @@ enum Goal {
     Room { place: String, steps: u32 },
 }
 
+/// A feature noticed: its kind, bearing and distance by eye.
+type Lead = (String, String, String);
+
 /// A depth bot.
 pub struct DepthBot {
     pub kind: &'static str,
@@ -145,8 +172,6 @@ pub struct DepthBot {
     entered_kinds: BTreeMap<&'static str, usize>,
     /// Gone indoors for the night: stays in till morning.
     sheltering: bool,
-    /// The last way asked for by its direction, for answering "which?".
-    asked: Option<String>,
     /// Turns taken wandering when no known way leads out (D04: after a
     /// drop that can't be climbed back).
     wander: std::cell::RefCell<BTreeMap<String, usize>>,
@@ -181,8 +206,24 @@ pub struct DepthBot {
     shelter: Option<(i32, i32)>,
     /// Recent places, to notice going round in circles.
     recent: VecDeque<(String, (i32, i32))>,
-    /// Renders already looked at.
+    /// Renders already looked at, and where the last response's began.
     renders: usize,
+    fresh: usize,
+    /// Digging verbs tried, by place.
+    dug: BTreeSet<(String, &'static str)>,
+    /// Curiosities followed: (place, what).
+    followed: BTreeSet<(String, String)>,
+    /// A building it has given up on and is making its way out of.
+    leaving: Option<String>,
+    /// Whether it has put its cloak on.
+    cloak_on: bool,
+    /// The building it is in, and when it went in.
+    inside_since: Option<(String, u32)>,
+    /// Features noticed from each square: kind, bearing, distance.
+    feature_leads: BTreeMap<(i32, i32), Vec<Lead>>,
+    /// Things of each kind examined that turned up nothing new, in a row:
+    /// once a kind stops giving anything, the explorer stops examining it.
+    dull: BTreeMap<String, u32>,
     /// Commands given since anything new was perceived.
     pub idle: u32,
     /// What the bot set out to do and why, for reading its runs.
@@ -200,7 +241,6 @@ impl DepthBot {
             tried_here: BTreeMap::new(),
             entered_kinds: BTreeMap::new(),
             sheltering: false,
-            asked: None,
             wander: std::cell::RefCell::new(BTreeMap::new()),
             shut: BTreeSet::new(),
             visited: BTreeSet::new(),
@@ -220,6 +260,14 @@ impl DepthBot {
             shelter: None,
             recent: VecDeque::new(),
             renders: 0,
+            fresh: 0,
+            dug: BTreeSet::new(),
+            followed: BTreeSet::new(),
+            dull: BTreeMap::new(),
+            feature_leads: BTreeMap::new(),
+            leaving: None,
+            inside_since: None,
+            cloak_on: false,
             idle: 0,
             notes: Vec::new(),
         }
@@ -238,9 +286,6 @@ impl DepthBot {
         self.step += 1;
         self.learn(g, last);
         let mut cmd = self.choose(g, last);
-        if last.state.exits.contains(&cmd) {
-            self.asked = Some(cmd.clone());
-        }
         // Going round in circles: drop the goal, or strike out somewhere.
         self.recent
             .push_back((last.state.place.clone(), square_of(g)));
@@ -261,6 +306,14 @@ impl DepthBot {
             self.idle = 0;
             if last.state.place == "outside" {
                 cmd = format!("head {}", BEARINGS[(self.roll(9) % 8) as usize]);
+            } else if let Some((b, _)) = last.state.place.rsplit_once(" room ") {
+                // Going round in circles inside: done with this building.
+                self.notes.push(format!(
+                    "step {}: going round in circles in {b}; leaving",
+                    self.step
+                ));
+                self.leaving = Some(b.to_string());
+                cmd = self.towards_entrance(&last.state.place);
             }
         }
         self.last = Some((
@@ -268,17 +321,34 @@ impl DepthBot {
             last.state.place.clone(),
             (g.state.pos.x, g.state.pos.y),
         ));
+        // A way given by name is gone through by name.
+        if last.state.place != "outside" && last.state.exits.contains(&cmd) {
+            return way_command(&cmd);
+        }
         cmd
     }
 
     /// Takes in what the last command did.
     fn learn(&mut self, g: &Game, last: &Output) {
+        self.fresh = self.renders.min(g.renders.len());
         let s = &last.state;
         let here = s.place.clone();
         if here != "outside" {
             let r = self.rooms.entry(here.clone()).or_default();
             r.exits = s.exits.clone();
             r.hearth |= s.things.iter().any(|t| t.contains("hearth"));
+            for x in &g.renders[self.renders.min(g.renders.len())..] {
+                let text = |k: &str| match x.vars.get(k) {
+                    Some(Value::Text(t)) => t.clone(),
+                    _ => String::new(),
+                };
+                if x.trace.slot == "place.exit"
+                    && text("direction") == "down"
+                    && matches!(text("passage").as_str(), "hole" | "shaft")
+                {
+                    r.drops.insert("down".to_string());
+                }
+            }
         }
         if let Some((cmd, from, pos)) = self.last.clone() {
             // Inside, through a way: note where it led, both ways.
@@ -303,6 +373,13 @@ impl DepthBot {
                     if r.exits.iter().any(|e| e == back) {
                         r.leads.insert(back.to_string(), from.clone());
                     }
+                }
+            }
+            // A way tried that didn't take it anywhere.
+            if from == here && from.starts_with("structure") {
+                let r = self.rooms.entry(from.clone()).or_default();
+                if r.exits.contains(&cmd) {
+                    r.failed.insert(cmd.clone());
                 }
             }
             // Into a building from outside, or a heading that went nowhere.
@@ -369,6 +446,7 @@ impl DepthBot {
                     .find(|&i| noun(&s.things, i) == rest)
                     .map(|i| s.things[i].clone());
                 if let Some(n) = name {
+                    let mut told = false;
                     for r in &g.renders[self.renders.min(g.renders.len())..] {
                         let slot = r.trace.slot.as_str();
                         if slot != "thing.examine" && slot != "item.examine" {
@@ -383,6 +461,15 @@ impl DepthBot {
                         {
                             room.items.insert(n.clone());
                         }
+                        told |= room.written.contains(&n) || room.items.contains(&n);
+                    }
+                    // A kind that turns up nothing, time after time, stops
+                    // being worth a look.
+                    let kind = n.split_whitespace().last().unwrap_or("").to_string();
+                    if told {
+                        self.dull.remove(&kind);
+                    } else {
+                        *self.dull.entry(kind).or_default() += 1;
                     }
                 }
             }
@@ -427,8 +514,16 @@ impl DepthBot {
             }
         }
         self.renders = g.renders.len();
+        self.cloak_on &= s.carried.iter().any(|c| c.contains("cloak"));
         self.lens = self.lens.max(carried_lens(s));
+        if let Some((b, _)) = s.place.rsplit_once(" room ") {
+            if self.inside_since.as_ref().is_none_or(|(x, _)| x != b) {
+                self.inside_since = Some((b.to_string(), s.minutes));
+            }
+        }
         if s.place == "outside" {
+            self.leaving = None;
+            self.inside_since = None;
             *self.walked.entry(square_of(g)).or_default() += 1;
             if !s.exits.is_empty() {
                 self.shelter = Some((g.state.pos.x, g.state.pos.y));
@@ -445,8 +540,8 @@ impl DepthBot {
         if let Some(c) = self.body(g, last) {
             return c;
         }
-        if g.state.reading.is_some() && (self.scholar() || !self.roll(1).is_multiple_of(3)) {
-            return "more".into();
+        if let Some(c) = self.reading(g) {
+            return c;
         }
         if here != "outside" {
             if let Some(c) = self.lighting(g, last) {
@@ -498,6 +593,31 @@ impl DepthBot {
         if here == "outside" && !self.scholar() && self.looked.insert(square_of(g)) {
             return "look".into();
         }
+        // Given up on, or seen for long enough (the explorer has the land
+        // to see too): out.
+        // (The scholar answers held ways with writing first: `unhold`.)
+        if here != "outside" && !self.scholar() {
+            if let Some(c) = self.blocked_way(s) {
+                return c;
+            }
+        }
+        if let Some((b, _)) = here.rsplit_once(" room ") {
+            let long = !self.scholar()
+                && self
+                    .inside_since
+                    .as_ref()
+                    .is_some_and(|(_, t)| s.minutes > t + BUILDING_MINUTES);
+            if self.leaving.as_deref() == Some(b) || long {
+                return self.towards_entrance(&here);
+            }
+        }
+        // A curious player digs in where it is, and follows what catches
+        // its attention.
+        if !self.scholar() {
+            if let Some(c) = self.curious(g, last) {
+                return c;
+            }
+        }
         // What's here first, then errands elsewhere.
         if let Some(c) = self.handle_things(last) {
             return c;
@@ -515,6 +635,173 @@ impl DepthBot {
         } else {
             self.inside(last)
         }
+    }
+
+    /// Reading: the scholar reads every page closely; the explorer reads
+    /// closely now and then, looks harder at a sign or traces one, and
+    /// otherwise takes a text in at a glance and moves on (S01).
+    fn reading(&self, g: &Game) -> Option<String> {
+        let last = self.last.as_ref().map(|(c, _, _)| c.as_str()).unwrap_or("");
+        let after_glance = last.starts_with("read ");
+        let after_close = matches!(last, "read closely" | "more");
+        if self.scholar() {
+            return g.state.reading.is_some().then(|| "more".into());
+        }
+        if after_glance && g.state.reading.is_some() && self.roll(1) % 100 < 45 {
+            return Some("read closely".into());
+        }
+        if after_close {
+            let r = self.roll(2) % 100;
+            if r < 12 {
+                return Some(format!("examine sign {}", 1 + self.roll(3) % 6));
+            }
+            if r < 16 {
+                return Some(format!("trace sign {}", 1 + self.roll(3) % 6));
+            }
+            if g.state.reading.is_some() && r < 50 {
+                return Some("more".into());
+            }
+        }
+        None
+    }
+
+    /// What a curious player does on reaching somewhere: digs in with the
+    /// senses (not every one, not everywhere), then goes after whatever the
+    /// last response made interesting: a feature close by or in view, a
+    /// sound or a smell from somewhere, a group of alike buildings.
+    fn curious(&mut self, g: &Game, last: &Output) -> Option<String> {
+        let s = &last.state;
+        let outside = s.place == "outside";
+        let key = Self::spot_key(g, s);
+        let key_hash = hash(&[
+            self.seed,
+            key.len() as u64,
+            u64::from(
+                key.bytes()
+                    .fold(0u32, |a, b| a.wrapping_mul(31).wrapping_add(u32::from(b))),
+            ),
+        ]);
+        // Follow what the last response turned up, once the buildings here
+        // have had their turn.
+        let fresh: Vec<&Rendered> = g.renders[self.fresh.min(g.renders.len())..]
+            .iter()
+            .collect();
+        let tried = self.tried_here.get(&square_of(g)).map_or(0, BTreeSet::len);
+        let town_done = (0..s.exits.len()).all(|i| {
+            self.tried_here
+                .get(&square_of(g))
+                .is_some_and(|t| t.contains(&noun(&s.exits, i)))
+        }) || (tried >= TOWN_BUILDINGS && equipped(s));
+        // Features noticed here: kept until the buildings have had their
+        // turn, then gone after, nearest first.
+        let sq = square_of(g);
+        if outside {
+            for r in &fresh {
+                let text = |k: &str| match r.vars.get(k) {
+                    Some(Value::Text(t)) => t.replace('_', " "),
+                    _ => String::new(),
+                };
+                if r.trace.slot == "land.feature" {
+                    let lead = (text("kind"), text("bearing"), text("distance"));
+                    let leads = self.feature_leads.entry(sq).or_default();
+                    if !self
+                        .followed
+                        .contains(&(format!("feature {}", lead.0), "went".into()))
+                        && !leads.contains(&lead)
+                    {
+                        leads.push(lead);
+                    }
+                }
+            }
+        }
+        if outside && town_done {
+            let order = ["here", "near", "short", "middle", "far", "horizon"];
+            let mut leads = self.feature_leads.remove(&sq).unwrap_or_default();
+            leads.sort_by_key(|(_, b, d)| {
+                let d = if b == "here" { "here" } else { d.as_str() };
+                order.iter().position(|o| *o == d).unwrap_or(9)
+            });
+            while let Some((kind, bearing, distance)) = (!leads.is_empty()).then(|| leads.remove(0))
+            {
+                if self
+                    .followed
+                    .contains(&(format!("feature {kind}"), "went".into()))
+                {
+                    continue;
+                }
+                if !leads.is_empty() {
+                    self.feature_leads.insert(sq, leads);
+                }
+                if bearing == "here" || matches!(distance.as_str(), "near" | "short") {
+                    self.followed
+                        .insert((format!("feature {kind}"), "went".into()));
+                    return Some(format!("go to the {kind}"));
+                }
+                if BEARINGS.contains(&bearing.as_str()) {
+                    return Some(format!("head {bearing}"));
+                }
+                break;
+            }
+            for r in &fresh {
+                let text = |k: &str| match r.vars.get(k) {
+                    Some(Value::Text(t)) => t.replace('_', " "),
+                    _ => String::new(),
+                };
+                if matches!(r.trace.slot.as_str(), "sense.sound" | "sense.smell") {
+                    let bearing = text("bearing");
+                    if BEARINGS.contains(&bearing.as_str())
+                        && hash(&[key_hash, 0x50d]) % 100 < 35
+                        && self
+                            .followed
+                            .insert((format!("sense {bearing}"), key.clone()))
+                    {
+                        return Some(format!("head {bearing}"));
+                    }
+                }
+            }
+        }
+        // Dig in, once per place, a few senses each time.
+        const OUT: &[(&str, u64)] = &[
+            ("look around", 80),
+            ("listen", 50),
+            ("smell", 40),
+            ("look down", 25),
+            ("look up", 20),
+            ("look closer", 35),
+        ];
+        const IN: &[(&str, u64)] = &[
+            ("look closer", 60),
+            ("listen", 35),
+            ("smell", 30),
+            ("look up", 20),
+            ("look down", 20),
+            ("touch", 15),
+        ];
+        let digs = if outside { OUT } else { IN };
+        for (k, &(verb, pct)) in digs.iter().enumerate() {
+            if hash(&[key_hash, k as u64, 0xd16]) % 100 < pct
+                && self.dug.insert((key.clone(), verb))
+            {
+                return Some(verb.to_string());
+            }
+        }
+        // Alike buildings together: a look at the group.
+        if outside {
+            let mut counts: BTreeMap<&'static str, usize> = BTreeMap::new();
+            for e in &s.exits {
+                *counts.entry(kind_named(e)).or_default() += 1;
+            }
+            for (kind, n) in counts {
+                if n >= 2
+                    && kind != "house"
+                    && hash(&[key_hash, 0x6a0]) % 100 < 40
+                    && self.followed.insert((format!("group {kind}"), key.clone()))
+                {
+                    return Some(format!("look at the {}", crate::senses::plural(kind)));
+                }
+            }
+        }
+        None
     }
 
     // ---------- the body ----------
@@ -602,7 +889,8 @@ impl DepthBot {
         let night = !(6..20).contains(&hour);
         // Evening: find shelter before dark rather than roam.
         let evening = !(6..17).contains(&hour);
-        if cold && has("cloak") && self.worth(g, s, "wear cloak") {
+        if cold && has("cloak") && !self.cloak_on {
+            self.cloak_on = true;
             return Some("wear cloak".into());
         }
         if outside && (night || cold) {
@@ -736,6 +1024,9 @@ impl DepthBot {
         if s.light != "dark" {
             return None;
         }
+        if !has("firesteel") {
+            return None;
+        }
         if has("lamp") && !self.lamp_empty && self.worth(g, s, "light lamp") {
             return Some("light lamp".into());
         }
@@ -770,19 +1061,47 @@ impl DepthBot {
         let room = self.rooms.entry(s.place.clone()).or_default();
         for (i, name) in s.things.iter().enumerate() {
             let n = noun(&s.things, i);
-            if room.done.insert((name.clone(), "examine")) {
+            let thing_kind = name.split_whitespace().last().unwrap_or("");
+            let dull = !scholar && self.dull.get(thing_kind).copied().unwrap_or(0) >= 3;
+            if !dull && room.done.insert((name.clone(), "examine")) {
                 return Some(format!("examine {n}"));
             }
             if room.written.contains(name) {
                 if room.done.insert((name.clone(), "read")) {
                     return Some(format!("read {n}"));
                 }
-                if scholar && can_scrape && room.done.insert((name.clone(), "scrape")) {
+                if scholar && can_scrape && !room.done.contains(&(name.clone(), "scrape")) {
+                    // Listening as the strokes come away, for their sounds.
+                    if room.done.insert((name.clone(), "listen")) {
+                        return Some("listen".into());
+                    }
+                    room.done.insert((name.clone(), "scrape"));
                     return Some(format!("scrape {n}"));
                 }
             }
             let w = want(kind, name);
-            if room.items.contains(name) && w > 0 && !room.done.contains(&(name.clone(), "take")) {
+            // One of each is enough.
+            let bare = |n: &str| {
+                let n = n.trim();
+                ["a ", "an ", "the ", "some "]
+                    .iter()
+                    .find_map(|a| n.strip_prefix(a))
+                    .unwrap_or(n)
+                    .to_string()
+            };
+            // Food, fuel and oil are worth more of; tools one of each.
+            // (The explorer only, and two at most: the scholar is kept fed.)
+            let stock = !scholar
+                && ["provisions", "berries", "wood", "oil"]
+                    .iter()
+                    .any(|k| name.contains(k));
+            let held = s.carried.iter().filter(|c| bare(c) == bare(name)).count();
+            let have = held >= if stock { 2 } else { 1 };
+            if room.items.contains(name)
+                && w > 0
+                && !have
+                && !room.done.contains(&(name.clone(), "take"))
+            {
                 if load_room {
                     room.done.insert((name.clone(), "take"));
                     return Some(format!("take {n}"));
@@ -794,6 +1113,13 @@ impl DepthBot {
                     .enumerate()
                     .map(|(k, c)| (k, want(kind, c)))
                     .filter(|&(_, cw)| cw < w)
+                    // Never the light, away from the sky.
+                    .filter(|&(k, _)| {
+                        s.place == "outside"
+                            || !["lamp", "torch", "candle"]
+                                .iter()
+                                .any(|l| s.carried[k].contains(l))
+                    })
                     .min_by_key(|&(_, cw)| cw)
                 {
                     return Some(format!("drop {}", noun(&s.carried, k)));
@@ -852,13 +1178,40 @@ impl DepthBot {
         if let Some(step) = self.route(here, &entrance) {
             return step;
         }
-        // No known way back (a drop, a door barred behind): wander on by
-        // the ways here, a different one each time, until the way out is
-        // found.
+        // No known way back (a drop, a one-way door behind): look for one
+        // as one explores, by a way not yet tried here, else the nearest
+        // known room with one.
+        if let Some(e) = self
+            .rooms
+            .get(here)
+            .and_then(|r| r.open_exits().find(|e| !r.failed.contains(*e)))
+        {
+            return e.clone();
+        }
+        if let Some((b, _)) = here.rsplit_once(" room ") {
+            let prefix = format!("{b} room ");
+            for (place, r) in &self.rooms {
+                if place.starts_with(&prefix)
+                    && place != here
+                    && r.open_exits().any(|e| !r.failed.contains(e))
+                {
+                    if let Some(step) = self.route(here, place) {
+                        return step;
+                    }
+                }
+            }
+        }
+        // Else wander on by the ways here, a different one each time,
+        // until the way out is found.
         let mut ways: Vec<&String> = self
             .rooms
             .get(here)
-            .map(|r| r.exits.iter().filter(|e| !r.barred.contains(*e)).collect())
+            .map(|r| {
+                r.exits
+                    .iter()
+                    .filter(|e| !r.barred.contains(*e) && !r.failed.contains(*e))
+                    .collect()
+            })
             .unwrap_or_default();
         if ways.is_empty() {
             // Every way here barred: try them again (a held door may give).
@@ -883,9 +1236,11 @@ impl DepthBot {
     fn next_way(&self, s: &Summary) -> Option<String> {
         let stairs = can_light(s, self.lamp_empty);
         self.rooms.get(&s.place).and_then(|r| {
+            // The explorer doesn't drop down holes it may not climb back.
             let open: Vec<&String> = r
                 .open_exits()
                 .filter(|e| stairs || !matches!(e.as_str(), "up" | "down"))
+                .filter(|e| self.scholar() || !r.drops.contains(*e))
                 .collect();
             open.first().map(|e| (*e).clone())
         })
@@ -930,6 +1285,7 @@ impl DepthBot {
             // Try the way again.
             r.done.remove(&(format!("way {way}"), "open"));
             r.barred.remove(&way);
+            r.failed.remove(&way);
             r.leads.remove(&way);
             return Some(format!("open {way}"));
         }
@@ -947,41 +1303,47 @@ impl DepthBot {
         None
     }
 
-    fn inside(&mut self, last: &Output) -> String {
-        let s = &last.state;
+    /// A way that didn't let us through: open it, or prise it open, or
+    /// note it barred; once opened, go through.
+    fn blocked_way(&mut self, s: &Summary) -> Option<String> {
         let here = s.place.clone();
         // A way that didn't let us through: open it, or prise it open.
         if let Some((cmd, from, _)) = self.last.clone() {
-            // An answer to "which way?" stands for the way asked about.
-            let cmd = if cmd == "first" {
-                self.asked.clone().unwrap_or(cmd)
-            } else {
-                cmd
-            };
             if from == here && s.exits.contains(&cmd) {
                 let can_pry = s.carried.iter().any(|c| c.contains("pry"));
                 let r = self.rooms.entry(here.clone()).or_default();
                 if r.done.insert((format!("way {cmd}"), "open")) {
-                    return format!("open {cmd}");
+                    return Some(format!("open {cmd}"));
                 }
                 if can_pry && r.done.insert((format!("way {cmd}"), "pry")) {
-                    return format!("pry {cmd}");
+                    return Some(format!("pry {cmd}"));
                 }
                 r.barred.insert(cmd.clone());
                 r.pried |= can_pry;
             }
             if from == here && (cmd.starts_with("open ") || cmd.starts_with("pry ")) {
                 // Opened (or tried to): go through.
-                let way = cmd.split_whitespace().last().unwrap_or("").to_string();
+                let way = cmd
+                    .split_once(' ')
+                    .map_or(String::new(), |(_, w)| w.to_string());
                 if s.exits.contains(&way)
                     && !self
                         .rooms
                         .get(&here)
                         .is_some_and(|r| r.barred.contains(&way))
                 {
-                    return way;
+                    return Some(way);
                 }
             }
+        }
+        None
+    }
+
+    fn inside(&mut self, last: &Output) -> String {
+        let s = &last.state;
+        let here = s.place.clone();
+        if let Some(c) = self.blocked_way(s) {
+            return c;
         }
         // A great interior (D04) could take days: after forty of its
         // rooms, the explorer makes its way out and on (the scholar keeps
@@ -1005,7 +1367,7 @@ impl DepthBot {
                 if !place.starts_with(&prefix) || *place == here || r.dark {
                     continue;
                 }
-                if r.open_exits().next().is_none() {
+                if !self.unfinished_room(place, s) {
                     continue;
                 }
                 if let Some(step) = self.route(&here, place) {
@@ -1051,8 +1413,10 @@ impl DepthBot {
     fn unfinished_room(&self, place: &str, s: &Summary) -> bool {
         let stairs = can_light(s, self.lamp_empty);
         self.rooms.get(place).is_some_and(|r| {
-            r.open_exits()
-                .any(|e| stairs || !matches!(e.as_str(), "up" | "down"))
+            r.open_exits().any(|e| {
+                (stairs || !matches!(e.as_str(), "up" | "down"))
+                    && (self.scholar() || !r.drops.contains(e))
+            })
         })
     }
 
@@ -1160,6 +1524,7 @@ impl DepthBot {
         // The explorer is curious: kinds it has been into least first
         // (D03's towns have many).
         let scholar = self.scholar();
+        let equipped = equipped(s);
         let entered = &self.entered_kinds;
         let tried = self.tried_here.entry(square).or_default();
         let mut order: Vec<(usize, usize)> = (0..s.exits.len())
@@ -1181,6 +1546,11 @@ impl DepthBot {
         order.sort();
         for (_, i) in order {
             let n = noun(&s.exits, i);
+            // The explorer sees a few of a town's buildings and moves on,
+            // once it has the means to keep warm.
+            if !scholar && tried.len() >= TOWN_BUILDINGS && equipped {
+                break;
+            }
             if tried.insert(n.clone()) {
                 *self
                     .entered_kinds
@@ -1226,9 +1596,24 @@ impl DepthBot {
         // before the cairns and shrines it would otherwise wander to.
         let afternoon = hour >= 12 && !scholar;
         let town = |l: &&crate::Sighting| l.name.ends_with("town") || l.name.ends_with("ruins");
+        // In the morning, the odd things first (a pillar, standing stones,
+        // a fall), then heights, then towns.
+        let plain = |l: &&crate::Sighting| {
+            if town(l) {
+                2
+            } else if ["mountain", "hill", "hills", "ridge", "peak"]
+                .iter()
+                .any(|w| l.name.ends_with(w))
+            {
+                1
+            } else {
+                0
+            }
+        };
         fresh.sort_by_key(|l| {
             (
                 afternoon && !town(l),
+                if afternoon || scholar { 0 } else { plain(l) },
                 order.iter().position(|o| *o == l.distance).unwrap_or(9),
             )
         });
@@ -1403,9 +1788,17 @@ fn want(kind: &str, name: &str) -> u8 {
 
 /// Whether the bot carries the means of light: a lamp it hasn't found
 /// empty, a lamp and oil to fill it, or a torch and a firesteel.
+/// Whether the explorer has what it needs to leave a town for the land:
+/// the means to make a fire, and a cloak.
+fn equipped(s: &Summary) -> bool {
+    let has = |w: &str| s.carried.iter().any(|t| t.contains(w));
+    has("firesteel") && has("cloak")
+}
+
 fn can_light(s: &Summary, lamp_empty: bool) -> bool {
     let has = |w: &str| s.carried.iter().any(|t| t.contains(w));
-    (has("lamp") && (!lamp_empty || has("oil"))) || (has("torch") && has("firesteel"))
+    // Any light needs a flame to start it.
+    has("firesteel") && ((has("lamp") && (!lamp_empty || has("oil"))) || has("torch"))
 }
 
 /// The best lens carried: 0 none, 1 a lens, 2 the first lens.
@@ -1500,9 +1893,57 @@ pub struct BotRun {
     /// For each arrival somewhere, the facts shown and how many more
     /// digging there could turn up.
     pub on_demand: Vec<(u32, u32)>,
+    /// Natural features and old marks stood by (close by: within 300 m),
+    /// by id.
+    pub features: BTreeSet<usize>,
+    /// Towns whose buildings it went into.
+    pub towns: usize,
+    /// Signs whose sound it heard (S01).
+    pub heard: usize,
     #[serde(skip)]
     pub renders: Vec<Rendered>,
 }
+
+/// The family a command's verb belongs to, for the verb mix (S01).
+pub fn verb_family(cmd: &str) -> &'static str {
+    let c = cmd.trim();
+    let first = c.split_whitespace().next().unwrap_or("");
+    if c == "look" || c == "l" {
+        return "look";
+    }
+    if c.starts_with("look closer")
+        || c.starts_with("look around")
+        || c.starts_with("look up")
+        || c.starts_with("look down")
+        || c.starts_with("look at the ")
+        || matches!(first, "listen" | "smell" | "touch" | "taste")
+    {
+        return "dig";
+    }
+    if c.starts_with("examine sign") || c.starts_with("trace") {
+        return "read";
+    }
+    match first {
+        "examine" | "x" | "inspect" => "examine",
+        "read" | "more" | "study" => "read",
+        "go" | "head" | "follow" | "out" | "back" | "north" | "south" | "east" | "west" | "up"
+        | "down" | "northeast" | "northwest" | "southeast" | "southwest" | "cross" | "first" => {
+            "move"
+        }
+        "take" | "drop" | "open" | "close" | "pry" | "operate" | "use" | "pull" | "push" => {
+            "handle"
+        }
+        "scrape" | "write" => "writing",
+        "eat" | "drink" | "sleep" | "forage" | "gather" | "make" | "fill" | "light" | "wear"
+        | "extinguish" | "status" | "wait" | "feed" => "body",
+        _ => "other",
+    }
+}
+
+/// The verb families, in the order they are reported.
+pub const VERB_FAMILIES: &[&str] = &[
+    "look", "dig", "examine", "read", "move", "handle", "writing", "body", "other",
+];
 
 /// The variables that say what something is, for novelty.
 const KIND_VARS: &[&str] = &["kind", "purpose", "feature", "mark", "species", "material"];
@@ -1536,6 +1977,18 @@ fn response_kind(cmd: &str, before: &Place, after: &Place, moved: bool) -> &'sta
 /// Plays one bot on one seed until `hours` of game time pass, it dies, or
 /// `max_steps` commands.
 pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: usize) -> BotRun {
+    play_with(pack, seed, kind, hours, max_steps, |_| {})
+}
+
+/// Like `play`, with the game set up first (a tool in hand, say).
+pub fn play_with(
+    pack: &Pack,
+    seed: u64,
+    kind: &'static str,
+    hours: f64,
+    max_steps: usize,
+    setup: impl FnOnce(&mut Game),
+) -> BotRun {
     let mut g = Game::new(seed, pack.clone());
     g.keep_renders = true;
     // The scholar measures how far the late game can be reached, not
@@ -1543,6 +1996,7 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
     // DESIGN-Q: the scholar plays sustained.
     g.sustain = kind == "scholar";
     let mut out = g.start();
+    setup(&mut g);
     let mut bot = DepthBot::new(kind, seed);
     let start = g.state.minutes;
     let mut run = BotRun {
@@ -1566,6 +2020,9 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
         words: Vec::new(),
         facts: Vec::new(),
         on_demand: Vec::new(),
+        features: BTreeSet::new(),
+        towns: 0,
+        heard: 0,
         renders: Vec::new(),
     };
     let mut seen: BTreeSet<String> = BTreeSet::new();
@@ -1641,6 +2098,14 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
             run.on_demand.push((shown, g.on_demand() as u32));
         }
         note(&g, &mut run, &mut taken);
+        if g.state.place == Place::Outside {
+            for f in &g.site.world.features {
+                let fp = scraped_sim::outdoors::Pos::of_cell(f.cell.ux(), f.cell.uy());
+                if fp.dist(g.state.pos) <= f64::from(scraped_sim::outdoors::LOCAL) {
+                    run.features.insert(f.id);
+                }
+            }
+        }
         if run.novelty.len() == before_novel {
             bot.idle += 1;
         } else {
@@ -1671,6 +2136,14 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, hours: f64, max_steps: u
         })
         .collect();
     run.entered = g.state.visited.iter().copied().collect();
+    run.heard = g.state.heard.len();
+    run.towns = g
+        .state
+        .visited
+        .iter()
+        .filter_map(|&b| g.site.world.structures[b].settlement)
+        .collect::<BTreeSet<usize>>()
+        .len();
     run.renders = std::mem::take(&mut g.renders);
     run
 }

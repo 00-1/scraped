@@ -456,6 +456,38 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
             .count() as f64,
     );
 
+    // S01: how the explorer plays: its verbs, and where it went.
+    let mut families: BTreeMap<&str, usize> = BTreeMap::new();
+    for c in &run.commands {
+        *families.entry(bots::verb_family(c)).or_default() += 1;
+    }
+    let total = run.commands.len().max(1) as f64;
+    for f in bots::VERB_FAMILIES {
+        put(
+            &format!("play.verbs.{f}_share"),
+            families.get(f).copied().unwrap_or(0) as f64 / total,
+        );
+    }
+    let kinds: BTreeSet<&str> = run
+        .features
+        .iter()
+        .map(|&f| site.world.features[f].kind)
+        .collect();
+    put("play.visited.features", run.features.len() as f64);
+    put("play.visited.feature_kinds", kinds.len() as f64);
+    put("play.visited.buildings", run.buildings as f64);
+    put("play.visited.towns", run.towns as f64);
+
+    // S01: reading in layers, and sounds heard by a scraping player.
+    for (k, v) in crate::reading::measures(pack, seed) {
+        put(&k, v);
+    }
+    // The scholar, with a scraper in hand from the first hour.
+    let scholar = bots::play_with(pack, seed, "scholar", 10.0, 20_000, |g| {
+        g.make_item("scraper", true);
+    });
+    put("reading.heard_scholar_10h", scholar.heard as f64);
+
     WorldDepth {
         seed,
         metrics: m,

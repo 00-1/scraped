@@ -202,7 +202,8 @@ impl<'a> Renderer<'a> {
             text: String::new(),
             depth: self.depth,
         });
-        let out = self.render_inner(slot, ctx);
+        let ctx = crate::slot::readable(ctx);
+        let out = self.render_inner(slot, &ctx);
         let mut t = self.open.pop().expect("opened above");
         t.text = match &out {
             Ok(s) => s.clone(),
@@ -405,7 +406,7 @@ fn lookup<'c>(ctx: &'c Context, name: &str) -> Result<&'c Value, RenderError> {
 pub fn eval(e: &Expr, ctx: &Context) -> Result<bool, RenderError> {
     let val = |o: &Operand| -> Result<Value, RenderError> {
         Ok(match o {
-            Operand::Var(v) => lookup(ctx, v)?.clone(),
+            Operand::Var(v) => crate::slot::readable_value(lookup(ctx, v)?),
             Operand::Text(s) => Value::Text(s.clone()),
             Operand::Number(n) => Value::Number(*n),
             Operand::Bool(b) => Value::Bool(*b),

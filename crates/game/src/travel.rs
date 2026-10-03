@@ -613,6 +613,7 @@ impl Game {
                         if let Some(d) = dest {
                             let name = self.target_name(d);
                             event = Some(("travel.arrive", ctx(&[("name", Value::from(name))])));
+                            self.arrival_keys = self.target_keys(d);
                         }
                     } else if wi >= waypoints.len() {
                         let name = dest.map(|d| self.target_name(d)).unwrap_or_default();
@@ -680,6 +681,29 @@ impl Game {
             "label": label(&self.site.world.terrain.biome.get(pos.cell().0, pos.cell().1)),
         });
         self.output(parts, Some(truth))
+    }
+}
+
+impl Game {
+    /// The keys of the facts that are about a place set out for, so the
+    /// arrival there leads with it (S01).
+    pub(crate) fn target_keys(&self, t: Target) -> Vec<String> {
+        let mut keys = Vec::new();
+        if let Target::Landmark(i) = t {
+            let l = &self.site.land.landmarks[i];
+            keys.push(format!("landmark:{i}"));
+            if let Some(f) = l.feature {
+                keys.push(format!("feature:{f}"));
+            }
+            if let Some(town) = l.settlement {
+                keys.push(format!("whole:town:{town}"));
+            }
+            if let Some(s) = l.structure {
+                keys.push(format!("standout:{s}"));
+                keys.push(format!("whole:{s}"));
+            }
+        }
+        keys
     }
 }
 

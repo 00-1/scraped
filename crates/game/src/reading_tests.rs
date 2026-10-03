@@ -144,3 +144,17 @@ fn old_saves_with_labels_still_load() {
     g.start();
     g.step("define 3 as ka");
 }
+
+/// No raw id ever reaches the player (S01): no response has an underscore.
+#[test]
+fn no_response_shows_a_raw_id() {
+    for (seed, bot) in [(1, "explorer"), (9001, "scholar")] {
+        let run = crate::bots::play(&pack(), seed, bot, 4.0, 3_000);
+        for (cmd, text) in std::iter::once(&String::new())
+            .chain(run.commands.iter())
+            .zip(&run.texts)
+        {
+            assert!(!text.contains('_'), "seed {seed} {bot} `{cmd}`: {text}");
+        }
+    }
+}

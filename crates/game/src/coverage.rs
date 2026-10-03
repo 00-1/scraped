@@ -178,15 +178,23 @@ pub fn play(pack: &Pack, seed: u64, kind: &'static str, steps: usize) -> (Vec<Re
 /// determinism is broken.
 pub fn transcript_hash(pack: &Pack, seed: u64, preset: &str, steps: usize) -> String {
     let mut h: u64 = 0xcbf2_9ce4_8422_2325;
-    let mut feed = |s: &str| {
+    for s in transcript_lines(pack, seed, preset, steps) {
         for b in s.bytes().chain([0xff]) {
             h ^= u64::from(b);
             h = h.wrapping_mul(0x0100_0000_01b3);
         }
-    };
+    }
+    format!("{h:016x}")
+}
+
+/// What `transcript_hash` hashes, in order: the opening, each command and
+/// its response, and the final state; for finding where two platforms
+/// part ways.
+pub fn transcript_lines(pack: &Pack, seed: u64, preset: &str, steps: usize) -> Vec<String> {
+    let mut lines = Vec::new();
     let mut g = Game::create(seed, pack.clone(), preset, None);
     let mut out = g.start();
-    feed(&out.text);
+    lines.push(out.text.clone());
     let mut bot = Bot::new("wanderer", seed);
     for _ in 0..steps {
         if g.state.dead.is_some() {
@@ -194,11 +202,11 @@ pub fn transcript_hash(pack: &Pack, seed: u64, preset: &str, steps: usize) -> St
         }
         let cmd = bot.next(&g, &out);
         out = g.step(&cmd);
-        feed(&cmd);
-        feed(&out.text);
+        lines.push(cmd);
+        lines.push(out.text.clone());
     }
-    feed(&serde_json::to_string(&g.state).expect("state serialises"));
-    format!("{h:016x}")
+    lines.push(serde_json::to_string(&g.state).expect("state serialises"));
+    lines
 }
 
 pub(crate) fn combo(vars: &scraped_content::Context) -> String {

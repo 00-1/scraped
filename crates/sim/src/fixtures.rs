@@ -622,7 +622,8 @@ impl Fixtures {
             if homes.is_empty() {
                 continue;
             }
-            let pick = hash(&[w.seed, 0x7001, n as u64]) as usize;
+            // Modulo before narrowing: usize is 32 bits in WebAssembly.
+            let pick = (hash(&[w.seed, 0x7001, n as u64]) % homes.len() as u64) as usize;
             let reachable = |sid: usize| on_foot.contains(&sid);
             // Stronger scrapers lie farther out; the strongest with the root.
             // DESIGN-Q: the fine scraper about halfway out, the old one far,

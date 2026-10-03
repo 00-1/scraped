@@ -267,7 +267,10 @@ impl Game {
                 out.push(Candidate::new(Target::District(d), &name, &[kind]));
             }
         }
-        for (f, _) in self.features_near(f64::from(LOCAL)) {
+        // Close by, or in view within a look around (S01: a feature seen
+        // can be set out for).
+        // DESIGN-Q: features within 1.5 km can be gone to by name.
+        for (f, _) in self.features_near(AROUND) {
             let name = self.feature_name(f);
             let kind = self.site.world.features[f].kind;
             out.push(Candidate::new(Target::Feature(f), &name, &[kind]));

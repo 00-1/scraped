@@ -75,6 +75,26 @@ impl From<bool> for Value {
 /// Variable name → value. Names may contain dots (`surface.material`).
 pub type Context = BTreeMap<String, Value>;
 
+/// A value as templates see it: ids are written with spaces, not
+/// underscores ("pry bar", not "pry_bar"), so no raw id ever reaches the
+/// player (S01). Enum values, sample contexts, the contexts rendered and
+/// the words compared in conditions all go through this, so code can keep
+/// its ids.
+pub fn readable_value(v: &Value) -> Value {
+    match v {
+        Value::Text(t) if t.contains('_') => Value::Text(t.replace('_', " ")),
+        Value::List(l) => Value::List(l.iter().map(readable_value).collect()),
+        other => other.clone(),
+    }
+}
+
+/// A context as templates see it (see `readable_value`).
+pub fn readable(ctx: &Context) -> Context {
+    ctx.iter()
+        .map(|(k, v)| (k.clone(), readable_value(v)))
+        .collect()
+}
+
 /// What kind of value a variable holds; drives lint checks.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
@@ -137,6 +157,12 @@ impl SlotDef {
     }
 
     pub fn var(mut self, name: &str, ty: VarType, description: &str) -> Self {
+        let ty = match ty {
+            VarType::Enum { values } => VarType::Enum {
+                values: values.iter().map(|v| v.replace('_', " ")).collect(),
+            },
+            other => other,
+        };
         self.variables.push(VarDef {
             name: name.to_string(),
             ty,
@@ -182,7 +208,7 @@ impl SlotDef {
         };
         seeds
             .iter()
-            .flat_map(|&s| f(s).into_iter().map(move |c| (s, c)))
+            .flat_map(|&s| f(s).into_iter().map(move |c| (s, readable(&c))))
             .collect()
     }
 }

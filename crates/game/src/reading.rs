@@ -597,3 +597,65 @@ impl Game {
         !self.is_dark()
     }
 }
+
+/// Reading measures for `scraped-lang depth` (S01): words a glance and a
+/// page of close reading take, with no sounds heard and with the
+/// commonest signs heard; and how many signs of each era's script have an
+/// impression of their own.
+pub fn measures(pack: &scraped_content::Pack, seed: u64) -> Vec<(String, f64)> {
+    let mut g = Game::new(seed, pack.clone());
+    g.forced_light = true;
+    g.start();
+    let things: Vec<usize> = (0..g.site.things.len())
+        .filter(|&t| g.signs(t).len() >= 12)
+        .take(12)
+        .collect();
+    let words = |s: &str| s.split_whitespace().count() as f64;
+    let mean = |v: &[f64]| v.iter().sum::<f64>() / v.len().max(1) as f64;
+    let mut out = Vec::new();
+    let read_close = |g: &mut Game| -> (Vec<f64>, Vec<f64>) {
+        let (mut glance, mut page) = (Vec::new(), Vec::new());
+        for &t in &things {
+            g.state.place = g.site.things[t].home;
+            g.state.pos = g.site.things[t].pos;
+            glance.push(words(&g.act("read", Target::Thing(t)).text));
+            page.push(words(&g.step("read closely").text));
+        }
+        (glance, page)
+    };
+    let (glance, page) = read_close(&mut g);
+    out.push(("reading.words_per_read".to_string(), mean(&glance)));
+    out.push(("reading.words_per_page".to_string(), mean(&page)));
+    // The commonest signs heard, as after some scraping.
+    let mut counts: BTreeMap<(u32, usize), usize> = BTreeMap::new();
+    for &t in &things {
+        for (era, index, _) in g.signs(t) {
+            if g.sign_sound(era, index).is_some() {
+                *counts.entry((era, index)).or_default() += 1;
+            }
+        }
+    }
+    let mut common: Vec<((u32, usize), usize)> = counts.into_iter().collect();
+    common.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    for (k, _) in common.into_iter().take(12) {
+        g.state.heard.insert(k);
+    }
+    let (_, page) = read_close(&mut g);
+    out.push(("reading.words_per_page_heard".to_string(), mean(&page)));
+    // Signs whose impression no other sign of the script shares.
+    let mut shares = Vec::new();
+    for era in 0..g.site.world.languages.len() as u32 {
+        let n = g.site.world.languages[era as usize].script.glyphs.len();
+        let texts: Vec<String> = (0..n).map(|i| g.sign_impression(era, i)).collect();
+        let unique = texts
+            .iter()
+            .filter(|t| texts.iter().filter(|o| o == t).count() == 1)
+            .count();
+        shares.push(unique as f64 / n.max(1) as f64);
+    }
+    out.push((
+        "reading.unique_impression_share".to_string(),
+        shares.iter().copied().fold(1.0, f64::min),
+    ));
+    out
+}

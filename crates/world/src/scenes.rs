@@ -119,7 +119,8 @@ pub fn place(
         let mut v = seed ^ salt.wrapping_mul(0x9e37_79b9_7f4a_7c15);
         v ^= v >> 31;
         v = v.wrapping_mul(0xbf58_476d_1ce4_e5b9);
-        (v >> 7) as usize % n.max(1)
+        // Modulo before narrowing: usize is 32 bits in WebAssembly.
+        ((v >> 7) % n.max(1) as u64) as usize
     };
     let outside = |c: Cell| SceneAt::Outside { x: c.x, y: c.y };
     for town in towns {

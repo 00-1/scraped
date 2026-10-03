@@ -36,7 +36,7 @@ mod places;
 #[cfg(test)]
 mod places_tests;
 pub mod quiet_slots;
-mod reading;
+pub mod reading;
 mod reading_slots;
 #[cfg(test)]
 mod reading_tests;
@@ -361,6 +361,8 @@ pub struct Game {
     impression_cache: BTreeMap<u32, Vec<String>>,
     /// Whether the last command was reading, so `look closer` reads on.
     reading_now: bool,
+    /// The facts about where a journey just arrived, said first (S01).
+    arrival_keys: Vec<String>,
     /// Whether the last command was `listen`, and so whether the player
     /// is listening during this one (S01: signs' sounds while scraping).
     listening: bool,
@@ -528,6 +530,7 @@ impl Game {
             reading_now: false,
             listening: false,
             attentive: false,
+            arrival_keys: Vec::new(),
             last_travel: None,
             extra: Vec::new(),
             notes: Vec::new(),
@@ -937,14 +940,23 @@ impl Game {
                 .collect(),
             // Ways that can be gone through from here: not windows, and not
             // the far side of a one-way way (D04).
+            // Several ways one way are each given by name ("the western
+            // door north"), so each can be told apart (S01).
             _ => {
-                let mut v: Vec<String> = self
+                let ways: Vec<Way> = self
                     .ways()
-                    .iter()
+                    .into_iter()
                     .filter(|w| w.passage != Some(Passage::Window) && !w.against)
-                    .map(|w| label(&w.exit))
                     .collect();
-                v.dedup();
+                let mut v: Vec<String> = Vec::new();
+                for w in &ways {
+                    let dir = label(&w.exit);
+                    let alike = ways.iter().filter(|o| o.exit == w.exit).count();
+                    let e = if alike > 1 { self.way_name(w) } else { dir };
+                    if !v.contains(&e) {
+                        v.push(e);
+                    }
+                }
                 v
             }
         };
@@ -1290,13 +1302,25 @@ impl Game {
                 self.act(verb, pick)
             }
             Resolution::Many(options) => {
-                let names: Vec<Value> = options
-                    .iter()
-                    .map(|o| match *o {
-                        Target::Landmark(i) => Value::from(self.landmark_choice(i)),
-                        t => Value::from(self.target_name(t)),
-                    })
-                    .collect();
+                // Things that look the same are as good as each other: one
+                // of each look is offered, never two identical names (S01).
+                let mut names: Vec<Value> = Vec::new();
+                let mut kept: Vec<Target> = Vec::new();
+                for o in options {
+                    let name = match o {
+                        Target::Landmark(i) => self.landmark_choice(i),
+                        t => self.target_name(t),
+                    };
+                    let v = Value::from(name);
+                    if !names.contains(&v) {
+                        names.push(v);
+                        kept.push(o);
+                    }
+                }
+                if let [only] = kept.as_slice() {
+                    return self.act(verb, *only);
+                }
+                let options = kept;
                 self.state.pending = Some(Pending {
                     verb: verb.to_string(),
                     options,
@@ -1600,6 +1624,19 @@ impl Game {
             self.state
                 .doors
                 .insert(format!("{structure}:{}", w.link), open);
+        }
+        // Why it won't move, so the player has something to notice (S01).
+        // DESIGN-Q: locked, stuck and swollen doors come with D05's keys.
+        let mut named = named;
+        if !movable {
+            let cause = if w.passage != Some(scraped_world::structures::Passage::Door) {
+                "not_door"
+            } else if w.state == PassageState::Blocked {
+                "rubble"
+            } else {
+                "fallen"
+            };
+            named.insert("cause".into(), Value::from(cause));
         }
         let t = self.say(slot, named);
         self.output(vec![t], None)

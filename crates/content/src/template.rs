@@ -311,7 +311,9 @@ fn tokenize(s: &str) -> Result<Vec<(usize, Tok)>, ParseError> {
                         at,
                         message: "unclosed quote".into(),
                     })?;
-                let t = Tok::Text(chars[i + 1..close].iter().collect());
+                // Ids are compared as templates see them (`readable_value`).
+                let text: String = chars[i + 1..close].iter().collect();
+                let t = Tok::Text(text.replace('_', " "));
                 i = close + 1;
                 out.push((at, t));
                 continue;

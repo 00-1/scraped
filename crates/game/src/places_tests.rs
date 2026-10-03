@@ -1,7 +1,7 @@
 //! D03 in play: walking a town's districts, finding features and scenes
 //! by looking closer, and storylets placed at scenes.
 
-use scraped_content::PackFile;
+use scraped_content::{PackFile, Value};
 use scraped_world::scenes::SceneAt;
 
 use crate::composing_tests::pack;
@@ -161,4 +161,76 @@ scene = ["meal left", "barricade", "bones with belongings"]
         }
     }
     assert!(placed >= 3, "placed in {placed} worlds");
+}
+
+/// S01: arriving where one set out for leads with it.
+#[test]
+fn arriving_somewhere_describes_it_first() {
+    let mut arrived = 0;
+    for seed in [1u64, 42, 9001] {
+        let probe = {
+            let mut g = Game::new(seed, crate::composing_tests::pack());
+            g.start();
+            g.in_view()
+                .into_iter()
+                .map(|v| v.landmark)
+                .take(6)
+                .collect::<Vec<_>>()
+        };
+        for i in probe {
+            let mut g = Game::new(seed, crate::composing_tests::pack());
+            g.trace = true;
+            g.sustain = true;
+            g.start();
+            // On again after anything that stops the journey.
+            let mut o = g.act("go", crate::Target::Landmark(i));
+            for _ in 0..4 {
+                if o.renders.iter().any(|r| r.trace.slot == "travel.arrive") {
+                    break;
+                }
+                o = g.act("go", crate::Target::Landmark(i));
+            }
+            let Some(at) = o
+                .renders
+                .iter()
+                .position(|r| r.trace.slot == "travel.arrive")
+            else {
+                continue;
+            };
+            arrived += 1;
+            let l = &g.site.land.landmarks[i];
+            // The first fact said after the arrival, by where its words
+            // stand in what the player read.
+            let lower = o.text.to_lowercase();
+            let after = lower
+                .find(&o.renders[at].trace.text.trim().to_lowercase())
+                .unwrap_or(0);
+            let first = o.renders[at + 1..]
+                .iter()
+                .filter(|r| r.trace.depth == 0 && !r.trace.slot.starts_with("travel."))
+                .filter_map(|r| {
+                    let t = r.trace.text.trim().to_lowercase();
+                    let t = t.trim_end_matches('.');
+                    (!t.is_empty()).then(|| lower[after..].find(t).map(|p| (p, r)))?
+                })
+                .min_by_key(|(p, _)| *p)
+                .map(|(_, r)| r)
+                .expect("a description follows");
+            let about = match first.trace.slot.as_str() {
+                "land.feature" => l.feature.is_some_and(|f| {
+                    first.vars.get("kind") == Some(&Value::from(g.site.world.features[f].kind))
+                }),
+                "place.whole" => l.settlement.is_some() || l.structure.is_some(),
+                "place.standout" => l.structure.is_some(),
+                "land.landmark" => true,
+                _ => false,
+            };
+            assert!(
+                about,
+                "seed {seed} landmark {} ({}): {} {:?}: {}",
+                i, l.kind, first.trace.slot, first.vars, o.text
+            );
+        }
+    }
+    assert!(arrived >= 6, "too few arrivals to judge: {arrived}");
 }

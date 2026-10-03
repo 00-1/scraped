@@ -27,7 +27,7 @@ example = true
 
 [[variant]]
 slot = "place.standout"
-text = "[if why == 'only']Among them stands {name}[else][if why == 'tallest']Above the rest rises {name}[else]{cap name} stands out[end][end]."
+text = "[if why == 'only']{cap name} stands alone of its kind here[else][if why == 'tallest']Above the roofs rises {name}[else]{cap name} stands out[end][end]."
 example = true
 
 [[variant]]

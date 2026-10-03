@@ -1113,13 +1113,20 @@ fn make_escapable(i: &mut Interior) {
                 i.links[l].one_way = false;
             }
             None => {
-                // Its only ways lead to other trapped spaces: open the
-                // first shut way anywhere among them.
-                match i
-                    .links
-                    .iter()
-                    .position(|l| l.one_way || l.state == PassageState::Blocked)
-                {
+                // Its only ways lead to other trapped spaces: open a shut
+                // or one-way way into any of them.
+                let caught = i.trapped_all();
+                let into = |l: &Link| {
+                    l.passage != Passage::Window
+                        && ((l.state == PassageState::Blocked
+                            && (caught.contains(&l.a) || caught.contains(&l.b)))
+                            || (l.one_way && caught.contains(&l.b)))
+                };
+                match i.links.iter().position(into).or_else(|| {
+                    i.links
+                        .iter()
+                        .position(|l| l.one_way || l.state == PassageState::Blocked)
+                }) {
                     Some(l) => {
                         i.links[l].state = PassageState::Open;
                         i.links[l].one_way = false;
@@ -1351,10 +1358,34 @@ impl Interior {
         self.trapped().is_none()
     }
 
-    /// A reachable space with no way back out, if there is one.
+    /// A reachable space with no way back out, if there is one: with the
+    /// doors as they are, or with every door held shut (writing can hold
+    /// a building's doors, S01), so a drop never lands where only a door
+    /// leads on.
     pub fn trapped(&self) -> Option<usize> {
+        self.trapped_with(false).or_else(|| self.trapped_with(true))
+    }
+
+    /// Every reachable space with no way back out, in whichever of the two
+    /// cases (doors as they are, doors held shut) first has any.
+    fn trapped_all(&self) -> Vec<usize> {
+        for shut in [false, true] {
+            let v = self.trapped_set(shut);
+            if !v.is_empty() {
+                return v;
+            }
+        }
+        Vec::new()
+    }
+
+    fn trapped_with(&self, doors_shut: bool) -> Option<usize> {
+        self.trapped_set(doors_shut).first().copied()
+    }
+
+    fn trapped_set(&self, doors_shut: bool) -> Vec<usize> {
         let n = self.rooms.len();
-        let reach = self.reachable_all();
+        let reach = self.reachable_with(doors_shut);
+        let shut = |l: &Link| doors_shut && l.passage == Passage::Door;
         // Backwards from the ways outside, along passable ways.
         let mut out = vec![false; n];
         let mut stack: Vec<usize> = (0..n)
@@ -1365,7 +1396,7 @@ impl Interior {
         }
         while let Some(r) = stack.pop() {
             for l in &self.links {
-                if l.state == PassageState::Blocked || l.passage == Passage::Window {
+                if l.state == PassageState::Blocked || l.passage == Passage::Window || shut(l) {
                     continue;
                 }
                 // Someone at `from` can step to `r`.
@@ -1390,13 +1421,17 @@ impl Interior {
                 }
             }
         }
-        (0..n).find(|&r| reach[r] && !out[r])
+        (0..n).filter(|&r| reach[r] && !out[r]).collect()
     }
 
     /// Spaces reachable from the entrance or from any way outside, through
     /// passable ways, hidden ones included; collapsed spaces are sealed and
     /// never reached.
     pub fn reachable_all(&self) -> Vec<bool> {
+        self.reachable_with(false)
+    }
+
+    fn reachable_with(&self, doors_shut: bool) -> Vec<bool> {
         let mut seen = vec![false; self.rooms.len()];
         let mut stack: Vec<usize> = (0..self.rooms.len())
             .filter(|&r| (r == 0 || self.rooms[r].outside) && !self.rooms[r].collapsed)
@@ -1406,7 +1441,10 @@ impl Interior {
         }
         while let Some(r) = stack.pop() {
             for l in &self.links {
-                if l.state == PassageState::Blocked || l.passage == Passage::Window {
+                if l.state == PassageState::Blocked
+                    || l.passage == Passage::Window
+                    || (doors_shut && l.passage == Passage::Door)
+                {
                     continue;
                 }
                 let ways: &[(usize, usize)] = if l.one_way {
