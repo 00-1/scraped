@@ -397,6 +397,7 @@ pub fn place(site: &mut Site, pack: &Pack) -> Vec<Placed> {
                 texts: vec![id],
                 pos,
                 surface: Some(site.writing.surfaces.len() - 1),
+                object: None,
             });
             placed.thing = Some(thing);
             placed.text = Some(id);

@@ -159,7 +159,7 @@ pub const PURPOSES: &[&str] = &[
     "maze",
     "corridor",
 ];
-pub const KINDS: &[&str] = &[
+const BASE_KINDS: &[&str] = &[
     "hearth",
     "wall",
     "shelf",
@@ -285,7 +285,37 @@ pub const MAKE_WHAT: &[&str] = &["torch", "shelter", "unknown"];
 pub const MAKE_WHY: &[&str] = &["no_wood", "indoors", "unknown"];
 pub const CROSS_HOW: &[&str] = &["ice", "wade", "swim"];
 pub const CROSS_FAILS: &[&str] = &["no_water", "too_wide"];
-pub const MATERIALS: &[&str] = &["stone", "clay", "wood", "metal", "plaster", "vellum"];
+const BASE_MATERIALS: &[&str] = &["stone", "clay", "wood", "metal", "plaster", "vellum"];
+
+/// Every kind of thing: the building features and items, then the
+/// objects of D05. Indices are stable within a build (groups use them).
+pub fn kinds() -> &'static [&'static str] {
+    static K: std::sync::OnceLock<Vec<&'static str>> = std::sync::OnceLock::new();
+    K.get_or_init(|| {
+        let mut v: Vec<&'static str> = BASE_KINDS.to_vec();
+        for k in scraped_world::objects::KINDS {
+            if !v.contains(&k.id) {
+                v.push(k.id);
+            }
+        }
+        v
+    })
+}
+
+/// Every material a thing can be: building materials, then what objects
+/// are made of (D05).
+pub fn materials() -> &'static [&'static str] {
+    static M: std::sync::OnceLock<Vec<&'static str>> = std::sync::OnceLock::new();
+    M.get_or_init(|| {
+        let mut v: Vec<&'static str> = BASE_MATERIALS.to_vec();
+        for m in scraped_world::objects::stuffs() {
+            if !v.contains(&m) {
+                v.push(m);
+            }
+        }
+        v
+    })
+}
 pub const DIRECTIONS: &[&str] = &["north", "south", "east", "west", "up", "down"];
 /// Directions a player may type, compass diagonals included.
 pub const ALL_DIRECTIONS: &[&str] = &[
@@ -1305,8 +1335,8 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(60)
             .sampler(s_none),
         SlotDef::new("thing.name", "A thing's short name in lists and for the parser ('a clay tablet'). The player types words from it, so include the kind word. Mention writing only as visible marks, never meaning.")
-            .var("kind", e(KINDS), "What the thing is.")
-            .var("material", e(MATERIALS), "What it is made of.")
+            .var("kind", e(kinds()), "What the thing is.")
+            .var("material", e(materials()), "What it is made of.")
             .var("written", VarType::Bool, "Whether there is writing on it.")
             .var("condition", e(CONDITIONS), "The condition of the building it is in.")
             .var("item", VarType::Bool, "A carryable item (torch, wood, cloak…) rather than part of a building or a jar or tablet; its material matters less than its kind. Kinds with two words use an underscore (pry_bar).")
@@ -1314,8 +1344,8 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(60)
             .sampler(s_thing),
         SlotDef::new("thing.examine", "What the player sees when examining a thing closely. If it bears writing, say so (and how it looks), and hint that it can be read.")
-            .var("kind", e(KINDS), "What the thing is.")
-            .var("material", e(MATERIALS), "What it is made of.")
+            .var("kind", e(kinds()), "What the thing is.")
+            .var("material", e(materials()), "What it is made of.")
             .var("written", VarType::Bool, "Whether there is writing on it.")
             .var("condition", e(CONDITIONS), "The condition of the building it is in.")
             .var("item", VarType::Bool, "A carryable item rather than part of a building (items show their state through item.examine instead).")
@@ -1323,7 +1353,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_thing),
         SlotDef::new("read.frame", "Introduces reading a piece of writing, before its glyphs are listed ('Carved into the stone, in a cramped hand:'). Never reveals meaning.")
             .var("thing", VarType::Text, thing)
-            .var("material", e(MATERIALS), "The surface.")
+            .var("material", e(materials()), "The surface.")
             .var("glyphs", VarType::Number, "How many glyphs the writing has.")
             .var("page", VarType::Number, "Which page of the reading this is (from 1).")
             .var("pages", VarType::Number, "How many pages in all.")
@@ -1730,7 +1760,7 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(120)
             .sampler(s_glyph_number),
         SlotDef::new("read.scraped", "Before a scraped layer's glyphs: this writing was scraped, and only part of it survives ('Beneath the scouring, a few strokes survive:').")
-            .var("material", e(MATERIALS), "The surface.")
+            .var("material", e(materials()), "The surface.")
             .var("lost", VarType::Number, "How many glyphs are lost to the eye (more survive in better light).")
             .var("glyphs", VarType::Number, "How many glyphs there were.")
             .max_len(200)
@@ -1741,7 +1771,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_ghosts),
         SlotDef::new("scrape.done", "The act of scraping a whole text off a surface. Only the act; whatever it releases is told by effect.change.")
             .var("thing", VarType::Text, thing)
-            .var("material", e(MATERIALS), "The surface.")
+            .var("material", e(materials()), "The surface.")
             .max_len(300)
             .sampler(s_scrape),
         SlotDef::new("scrape.no_tool", "The player tries to scrape writing with nothing to scrape it with.").var("thing", VarType::Text, thing).sampler(s_named),
@@ -1760,7 +1790,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_tool),
         SlotDef::new("write.done", "The player writes new text on a surface. Echo the signs back as they were cut or painted, never what they mean.")
             .var("thing", VarType::Text, thing)
-            .var("material", e(MATERIALS), "The surface.")
+            .var("material", e(materials()), "The surface.")
             .var("glyphs", VarType::List, "Each sign written: by its sound in «» where heard, else as it looks (from glyph.impression).")
             .max_len(1200)
             .sampler(s_write),
@@ -1782,7 +1812,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_count),
         SlotDef::new("write.smudge", "The new writing won't take over the trace beneath it: it beads, runs or flakes away, because it doesn't fit what was there before. Physical, never the rule.")
             .var("thing", VarType::Text, thing)
-            .var("material", e(MATERIALS), "The surface.")
+            .var("material", e(materials()), "The surface.")
             .max_len(200)
             .sampler(s_scrape),
         SlotDef::new("write.backlash", "A malformed potent inscription turns on its writer as it is scraped: a jolt, a burn, something that hurts (one level of injury).").sampler(s_none),
@@ -1837,6 +1867,7 @@ pub fn registry() -> Registry {
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());
+    all.extend(crate::object_slots::slots());
     Registry::new(all)
 }
 
@@ -2010,6 +2041,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());
+    all.extend(crate::object_slots::slots());
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {

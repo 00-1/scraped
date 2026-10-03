@@ -8,7 +8,7 @@ use scraped_content::{Context, SlotDef, Value, VarType};
 use crate::attention::{season_evidence_ids, AMOUNTS, REGION_EVIDENCE};
 use crate::site::ctx;
 use crate::slots::{
-    AIRS, BIOMES, CONDITIONS, KINDS, LIGHTS, MATERIALS, NEEDS, PURPOSES, STRUCTURES, TEMPERATURES,
+    kinds, materials, AIRS, BIOMES, CONDITIONS, LIGHTS, NEEDS, PURPOSES, STRUCTURES, TEMPERATURES,
     TERRAINS, TIMES, WETNESSES,
 };
 use scraped_sim::outdoors::BEARINGS;
@@ -412,7 +412,7 @@ fn s_room_group(_: u64) -> Vec<Context> {
             ctx(&[
                 ("kind", Value::from(*k)),
                 ("amount", Value::from(AMOUNTS[2 + i])),
-                ("material", Value::from(MATERIALS[i % MATERIALS.len()])),
+                ("material", Value::from(materials()[i % materials().len()])),
             ])
         })
         .collect()
@@ -478,7 +478,7 @@ fn s_touch(_: u64) -> Vec<Context> {
         .map(|(i, t)| {
             ctx(&[
                 ("thing", Value::from("a stone stele")),
-                ("material", Value::from(MATERIALS[i % MATERIALS.len()])),
+                ("material", Value::from(materials()[i % materials().len()])),
                 ("texture", Value::from(*t)),
                 (
                     "temperature",
@@ -550,7 +550,7 @@ fn s_closer(_: u64) -> Vec<Context> {
         .map(|(i, k)| {
             ctx(&[
                 ("kind", Value::from(*k)),
-                ("material", Value::from(MATERIALS[i % MATERIALS.len()])),
+                ("material", Value::from(materials()[i % materials().len()])),
                 ("condition", Value::from(CONDITIONS[i % 4])),
                 ("size", Value::from(SIZES[i % SIZES.len()])),
                 ("written", Value::Bool(i % 2 == 0)),
@@ -719,9 +719,9 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(300)
             .sampler(s_ways),
         SlotDef::new("room.group", "Alike things in a room taken together ('Shelves of clay jars.'). Vague amounts only.")
-            .var("kind", e(KINDS), "What they are.")
+            .var("kind", e(kinds()), "What they are.")
             .var("amount", e(&AMOUNTS), "How many, roughly.")
-            .var("material", e(MATERIALS), "What they're made of.")
+            .var("material", e(materials()), "What they're made of.")
             .max_len(140)
             .sampler(s_room_group),
         SlotDef::new("room.thing", "One thing in a room, mentioned on its own because it stands out (big things before small).")
@@ -750,7 +750,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("sense.no_smell", "Nothing to smell worth noting.").var("indoors", VarType::Bool, "Inside a building.").max_len(120).sampler(s_indoors),
         SlotDef::new("sense.touch", "How a thing feels under the hand ('touch the stele'): texture, cold or warm, damp or dry, and whether marks can be felt in it.")
             .var("thing", VarType::Text, "What was touched.")
-            .var("material", e(MATERIALS), "What it's made of.")
+            .var("material", e(materials()), "What it's made of.")
             .var("texture", e(TEXTURES), "How it feels.")
             .var("temperature", e(TEMPERATURES), "How cold or warm.")
             .var("wetness", e(WETNESSES), "How damp.")
@@ -781,7 +781,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_down),
         SlotDef::new("thing.closer", "A second, closer look at a thing (examining it again): what the first glance missed: its size, wear, make.")
             .var("kind", VarType::Text, "What it is.")
-            .var("material", e(MATERIALS), "What it's made of.")
+            .var("material", e(materials()), "What it's made of.")
             .var("condition", e(CONDITIONS), "The state of the building it is in.")
             .var("size", e(SIZES), "How big.")
             .var("written", VarType::Bool, "Whether there is writing on it.")

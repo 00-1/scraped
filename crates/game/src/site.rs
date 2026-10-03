@@ -41,6 +41,20 @@ pub struct Thing {
     pub pos: Pos,
     /// The written surface it carries, by index into `Writing::surfaces`.
     pub surface: Option<usize>,
+    /// The object it is (D05), by index into `World::objects`.
+    pub object: Option<usize>,
+}
+
+/// The nearest building material to what an object is made of, for code
+/// that reasons by material (fire, weight); names use the object's own.
+fn object_material(stuff: &str) -> Material {
+    match stuff {
+        "gold" | "silver" | "bronze" | "iron" | "copper" => Material::Metal,
+        "clay" | "glass" => Material::Clay,
+        "stone" => Material::Stone,
+        "cloth" | "leather" => Material::Vellum,
+        _ => Material::Wood,
+    }
 }
 
 /// Feature kinds that can be picked up.
@@ -161,6 +175,7 @@ impl Site {
                         texts: f.texts.clone(),
                         pos,
                         surface: None,
+                        object: None,
                     });
                 }
             }
@@ -174,6 +189,7 @@ impl Site {
                     texts: st.outside.clone(),
                     pos,
                     surface: None,
+                    object: None,
                 });
                 feature_of.push((sid, None, None));
             }
@@ -189,6 +205,24 @@ impl Site {
                 texts: Vec::new(),
                 pos: p.pos,
                 surface: None,
+                object: None,
+            });
+        }
+        // Objects with histories (D05), where their lives left them.
+        for o in &world.objects {
+            things.push(Thing {
+                id: things.len(),
+                kind: o.kind,
+                material: object_material(o.stuff),
+                home: Place::Room {
+                    structure: o.structure,
+                    room: o.room,
+                },
+                portable: true,
+                texts: Vec::new(),
+                pos: land.structure_pos[o.structure],
+                surface: None,
+                object: Some(o.id),
             });
         }
         let regions = Regions::new(&world);
@@ -334,16 +368,20 @@ impl Site {
             Place::Room { structure, .. } => label(&self.structure(structure).condition),
             Place::Outside => "worn".to_string(),
         };
+        let material = match t.object {
+            Some(o) => self.world.objects[o].stuff.to_string(),
+            None => label(&t.material),
+        };
         ctx(&[
             ("kind", Value::from(t.kind)),
-            ("material", Value::from(label(&t.material))),
+            ("material", Value::from(material)),
             ("written", Value::Bool(!t.texts.is_empty())),
             ("condition", Value::from(condition)),
             (
                 "item",
                 Value::Bool(
                     t.texts.is_empty()
-                        && scraped_sim::items::kind(t.kind).is_some()
+                        && (scraped_sim::items::kind(t.kind).is_some() || t.object.is_some())
                         && t.kind != "jar",
                 ),
             ),

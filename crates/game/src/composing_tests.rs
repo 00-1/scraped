@@ -269,7 +269,7 @@ fn slot_lists_cover_every_kind_of_room_and_thing() {
                 missing.push(r.purpose);
             }
             for (f, _) in r.features {
-                if !crate::slots::KINDS.contains(f) {
+                if !crate::slots::kinds().contains(f) {
                     missing.push(f);
                 }
             }

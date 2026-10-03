@@ -6,7 +6,7 @@ use scraped_content::{Context, SlotDef, Value, VarType};
 use scraped_lang::impression::RESEMBLANCES;
 
 use crate::site::ctx;
-use crate::slots::{MATERIALS, WRITING};
+use crate::slots::{materials, WRITING};
 use crate::writing::HANDS;
 
 fn e(values: &[&str]) -> VarType {
@@ -29,7 +29,7 @@ fn s_whole(_: u64) -> Vec<Context> {
                     "thing",
                     Value::from(["the stele", "a jar", "the lintel"][i % 3]),
                 ),
-                ("material", Value::from(MATERIALS[i % MATERIALS.len()])),
+                ("material", Value::from(materials()[i % materials().len()])),
                 ("hand", Value::from(HANDS[i % HANDS.len()])),
                 ("glyphs", Value::Number(glyphs)),
                 ("words", Value::Number(glyphs / 4 + 1)),
@@ -159,7 +159,7 @@ pub fn slots() -> Vec<SlotDef> {
     vec![
         SlotDef::new("read.whole", "The player reads a thing: the whole text at a glance, never sign by sign ('Six short lines cut deep into the stone, in a heavy hand; a few shapes keep coming back.'). How much writing, in how many lines, how it was made, its state. Reading closely ('read closely') goes sign by sign. Never reveals meaning.")
             .var("thing", VarType::Text, "The thing, as named by thing.name.")
-            .var("material", e(MATERIALS), "The surface.")
+            .var("material", e(materials()), "The surface.")
             .var("hand", e(HANDS), "The look of the hand (the most recent visible layer). The same scribe always has the same hand.")
             .var("glyphs", VarType::Number, "How many signs.")
             .var("words", VarType::Number, "How many groups of signs (words, as far as the eye can tell).")

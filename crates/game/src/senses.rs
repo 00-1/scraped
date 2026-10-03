@@ -689,7 +689,7 @@ impl Game {
                 }
             }
             Target::Things(k) => {
-                let kind = crate::slots::KINDS.get(k).copied().unwrap_or("jar");
+                let kind = crate::slots::kinds().get(k).copied().unwrap_or("jar");
                 let all: Vec<usize> = self
                     .here()
                     .into_iter()

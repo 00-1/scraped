@@ -11,6 +11,7 @@ pub mod features;
 pub mod geology;
 pub mod history;
 pub mod interiors;
+pub mod objects;
 pub mod scenes;
 pub mod structures;
 pub mod terrain;
@@ -59,6 +60,8 @@ pub struct World {
     /// The great interiors (D04): structures grown into vast places, and
     /// the caves among them, with their kinds.
     pub greats: Vec<(usize, interiors::GreatKind)>,
+    /// Things people made, used and left behind, with their owners (D05).
+    pub objects: Vec<objects::Object>,
     /// The language at each era, oldest first.
     #[serde(skip)]
     pub languages: Vec<Language>,
@@ -105,6 +108,7 @@ impl World {
             &structures,
             &features,
         );
+        let objects = objects::place(seed, &history, &structures);
         let names = history.people.iter().map(|p| p.name.clone()).collect();
         World {
             seed,
@@ -121,6 +125,7 @@ impl World {
             underground,
             scenes,
             greats,
+            objects,
             languages,
             names,
         }

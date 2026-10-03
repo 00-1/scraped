@@ -29,6 +29,10 @@ mod interior_slots;
 #[cfg(test)]
 mod interior_tests;
 pub mod mapper;
+mod object_slots;
+#[cfg(test)]
+mod object_tests;
+mod objects;
 pub mod parser;
 mod physical;
 mod place_slots;
@@ -114,7 +118,7 @@ pub enum Target {
     /// `slots::STRUCTURES`), and perhaps only those in one condition
     /// (index into `slots::CONDITIONS`): "the worn tombs".
     Buildings(usize, Option<usize>),
-    /// Alike things here, as a group, by kind (index into `slots::KINDS`).
+    /// Alike things here, as a group, by kind (index into `slots::kinds()`).
     Things(usize),
     /// A part of the town underfoot, by index into its districts (D03).
     District(usize),
@@ -889,7 +893,7 @@ impl Game {
         }
         if !self.is_dark() {
             for t in self.here() {
-                if let Some(k) = slots::KINDS.iter().position(|x| *x == self.thing(t).kind) {
+                if let Some(k) = slots::kinds().iter().position(|x| *x == self.thing(t).kind) {
                     *groups.entry((false, k)).or_default() += 1;
                 }
             }
@@ -901,7 +905,7 @@ impl Game {
             let (target, kind) = if building {
                 (Target::Buildings(k, None), slots::STRUCTURES[k])
             } else {
-                (Target::Things(k), slots::KINDS[k])
+                (Target::Things(k), slots::kinds()[k])
             };
             let name = self.target_name(target);
             let many = senses::plural(kind);
@@ -1382,7 +1386,7 @@ impl Game {
                 )
             }
             Target::Things(k) => {
-                let kind = slots::KINDS.get(k).copied().unwrap_or("jar");
+                let kind = slots::kinds().get(k).copied().unwrap_or("jar");
                 self.say(
                     "place.group_name",
                     ctx(&[("kind", Value::from(kind)), ("condition", Value::from(""))]),
@@ -1406,7 +1410,7 @@ impl Game {
                 return if verb == "count" {
                     let kind = match target {
                         Target::Buildings(..) => slots::STRUCTURES.get(k).copied(),
-                        _ => slots::KINDS.get(k).copied(),
+                        _ => slots::kinds().get(k).copied(),
                     }
                     .unwrap_or("house");
                     self.count(&[kind.to_string()])
@@ -1428,6 +1432,21 @@ impl Game {
             return self.touch(Some(target));
         }
         if let ("examine", Target::Thing(i)) = (verb, target) {
+            if self.thing(i).object.is_some() {
+                // The first look, then closer ones (D05).
+                let key = format!("examined:{i}");
+                let closer = self.state.told.contains_key(&key);
+                self.state.told.insert(
+                    key,
+                    attention::Told {
+                        minutes: self.state.minutes,
+                        signature: 0,
+                        said: true,
+                    },
+                );
+                self.state.it = Some(target);
+                return self.examine_object(i, closer);
+            }
             if let Some(o) = self.examine_closer(i) {
                 return o;
             }

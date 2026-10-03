@@ -71,6 +71,7 @@ impl Game {
             texts: Vec::new(),
             pos: self.state.pos,
             surface: None,
+            object: None,
         });
         if carry {
             self.state.carried.push(id);
@@ -96,6 +97,7 @@ impl Game {
                 texts: Vec::new(),
                 pos: self.state.pos,
                 surface: None,
+                object: None,
             });
         }
         self.extra.truncate(self.state.made.len());
@@ -134,7 +136,13 @@ impl Game {
         self.state
             .carried
             .iter()
-            .map(|&t| items::kind(self.kind_of(t)).map_or(1, |k| k.weight))
+            .map(|&t| {
+                let kind = self.kind_of(t);
+                items::kind(kind).map_or_else(
+                    || scraped_world::objects::kind(kind).map_or(1, |k| k.weight),
+                    |k| k.weight,
+                )
+            })
             .sum()
     }
 
