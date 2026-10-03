@@ -413,3 +413,15 @@
 2. **Agent from the cloud.** It still works on the local network only; a relay service would be needed for cloud agents.
 3. **Chips.** They offer look, exits, out, read/take/examine plus the things in view, inventory, status and wait. Which verbs should they offer?
 4. **Package name** `org.scrapedagain` is permanent once published.
+
+## 2026-10-02 — Depth roadmap
+
+**Done**
+- Reviewed the M14 build by playing it (seed 42) and measuring the world: every system works, but each is at its simplest (11 building types, 6 spells per world on 3 verbs, 59% of texts are tombs, generic landmark names), arrival text lists everything at once, and the scraper sits beside a "pivot" spell with a storylet announcing it.
+- Two principles from Jb added to the top of `docs/DESIGN.md`: **Writing is background, at first** (the world is worth exploring for itself; the mechanic is discovered slowly, never pointed at) and **Say little; let the player dig** (short, intriguing responses; detail through examining, listening, smelling; season and needs inferred from evidence, not stated).
+- Game loop and tools in `DESIGN.md` reworded to match.
+- New `docs/DEPTH.md` and milestone specs D01–D12 in `docs/milestones/`, each with numeric targets measured by D01's instruments and sample transcripts for Jb to read.
+
+**Next**
+- D01 — Instruments.
+- Added **D04 — Great interiors** at Jb's request (vast, intricate buildings and caverns): a real spatial model for all interiors, architecture that grows through history, cave systems from geology, navigation and mapping inside. Later milestones renumbered D05–D12.

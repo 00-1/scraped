@@ -2,6 +2,8 @@
 
 From the language engine to the complete game, plus the authoring tool Jb uses to write every piece of human prose.
 
+**This roadmap is complete. The next phase is `docs/DEPTH.md`.**
+
 `docs/DESIGN.md` says what the game is. This file says what order to build it in. Each milestone has its own spec in `docs/milestones/`; agents work on one milestone at a time.
 
 ## What "finished" means
