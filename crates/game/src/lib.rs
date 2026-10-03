@@ -57,6 +57,9 @@ pub mod trajectory;
 #[cfg(test)]
 mod trajectory_tests;
 mod travel;
+mod works;
+#[cfg(test)]
+mod works_tests;
 mod writing;
 #[cfg(test)]
 mod writing_tests;
@@ -792,6 +795,10 @@ impl Game {
                 if self.state.sim.fallen.contains(&(structure, w.link)) {
                     w.state = PassageState::Blocked;
                 }
+                // A gate the works raise, or a door with its day (D05).
+                if self.sealed(structure, w.link).is_some() && w.state == PassageState::Open {
+                    w.state = PassageState::Closed;
+                }
                 if w.passage == Some(scraped_world::structures::Passage::Door) && !w.collapsed {
                     match held {
                         Some(h) if h > 0 && w.state == PassageState::Closed => {
@@ -1444,6 +1451,11 @@ impl Game {
             return self.touch(Some(target));
         }
         if let ("examine", Target::Thing(i)) = (verb, target) {
+            if self.thing(i).kind == "calendar stone" {
+                if let Some(o) = self.examine_calendar(i) {
+                    return o;
+                }
+            }
             if self.thing(i).object.is_some() {
                 // The first look, then closer ones (D05).
                 let key = format!("examined:{i}");
@@ -1637,6 +1649,15 @@ impl Game {
             .find(|w| w.link == link)
             .expect("resolved from ways");
         let named = ctx(&[("thing", Value::from(self.way_name(&w)))]);
+        // Sealed by works or by its day (D05): nothing the hand can do.
+        if open {
+            if let Some(cause) = self.sealed(structure, w.link) {
+                let mut c = named.clone();
+                c.insert("cause".into(), Value::from(cause));
+                let t = self.say("say.door_stuck", c);
+                return self.output(vec![t], None);
+            }
+        }
         let movable = !w.collapsed
             && w.state != PassageState::Blocked
             && w.passage == Some(scraped_world::structures::Passage::Door);
@@ -1832,7 +1853,16 @@ impl Game {
             let t = self.say("say.blocked", c);
             return self.output(vec![t], None);
         }
-        if way.against {
+        // A rope climbs back up a drop (D05).
+        let climb = way.against
+            && way.exit == Exit::Up
+            && matches!(way.passage, Some(Passage::Hole | Passage::Shaft))
+            && self
+                .state
+                .carried
+                .iter()
+                .any(|&t| self.thing(t).kind == "rope");
+        if way.against && !climb {
             let named = ctx(&[("thing", Value::from(self.way_name(&way)))]);
             let t = self.say("move.against", named);
             return self.output(vec![t], None);
@@ -1851,6 +1881,10 @@ impl Game {
             return self.output(fall.into_iter().collect(), None);
         }
         let report = self.move_report(&way);
+        let roped = climb.then(|| {
+            self.pass(10);
+            self.say("move.rope", Context::new())
+        });
         // A tight crawl with a heavy load: slow going (D04).
         let squeeze = if way.passage == Some(Passage::Crawlway)
             && self.weight() * 3 > scraped_sim::items::CARRY * 2
@@ -1866,6 +1900,7 @@ impl Game {
         let t = self.look();
         self.output(
             fall.into_iter()
+                .chain(roped)
                 .chain(report)
                 .chain(squeeze)
                 .chain([t])

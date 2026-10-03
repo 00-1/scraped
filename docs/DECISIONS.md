@@ -258,3 +258,18 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 - *Names from nature:* some animals and birds (D06) named after their calls, with a carving or label pairing the creature and its written name.
 - *An earlier decipherer's notes:* traces of a previous explorer (the D06 gate), giving some sound values, some wrong, as storylets in Jb's words.
 - *Acoustic places:* a whispering gallery or ringing stones tied to inscriptions.
+
+## Things and mechanisms (D05)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Which objects, and where? | 106 kinds in 18 families (vessels, tools, coins, seals, measures, jewellery, figurines, games, instruments, weapons, armour, clothing, lights, boxes, the sky, medicine, writing, everyday), placed by each room's purpose: kitchens vessels, treasuries coins, shrines figurines and so on; up to three a room, fewer in poor or ruined places | `crates/world/src/objects.rs` (`KINDS`, `families_for`, `place`) | D08 |
+| Whose is it? | Temples' things are the temple's; houses' the household's family line (its eldest known member); elsewhere the town's people, or a family; about half carry their owner's emblem; a third of things in towns with smiths carry a maker's mark | `crates/world/src/objects.rs` (`place`) | D08 |
+| Emblems | A motif (24), a device (6) and a border (5), fixed by the seed and the owner; an era's things share a border style, so a player can date them | `crates/world/src/objects.rs` (`emblem`) | D08 |
+| Locks and keys | About one coffer or casket in three locked, its key (with the owner's emblem, like the lock) in another room or house of the same owner, never in a strongroom; the door into a palace's or temple's strongroom locked; none in archives or libraries, and nothing the player must find lies behind a lock | `crates/world/src/objects.rs` (`hide_and_lock`) | now |
+| Caches | One per town, under a floor stone or in a wall of a house or temple room, the owner's emblem cut beside it as its sign; looking closer finds it | `crates/world/src/objects.rs`, `crates/game/src/objects.rs` (`cache_facts`) | now |
+| Buried things and old maps | Up to four a world: something buried by a feature within 12 km of a town with a library, archive, palace or temple, and a map of that town's era there with a cross on it; digging needs no tool and takes half an hour | `crates/world/src/objects.rs`, `crates/game/src/objects.rs` (`dig`, `read_map`) | D06 |
+| Works | In up to three great buildings of 40+ spaces: water works (valve, mill wheel, gear lever, winch) in cisterns and palaces, weight works (counterweight, gear lever, hoist, winch) elsewhere, spread through the building in working order; the last part raises the gate of a dead-end room | `crates/sim/src/fixtures.rs` (`place_works`), `crates/game/src/works.rs` | now |
+| Calendar doors | In up to two temples: a dead-end room's door opens only within a day of its festival day, shown as a deep notch on a calendar stone by the entrance; a year is four seasons of 90 days | `crates/sim/src/fixtures.rs`, `crates/game/src/works.rs` | D06 |
+| Measures | A weight shows a numeral sign of its era (as an impression) and its heft in units of the lightest | `crates/game/src/objects.rs` (`weight_mark`) | D07 |
+| Ordinary uses | A rope climbs back up a hole or shaft; other uses (pole, hook, bell, mirror) not yet | `crates/game/src/lib.rs` (`go_way`) | D06 |

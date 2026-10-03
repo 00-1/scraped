@@ -43,6 +43,19 @@ pub enum MechKind {
     BridgeLever,
     /// A fire bowl that lights and warms a room.
     Brazier,
+    // D05: the parts of works, worked in order.
+    /// Lets water into a channel.
+    Valve,
+    /// Turned by the channel's water.
+    MillWheel,
+    /// Puts a turning shaft to work.
+    GearLever,
+    /// Lifts by a rope over a drum.
+    Hoist,
+    /// A weight that, let fall, drives what is hung from it.
+    Counterweight,
+    /// Winds up a portcullis or a heavy gate.
+    Winch,
 }
 
 pub const MECHANISMS: &[&str] = &[
@@ -52,7 +65,37 @@ pub const MECHANISMS: &[&str] = &[
     "drain_lever",
     "bridge_lever",
     "brazier",
+    "valve",
+    "mill_wheel",
+    "gear_lever",
+    "hoist",
+    "counterweight",
+    "winch",
 ];
+
+/// Works (D05): machines of several parts in several rooms, worked in
+/// order, each part showing whether it can move; the last raises the gate
+/// of a sealed room.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Works {
+    pub structure: usize,
+    /// "water" or "weight".
+    pub family: &'static str,
+    /// Its parts in working order, by index into `mechanisms`.
+    pub steps: Vec<usize>,
+    /// The way into the sealed room the last part opens.
+    pub seal: usize,
+}
+
+/// A door that opens only on its festival day (D05), shown on a calendar
+/// device in the same building.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct CalendarDoor {
+    pub structure: usize,
+    pub link: usize,
+    /// Day of the year (0 to 359) it opens, give or take a day.
+    pub day: u32,
+}
 
 /// A mechanism and what it works on.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -123,6 +166,9 @@ pub struct Fixtures {
     /// great inscription is always open.
     pub cleared: BTreeSet<(usize, usize)>,
     pub creatures: Vec<Spawn>,
+    /// Works and calendar doors (D05).
+    pub works: Vec<Works>,
+    pub calendar: Vec<CalendarDoor>,
 }
 
 fn roll(seed: u64, parts: &[u64], percent: u64) -> bool {
@@ -334,6 +380,7 @@ impl Fixtures {
             }
         }
         f.place_sluices(w, land);
+        f.place_works(w, land);
         f.place_creatures(w, land, start);
         f.ensure_basics(w, land, start);
         f
@@ -726,6 +773,132 @@ impl Fixtures {
             }
         }
         seen
+    }
+
+    /// Works in great buildings, and calendar doors in temples (D05). A
+    /// works runs from near the entrance deeper in, part by part, to a
+    /// dead-end room it seals; a calendar door seals a temple's dead end.
+    // DESIGN-Q: works in up to three great buildings a world (water works
+    // in cisterns and palaces, weight works elsewhere), four or five
+    // parts; a calendar door in up to two temples.
+    fn place_works(&mut self, w: &World, land: &Land) {
+        let seed = w.seed ^ 0x3077;
+        let dead_end = |st: &scraped_world::structures::Structure, skip: &BTreeSet<usize>| {
+            // A room with one way in, holding no writing.
+            (1..st.interior.rooms.len()).rev().find_map(|r| {
+                let room = &st.interior.rooms[r];
+                if room.collapsed || room.hidden || skip.contains(&r) {
+                    return None;
+                }
+                if room.features.iter().any(|f| !f.texts.is_empty()) {
+                    return None;
+                }
+                let links: Vec<usize> = (0..st.interior.links.len())
+                    .filter(|&l| st.interior.links[l].a == r || st.interior.links[l].b == r)
+                    .collect();
+                (links.len() == 1 && st.interior.links[links[0]].passage != Passage::Window)
+                    .then(|| (r, links[0]))
+            })
+        };
+        for &(si, kind) in w.greats.iter().take(6) {
+            if self.works.len() >= 3 {
+                break;
+            }
+            let st = &w.structures[si];
+            // Not where old writing is kept (as with locks).
+            if st.condition >= Condition::Ruined
+                || st.interior.rooms.len() < 40
+                || matches!(st.kind, StructureKind::Archive | StructureKind::Library)
+            {
+                continue;
+            }
+            let water = matches!(
+                kind,
+                scraped_world::interiors::GreatKind::Cistern
+                    | scraped_world::interiors::GreatKind::Palace
+            );
+            let parts: &[MechKind] = if water {
+                &[
+                    MechKind::Valve,
+                    MechKind::MillWheel,
+                    MechKind::GearLever,
+                    MechKind::Winch,
+                ]
+            } else {
+                &[
+                    MechKind::Counterweight,
+                    MechKind::GearLever,
+                    MechKind::Hoist,
+                    MechKind::Winch,
+                ]
+            };
+            // Rooms reachable from the entrance, nearest first: parts go
+            // into rooms spread along that order.
+            let order = self.reachable_rooms(w, si);
+            if order.len() < 12 {
+                continue;
+            }
+            let Some((room, seal)) = dead_end(st, &BTreeSet::new()) else {
+                continue;
+            };
+            let pos = land.structure_pos[si];
+            let mut steps = Vec::new();
+            for (k, &part) in parts.iter().enumerate() {
+                let at = order[(1 + k * (order.len() - 2) / parts.len()).min(order.len() - 1)];
+                let at = if at == room { order[1] } else { at };
+                steps.push(self.mechanisms.len());
+                self.mechanisms.push(Mechanism {
+                    kind: part,
+                    at: Spot::Room {
+                        structure: si,
+                        room: at,
+                    },
+                    pos,
+                    works: true,
+                    controls: Some(self.works.len()),
+                });
+            }
+            let _ = hash(&[seed, si as u64]);
+            self.works.push(Works {
+                structure: si,
+                family: if water { "water" } else { "weight" },
+                steps,
+                seal,
+            });
+        }
+        for st in w
+            .structures
+            .iter()
+            .filter(|st| st.kind == StructureKind::Temple && st.condition < Condition::Ruined)
+        {
+            if self.calendar.len() >= 2 {
+                break;
+            }
+            if self.works.iter().any(|k| k.structure == st.id) {
+                continue;
+            }
+            let Some((_, link)) = dead_end(st, &BTreeSet::new()) else {
+                continue;
+            };
+            if link == 0 && st.interior.links.len() == 1 {
+                continue;
+            }
+            let day = (hash(&[seed, st.id as u64, 0xca1]) % 360) as u32;
+            // The calendar stone that shows the day, by the entrance.
+            self.items.push(Placed {
+                kind: "calendar stone",
+                at: Spot::Room {
+                    structure: st.id,
+                    room: 0,
+                },
+                pos: land.structure_pos[st.id],
+            });
+            self.calendar.push(CalendarDoor {
+                structure: st.id,
+                link,
+                day,
+            });
+        }
     }
 
     /// Clears blocked links on the way from a building's entrance to a room.

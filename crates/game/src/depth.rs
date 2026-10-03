@@ -296,9 +296,32 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     let chain = mechs
         .iter()
         .map(|mc| 1 + usize::from(mc.controls.is_some()))
+        .chain(site.fixtures.works.iter().map(|k| k.steps.len()))
         .max()
         .unwrap_or(0);
     put("things.longest_chain", chain as f64);
+    // D05: puzzles that need no writing, each with a payoff: locked boxes
+    // with something inside, locked doors, hidden and buried caches,
+    // works and calendar doors; and old maps.
+    let objs = &w.objects;
+    let boxes = objs
+        .iter()
+        .filter(|o| o.key.is_some() && objs.iter().any(|x| x.inside == Some(o.id)))
+        .count();
+    let caches = objs.iter().filter(|o| !o.cache.is_empty()).count();
+    put(
+        "things.puzzles",
+        (boxes + w.locks.len() + caches + site.fixtures.works.len() + site.fixtures.calendar.len())
+            as f64,
+    );
+    put(
+        "things.maps",
+        objs.iter().filter(|o| o.map.is_some()).count() as f64,
+    );
+    put(
+        "things.object_kinds",
+        objs.iter().map(|o| o.kind).collect::<BTreeSet<_>>().len() as f64,
+    );
 
     // ---------- life ----------
     let species: BTreeSet<&str> = site

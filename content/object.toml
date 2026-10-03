@@ -2,7 +2,7 @@ notes = "Objects with histories (D05): found things, their emblems and close det
 
 [[variant]]
 slot = "object.examine"
-text = "{cap a material} {kind}[if condition != 'whole'], {condition}[end].[if emblem] It bears {emblem}.[end]"
+text = "{cap a material} {kind}[if condition != 'whole'], {condition}[end].[if emblem] It bears {emblem}.[end][if numeral] It is marked with {numeral}, and weighs about {heft} of the smallest.[end]"
 example = true
 
 [[variant]]
@@ -68,4 +68,19 @@ example = true
 [[variant]]
 slot = "map.place"
 text = "a town to the {bearing}"
+example = true
+
+[[variant]]
+slot = "mech.idle"
+text = "The {kind} won't move.[if family == 'water'] The channel by it is dry.[else] The rope to it hangs slack.[end]"
+example = true
+
+[[variant]]
+slot = "works.done"
+text = "Somewhere in the building, something heavy grinds upward and stops."
+example = true
+
+[[variant]]
+slot = "calendar.notch"
+text = "A ring of marks for the days. One notch, {part} in {season}, is cut deeper than the rest.[if today] The light falls on it now.[end]"
 example = true

@@ -148,6 +148,19 @@ New metrics: `play.verbs.<family>_share` (look, dig, examine, read, move, handle
 
 The mapper walks without sleeping, eating or getting lost, so 34 hours of walking is several days of play. Since D04 a fact count treats a list ("Ways out: …") as one fact, as the attention model does.
 
+### After D05 (seeds 1–10)
+
+| Metric | Before | D05 | Target |
+|---|---|---|---|
+| Kinds of thing per world (object kinds alone) | 66 | 168.5 (103) | at least 120 |
+| Things per structure (mean) | 30 | 51 | at least 6 |
+| Longest mechanism chain | 2 | 4 (works) | at least 4 on most seeds |
+| Non-writing puzzles per world, with payoffs | 0 | 32 (locked boxes with contents, locked doors, caches, buried caches, works, calendar doors) | at least 8 |
+| Old maps per world | 0 | 4 | at least 2 |
+| Facts per arrival (median / p95) | 3 / 3.4 | 3 / 3.3 | 3 (D02) |
+
+New metrics: `things.puzzles`, `things.maps`, `things.object_kinds`; `things.longest_chain` counts works.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.

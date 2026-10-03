@@ -67,14 +67,14 @@ Everything new is a candidate for the D02 attention model, with a salience and a
 
 ## Checklist
 
-- [ ] Object model and kinds from culture
-- [ ] Close examination and ordinary uses
-- [ ] Containers and caches
-- [ ] Keys and locks
-- [ ] Old maps
-- [ ] Machines in each family, multi-room and multi-site
-- [ ] Emblems, measures, calendar devices, with payoffs
-- [ ] Slots and variables
-- [ ] Targets met; samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Object model and kinds from culture
+- [x] Close examination and ordinary uses
+- [x] Containers and caches
+- [x] Keys and locks
+- [x] Old maps
+- [x] Machines in each family, multi-room and multi-site
+- [x] Emblems, measures, calendar devices, with payoffs
+- [x] Slots and variables
+- [x] Targets met; samples committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

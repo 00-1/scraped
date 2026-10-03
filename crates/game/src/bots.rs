@@ -580,6 +580,13 @@ impl DepthBot {
                 self.notes
                     .push(format!("step {}: too dark at {here}", self.step));
             }
+            // The way that led into this darkness isn't worth taking again
+            // without a light.
+            if let Some((cmd, from, _)) = self.last.clone() {
+                if from != here && from != "outside" && !self.scholar() {
+                    self.rooms.entry(from).or_default().barred.insert(cmd);
+                }
+            }
             if matches!(&self.goal, Some(Goal::Room { place, .. }) if *place == here) {
                 self.goal = None;
                 self.abandoned.insert(here.clone());
@@ -1127,6 +1134,21 @@ impl DepthBot {
                 || (!scholar && (known || self.dull.get(thing_kind).copied().unwrap_or(0) >= 3));
             if !dull && room.done.insert((name.clone(), "examine")) {
                 return Some(format!("examine {n}"));
+            }
+            // D05: boxes and jars are opened, old maps read, for their
+            // own sake.
+            if !scholar
+                && [
+                    "casket", "coffer", "basket", "pouch", "urn", "amphora", "jug", "pitcher",
+                ]
+                .iter()
+                .any(|k| name.ends_with(k))
+                && room.done.insert((name.clone(), "open"))
+            {
+                return Some(format!("open {n}"));
+            }
+            if !scholar && name.ends_with("map") && room.done.insert((name.clone(), "read")) {
+                return Some(format!("read {n}"));
             }
             if room.written.contains(name) {
                 if room.done.insert((name.clone(), "read")) {
@@ -1841,6 +1863,9 @@ fn want(kind: &str, name: &str) -> u8 {
         5
     } else if light {
         4
+    } else if has("key") || has("rope") || has("map") {
+        // D05: a key opens something somewhere, a rope climbs back up.
+        3
     } else if tool {
         2
     } else {

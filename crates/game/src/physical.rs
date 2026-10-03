@@ -541,6 +541,7 @@ impl Game {
                     "cold"
                 }
             }
+            _ => self.part_state(i),
         }
     }
 
@@ -601,6 +602,7 @@ impl Game {
                 }
             }
             MechKind::Wheel => self.mech_reply("mech.cannot", i),
+            _ => self.work_part(i),
         }
     }
 

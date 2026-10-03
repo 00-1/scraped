@@ -264,7 +264,7 @@ pub const WETNESSES: &[&str] = &["dry", "damp", "wet", "flooded"];
 pub const AIRS: &[&str] = &["still", "draughty", "windy"];
 pub const MECH_STATES: &[&str] = &[
     "water", "dry", "open", "shut", "turning", "still", "up", "pulled", "raised", "lowered", "lit",
-    "cold",
+    "cold", "idle", "ready", "running",
 ];
 pub const FIRE_PLACES: &[&str] = &["campfire", "hearth", "brazier"];
 pub const FIRE_FAILS: &[&str] = &[
@@ -452,15 +452,17 @@ fn s_thing(seed: u64) -> Vec<Context> {
 }
 
 fn s_door_stuck(_: u64) -> Vec<Context> {
-    ["rubble", "fallen", "not_door", "locked"]
-        .iter()
-        .map(|c| {
-            ctx(&[
-                ("thing", Value::from("a door north")),
-                ("cause", Value::from(*c)),
-            ])
-        })
-        .collect()
+    [
+        "rubble", "fallen", "not_door", "locked", "works", "calendar",
+    ]
+    .iter()
+    .map(|c| {
+        ctx(&[
+            ("thing", Value::from("a door north")),
+            ("cause", Value::from(*c)),
+        ])
+    })
+    .collect()
 }
 
 fn s_named(seed: u64) -> Vec<Context> {
@@ -1404,7 +1406,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.door_already_closed", "The door is already closed.").var("thing", VarType::Text, "The door.").sampler(s_named),
         SlotDef::new("say.door_stuck", "The way cannot be opened or closed. Give the player a cue to why, something they can notice, never a rule: rubble in the doorway; or, beyond the door, the space has fallen in (dust at the sill, the door gives a little then stops); or it is not a door at all (an arch, a stair).")
             .var("thing", VarType::Text, "The way.")
-            .var("cause", e(&["rubble", "fallen", "not_door", "locked"]), "Why: rubble in the way; the space beyond has collapsed; it is not something that opens; or it is locked (a keyhole; the key is elsewhere).")
+            .var("cause", e(&["rubble", "fallen", "not_door", "locked", "works", "calendar"]), "Why: rubble in the way; the space beyond has collapsed; it is not something that opens; it is locked (a keyhole; the key is elsewhere); a heavy gate that machinery raises, with no handle this side (works); or a door that will not give today, its sill worn by use (calendar: it opens on one day of the year).")
             .sampler(s_door_stuck),
         SlotDef::new("say.buried", "The player tries to enter a building too buried to get into.")
             .var("thing", VarType::Text, "The building's name.")

@@ -171,8 +171,8 @@ pub const KINDS: &[Kind] = &[
     k("comb", Family::Clothing, &["bone", "wood", "horn"], 1),
     k("cap", Family::Clothing, CLOTH, 1),
     // Light.
-    k("oil lamp", Family::Light, &["clay", "bronze"], 1),
-    k("lamp stand", Family::Light, &["bronze", "iron"], 4),
+    k("wick dish", Family::Light, &["clay", "bronze"], 1),
+    k("candelabrum", Family::Light, &["bronze", "iron"], 4),
     k("candlestick", Family::Light, &["bronze", "clay"], 1),
     k("mirror", Family::Light, &["bronze", "silver"], 1),
     // Boxes and bags.
@@ -594,8 +594,21 @@ pub fn hide_and_lock(
             if put >= 2 || o == c {
                 continue;
             }
+            // Small valuables and personal things go into boxes and jars.
             let small = kind(objects[o].kind).is_some_and(|k| k.weight <= 1)
-                && objects[o].family != Family::Box;
+                && matches!(
+                    objects[o].family,
+                    Family::Coin
+                        | Family::Seal
+                        | Family::Jewellery
+                        | Family::Figurine
+                        | Family::Game
+                        | Family::Clothing
+                        | Family::Measure
+                        | Family::Writing
+                        | Family::Medical
+                        | Family::Light
+                );
             if objects[o].structure == st
                 && objects[o].room == room
                 && objects[o].inside.is_none()

@@ -642,3 +642,13 @@
 **New content slots:** `hazard.air`, `hazard.air_hurt`, `move.squeeze`; `room.whole` and `room.name` gain `landmark`.
 
 **Next:** D05.
+
+## 2026-10-03 — D05 done
+
+**Things and mechanisms:** 106 object kinds by craft, with owners, makers, eras, conditions and emblems (`crates/world/src/objects.rs`); close examination; containers; locked boxes and strongroom doors with keys bearing the owner's emblem; caches with an emblem sign; things buried by features and old maps with a cross; works (four-part machines through great buildings, worked in order by watching what moves) sealing a room; calendar doors that open on their day, shown on a calendar stone; weights marked with numeral signs; a rope climbs back up a drop. Targets met (see DEPTH.md). The scholar holds 5 of 10 (works and locks are kept out of archives and libraries; it skips examining objects).
+
+**Open questions:** "Things and mechanisms (D05)" in DECISIONS: kinds and placement, emblems, how many locks, caches, maps, works and calendar doors, digging without a tool, other ordinary uses (pole, hook, bell, mirror) not built.
+
+**New content slots:** `object.examine`, `object.closer`, `emblem.describe`, `object.not_open`, `object.locked`, `object.unlocked`, `object.opened`, `door.unlocked`, `cache.sign`, `cache.found`, `dig.found`, `dig.nothing`, `map.read`, `map.place`, `mech.idle`, `works.done`, `calendar.notch`, `move.rope`. `say.door_stuck` gains causes locked, works and calendar.
+
+**Next:** D06.

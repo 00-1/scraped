@@ -49,3 +49,8 @@ example = true
 slot = "move.squeeze"
 text = "You squeeze through, pushing your load ahead of you."
 example = true
+
+[[variant]]
+slot = "move.rope"
+text = "You make the rope fast and climb, hand over hand."
+example = true

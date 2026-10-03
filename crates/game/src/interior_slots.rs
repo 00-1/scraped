@@ -187,6 +187,9 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("hazard.air_hurt", "The player has stayed too long in bad air and it hurts them (dizziness, a pounding head).")
             .max_len(100)
             .sampler(s_none),
+        SlotDef::new("move.rope", "The player climbs back up a drop (a hole or shaft) by the rope they carry: slow, hand over hand.")
+            .max_len(100)
+            .sampler(s_none),
         SlotDef::new("move.squeeze", "The player squeezes through a tight crawl with a heavy load, slowly, scraping and pushing the load ahead.")
             .max_len(100)
             .sampler(s_none),

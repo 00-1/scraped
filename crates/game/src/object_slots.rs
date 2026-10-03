@@ -67,6 +67,15 @@ fn s_object(_: u64) -> Vec<Context> {
                     Value::from(if i % 3 == 1 { "a crowned bee" } else { "" }),
                 ),
                 ("border", Value::from(BORDERS[i % BORDERS.len()])),
+                (
+                    "numeral",
+                    Value::from(if i % 4 == 0 {
+                        "a tall sign, a hook"
+                    } else {
+                        ""
+                    }),
+                ),
+                ("heft", Value::Number(if i % 4 == 0 { 5 } else { 0 })),
             ])
         })
         .collect()
@@ -185,6 +194,40 @@ fn s_place(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_idle(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("kind", Value::from("mill_wheel")),
+            ("needs", Value::from("valve")),
+            ("family", Value::from("water")),
+        ]),
+        ctx(&[
+            ("kind", Value::from("winch")),
+            ("needs", Value::from("hoist")),
+            ("family", Value::from("weight")),
+        ]),
+    ]
+}
+
+fn s_family(_: u64) -> Vec<Context> {
+    ["water", "weight"]
+        .iter()
+        .map(|f| ctx(&[("family", Value::from(*f))]))
+        .collect()
+}
+
+fn s_notch(_: u64) -> Vec<Context> {
+    (0..4)
+        .map(|i| {
+            ctx(&[
+                ("season", Value::from(scraped_sim::region::SEASONS[i])),
+                ("part", Value::from(["early", "middle", "late"][i % 3])),
+                ("today", Value::Bool(i == 2)),
+            ])
+        })
+        .collect()
+}
+
 /// Every slot of objects.
 pub fn slots() -> Vec<SlotDef> {
     let obj = |s: SlotDef| {
@@ -195,6 +238,8 @@ pub fn slots() -> Vec<SlotDef> {
             .var("emblem", VarType::Text, "The emblem on it (from emblem.describe), or empty. The same owner always has the same emblem: a player can match things to owners by it.")
             .var("owner", e(&["", "people", "family", "temple", "era"]), "Whose emblem it is (for the writer only; never say it outright): a people, a family line, a temple. Empty when unmarked.")
             .var("left", VarType::Bool, "Whether an event left it here (war, plague, flight): a hint of haste.")
+            .var("numeral", VarType::Text, "For a weight: the sign marked on it, as it looks (from glyph.impression); else empty. Weights are how numerals can be learned without reading.")
+            .var("heft", VarType::Number, "For a weight: how heavy, as so many of the lightest weight (so 'about twice the small one'); 0 otherwise.")
     };
     vec![
         obj(SlotDef::new("object.examine", "The player examines a found object: what it is, what it's made of, how it has fared, and the emblem on it if there is one. One or two sentences; a closer look gives more."))
@@ -263,6 +308,22 @@ pub fn slots() -> Vec<SlotDef> {
             .var("gone", VarType::Bool, "Whether it has since been abandoned (the writer knows; the map doesn't).")
             .max_len(60)
             .sampler(s_place),
+        SlotDef::new("mech.idle", "The player tries a part of a machine that can't move yet, because a part before it isn't working: show what is missing as something they can notice (a dry channel, a slack rope, a still shaft), naming the part it waits on only by what it looks like.")
+            .var("kind", e(scraped_sim::fixtures::MECHANISMS), "The part tried.")
+            .var("needs", e(scraped_sim::fixtures::MECHANISMS), "The first part before it that isn't running.")
+            .var("family", e(&["water", "weight"]), "Water works (a valve, a mill wheel…) or weight works (a counterweight, a hoist…).")
+            .max_len(200)
+            .sampler(s_idle),
+        SlotDef::new("works.done", "The last part of a works moves, and somewhere a heavy gate grinds up: a sealed room in this building is open now. A sound and a feeling, not a map.")
+            .var("family", e(&["water", "weight"]), "Water works or weight works.")
+            .max_len(160)
+            .sampler(s_family),
+        SlotDef::new("calendar.notch", "A calendar stone (a ring of marks for the days of the year): one notch is cut deeper than the rest. Say where it falls in the year as the stone shows it; and if that is about today, a hint that something here is waiting.")
+            .var("season", e(&scraped_sim::region::SEASONS), "The season of the deep notch.")
+            .var("part", e(&["early", "middle", "late"]), "Early, middle or late in that season.")
+            .var("today", VarType::Bool, "Whether the deep notch is about today.")
+            .max_len(200)
+            .sampler(s_notch),
         SlotDef::new("emblem.describe", "An emblem as it looks: a motif, how it is set, its border ('a twin falcon in a beaded border'). A phrase. The same emblem is always worded the same.")
             .var("motif", e(MOTIFS), "What it shows.")
             .var("device", e(DEVICES), "How the motif is set: single, twin, crowned, in a ring, on a bar, crossed.")

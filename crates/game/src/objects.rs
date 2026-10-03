@@ -37,6 +37,30 @@ impl Game {
         self.stable("emblem.describe", c, key)
     }
 
+    /// For a weight: the numeral sign marked on it (its impression) and
+    /// how heavy it is, in units of the lightest; empty for other things.
+    fn weight_mark(&mut self, o: &scraped_world::objects::Object) -> (String, i64) {
+        if o.kind != "weight" {
+            return (String::new(), 0);
+        }
+        let era = (o.era as usize).min(self.site.world.languages.len() - 1);
+        let lang = &self.site.world.languages[era];
+        let values = lang.numerals.sign_values();
+        let values: Vec<u16> = values.into_iter().filter(|&v| v > 0).collect();
+        let Some(&v) = values.get(o.id % values.len().max(1)) else {
+            return (String::new(), 0);
+        };
+        let index = lang
+            .script
+            .glyphs
+            .iter()
+            .position(|(k, _)| *k == scraped_lang::script::GlyphKey::Numeral(v));
+        match index {
+            Some(i) => (self.sign_impression(era as u32, i), i64::from(v)),
+            None => (String::new(), i64::from(v)),
+        }
+    }
+
     /// `examine` an object: the first look, or (`closer`) a closer one.
     pub(crate) fn examine_object(&mut self, t: usize, closer: bool) -> Output {
         let o = self.site.world.objects[self.thing(t).object.expect("an object")].clone();
@@ -63,6 +87,11 @@ impl Game {
             ("owner", Value::from(if o.marked { owner } else { "" })),
             ("left", Value::Bool(o.event.is_some())),
         ]);
+        // A weight carries a numeral sign and its heft (D05): numerals
+        // are learnable from weights alone.
+        let (numeral, heft) = self.weight_mark(&o);
+        c.insert("numeral".into(), Value::from(numeral));
+        c.insert("heft".into(), Value::Number(heft));
         if !closer {
             let tx = self.say("object.examine", c);
             return self.output(vec![tx], None);
@@ -128,8 +157,8 @@ impl Game {
             return self.output(vec![tx], None);
         };
         let o = self.site.world.objects[id].clone();
-        let holds = self.site.world.objects.iter().any(|x| x.inside == Some(id))
-            || o.family == scraped_world::objects::Family::Box;
+        let holds = o.family == scraped_world::objects::Family::Box
+            || matches!(o.kind, "urn" | "amphora" | "jug" | "pitcher");
         if !holds {
             let tx = self.say("object.not_open", ctx(&[("thing", Value::from(name))]));
             return self.output(vec![tx], None);
