@@ -9,3 +9,8 @@ example = true
 slot = "glyph.describe"
 text = "{cap list strokes}."
 example = true
+
+[[variant]]
+slot = "glyph.impression"
+text = "[if like]like {like}, with {list added}[else]{a outline} sign, {a main}[if main_turn != 'none'] turned {main_turn}[end][if main_spot != 'none'] at the {main_spot}[end][if resembles] like {a resembles}[end][if others], with {list others}[end][end]"
+example = true

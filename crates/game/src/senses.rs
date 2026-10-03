@@ -17,11 +17,17 @@ use crate::site::{ctx, label, time_of_day, Place};
 use crate::{Game, Output, Target};
 
 /// A sound or smell, with how strongly it arrives (0–1) and from where.
-struct Source {
+pub(crate) struct Source {
     what: &'static str,
     name: String,
-    strength: f64,
+    pub(crate) strength: f64,
     from: Option<usize>,
+}
+
+/// Whether it is quiet enough here to hear faint sounds: nothing louder
+/// than faint.
+pub(crate) fn quiet(sounds: &[f64]) -> bool {
+    sounds.iter().all(|&s| s < 0.25)
 }
 
 fn strength_band(s: f64) -> &'static str {
@@ -69,7 +75,7 @@ impl Game {
         out
     }
 
-    fn sounds(&mut self) -> Vec<Source> {
+    pub(crate) fn sounds(&mut self) -> Vec<Source> {
         let mut out = Vec::new();
         let indoors = self.indoors();
         let wall = if indoors { 0.3 } else { 1.0 };
@@ -371,6 +377,7 @@ impl Game {
     /// `listen`: up to three sounds, loudest first.
     pub(crate) fn listen(&mut self) -> Output {
         self.pass(1);
+        self.listening = true;
         let indoors = self.indoors();
         let heard = self.sounds();
         let mut parts = Vec::new();

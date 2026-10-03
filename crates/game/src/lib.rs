@@ -36,6 +36,10 @@ mod places;
 #[cfg(test)]
 mod places_tests;
 pub mod quiet_slots;
+mod reading;
+mod reading_slots;
+#[cfg(test)]
+mod reading_tests;
 pub mod seedcode;
 mod senses;
 pub mod site;
@@ -119,6 +123,8 @@ pub enum Target {
     Feature(usize),
     /// A space of this building the player has been in (D04).
     Room(usize),
+    /// A sign of the last thing read, by its position from 1 (S01).
+    Sign(usize),
 }
 
 /// How a run ended, for the end-of-run summary.
@@ -168,10 +174,15 @@ pub struct State {
     /// The last thing referred to, for "it".
     pub it: Option<Target>,
     pub reading: Option<Reading>,
-    /// The last thing read, for `define`.
+    /// The last thing read, whose signs can be examined and traced.
     pub last_read: Option<usize>,
-    /// The player's own glyph labels, keyed "era:glyph".
-    pub labels: BTreeMap<String, String>,
+    /// Signs whose sound the player has heard (era, index in its script):
+    /// the one thing the game keeps for them (S01).
+    #[serde(default)]
+    pub heard: BTreeSet<(u32, usize)>,
+    /// A text being traced: the thing, and the next sign to trace.
+    #[serde(default)]
+    pub tracing: Option<(usize, usize)>,
     /// Doors the player has opened or closed: "structure:link" → open.
     pub doors: BTreeMap<String, bool>,
     pub pending: Option<Pending>,
@@ -346,6 +357,14 @@ pub struct Game {
     /// Debug and tests: fixed weather and light outdoors.
     pub forced: Option<(&'static str, &'static str)>,
     glyph_cache: BTreeMap<(u32, usize), String>,
+    /// Every sign's impression, per era, as rendered (S01).
+    impression_cache: BTreeMap<u32, Vec<String>>,
+    /// Whether the last command was reading, so `look closer` reads on.
+    reading_now: bool,
+    /// Whether the last command was `listen`, and so whether the player
+    /// is listening during this one (S01: signs' sounds while scraping).
+    listening: bool,
+    attentive: bool,
     last_travel: Option<Travelled>,
     /// Things made during play (ids after the world's things).
     extra: Vec<Thing>,
@@ -413,7 +432,7 @@ pub struct Rendered {
 
 /// One glyph of a reading, or a gap between words.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Mark {
+pub(crate) enum Mark {
     Glyph {
         era: u32,
         index: usize,
@@ -459,7 +478,8 @@ impl Game {
             it: None,
             reading: None,
             last_read: None,
-            labels: BTreeMap::new(),
+            heard: BTreeSet::new(),
+            tracing: None,
             doors: BTreeMap::new(),
             pending: None,
             sim: SimState::default(),
@@ -504,6 +524,10 @@ impl Game {
             attended: Vec::new(),
             forced: None,
             glyph_cache: BTreeMap::new(),
+            impression_cache: BTreeMap::new(),
+            reading_now: false,
+            listening: false,
+            attentive: false,
             last_travel: None,
             extra: Vec::new(),
             notes: Vec::new(),
@@ -647,6 +671,7 @@ impl Game {
         self.registry = slots::registry_for(&reg_pack);
         self.pack = pack;
         self.glyph_cache.clear();
+        self.impression_cache.clear();
     }
 
     /// The renders kept so far (see `keep_renders`).
@@ -804,6 +829,9 @@ impl Game {
         if self.fire_here_pub() {
             let name = self.fire_name();
             out.push(Candidate::new(Target::Fire, &name, &["fire"]));
+        }
+        if !self.is_dark() {
+            out.extend(self.sign_targets());
         }
         for w in self.ways() {
             let name = self.way_name(&w);
@@ -1073,6 +1101,8 @@ impl Game {
     }
 
     fn command(&mut self, cmd: Command) -> Output {
+        let was_reading = std::mem::take(&mut self.reading_now);
+        self.attentive = std::mem::take(&mut self.listening);
         let rule = parser::verbs()
             .iter()
             .find(|v| v.id == cmd.verb)
@@ -1120,8 +1150,7 @@ impl Game {
                 let t = self.say("say.help", Context::new());
                 self.output(vec![t], None)
             }
-            "more" => self.more(),
-            "define" => self.define(&cmd.words),
+            "more" => self.read_closely(&cmd.words),
             "out" => self.go_out(),
             "north" | "south" | "east" | "west" | "up" | "down" | "northeast" | "northwest"
             | "southeast" | "southwest" => self.go_dir(&cmd.verb),
@@ -1154,6 +1183,8 @@ impl Game {
                 let t = self.describe(r);
                 self.output(vec![t], None)
             }
+            // While reading, looking closer reads on (S01).
+            "look_closer" if was_reading && self.state.reading.is_some() => self.page(),
             "look_closer" => {
                 self.pass(3);
                 let t = self.describe(attention::Response::Closer);
@@ -1298,6 +1329,11 @@ impl Game {
                 Place::Room { structure, .. } => self.room_name(structure, r),
                 Place::Outside => String::new(),
             },
+            Target::Sign(n) => self.stable(
+                "sign.name",
+                ctx(&[("number", Value::Number(n as i64))]),
+                4_000_000 + n as u64,
+            ),
             Target::Buildings(k, c) => {
                 let kind = slots::STRUCTURES.get(k).copied().unwrap_or("house");
                 let condition = c
@@ -1471,10 +1507,10 @@ impl Game {
                     let t = self.say("read.dark", named);
                     return self.output(vec![t], None);
                 }
-                self.state.reading = Some(Reading { thing: i, page: 0 });
-                self.state.last_read = Some(i);
-                self.page()
+                self.read_whole(i)
             }
+            ("examine" | "look" | "read", Target::Sign(n)) => self.examine_sign(n),
+            ("trace", t) => self.trace(t),
             ("go", Target::Way(l)) => self.go_way(l),
             ("go", Target::Landmark(i)) => self.go_landmark(i),
             ("go", Target::Named(i)) => {
@@ -1743,214 +1779,6 @@ impl Game {
             }
         }
         out
-    }
-
-    fn page(&mut self) -> Output {
-        let Some(Reading { thing, page }) = self.state.reading.clone() else {
-            let t = self.say("read.no_more", Context::new());
-            return self.output(vec![t], None);
-        };
-        let marks = self.marks(thing);
-        let glyphs: Vec<(usize, Mark)> = marks
-            .iter()
-            .filter(|m| matches!(m, Mark::Glyph { .. }))
-            .enumerate()
-            .map(|(i, m)| (i + 1, *m))
-            .collect();
-        let pages = glyphs.len().div_ceil(PAGE).max(1);
-        let first = page * PAGE + 1;
-        let last = ((page + 1) * PAGE).min(glyphs.len());
-        self.pass(5);
-        let thing_name = self.thing_name(thing);
-        let seen = self.layers_seen(thing);
-        let top = seen.last().map_or(self.thing(thing).texts[0], |l| l.0);
-        let hand = self.hand(top);
-        let t = self.thing(thing);
-        let era = self.text(top).era as usize;
-        let frame_ctx = ctx(&[
-            ("hand", Value::from(hand)),
-            ("thing", Value::from(thing_name)),
-            ("material", Value::from(label(&t.material))),
-            ("glyphs", Value::Number(glyphs.len() as i64)),
-            ("page", Value::Number(page as i64 + 1)),
-            ("pages", Value::Number(pages as i64)),
-            ("texts", Value::Number(t.texts.len() as i64)),
-            (
-                "direction",
-                Value::from(label(&self.site.world.languages[era].script.direction)),
-            ),
-        ]);
-        let frame = self.say("read.frame", frame_ctx);
-        let mut extra_frames = Vec::new();
-        if page == 0 {
-            if let Some(&(_, true)) = seen.first() {
-                let lost = marks
-                    .iter()
-                    .filter(|m| matches!(m, Mark::Glyph { lost: true, .. }))
-                    .count();
-                let c = ctx(&[
-                    ("material", Value::from(label(&self.thing(thing).material))),
-                    ("lost", Value::Number(lost as i64)),
-                    ("glyphs", Value::Number(glyphs.len() as i64)),
-                ]);
-                extra_frames.push(self.say("read.scraped", c));
-            }
-            let deep = self.deep_layers(thing);
-            if !deep.is_empty() {
-                let c = ctx(&[("count", Value::Number(deep.len() as i64))]);
-                extra_frames.insert(0, self.say("read.deep", c));
-            }
-            if self.site.writing.legacy.is_some_and(|l| deep.contains(&l)) {
-                extra_frames.push(self.say("read.legacy", Context::new()));
-            }
-            let ghosts = self.ghost_count(thing);
-            if ghosts > 0 {
-                extra_frames.push(self.say(
-                    "read.ghosts",
-                    ctx(&[("count", Value::Number(ghosts as i64))]),
-                ));
-            }
-        }
-        // Lay the page out: one glyph per line, a blank line between words,
-        // a rule between separate pieces of writing.
-        let mut lines: Vec<String> = Vec::new();
-        let mut n = 0;
-        for m in &marks {
-            match *m {
-                Mark::Glyph { lost: true, .. } => {
-                    n += 1;
-                    if n < first || n > last {
-                        continue;
-                    }
-                    let line = self.stable(
-                        "read.lost",
-                        ctx(&[("number", Value::Number(n as i64))]),
-                        3_000_000 + n as u64,
-                    );
-                    lines.push(line);
-                }
-                Mark::Glyph { era, index, .. } => {
-                    n += 1;
-                    if n < first || n > last {
-                        continue;
-                    }
-                    let description = self.glyph_description(era, index);
-                    let label = self
-                        .state
-                        .labels
-                        .get(&format!("{era}:{index}"))
-                        .cloned()
-                        .unwrap_or_default();
-                    let c = ctx(&[
-                        ("number", Value::Number(n as i64)),
-                        ("description", Value::from(description)),
-                        ("known", Value::Bool(!label.is_empty())),
-                        ("label", Value::from(label)),
-                    ]);
-                    let line = self.stable("read.glyph", c, 2_000_000 + n as u64);
-                    lines.push(line);
-                }
-                Mark::Gap
-                    if n >= first && n < last && lines.last().is_some_and(|l| !l.is_empty()) =>
-                {
-                    lines.push(String::new())
-                }
-                Mark::Break if n >= first && n < last => lines.push("—".to_string()),
-                _ => {}
-            }
-        }
-        let body = lines.join("\n");
-        let read: Vec<usize> = seen.iter().map(|x| x.0).collect();
-        self.encounter(&read);
-        if seen.iter().any(|x| x.1) {
-            self.hook("first_scraped_seen", "", "");
-        }
-        if read.iter().any(|t| self.site.writing.deep.contains(t)) {
-            self.hook("deepest_found", "", "");
-        }
-        let after = if page + 1 < pages {
-            self.state.reading = Some(Reading {
-                thing,
-                page: page + 1,
-            });
-            self.say(
-                "read.more",
-                ctx(&[("remaining", Value::Number((pages - page - 1) as i64))]),
-            )
-        } else {
-            self.state.reading = None;
-            self.say("read.end", Context::new())
-        };
-        let truth =
-            json!(self
-            .thing(thing)
-            .texts
-            .iter()
-            .map(|&tid| {
-                let text = self.text(tid);
-                let r = self.site.world.renderer(text.era);
-                let state = if self.state.scraped.contains(&tid) { "scraped" } else { "unscraped" };
-                json!({
-                    "era": text.era,
-                    "kind": text.kind,
-                    "state": state,
-                    "text": self.site.world.surface(text),
-                    "translation": scraped_lang::english::translate(&text.meaning, &|p| r.name(p)),
-                })
-            })
-            .collect::<Vec<_>>());
-        let mut parts = vec![frame];
-        parts.extend(extra_frames);
-        parts.extend([body, after]);
-        self.output(parts, Some(truth))
-    }
-
-    fn more(&mut self) -> Output {
-        self.page()
-    }
-
-    /// `define 3 as ka`: the player's own label for glyph 3 of the last
-    /// writing read. Never checked against the truth.
-    fn define(&mut self, words: &[String]) -> Output {
-        let input = words.join(" ");
-        let number = words
-            .iter()
-            .find_map(|w| w.parse::<usize>().ok())
-            .unwrap_or(0);
-        let label = words
-            .iter()
-            .position(|w| w == "as")
-            .and_then(|i| words.get(i + 1))
-            .or(words.last().filter(|w| w.parse::<usize>().is_err()))
-            .map(|w| w.trim_matches(|c| c == '"' || c == '\'').to_string())
-            .unwrap_or_default();
-        let glyphs: Vec<(u32, usize, bool)> = self
-            .state
-            .last_read
-            .map(|t| {
-                self.marks(t)
-                    .into_iter()
-                    .filter_map(|m| match m {
-                        Mark::Glyph { era, index, lost } => Some((era, index, lost)),
-                        _ => None,
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
-        let c = ctx(&[
-            ("number", Value::Number(number as i64)),
-            ("label", Value::from(label.as_str())),
-            ("count", Value::Number(glyphs.len() as i64)),
-            ("input", Value::from(input)),
-        ]);
-        if number == 0 || number > glyphs.len() || label.is_empty() || glyphs[number - 1].2 {
-            let t = self.say("say.define_bad", c);
-            return self.output(vec![t], None);
-        }
-        let (era, index, _) = glyphs[number - 1];
-        self.state.labels.insert(format!("{era}:{index}"), label);
-        let t = self.say("say.define", c);
-        self.output(vec![t], None)
     }
 }
 

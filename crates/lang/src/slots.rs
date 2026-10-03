@@ -6,7 +6,8 @@
 
 use scraped_content::{Context, Hooks, Registry, Renderer, SlotDef, Value, VarType};
 
-use crate::script::{Glyph, Mark};
+use crate::impression::{impressions, Impression, RESEMBLANCES};
+use crate::script::{Glyph, Mark, Script};
 use crate::Language;
 
 fn enum_of(values: &[&str]) -> VarType {
@@ -20,6 +21,8 @@ const STROKES: [&str; 9] = [
 ];
 const TURNS: [&str; 5] = ["up", "right", "down", "left", "none"];
 const SPOTS: [&str; 5] = ["centre", "top", "bottom", "left", "right"];
+const SPOTS_TOLD: [&str; 6] = ["centre", "top", "bottom", "left", "right", "none"];
+const OUTLINES: [&str; 6] = ["round", "tall", "wide", "angular", "slight", "plain"];
 
 /// Every slot the language engine declares.
 pub fn slots() -> Vec<SlotDef> {
@@ -65,7 +68,161 @@ pub fn slots() -> Vec<SlotDef> {
         )
         .max_len(320)
         .sampler(glyph_samples),
+        SlotDef::new(
+            "glyph.impression",
+            "A sign as a person sees and remembers it at a glance, in a close reading (S01): \
+             its outline, the stroke that carries it, a mark or two that stand out, and what it \
+             looks like (\"tall and hooked\", \"a ring like an eye\", \"a squat cross with a dot \
+             beside it\"). Not exact enough to draw (tracing gives that). The same sign always \
+             gives the same impression, so the player can recognise it again, and no two signs \
+             of a script may read the same: the engine gives only as much detail as is needed to \
+             tell them apart, so use every variable it fills. A sign that is another sign plus a \
+             mark comes with 'like' (that sign's impression) and 'added': say it that way (\"like \
+             the hooked sign, with a dot below\"), so related signs read as related. A phrase, not \
+             a sentence. Never mention sounds or meanings.",
+        )
+        .var("outline", enum_of(&OUTLINES), "Its overall outline.")
+        .var(
+            "main",
+            enum_of(&STROKES),
+            "The stroke that carries the sign.",
+        )
+        .var(
+            "main_turn",
+            enum_of(&TURNS),
+            "Which way the main stroke points or opens ('none' if it looks the same any way \
+             round).",
+        )
+        .var(
+            "main_spot",
+            enum_of(&SPOTS_TOLD),
+            "Where the main stroke sits, when that is needed to tell it apart ('none' otherwise).",
+        )
+        .var(
+            "others",
+            VarType::List,
+            "Other marks worth telling, most distinctive first, each from glyph.stroke (its turn \
+             'none' unless needed). Often empty.",
+        )
+        .var(
+            "resembles",
+            enum_of(RESEMBLANCES),
+            "What it looks like, where something fits ('' if nothing does).",
+        )
+        .var("count", VarType::Number, "How many strokes it has.")
+        .var(
+            "like",
+            VarType::Text,
+            "For a sign that is another plus a mark or two: that sign's impression ('' otherwise).",
+        )
+        .var(
+            "added",
+            VarType::List,
+            "What this sign adds to the 'like' sign, each from glyph.stroke.",
+        )
+        .max_len(160)
+        .sampler(impression_samples),
     ]
+}
+
+fn impression_samples(seed: u64) -> Vec<Context> {
+    let lang = Language::generate(seed);
+    let imps = impressions(&lang.script, false);
+    let plain = |m: &Mark| Value::from(m.describe());
+    imps.iter()
+        .take(30)
+        .map(|imp| {
+            let like = imp
+                .like
+                .map(|j| format!("a {} sign", imps[j].outline))
+                .unwrap_or_default();
+            impression_context(
+                imp,
+                imp.others.iter().map(plain).collect(),
+                like,
+                imp.added.iter().map(plain).collect(),
+            )
+        })
+        .collect()
+}
+
+fn impression_context(
+    imp: &Impression,
+    others: Vec<Value>,
+    like: String,
+    added: Vec<Value>,
+) -> Context {
+    let name = |x: &dyn erased::Named| x.name();
+    let symmetric = matches!(
+        imp.main.stroke,
+        crate::script::Stroke::Dot | crate::script::Stroke::Ring | crate::script::Stroke::Cross
+    );
+    [
+        ("outline".to_string(), Value::from(imp.outline)),
+        ("main".to_string(), Value::from(name(&imp.main.stroke))),
+        (
+            "main_turn".to_string(),
+            Value::from(if symmetric {
+                "none".to_string()
+            } else {
+                name(&imp.main.turn)
+            }),
+        ),
+        (
+            "main_spot".to_string(),
+            Value::from(if imp.main_spot {
+                name(&imp.main.spot)
+            } else {
+                "none".to_string()
+            }),
+        ),
+        ("others".to_string(), Value::List(others)),
+        ("resembles".to_string(), Value::from(imp.resembles)),
+        ("count".to_string(), Value::Number(imp.count as i64)),
+        ("like".to_string(), Value::from(like)),
+        ("added".to_string(), Value::List(added)),
+    ]
+    .into_iter()
+    .collect()
+}
+
+/// A mark through `glyph.stroke`, its turn left out unless `turn`.
+fn stroke_phrase(r: &mut Renderer, m: &Mark, turn: bool) -> Value {
+    let mut c = stroke_context(m);
+    if !turn {
+        c.insert("turn".to_string(), Value::from("none"));
+    }
+    Value::from(r.render("glyph.stroke", &c))
+}
+
+/// Every sign of a script as it is seen at a glance, through Jb's
+/// templates (`glyph.impression`, with marks from `glyph.stroke`), in
+/// table order. `confusable` leaves a few alike (archaeologist).
+pub fn impression_texts(r: &mut Renderer, script: &Script, confusable: bool) -> Vec<String> {
+    let imps = impressions(script, confusable);
+    let mut texts: Vec<Option<String>> = vec![None; imps.len()];
+    // Signs told by their own look first: related signs use them.
+    for pass in 0..2 {
+        for (i, imp) in imps.iter().enumerate() {
+            if (pass == 0) != imp.like.is_none() {
+                continue;
+            }
+            let others = imp
+                .others
+                .iter()
+                .map(|m| stroke_phrase(r, m, imp.turns))
+                .collect();
+            let added = imp
+                .added
+                .iter()
+                .map(|m| stroke_phrase(r, m, true))
+                .collect();
+            let like = imp.like.and_then(|j| texts[j].clone()).unwrap_or_default();
+            let c = impression_context(imp, others, like, added);
+            texts[i] = Some(r.render("glyph.impression", &c));
+        }
+    }
+    texts.into_iter().map(Option::unwrap_or_default).collect()
 }
 
 /// The registry of every slot the engine declares so far.

@@ -19,6 +19,7 @@ pub mod corpus;
 pub mod difficulty;
 pub mod english;
 pub mod history;
+pub mod impression;
 pub mod lexicon;
 pub mod meaning;
 pub mod morphology;

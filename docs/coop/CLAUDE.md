@@ -29,8 +29,9 @@ into the agent's project and adjust to taste.
 Keep a journal file (for example `journal.md`) and update it after every few
 commands:
 
-- **Glyphs**: a table of glyph numbers, what they look like, any labels you
-  have agreed on (`define 7 as ka`), and guesses about their sounds.
+- **Signs**: a table of the signs you have met, what they look like (the
+  game's impressions, and your own drawings from tracing), the sounds you
+  have heard them make when scraped, and guesses about the rest.
 - **Words**: recurring groups of glyphs, where you saw them, and guesses.
 - **Places**: named places and how to reach them.
 - **Open questions** for your partner.

@@ -5,6 +5,7 @@
 //! labels), never English. The game parses it to a meaning; text that does
 //! not parse is still written, and is inert.
 
+use scraped_lang::difficulty::Separation;
 use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
@@ -179,6 +180,81 @@ impl Game {
         }
     }
 
+    /// One written word: its signs (indexes in the script of `era`) and how
+    /// many were traced in. Sounds are spelled as the script spells them,
+    /// and every sign that has a sound must have been heard; `#N` is the
+    /// Nth sign of the last text read, which must be at hand, in light,
+    /// legible and of the same script.
+    // DESIGN-Q: words are written by sound (the script spells them, adding
+    // signs that have no sound, such as an abjad's vowel carrier), and
+    // signs not heard are traced in by number from a text in view.
+    fn spell_written(
+        &self,
+        era: usize,
+        word: &str,
+    ) -> Result<(Vec<usize>, u32), (&'static str, String)> {
+        let lang = &self.site.world.languages[era];
+        let script = &lang.script;
+        let mut out = Vec::new();
+        let mut traced = 0;
+        let mut rest = word;
+        while !rest.is_empty() {
+            if let Some(r) = rest.strip_prefix('#') {
+                let digits: String = r.chars().take_while(char::is_ascii_digit).collect();
+                rest = &r[digits.len()..];
+                let n: usize = digits
+                    .parse()
+                    .map_err(|_| ("write.unknown_mark", word.to_string()))?;
+                let thing = self
+                    .state
+                    .last_read
+                    .filter(|&t| self.at_hand(t) && !self.is_dark())
+                    .ok_or(("write.unknown_mark", format!("#{n}")))?;
+                match self.signs(thing).get(n.wrapping_sub(1)) {
+                    Some(&(e, index, false)) if e as usize == era => {
+                        out.push(index);
+                        traced += 1;
+                    }
+                    _ => return Err(("write.unknown_mark", format!("#{n}"))),
+                }
+                continue;
+            }
+            let end = rest.find('#').unwrap_or(rest.len());
+            let sounds = &rest[..end];
+            rest = &rest[end..];
+            let phonemes = lang
+                .phonology
+                .decode(sounds)
+                .ok_or(("write.unknown_mark", sounds.to_string()))?;
+            let ipa: Vec<&'static str> = phonemes
+                .iter()
+                .map(|&id| lang.phonology.inventory.get(id).ipa)
+                .collect();
+            for key in script.spell(&ipa) {
+                let index = script.index(&key);
+                if self.sign_sound(era as u32, index).is_some() && !self.heard(era as u32, index) {
+                    return Err(("write.unheard", sounds.to_string()));
+                }
+                out.push(index);
+            }
+        }
+        Ok((out, traced))
+    }
+
+    /// A meaning as a player would type it to write it: its words by
+    /// their sounds, in the script of the day.
+    pub fn sound_words(&self, m: &Sentence) -> String {
+        let era = self.writing_era();
+        let r = self.site.world.renderer(era as u32);
+        let lang = &self.site.world.languages[era];
+        r.render(m)
+            .words
+            .iter()
+            .map(|w| lang.romanise(&w.phonemes()))
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
     /// Roots of a meaning the player hasn't met often enough to write.
     fn unknown_roots(&self, m: &Sentence) -> Vec<String> {
         let era = self.writing_era();
@@ -191,8 +267,9 @@ impl Game {
             .collect()
     }
 
-    /// `write <glyphs> on <thing>`: glyphs as script numbers or the player's
-    /// own labels, `/` between words.
+    /// `write <words> on <thing>`: each word by its sounds, as the player
+    /// has heard them (S01), spelled in the script of the day; `#4` copies
+    /// the fourth sign of the last text read, traced from it.
     pub(crate) fn write(&mut self, words: &[String]) -> Output {
         let Some(on) = words.iter().rposition(|w| w == "on" || w == "onto") else {
             return self.write_refused("nothing", None, Vec::new());
@@ -234,40 +311,45 @@ impl Game {
         {
             return self.write_refused("covered", Some(name), Vec::new());
         }
-        // Marks → glyphs.
+        // Words, by their sounds, spelled in the script of the day; signs
+        // not heard can be traced in from the last text read ("#4").
         let era = self.writing_era();
-        let script = &self.site.world.languages[era].script;
         let mut glyphs = Vec::new();
-        for m in marks {
-            let m = m.trim_matches(|c| c == '"' || c == '\'');
-            if m.is_empty() {
+        let mut traced = 0u32;
+        for word in marks {
+            let word = word.trim_matches(|c| c == '"' || c == ',');
+            if word.is_empty() || matches!(word, "/" | "|" | "·") {
                 continue;
             }
-            if matches!(m, "/" | "|" | "·") {
-                glyphs.push(None);
-                continue;
-            }
-            let by_number = m.parse::<usize>().ok().filter(|&i| i < script.glyphs.len());
-            let by_label = || {
-                self.state
-                    .labels
-                    .iter()
-                    .find(|(k, v)| v.as_str() == m && k.starts_with(&format!("{era}:")))
-                    .and_then(|(k, _)| k.split(':').nth(1)?.parse::<usize>().ok())
-            };
-            match by_number.or_else(by_label) {
-                Some(i) => glyphs.push(Some(i)),
-                None => {
-                    let t = self.say("write.unknown_mark", ctx(&[("mark", Value::from(m))]));
+            match self.spell_written(era, word) {
+                Ok((signs, t)) => {
+                    // Words apart as the script sets them apart.
+                    if !glyphs.is_empty() {
+                        let lang = &self.site.world.languages[era];
+                        match lang.difficulty.separation {
+                            Separation::Spaces => glyphs.push(None),
+                            Separation::Dots => {
+                                glyphs.push(Some(lang.script.index(&GlyphKey::Divider)))
+                            }
+                            Separation::None => {}
+                        }
+                    }
+                    glyphs.extend(signs.into_iter().map(Some));
+                    traced += t;
+                }
+                Err((slot, mark)) => {
+                    let t = self.say(slot, ctx(&[("mark", Value::from(mark))]));
                     self.last_write = Some(WriteReport {
                         accepted: false,
-                        refused: Some("unknown_mark".into()),
+                        refused: Some(slot.trim_start_matches("write.").into()),
                         glyphs: Vec::new(),
                     });
                     return self.output(vec![t], None);
                 }
             }
         }
+        // Copying a sign from a text takes the time tracing takes.
+        self.advance(traced * crate::reading::TRACE_MINUTES, Activity::Resting);
         if glyphs.iter().all(Option::is_none) {
             return self.write_refused("nothing", Some(name), glyphs);
         }
@@ -319,10 +401,17 @@ impl Game {
             minutes: self.state.minutes,
         });
         self.sync_written();
+        // Each sign as the player knows it: by its sound, else its look.
         let descriptions: Vec<Value> = glyphs
             .iter()
             .flatten()
-            .map(|&i| Value::from(self.glyph_description(era as u32, i)))
+            .map(|&i| {
+                let e = era as u32;
+                match self.sign_sound(e, i).filter(|_| self.heard(e, i)) {
+                    Some(s) => Value::from(format!("«{s}»")),
+                    None => Value::from(self.sign_impression(e, i)),
+                }
+            })
             .collect();
         let material = label(&self.thing(thing).material);
         let t = self.say(

@@ -1328,17 +1328,7 @@ fn claim_glyphs(g: &Game, verb: &str, subject: &str) -> String {
         }],
         adverbs: Vec::new(),
     });
-    let era = g.writing_era();
-    let r = g.site.world.renderer(era as u32);
-    let script = &g.site.world.languages[era].script;
-    r.glyphs(&r.render(&m))
-        .into_iter()
-        .map(|k| match k {
-            Some(k) => script.index(&k).to_string(),
-            None => "/".to_string(),
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
+    g.sound_words(&m)
 }
 
 /// The kind of building a name ends with ("the worn market hall": "market

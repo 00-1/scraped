@@ -2,6 +2,7 @@
 //! physical cues of claims taking effect.
 
 use scraped_content::{Context, Value};
+use scraped_lang::script::GlyphKey;
 use scraped_sim::body::Activity;
 use scraped_sim::outdoors::hash;
 use scraped_sim::writing::{
@@ -210,6 +211,7 @@ impl Game {
                 ("material", Value::from(material)),
             ]),
         )];
+        parts.extend(self.hear_signs(text));
         let mut felt = self.claim_changes(&before);
         if self.claims.iter().any(|c| c.text == text) && text >= base {
             felt.extend(self.release_feeling(power));
@@ -225,6 +227,69 @@ impl Game {
             self.check_self_claim(text);
         }
         self.output(parts, None)
+    }
+
+    /// As a text's strokes come away under the blade, each sign gives its
+    /// sound, faintly (S01). Heard where it is quiet, or anywhere by a
+    /// player who is listening; the sounds then attach to their signs.
+    fn hear_signs(&mut self, text: usize) -> Option<String> {
+        let strengths: Vec<f64> = self.sounds().iter().map(|s| s.strength).collect();
+        let quiet = crate::senses::quiet(&strengths);
+        if !quiet && !self.attentive {
+            return None;
+        }
+        let t = self.text(text);
+        let era = t.era;
+        let r = self.site.world.renderer(era);
+        let lang = &self.site.world.languages[era as usize];
+        let keys = r.glyphs(&r.render(&t.meaning));
+        let mut sounds: Vec<Value> = Vec::new();
+        let mut manners: Vec<Value> = Vec::new();
+        let mut new = 0;
+        for k in keys.into_iter().flatten() {
+            let index = lang.script.index(&k);
+            let Some(sound) = self.sign_sound(era, index) else {
+                continue;
+            };
+            if self.state.heard.insert((era, index)) {
+                new += 1;
+            }
+            let v = Value::from(sound);
+            if !sounds.contains(&v) {
+                sounds.push(v);
+            }
+            let ipa: Vec<&str> = match &k {
+                GlyphKey::Sound(s) | GlyphKey::Dead(s) => vec![*s],
+                GlyphKey::Syllable(c, v) => c.iter().copied().chain([*v]).collect(),
+                _ => Vec::new(),
+            };
+            for p in ipa {
+                let ph = scraped_lang::phonology::phoneme(p);
+                let m = match ph.manner() {
+                    Some(m) => serde_json::to_value(m)
+                        .ok()
+                        .and_then(|v| v.as_str().map(str::to_string))
+                        .unwrap_or_default(),
+                    None => "vowel".to_string(),
+                };
+                let m = Value::from(m);
+                if !manners.contains(&m) {
+                    manners.push(m);
+                }
+            }
+        }
+        if sounds.is_empty() {
+            return None;
+        }
+        let c = ctx(&[
+            ("first", sounds[0].clone()),
+            ("count", Value::Number(sounds.len() as i64)),
+            ("sounds", Value::List(sounds)),
+            ("manners", Value::List(manners)),
+            ("new", Value::Number(new)),
+            ("quiet", Value::Bool(quiet)),
+        ]);
+        Some(self.say("glyph.heard", c))
     }
 
     /// What the player feels of claims starting or stopping: physical cues

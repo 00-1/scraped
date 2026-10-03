@@ -58,7 +58,7 @@ object = "required"
 
 [[verb]]
 id = "examine"
-words = ["examine", "x", "inspect", "look at", "l at", "study"]
+words = ["examine", "x", "inspect", "look at", "l at"]
 object = "required"
 
 [[verb]]
@@ -88,8 +88,13 @@ object = "required"
 
 [[verb]]
 id = "more"
-words = ["more", "next", "read on", "continue"]
-object = "none"
+words = ["more", "next", "read on", "continue", "read closely", "read carefully", "read more closely", "study", "pore over", "read sign by sign"]
+object = "optional"
+
+[[verb]]
+id = "trace"
+words = ["trace", "copy", "make a rubbing of", "take a rubbing of", "rub", "copy out", "copy down"]
+object = "required"
 
 [[verb]]
 id = "inventory"
@@ -100,11 +105,6 @@ object = "none"
 id = "wait"
 words = ["wait", "z", "rest"]
 object = "none"
-
-[[verb]]
-id = "define"
-words = ["define", "transliterate", "label", "call"]
-object = "required"
 
 [[verb]]
 id = "help"

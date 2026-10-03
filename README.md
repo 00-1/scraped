@@ -62,8 +62,11 @@ handle the session; `--legacy [FILE]` carries the last run's final
 inscription into the next world as a faint, very old layer;
 `code` shows the world's shareable code and `manual` the player's
 manual. A seed whose world fails the fairness check is quietly replaced by
-a fair world derived from it (`--raw` turns that off). `define 3 as ka`
-gives a glyph your own label. Outdoors: `head north`,
+a fair world derived from it (`--raw` turns that off). Reading comes in
+layers: `read the stele` takes in the whole text at a glance, `read closely`
+(or `study`) goes sign by sign as each looks, `examine sign 4` looks harder
+at one, and `trace sign 4` (or `trace the stele`, a few signs at a go) gives
+the exact strokes, at a few minutes a sign. Outdoors: `head north`,
 `go to the tower` (anything in view), `follow the river downstream`,
 `go back`, `name this place the gap` and later `go to the gap`. In fog or at
 night you drift without knowing it; the bench's Play tab shows where you
@@ -75,8 +78,11 @@ torch`, `light torch`, `wear cloak`, `status`. Mechanisms: `open sluice`,
 `pull lever`, `pry door`. `shout` scares some creatures off and brings down
 loose stone; `cross` tries ice, wading or swimming. With the scraper,
 `scrape <thing>` scrapes its top fresh writing away, and potent writing acts.
-With the stylus, `write 4 12 7 / 3 9 on wall` writes glyphs (script numbers,
-or your own labels from `define`) once you have met each word in two texts;
+Signs give their sound as they are scraped away, heard where it is quiet or
+after `listen`; from then on they read by that sound. With the stylus,
+`write kati mo on wall` writes words by their sounds (`#4` copies in the
+fourth sign of the last text read) once you have heard their signs and met
+each word in two texts;
 the lens shows the layer beneath when you read. Time: `wait 2 weeks`; the
 world drifts by region (spoilers: `world --seed N regions --spoil`), and
 stronger scrapers reach farther, up to the great inscriptions.

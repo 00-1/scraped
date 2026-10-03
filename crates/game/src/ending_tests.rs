@@ -60,7 +60,8 @@ fn read_the_deepest(g: &mut Game) {
 /// Writes a claim on a blank surface and scrapes it once dry.
 fn cast(g: &mut Game, thing: usize, m: &Sentence) -> bool {
     let name = g.site.things[thing].kind;
-    let out = g.step(&format!("write {} on {name}", glyphs_for(g, m)));
+    let words = glyphs_for(g, m);
+    let out = g.step(&format!("write {words} on {name}"));
     if out.state.wrote.as_ref().is_none_or(|w| !w.accepted) {
         return false;
     }

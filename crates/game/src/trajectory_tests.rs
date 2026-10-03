@@ -76,16 +76,9 @@ pub(crate) fn counter(g: &mut Game, great: usize) -> bool {
         Polarity::Positive => Polarity::Negative,
         Polarity::Negative => Polarity::Positive,
     };
-    let era = g.writing_era();
-    let r = g.site.world.renderer(era as u32);
-    let script = &g.site.world.languages[era].script;
-    let glyphs: Vec<String> = r
-        .glyphs(&r.render(&Sentence::Clause(c)))
-        .into_iter()
-        .map(|k| k.map_or("/".to_string(), |k| script.index(&k).to_string()))
-        .collect();
+    let glyphs = crate::composing_tests::glyphs_for(g, &Sentence::Clause(c));
     let name = g.site.things[thing].kind;
-    let out = g.step(&format!("write {} on {name}", glyphs.join(" ")));
+    let out = g.step(&format!("write {glyphs} on {name}"));
     if out.state.wrote.as_ref().is_none_or(|w| !w.accepted) {
         return false;
     }

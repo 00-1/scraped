@@ -7,12 +7,12 @@ example = true
 
 [[variant]]
 slot = "read.glyph"
-text = "{number}. [if known]«{label}» [end]{description}"
+text = "{number}. [if heard]«{sound}»[else]{impression}[end]"
 example = true
 
 [[variant]]
 slot = "read.more"
-text = "(Type 'more' to read on.)"
+text = "(Read on for more.)"
 example = true
 
 [[variant]]
@@ -58,4 +58,49 @@ example = true
 [[variant]]
 slot = "read.legacy"
 text = "The oldest of the faint layers is in a hand that seems strangely familiar."
+example = true
+
+[[variant]]
+slot = "read.whole"
+text = "On {thing}, {count glyphs sign} in {count words group}, about {count lines line}, in a {hand} hand.[if recurring] A few shapes keep coming back.[end]"
+example = true
+
+[[variant]]
+slot = "glyph.closer"
+text = "Sign {number}: {impression}. Its {main} catches the eye; {distinctive}[if heard], the sign that sounded «{sound}»[end]."
+example = true
+
+[[variant]]
+slot = "sign.name"
+text = "sign {number}"
+example = true
+
+[[variant]]
+slot = "trace.frame"
+text = "You trace [if from == to]sign {from}[else]signs {from} to {to}[end] of {thing}, stroke by stroke ({duration minutes}):"
+example = true
+
+[[variant]]
+slot = "trace.sign"
+text = "{number}. {description}"
+example = true
+
+[[variant]]
+slot = "trace.lost"
+text = "{number}. (too far gone to trace)"
+example = true
+
+[[variant]]
+slot = "trace.more"
+text = "({count remaining sign} left to trace.)"
+example = true
+
+[[variant]]
+slot = "trace.dark"
+text = "There isn't light enough to trace by."
+example = true
+
+[[variant]]
+slot = "glyph.heard"
+text = "As the strokes come away, something faint, almost a voice: «{list sounds}»."
 example = true

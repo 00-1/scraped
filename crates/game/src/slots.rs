@@ -458,19 +458,18 @@ fn s_read(seed: u64) -> Vec<Context> {
 
 fn s_glyph(seed: u64) -> Vec<Context> {
     let site = sample_site(seed);
-    site.world.languages[0]
-        .script
-        .glyphs
+    let script = &site.world.languages[0].script;
+    scraped_lang::impression::impressions(script, false)
         .iter()
         .take(6)
         .enumerate()
-        .map(|(i, (_, g))| {
-            let known = i % 3 == 0;
+        .map(|(i, imp)| {
+            let heard = i % 3 == 0;
             ctx(&[
                 ("number", Value::Number(i as i64 + 1)),
-                ("description", Value::from(g.describe())),
-                ("label", Value::from(if known { "ka" } else { "" })),
-                ("known", Value::Bool(known)),
+                ("impression", Value::from(format!("a {} sign", imp.outline))),
+                ("heard", Value::Bool(heard)),
+                ("sound", Value::from(if heard { "ka" } else { "" })),
             ])
         })
         .collect()
@@ -519,15 +518,6 @@ fn s_verb(_: u64) -> Vec<Context> {
         .iter()
         .map(|v| ctx(&[("verb", Value::from(*v))]))
         .collect()
-}
-
-fn s_define(_: u64) -> Vec<Context> {
-    vec![ctx(&[
-        ("number", Value::Number(3)),
-        ("label", Value::from("ka")),
-        ("count", Value::Number(14)),
-        ("input", Value::from("3 as ka")),
-    ])]
 }
 
 fn s_minutes(_: u64) -> Vec<Context> {
@@ -1331,13 +1321,13 @@ pub fn slots() -> Vec<SlotDef> {
             .min_variants(1)
             .max_len(200)
             .sampler(s_read),
-        SlotDef::new("read.glyph", "One glyph in a reading. 'description' is the glyph described in words (from glyph.describe). If the player has labelled this glyph, 'label' holds their label and 'known' is true. Keep the number visible: players use it with 'define 3 as ka'.")
-            .var("number", VarType::Number, "The glyph's position in the writing, from 1.")
-            .var("description", VarType::Text, "The glyph, described.")
-            .var("label", VarType::Text, "The player's own label for it, or empty.")
-            .var("known", VarType::Bool, "Whether the player has labelled it.")
+        SlotDef::new("read.glyph", "One sign in a close reading ('read closely'): as it looks at a glance (from glyph.impression), or, once the player has heard its sound, by that sound instead. Keep the number visible: players examine and trace signs by it ('examine sign 4').")
+            .var("number", VarType::Number, "The sign's position in the writing, from 1.")
+            .var("impression", VarType::Text, "The sign as it looks, from glyph.impression.")
+            .var("heard", VarType::Bool, "Whether the player has heard its sound.")
+            .var("sound", VarType::Text, "Its sound, romanised, if heard (else empty).")
             .min_variants(1)
-            .max_len(400)
+            .max_len(220)
             .sampler(s_glyph),
         SlotDef::new("read.more", "After a page of reading, when more remains: tells the player to type 'more'.")
             .var("remaining", VarType::Number, "Pages left.")
@@ -1387,18 +1377,6 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.unknown_verb", "The first word of the command isn't a known verb.").var("word", VarType::Text, "The word.").sampler(s_word),
         SlotDef::new("say.need_object", "A verb needs something to act on ('take what?').").var("verb", VarType::Text, "The verb.").sampler(s_verb),
         SlotDef::new("say.empty", "The player entered nothing.").sampler(s_none),
-        SlotDef::new("say.define", "The player labels a glyph of the writing they last read ('define 3 as ka').")
-            .var("number", VarType::Number, "The glyph's position.")
-            .var("label", VarType::Text, "The player's label.")
-            .var("count", VarType::Number, "How many glyphs the writing has.")
-            .var("input", VarType::Text, "What the player typed after 'define'.")
-            .sampler(s_define),
-        SlotDef::new("say.define_bad", "A 'define' command the game can't follow; explain the form 'define 3 as ka', after reading something.")
-            .var("number", VarType::Number, "The glyph's position.")
-            .var("label", VarType::Text, "The player's label.")
-            .var("count", VarType::Number, "How many glyphs the last writing read has (0 if none).")
-            .var("input", VarType::Text, "What the player typed after 'define'.")
-            .sampler(s_define),
         SlotDef::new("say.wait", "Time passes while the player waits.").var("minutes", VarType::Number, "How long.").sampler(s_minutes),
         SlotDef::new("say.help", "Help: the kinds of commands the game understands. Plain and short.").max_len(900).sampler(s_none),
         SlotDef::new("say.intro", "The opening of a new game, before the first look. M12 replaces this with the authored frame.")
@@ -1724,7 +1702,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("bearing", e(&[&BEARINGS[..], &["here"]].concat()), "Which way from where the run began.")
             .max_len(300)
             .sampler(s_end_act),
-        SlotDef::new("end.chronicle", "Before the chronicle: a short text in the language, written as by those who came after, about the player's time. It follows as glyph numbers (or the player's labels), '/' between words. Present it as found writing; never say what it means.")
+        SlotDef::new("end.chronicle", "Before the chronicle: a short text in the language, written as by those who came after, about the player's time. It follows sign by sign: by sound where the player has heard the sign, else a dot, '/' between words. Present it as found writing; never say what it means.")
             .var("words", VarType::Number, "How many words it has.")
             .max_len(300)
             .sampler(s_chronicle),
@@ -1767,10 +1745,10 @@ pub fn slots() -> Vec<SlotDef> {
             .var("kind", e(&["scraper", "stylus", "lens", "fine_scraper", "old_scraper", "first_scraper", "first_lens"]), "Which tool: the scraper, the stylus, the lens, one of the stronger scrapers (fine, old, and the first, strongest of all), or the first lens, which reads the faintest layers.")
             .max_len(400)
             .sampler(s_tool),
-        SlotDef::new("write.done", "The player writes new text on a surface. Echo the glyphs back as they were cut or painted (descriptions given), never what they mean.")
+        SlotDef::new("write.done", "The player writes new text on a surface. Echo the signs back as they were cut or painted, never what they mean.")
             .var("thing", VarType::Text, thing)
             .var("material", e(MATERIALS), "The surface.")
-            .var("glyphs", VarType::List, "Each glyph written, described (from glyph.describe).")
+            .var("glyphs", VarType::List, "Each sign written: by its sound in «» where heard, else as it looks (from glyph.impression).")
             .max_len(1200)
             .sampler(s_write),
         SlotDef::new("write.refused", "Writing can't begin: no stylus, too dark, nothing to write, not a surface that takes writing, or fresh writing already covers it (it must be scraped first).")
@@ -1778,8 +1756,12 @@ pub fn slots() -> Vec<SlotDef> {
             .var("thing", VarType::Text, "The surface named, if any.")
             .max_len(200)
             .sampler(s_write_refused),
-        SlotDef::new("write.unknown_mark", "The player names a glyph that isn't a glyph number of the script or one of their own labels.")
+        SlotDef::new("write.unknown_mark", "The player writes something that can't be written: sounds the language doesn't have, or a sign number ('#4') that isn't a legible sign of the last text read, at hand, in the script of the day.")
             .var("mark", VarType::Text, "What they typed.")
+            .sampler(s_mark),
+        SlotDef::new("write.unheard", "The player tries to write sounds whose signs they haven't heard yet (signs give their sound as they are scraped away): they don't know how to write them. They can copy a sign in from a text by its number ('#4').")
+            .var("mark", VarType::Text, "The sounds they typed.")
+            .max_len(200)
             .sampler(s_mark),
         SlotDef::new("write.hesitate", "The player's hand won't commit marks they don't know well enough: some words in what they want to write haven't been seen in enough writing yet. Physical, not a rule; don't say which words.")
             .var("count", VarType::Number, "How many unfamiliar words.")
@@ -1841,6 +1823,7 @@ pub fn registry() -> Registry {
     all.extend(crate::quiet_slots::slots());
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
+    all.extend(crate::reading_slots::slots());
     Registry::new(all)
 }
 
@@ -2013,6 +1996,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(crate::quiet_slots::slots());
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
+    all.extend(crate::reading_slots::slots());
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {

@@ -1,4 +1,4 @@
-notes = "Short responses: carrying things, moving, the parser, labels, time, help and saving."
+notes = "Short responses: carrying things, moving, the parser, time, help and saving."
 
 [[variant]]
 slot = "say.inventory"
@@ -81,16 +81,6 @@ text = "You wait for a thought."
 example = true
 
 [[variant]]
-slot = "say.define"
-text = "In your notes, glyph {number} is now «{label}»."
-example = true
-
-[[variant]]
-slot = "say.define_bad"
-text = "Read something first, then write: define 3 as ka."
-example = true
-
-[[variant]]
 slot = "say.wait"
 text = "You wait {duration minutes}."
 example = true
@@ -100,8 +90,8 @@ slot = "say.help"
 text = '''
 Try: look, examine (x) something, go to a building or anything you can see, north, ne, up, out,
 head north, follow the river downstream, go back, name this place the gap, go to the gap,
-open and close doors, take, drop, inventory (i), read something, more, wait,
-and define 3 as ka to label glyph 3 of what you last read.'''
+open and close doors, take, drop, inventory (i), read something, read closely,
+examine sign 3, trace sign 3, wait.'''
 example = true
 
 [[variant]]

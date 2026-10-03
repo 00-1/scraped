@@ -31,6 +31,12 @@ Every response is one line of JSON:
 Session commands are handled by the client, not the game: `save [FILE]`,
 `load [FILE]`, `transcript on|off`, `export [PREFIX]`, `code`, `quit`.
 
+Agents type what a player types. Since S01 that includes reading in layers
+(`read X`, `read closely`, `examine sign 4`, `trace sign 4`) and writing by
+sound: `write kati mo on wall` spells words in the script of the day from
+the signs whose sounds have been heard; `#4` copies in sign 4 of the last
+text read. Glyph table numbers are no longer accepted, and `define` is gone.
+
 **Versioning.** Adding keys does not change the version; removing or
 changing the meaning of one does. Version 1 is the first release.
 

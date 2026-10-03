@@ -225,3 +225,22 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | How fast does one walk inside? | 70 m a minute in light, 30 by feel | `crates/game/src/lib.rs` (`go_way`) | now |
 | Should the scholar have to reach the deepest text in 5 of 10? | Lowered to 3 for now: the root's archive is a great library and its vault is harder to reach; restore after S01's bot rewrite | `crates/game/tests/depth.rs` | S01 |
 
+
+## Course corrections (S01)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| **The exception to "the game is not your notebook"** | Sounds heard while scraping attach to their signs: from then on a close reading shows a heard sign by its sound, romanised, instead of its look. Nothing else is kept for the player (no sign list, no labels). Without this, matching a heard sound to one of dozens of described shapes would be unreasonably obscure | `crates/game/src/writing.rs` (`hear_signs`), `crates/game/src/reading.rs` | now |
+| When are signs heard? | While scraping, where nothing louder than faint can be heard, or anywhere right after `listen`; every sign of the scraped text that has a sound | `crates/game/src/writing.rs` (`hear_signs`), `crates/game/src/senses.rs` (`quiet`) | D06 |
+| How is a sign's impression made? | From its strokes: outline (round, tall, wide, angular, slight, plain), the heaviest stroke and its turn, then the rarest other marks, their turns and the main stroke's place only as far as needed to tell every sign of the script apart; a sign that is another plus one or two marks is told as "like that sign, with…"; a resemblance where one fits (eye, wheel, crook, comb, arrow, seed) | `crates/lang/src/impression.rs` | now |
+| Confusable signs on archaeologist | Detail capped at the outline, main stroke and one other mark: about one alike pair per script | `crates/lang/src/impression.rs` (`impressions`) | now |
+| How long does tracing take? | 4 minutes a sign; a whole text is traced 8 signs at a go and carries on where it left off; needs the light reading needs; lost signs can't be traced. No materials for now (charcoal, cloth or paper for rubbings could come in) | `crates/game/src/reading.rs` (`TRACE_MINUTES`, `trace`) | D05 |
+| Short texts | 6 signs or fewer go straight on to a close reading after the glance | `crates/game/src/reading.rs` (`SHORT`) | now |
+| How does the player write without labels? | Words by their sounds (`write kati mo on wall`), spelled as the script of the day spells them, signs without a sound (an abjad's vowel carrier) added by the spelling; every sounded sign must have been heard. Signs not heard are copied in from the last text read by number (`#4`), at the cost of tracing them; name markers and dividers too | `crates/game/src/composing.rs` (`spell_written`) | D11 |
+| How does the end chronicle show? | Each sign by its sound where heard, else a dot, `/` between words | `crates/game/src/ending.rs` (`chronicle_glyphs`) | D12 |
+| What does writing echo? | Each sign written by its sound where heard, else its impression | `crates/game/src/composing.rs` | now |
+
+**Other ways to learn sounds** (recorded for Jb, hooks only, not built):
+- *Names from nature:* some animals and birds (D06) named after their calls, with a carving or label pairing the creature and its written name.
+- *An earlier decipherer's notes:* traces of a previous explorer (the D06 gate), giving some sound values, some wrong, as storylets in Jb's words.
+- *Acoustic places:* a whispering gallery or ringing stones tied to inscriptions.

@@ -425,8 +425,8 @@ impl Game {
         chronicle_of(&self.record(), |t| claim_parts(self.text(t)))
     }
 
-    /// The chronicle as the player sees it: glyph numbers (or the player's
-    /// own labels), "/" between words, as `write` takes them.
+    /// The chronicle as the player sees it: each sign by its sound where
+    /// heard, else a dot, "/" between words.
     fn chronicle_glyphs(&self) -> (String, usize) {
         let era = self.writing_era();
         let r = self.site.world.renderer(era as u32);
@@ -436,12 +436,12 @@ impl Game {
             match k {
                 Some(k) => {
                     let i = script.index(&k);
+                    // DESIGN-Q: the chronicle shows each sign by its sound
+                    // if heard, else as a dot.
                     let mark = self
-                        .state
-                        .labels
-                        .get(&format!("{era}:{i}"))
-                        .cloned()
-                        .unwrap_or_else(|| i.to_string());
+                        .sign_sound(era as u32, i)
+                        .filter(|_| self.heard(era as u32, i))
+                        .unwrap_or_else(|| "·".to_string());
                     words.last_mut().expect("a word").push(mark);
                 }
                 None => words.push(Vec::new()),
@@ -451,7 +451,7 @@ impl Game {
         let n = words.len();
         let text = words
             .iter()
-            .map(|w| w.join(" "))
+            .map(|w| w.concat())
             .collect::<Vec<_>>()
             .join(" / ");
         (text, n)

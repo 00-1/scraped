@@ -87,8 +87,9 @@ impl Bot {
             if self.kind == "scholar" {
                 options.push(format!("read {w}"));
                 options.push(format!("scrape {w}"));
-                let marks: Vec<String> =
-                    (0..3).map(|k| ((h >> (8 * k)) % 20).to_string()).collect();
+                let marks: Vec<String> = (0..3)
+                    .map(|k| format!("#{}", (h >> (8 * k)) % 20))
+                    .collect();
                 options.push(format!("write {} on {w}", marks.join(" ")));
             }
         }

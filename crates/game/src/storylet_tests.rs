@@ -214,11 +214,8 @@ fn a_spine_run_reaches_every_beat() {
     // Write and release a claim.
     let claim = crate::composing_tests::claim("burn", "house", false);
     g.threshold = 0;
-    let out = g.step(&format!(
-        "write {} on {}",
-        glyphs_for(&g, &claim),
-        g.site.things[wall].kind
-    ));
+    let words = glyphs_for(&mut g, &claim);
+    let out = g.step(&format!("write {words} on {}", g.site.things[wall].kind));
     assert!(out.state.wrote.unwrap().accepted);
     g.advance(40, scraped_sim::body::Activity::Resting);
     g.scrape(wall);

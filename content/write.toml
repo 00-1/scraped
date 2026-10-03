@@ -29,3 +29,8 @@ example = true
 slot = "write.backlash"
 text = "The scraping jolts through your hands."
 example = true
+
+[[variant]]
+slot = "write.unheard"
+text = "You don't know how to write «{mark}»: you have never heard those signs."
+example = true

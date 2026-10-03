@@ -70,19 +70,22 @@ pub(crate) fn at_blank_surface(seed: u64) -> Option<(Game, usize)> {
     Some((g, thing))
 }
 
-/// The glyph numbers a meaning is written with, in the player's era.
-pub(crate) fn glyphs_for(g: &Game, m: &Sentence) -> String {
+/// What a player who has heard every sign of a meaning types to write it,
+/// in the player's era: its words by their sounds. Marks those signs heard.
+pub(crate) fn glyphs_for(g: &mut Game, m: &Sentence) -> String {
     let era = g.writing_era();
     let r = g.site.world.renderer(era as u32);
     let script = &g.site.world.languages[era].script;
-    r.glyphs(&r.render(m))
+    let keys: Vec<usize> = r
+        .glyphs(&r.render(m))
         .into_iter()
-        .map(|k| match k {
-            Some(k) => script.index(&k).to_string(),
-            None => "/".to_string(),
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
+        .flatten()
+        .map(|k| script.index(&k))
+        .collect();
+    for i in keys {
+        g.state.heard.insert((era as u32, i));
+    }
+    g.sound_words(m)
 }
 
 #[test]
@@ -113,7 +116,7 @@ fn agreement_fixtures() {
 #[test]
 fn the_gate_refuses_unfamiliar_words_and_is_configurable() {
     let (mut g, thing) = at_blank_surface(42).expect("a blank wall");
-    let glyphs = glyphs_for(&g, &claim("burn", "house", false));
+    let glyphs = glyphs_for(&mut g, &claim("burn", "house", false));
     let name = g.site.things[thing].kind;
     let out = g.step(&format!("write {glyphs} on {name}"));
     assert_eq!(
@@ -149,7 +152,7 @@ fn a_decipherer_composes_and_casts_a_claim_on_most_seeds() {
             unreachable!()
         };
         let before = g.env().room_heat(structure);
-        let glyphs = glyphs_for(&g, &claim("burn", "house", false));
+        let glyphs = glyphs_for(&mut g, &claim("burn", "house", false));
         let name = g.site.things[thing].kind;
         let wrote = g.step(&format!("write {glyphs} on {name}"));
         if wrote.state.wrote.as_ref().is_none_or(|w| !w.accepted) {
@@ -170,21 +173,35 @@ fn misfires_are_deterministic_and_negation_bites() {
         let (mut g, thing) = at_blank_surface(7).unwrap();
         g.threshold = 0;
         let glyphs = if text == "garbled" {
-            // The potent opening formula, then nonsense.
+            // The potent opening formula, then nonsense made of its sounds.
             let era = g.writing_era();
             let r = g.site.world.renderer(era as u32);
-            let script = &g.site.world.languages[era].script;
             let lang = &g.site.world.languages[era];
-            let ipa = lang.phonology.to_ipa(&r.plain_word("pot.open").phonemes());
-            let mut v: Vec<String> = script
+            let word = r.plain_word("pot.open").phonemes();
+            let ipa = lang.phonology.to_ipa(&word);
+            let signs: Vec<usize> = lang
+                .script
                 .spell(&ipa)
                 .iter()
-                .map(|k| script.index(k).to_string())
+                .map(|k| lang.script.index(k))
                 .collect();
-            v.extend(["/".into(), "1".into(), "2".into(), "1".into()]);
-            v.join(" ")
+            let open = lang.romanise(&word);
+            let nonsense = lang.romanise(&vec![word[0], word[0], word[0]]);
+            for i in signs {
+                g.state.heard.insert((era as u32, i));
+            }
+            let extra: Vec<usize> = lang
+                .script
+                .spell(&[ipa[0], ipa[0], ipa[0]])
+                .iter()
+                .map(|k| lang.script.index(k))
+                .collect();
+            for i in extra {
+                g.state.heard.insert((era as u32, i));
+            }
+            format!("{open} {nonsense}")
         } else {
-            glyphs_for(&g, &claim("burn", "house", true))
+            glyphs_for(&mut g, &claim("burn", "house", true))
         };
         let name = g.site.things[thing].kind;
         let w = g.step(&format!("write {glyphs} on {name}")).text;
@@ -204,7 +221,7 @@ fn misfires_are_deterministic_and_negation_bites() {
     };
     let base = g.env().room_heat(structure);
     g.threshold = 0;
-    let glyphs = glyphs_for(&g, &claim("burn", "house", true));
+    let glyphs = glyphs_for(&mut g, &claim("burn", "house", true));
     let name = g.site.things[thing].kind;
     g.step(&format!("write {glyphs} on {name}"));
     g.advance(40, Activity::Resting);
