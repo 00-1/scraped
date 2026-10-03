@@ -585,6 +585,28 @@ impl Fixtures {
         // until M08–M09.
         // DESIGN-Q: where the scraper, stylus and lens lie (an archive or
         // temple each, never the starting town).
+        let homes: Vec<usize> = w
+            .structures
+            .iter()
+            .filter(|st| {
+                st.settlement != Some(start)
+                    && matches!(st.kind, StructureKind::Archive | StructureKind::Temple)
+                    && st.condition != Condition::Buried
+            })
+            .map(|st| st.id)
+            .filter(|&sid| !self.reachable_rooms(w, sid).is_empty())
+            .collect();
+        // Reachable on foot from the start, by the land as it is.
+        let from = Pos::of_cell(
+            w.history.settlements[start].cell.ux(),
+            w.history.settlements[start].cell.uy(),
+        );
+        // Routing across the land is slow: each home once.
+        let on_foot: BTreeSet<usize> = homes
+            .iter()
+            .copied()
+            .filter(|&sid| land.route(w, from, land.structure_pos[sid]).is_some())
+            .collect();
         for (n, tool) in [
             "scraper",
             "stylus",
@@ -597,27 +619,11 @@ impl Fixtures {
         .into_iter()
         .enumerate()
         {
-            let homes: Vec<usize> = w
-                .structures
-                .iter()
-                .filter(|st| {
-                    st.settlement != Some(start)
-                        && matches!(st.kind, StructureKind::Archive | StructureKind::Temple)
-                        && st.condition != Condition::Buried
-                })
-                .map(|st| st.id)
-                .filter(|&sid| !self.reachable_rooms(w, sid).is_empty())
-                .collect();
             if homes.is_empty() {
                 continue;
             }
-            // Reachable on foot from the start, by the land as it is.
-            let from = Pos::of_cell(
-                w.history.settlements[start].cell.ux(),
-                w.history.settlements[start].cell.uy(),
-            );
             let pick = hash(&[w.seed, 0x7001, n as u64]) as usize;
-            let reachable = |sid: usize| land.route(w, from, land.structure_pos[sid]).is_some();
+            let reachable = |sid: usize| on_foot.contains(&sid);
             // Stronger scrapers lie farther out; the strongest with the root.
             // DESIGN-Q: the fine scraper about halfway out, the old one far,
             // the first scraper where the root inscription lies, the first
@@ -632,7 +638,11 @@ impl Fixtures {
                     .iter()
                     .find(|t| t.event == Some(w.history.root))
                     .map(|t| t.structure)
-                    .filter(|&sid| !self.reachable_rooms(w, sid).is_empty() && reachable(sid));
+                    .filter(|&sid| {
+                        reachable(sid)
+                            || (!self.reachable_rooms(w, sid).is_empty()
+                                && land.route(w, from, land.structure_pos[sid]).is_some())
+                    });
                 let mut far: Vec<usize> = homes
                     .iter()
                     .copied()
@@ -671,31 +681,39 @@ impl Fixtures {
         if rooms.is_empty() || rooms[0].collapsed {
             return Vec::new();
         }
-        let flooded = |r: usize| {
-            self.flooded
-                .iter()
-                .any(|f| f.structure == structure && f.room == r)
-        };
+        let mut flooded = vec![false; rooms.len()];
+        for f in self.flooded.iter().filter(|f| f.structure == structure) {
+            flooded[f.room] = true;
+        }
+        // Ways out of each room, both ways unless one-way; windows are
+        // seen through, never passed (D04).
+        let mut next: Vec<Vec<(usize, usize)>> = vec![Vec::new(); rooms.len()];
+        for (li, l) in st.interior.links.iter().enumerate() {
+            if l.passage == Passage::Window {
+                continue;
+            }
+            next[l.a].push((l.b, li));
+            if !l.one_way {
+                next[l.b].push((l.a, li));
+            }
+        }
         let mut seen = vec![0usize];
+        let mut have = vec![false; rooms.len()];
+        have[0] = true;
         let mut i = 0;
         while i < seen.len() {
             let r = seen[i];
             i += 1;
-            for (li, l) in st.interior.links.iter().enumerate() {
-                let other = if l.a == r {
-                    l.b
-                } else if l.b == r {
-                    l.a
-                } else {
-                    continue;
-                };
+            for &(other, li) in &next[r] {
+                let l = &st.interior.links[li];
                 if (l.state == PassageState::Blocked && !self.cleared.contains(&(structure, li)))
                     || rooms[other].collapsed
-                    || flooded(other)
-                    || seen.contains(&other)
+                    || flooded[other]
+                    || have[other]
                 {
                     continue;
                 }
+                have[other] = true;
                 seen.push(other);
             }
         }

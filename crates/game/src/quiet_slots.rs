@@ -28,6 +28,42 @@ fn e_or_empty(values: &[&str]) -> VarType {
     }
 }
 
+/// How big a space is (D04).
+pub const ROOM_SIZES: &[&str] = &["cramped", "small", "middling", "large", "vast"];
+/// How high a space is.
+pub const HEIGHTS: &[&str] = &["low", "tall", "lofty", "open"];
+/// Water in a space.
+pub const WATERS: &[&str] = &["none", "pool", "stream", "river", "flooded", "sump"];
+
+/// Building styles and "natural", or empty.
+pub fn styles() -> Vec<&'static str> {
+    std::iter::once("")
+        .chain(scraped_world::interiors::STYLES.iter().copied())
+        .chain(std::iter::once(scraped_world::interiors::NATURAL))
+        .collect()
+}
+
+/// A space's size band, from its area in square metres.
+pub fn size_band(area: u32) -> &'static str {
+    match area {
+        0..=9 => "cramped",
+        10..=29 => "small",
+        30..=79 => "middling",
+        80..=199 => "large",
+        _ => "vast",
+    }
+}
+
+/// A space's height band, in metres (0: open to the sky).
+pub fn height_band(h: u8) -> &'static str {
+    match h {
+        0 => "open",
+        1..=2 => "low",
+        3..=5 => "tall",
+        _ => "lofty",
+    }
+}
+
 /// Why a building stands out from the rest.
 pub const STANDOUTS: &[&str] = &["tallest", "only", "best kept", "worst kept"];
 /// What makes a sound.
@@ -338,6 +374,17 @@ fn s_room_whole(_: u64) -> Vec<Context> {
                 ("level", Value::Number((i % 3) as i64 - 1)),
                 ("light", Value::from(LIGHTS[i % 2])),
                 ("time", Value::from(TIMES[i % TIMES.len()])),
+                (
+                    "space",
+                    Value::from(
+                        scraped_world::interiors::SPACES
+                            [i % scraped_world::interiors::SPACES.len()],
+                    ),
+                ),
+                ("size", Value::from(ROOM_SIZES[i % ROOM_SIZES.len()])),
+                ("height", Value::from(HEIGHTS[i % HEIGHTS.len()])),
+                ("style", Value::from(styles()[i % styles().len()])),
+                ("water", Value::from(WATERS[i % WATERS.len()])),
             ])
         })
         .collect()
@@ -655,6 +702,11 @@ pub fn slots() -> Vec<SlotDef> {
             .var("level", VarType::Number, "Floor: 0 ground, below 0 underground, above 0 upstairs.")
             .var("light", e(LIGHTS), "How light it is.")
             .var("time", e(TIMES), "Time of day.")
+            .var("space", e(scraped_world::interiors::SPACES), "The shape of the space (D04): a room, hall, corridor, stair, courtyard, gallery, chamber, passage, crawl, pit, cell, tunnel or shaft.")
+            .var("size", e(ROOM_SIZES), "How big it is: cramped (under 10 m²), small, middling, large, vast (over 200 m²). Give the scale, not numbers: echo, the light failing before the far wall.")
+            .var("height", e(HEIGHTS), "How high: low, tall, lofty, or open (to the sky).")
+            .var("style", e(&styles()), "How it was built, which tells old work from new: rough-hewn, dressed stone, vaulted, brick and plaster, fine ashlar, painted (oldest to newest), natural (a cave), or empty when not known.")
+            .var("water", e(WATERS), "Water in it: none, a pool, a stream, a river, flooded, or a sump (a passage full of water).")
             .max_len(200)
             .sampler(s_room_whole),
         SlotDef::new("room.ways", "The ways out of a room, as one fact ('Ways lead north and up.').")

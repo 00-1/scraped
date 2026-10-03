@@ -10,6 +10,7 @@ pub mod decay;
 pub mod features;
 pub mod geology;
 pub mod history;
+pub mod interiors;
 pub mod scenes;
 pub mod structures;
 pub mod terrain;
@@ -55,6 +56,9 @@ pub struct World {
     pub underground: Vec<underground::Route>,
     /// Small arrangements of things that show what happened (D03).
     pub scenes: Vec<scenes::Scene>,
+    /// The great interiors (D04): structures grown into vast places, and
+    /// the caves among them, with their kinds.
+    pub greats: Vec<(usize, interiors::GreatKind)>,
     /// The language at each era, oldest first.
     #[serde(skip)]
     pub languages: Vec<Language>,
@@ -81,6 +85,15 @@ impl World {
         let texts = texts::place(seed, &history, &mut structures);
         let (traces, effects) = decay::apply(seed, &terrain, &history, &mut structures);
         let features = features::place(seed, &terrain, &water, &geology, &history, &structures);
+        let greats = interiors::grow(
+            seed,
+            &terrain,
+            &geology,
+            &history,
+            &towns,
+            &features,
+            &mut structures,
+        );
         let underground =
             underground::plan(&terrain, &water, &history, &towns, &structures, &features);
         let scenes = scenes::place(
@@ -107,6 +120,7 @@ impl World {
             towns,
             underground,
             scenes,
+            greats,
             languages,
             names,
         }

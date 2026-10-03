@@ -114,10 +114,12 @@ impl Game {
     }
 
     pub(crate) fn carried_light(&self) -> bool {
-        self.state
-            .lit
-            .iter()
-            .any(|t| self.state.carried.contains(t))
+        self.forced_light
+            || self
+                .state
+                .lit
+                .iter()
+                .any(|t| self.state.carried.contains(t))
     }
 
     /// Whether it is too dark here to see.
@@ -1409,12 +1411,12 @@ impl Game {
 
     /// Forces a barred door with a pry bar.
     pub(crate) fn pry(&mut self, target: Target) -> Output {
-        let Target::Way(e) = target else {
+        let Target::Way(l) = target else {
             let name = self.target_name(target);
             let t = self.say("item.cannot_use", ctx(&[("thing", Value::from(name))]));
             return self.output(vec![t], None);
         };
-        self.door(true, e)
+        self.door(true, l)
     }
 
     /// Whether a door is barred and not yet forced.

@@ -213,3 +213,15 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | What do the newer buildings hold? | Items by what the building was for: food and wood in stores and markets, tools and firesteels in workshops, lamps and oil in learned and holy places, torches and cloaks in forts | `crates/sim/src/fixtures.rs` | D05 |
 | Interiors of the new kinds | A placeholder line of rooms from a table, a third of the optional rooms left out | `crates/world/src/structures.rs` (`planned`) | D04 |
 
+## Great interiors (D04, in progress)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Which buildings grow into great interiors? | Palaces, temples of holy cities, barracks of fortresses and capitals, libraries and archives, catacombs, mines, cisterns (as underground cities in refuges), labyrinths: at most one palace and two of each other kind per world, largest towns first; and every cave mouth (the largest become cave systems) | `crates/world/src/interiors.rs` (`great_kind`, `grow`) | D05, D09 |
+| How big and deep? | Palace 380–560 spaces over levels −2 to 3; precinct 240–360; fortress 240–380; library 220–340; necropolis 280–420 to −5; mine 220–360 to −7; cistern 200–280; underground city 300–460 to −6; labyrinth 200–260; cave 220–420 to −6 | `crates/world/src/interiors.rs` (`shape_of`) | now |
+| How does each era build? | A seeded grammar per era: bay module 2–4 cells, mirrored wings (65%), courtyards (50%), corridor width 1–2; styles rough-hewn, dressed stone, vaulted, brick and plaster, fine ashlar, painted; later eras block three old doors and cut new ones | `crates/world/src/interiors.rs` (`Grammar`) | D08 |
+| Hidden spaces | At least 6 per great building: bays reached only by a hidden panel, each with a visible twin across its corridor, so a careful plan shows the gap; in caves, crawls behind rubble off chambers | `crates/world/src/interiors.rs` (`hide`, `grow_cave`) | D11 |
+| How is a hidden way found? | `look closer` (search) in its room always finds it | `crates/game/src/interior.rs` | now |
+| How fast does one walk inside? | 70 m a minute in light, 30 by feel | `crates/game/src/lib.rs` (`go_way`) | now |
+| Should the scholar have to reach the deepest text in 5 of 10? | Lowered to 3 for now: the root's archive is a great library and its vault is harder to reach; restore after S01's bot rewrite | `crates/game/tests/depth.rs` | S01 |
+

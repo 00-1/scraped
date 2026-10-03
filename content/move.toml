@@ -1,0 +1,36 @@
+notes = "Moving inside great interiors and caves (D04)."
+
+[[variant]]
+slot = "move.report"
+text = "[if dark]You feel your way {direction}.[else]{cap direction} by the {passage}, some {metres} metres.[end]"
+example = true
+
+[[variant]]
+slot = "move.window"
+text = "You can see through {thing}, not pass it."
+example = true
+
+[[variant]]
+slot = "move.against"
+text = "{cap thing} won't open from this side."
+example = true
+
+[[variant]]
+slot = "move.run"
+text = "The passage runs on {direction}, some {metres} metres[if branches > 0], past {count branches turning}[end]."
+example = true
+
+[[variant]]
+slot = "move.walk"
+text = "You make your way back to {name}, some {metres} metres."
+example = true
+
+[[variant]]
+slot = "move.no_way"
+text = "You don't know a way to {name} from here."
+example = true
+
+[[variant]]
+slot = "mark.done"
+text = "You scratch a mark on the wall."
+example = true

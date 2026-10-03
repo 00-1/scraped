@@ -459,9 +459,10 @@ impl<'a> Env<'a> {
                 }
                 temperature += f64::from(self.room_heat(structure));
                 let sky = self.outdoor_light(minutes);
+                // A courtyard or light well is open to the sky (D04).
                 let base = if r.level < 0 || sky == "dark" {
                     "dark"
-                } else if sky == "daylight" && open >= 0.8 {
+                } else if sky == "daylight" && (open >= 0.8 || r.h == 0) {
                     "daylight"
                 } else {
                     "dim"

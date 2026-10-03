@@ -713,6 +713,7 @@ function renderInspect() {
       <div class="scroll"><table class="vars"><thead><tr><th>Root</th><th>Texts met in</th></tr></thead><tbody>${u.map(([k, n]) => `<tr><td>${esc(k)}</td><td>${n}${n >= r.threshold ? " ✓" : ""}</td></tr>`).join("") || `<tr><td colspan="2" class="empty">Nothing read yet.</td></tr>`}</tbody></table></div>
       <details><summary class="help">Not met yet (${r.unmet.length})</summary><p class="ex">${esc(r.unmet.join(", "))}</p></details>
       <details><summary class="help">Run record</summary><pre class="sheet">${esc(JSON.stringify(r.record, null, 2))}</pre></details>
+      ${r.plan ? `<details open><summary class="help">Floor plan of this level (spoilers): shaded where you've been</summary><div class="scroll">${r.plan}</div></details>` : ""}
       <details><summary class="help">Storylets, claims here, regions</summary><pre class="sheet">${esc(JSON.stringify({ storylets: r.storylets, claims_here: r.claims_here, regions: r.regions }, null, 2))}</pre></details>`;
   }
 }

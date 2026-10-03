@@ -118,8 +118,8 @@ object = "required"
 
 [[verb]]
 id = "follow"
-words = ["follow", "walk along", "go along", "keep to"]
-object = "required"
+words = ["follow", "walk along", "go along", "keep to", "go on", "carry on", "keep going"]
+object = "optional"
 
 [[verb]]
 id = "back"
@@ -299,3 +299,9 @@ object = "required"
 id = "manual"
 words = ["manual", "guide", "read manual"]
 object = "optional"
+
+# Marking a place to know it again (D04).
+[[verb]]
+id = "mark"
+words = ["mark", "mark here", "mark the wall", "mark wall", "scratch a mark", "chalk"]
+object = "none"

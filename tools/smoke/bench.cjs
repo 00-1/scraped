@@ -45,6 +45,9 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   // D03: the places view: roles, districts, scenes and features.
   await page.click('#placesView');
   await page.waitForFunction(() => document.querySelector('#worldText').textContent.includes('districts:'));
+  // D04: a great interior's floor plans.
+  await page.click('[data-plan]');
+  await page.waitForSelector('#plans svg rect');
   // D01: the depth metrics for this world.
   await page.click('[data-tab=depth]');
   await page.waitForFunction(() => document.querySelector('#panel').textContent.includes('landmarks_unique_share'), null, { timeout: 60000 });

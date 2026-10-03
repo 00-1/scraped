@@ -68,7 +68,7 @@ pub struct Site {
 }
 
 /// One way out of a room.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Way {
     /// Index of the link in the structure's interior.
     pub link: usize,
@@ -77,6 +77,16 @@ pub struct Way {
     pub passage: Option<scraped_world::structures::Passage>,
     pub state: PassageState,
     pub collapsed: bool,
+    /// The far side of a one-way way: it won't open from here (D04).
+    pub against: bool,
+    /// Hidden until found.
+    pub hidden: bool,
+    /// From the middle of this room to the middle of the next, in metres.
+    pub metres: f64,
+    /// Where it lies along its wall when other ways face the same way
+    /// ("west", "east", "middle"; "north", "south" on east and west
+    /// walls), else "" (S01: ways are told apart by position).
+    pub along: &'static str,
 }
 
 impl Site {
@@ -246,6 +256,8 @@ impl Site {
             } else {
                 continue;
             };
+            let (ax, ay) = st.interior.rooms[room].centre();
+            let (bx, by) = st.interior.rooms[other].centre();
             out.push(Way {
                 link,
                 exit,
@@ -256,7 +268,53 @@ impl Site {
                 passage: Some(l.passage),
                 state: l.state,
                 collapsed: st.interior.rooms[other].collapsed,
+                against: l.one_way && l.b == room,
+                hidden: l.hidden,
+                metres: ((ax - bx) * (ax - bx) + (ay - by) * (ay - by)).sqrt(),
+                along: "",
             });
+        }
+        // Ways facing the same way, told apart by where they lie.
+        let rooms = &st.interior.rooms;
+        for i in 0..out.len() {
+            let same: Vec<usize> = (0..out.len())
+                .filter(|&j| out[j].exit == out[i].exit)
+                .collect();
+            if same.len() < 2 {
+                continue;
+            }
+            let key = |w: &Way| match w.to {
+                Place::Room { room, .. } => {
+                    let (x, y) = rooms[room].centre();
+                    if matches!(w.exit, Exit::North | Exit::South | Exit::Up | Exit::Down) {
+                        x
+                    } else {
+                        y
+                    }
+                }
+                Place::Outside => 0.0,
+            };
+            let mine = key(&out[i]);
+            let lower = same.iter().filter(|&&j| key(&out[j]) < mine).count();
+            let horizontal = matches!(
+                out[i].exit,
+                Exit::North | Exit::South | Exit::Up | Exit::Down
+            );
+            out[i].along = if lower == 0 {
+                if horizontal {
+                    "west"
+                } else {
+                    "north"
+                }
+            } else if lower + 1 == same.len() {
+                if horizontal {
+                    "east"
+                } else {
+                    "south"
+                }
+            } else {
+                "middle"
+            };
         }
         out
     }
@@ -296,6 +354,8 @@ impl Site {
     pub fn way_vars(&self, w: &Way) -> Context {
         let state = if w.collapsed {
             "collapsed".to_string()
+        } else if w.against && w.state == PassageState::Open {
+            "barred".to_string()
         } else {
             label(&w.state)
         };
@@ -310,6 +370,7 @@ impl Site {
                 ),
             ),
             ("state", Value::from(state)),
+            ("along", Value::from(w.along)),
         ])
     }
 

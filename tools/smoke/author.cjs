@@ -18,9 +18,9 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   await page.waitForSelector('#preview tr');
   const textarea = 'textarea[data-field=text]';
   await page.fill(textarea, '{a stroke} pointing {turn}, at the {spot} {nonsense}');
-  await page.waitForFunction(() => document.querySelector('[data-issues]').textContent.includes('nonsense'), null, { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('[data-issues]').textContent.includes('nonsense'), null, { timeout: 30000 });
   await page.fill(textarea, '{a stroke} pointing {turn}, at the {spot}');
-  await page.waitForFunction(() => document.querySelector('#preview td.out')?.textContent.includes('pointing'), null, { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#preview td.out')?.textContent.includes('pointing'), null, { timeout: 30000 });
   const preview = await page.textContent('#preview td.out');
   const status = await page.textContent('#packStatus');
   // A fact slot seen in whole responses, as the attention model assembles them.

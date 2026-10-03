@@ -275,6 +275,8 @@ function render() {
         ${w.settlements.map(s => `<button type="button" data-site="${s.id}" class="${s.abandoned ? "gone" : ""}" style="left:${(s.x + .5) / w.side * 100}%;top:${(s.y + .5) / w.side * 100}%" title="${esc(s.name)}, era ${s.era}${s.role ? ", " + esc(s.role) : ""}">${esc(s.name)}</button>`).join("")}
       </div>
       <div><button type="button" id="writingView">Writing: why each place is strange</button> <button type="button" id="regionsView">Regions over half a year</button> <button type="button" id="timelineView">Timeline</button> <button type="button" id="placesView">Places</button></div>
+      <div class="greats">Great interiors: ${(w.greats || []).map(g => `<button type="button" data-plan="${g.structure}">${esc(g.kind)} (${g.spaces})</button>`).join(" ")}</div>
+      <div id="plans"></div>
       <pre id="worldText">${esc(state.site ? state.site : w.timeline)}</pre>
     </div>`;
     const ctx = $("mapCanvas").getContext("2d");
@@ -412,6 +414,12 @@ document.addEventListener("click", e => {
   if (t.id === "writingView") { state.site = api({ cmd: "writing", seed: state.world.seed }).text; render(); return; }
   if (t.id === "regionsView") { state.site = api({ cmd: "regions", seed: state.world.seed, days: 180 }).text; render(); return; }
   if (t.id === "timelineView") { state.site = null; render(); return; }
+  if (t.dataset.plan) {
+    const r = api({ cmd: "plan", seed: state.world.seed, structure: +t.dataset.plan });
+    $("plans").innerHTML = `<p class="note">${esc(r.kind)}: ${r.shape.spaces} spaces, ${r.shape.levels} levels, ${r.shape.loops} loops, ${r.shape.hidden} hidden (dashed red), ${r.shape.one_way} one-way. Green dots lead outside.</p>` +
+      r.levels.map(l => `<h3>Level ${l.level}</h3><div class="scroll">${l.svg}</div>`).join("");
+    return;
+  }
   if (t.id === "placesView") { state.site = state.world.places; render(); return; }
   if (t.dataset.site) { state.site = api({ cmd: "site", seed: state.data.seed, settlement: +t.dataset.site }).text; $("worldText").textContent = state.site; }
 });

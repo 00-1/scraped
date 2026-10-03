@@ -420,3 +420,149 @@ pub fn places(w: &World) -> String {
     ); // DEBUG-TEXT
     out
 }
+
+/// A floor plan of one level of an interior as SVG (D04), for the bench
+/// and the authoring tool's inspector: spaces to scale (2 m cells), hidden
+/// ones dashed, collapsed ones grey, water blue; ways marked where spaces
+/// meet (windows dotted, one-way ways with a bar, stairs as up and down
+/// marks). `seen` spaces are shaded, `here` outlined: the player's route.
+pub fn floor_plan(
+    i: &crate::structures::Interior,
+    level: i8,
+    seen: &[usize],
+    here: Option<usize>,
+) -> String {
+    use crate::structures::{Passage, PassageState};
+    use std::fmt::Write as _;
+    const PX: i32 = 6;
+    let rooms: Vec<(usize, &crate::structures::Room)> = i
+        .rooms
+        .iter()
+        .enumerate()
+        .filter(|(_, r)| r.level == level)
+        .collect();
+    if rooms.is_empty() {
+        return String::new();
+    }
+    let minx = rooms.iter().map(|(_, r)| i32::from(r.x)).min().unwrap_or(0) - 1;
+    let miny = rooms.iter().map(|(_, r)| i32::from(r.y)).min().unwrap_or(0) - 1;
+    let maxx = rooms
+        .iter()
+        .map(|(_, r)| i32::from(r.x) + i32::from(r.w))
+        .max()
+        .unwrap_or(1)
+        + 1;
+    let maxy = rooms
+        .iter()
+        .map(|(_, r)| i32::from(r.y) + i32::from(r.d))
+        .max()
+        .unwrap_or(1)
+        + 1;
+    let (w, h) = ((maxx - minx) * PX, (maxy - miny) * PX);
+    let mut s = format!("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {w} {h}\" width=\"{w}\" height=\"{h}\" font-size=\"6\">");
+    let sx = |x: i32| (x - minx) * PX;
+    let sy = |y: i32| (y - miny) * PX;
+    for &(n, r) in &rooms {
+        let fill = if r.collapsed {
+            "#999"
+        } else if !r.water.is_empty() {
+            "#9cc8f0"
+        } else if seen.contains(&n) {
+            "#f3e3b5"
+        } else {
+            "#fff"
+        };
+        let dash = if r.hidden {
+            " stroke-dasharray=\"2 2\" stroke=\"#c00\""
+        } else {
+            " stroke=\"#333\""
+        };
+        let width = if Some(n) == here { 2 } else { 1 };
+        let _ = write!(
+            s,
+            "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{fill}\"{dash} stroke-width=\"{width}\"><title>{n}: {} ({}, {})</title></rect>",
+            sx(i32::from(r.x)),
+            sy(i32::from(r.y)),
+            i32::from(r.w) * PX,
+            i32::from(r.d) * PX,
+            r.purpose,
+            r.space,
+            r.style
+        );
+        if r.outside {
+            let _ = write!(
+                s,
+                "<circle cx=\"{}\" cy=\"{}\" r=\"2\" fill=\"#2a7\"/>",
+                sx(i32::from(r.x)) + 3,
+                sy(i32::from(r.y)) + 3
+            );
+        }
+    }
+    for l in &i.links {
+        let (a, b) = (&i.rooms[l.a], &i.rooms[l.b]);
+        if a.level != level && b.level != level {
+            continue;
+        }
+        let colour = match (l.passage, l.state) {
+            (_, PassageState::Blocked) => "#999",
+            (Passage::Window, _) => "#36c",
+            (Passage::Panel | Passage::Crawlway, _) if l.hidden => "#c00",
+            _ => "#a50",
+        };
+        if a.level == b.level {
+            // The middle of the shared stretch of wall.
+            let (ax0, ax1, ay0, ay1) = (
+                i32::from(a.x),
+                i32::from(a.x) + i32::from(a.w),
+                i32::from(a.y),
+                i32::from(a.y) + i32::from(a.d),
+            );
+            let (bx0, bx1, by0, by1) = (
+                i32::from(b.x),
+                i32::from(b.x) + i32::from(b.w),
+                i32::from(b.y),
+                i32::from(b.y) + i32::from(b.d),
+            );
+            let (x, y) = if ax1 == bx0 || bx1 == ax0 {
+                let x = if ax1 == bx0 { ax1 } else { ax0 };
+                (sx(x), (sy(ay0.max(by0)) + sy(ay1.min(by1))) / 2)
+            } else {
+                let y = if ay1 == by0 { ay1 } else { ay0 };
+                ((sx(ax0.max(bx0)) + sx(ax1.min(bx1))) / 2, sy(y))
+            };
+            let dash = if l.passage == Passage::Window {
+                " stroke-dasharray=\"1 1\""
+            } else {
+                ""
+            };
+            let _ = write!(
+                s,
+                "<circle cx=\"{x}\" cy=\"{y}\" r=\"2\" fill=\"{colour}\"{dash}/>"
+            );
+            if l.one_way {
+                let _ = write!(
+                    s,
+                    "<rect x=\"{}\" y=\"{}\" width=\"4\" height=\"1\" fill=\"#000\"/>",
+                    x - 2,
+                    y - 3
+                );
+            }
+        } else if a.level == level || b.level == level {
+            let r = if a.level == level { a } else { b };
+            let up = (a.level == level) == (b.level > a.level);
+            let (cx, cy) = (
+                sx(i32::from(r.x)) + i32::from(r.w) * PX / 2,
+                sy(i32::from(r.y)) + i32::from(r.d) * PX / 2,
+            );
+            let _ = write!(
+                s,
+                "<text x=\"{}\" y=\"{}\" fill=\"{colour}\">{}</text>",
+                cx - 2,
+                cy + 2,
+                if up { "\u{2191}" } else { "\u{2193}" }
+            );
+        }
+    }
+    s.push_str("</svg>");
+    s
+}

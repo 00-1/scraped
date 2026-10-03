@@ -378,6 +378,10 @@ impl Land {
                 continue;
             }
             let (height, weight) = structure_height(st.kind);
+            // Caves are found by their mouths, not seen from afar.
+            if height <= 0.0 {
+                continue;
+            }
             landmarks.push(Landmark {
                 kind: kind_id(st.kind),
                 pos: structure_pos[st.id],

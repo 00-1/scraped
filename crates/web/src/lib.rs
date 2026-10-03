@@ -139,10 +139,29 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                     "group": scraped_world::features::kind(f.kind).group,
                 })).collect::<Vec<_>>(),
                 "places": scraped_world::debug::places(w),
+                "greats": w.greats.iter().map(|&(i, k)| json!({
+                    "structure": i, "kind": k.id(), "spaces": w.structures[i].interior.rooms.len(),
+                })).collect::<Vec<_>>(),
                 "counts": { "structures": w.structures.len(), "texts": w.texts.len(), "events": w.history.events.len() },
                 "timeline": scraped_world::debug::timeline(w),
             })
         })),
+        // D04: floor plans of an interior, a level at a time (spoilers).
+        "plan" => {
+            let structure: usize = field(req, "structure")?;
+            Ok(with_world(seed(req), |w| {
+                let st = &w.structures[structure.min(w.structures.len() - 1)];
+                let levels: std::collections::BTreeSet<i8> = st.interior.rooms.iter().map(|r| r.level).collect();
+                json!({
+                    "kind": st.kind,
+                    "shape": scraped_world::interiors::shape(&st.interior),
+                    "levels": levels.iter().rev().map(|&l| json!({
+                        "level": l,
+                        "svg": scraped_world::debug::floor_plan(&st.interior, l, &[], None),
+                    })).collect::<Vec<_>>(),
+                })
+            }))
+        }
         "play_new" => {
             let (pack, _) = pack(req)?;
             let legacy: Option<scraped_game::ending::Legacy> = opt(req, "legacy", None);

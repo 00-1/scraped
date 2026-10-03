@@ -79,6 +79,10 @@ pub enum StructureKind {
     Labyrinth,
     #[serde(rename = "processional way")]
     ProcessionalWay,
+    /// A cave system behind a cave mouth (D04).
+    Cave,
+    #[serde(rename = "sea cave")]
+    SeaCave,
 }
 
 /// What a kind of building was for, broadly: decides what is found in it.
@@ -100,6 +104,8 @@ pub enum Family {
     Leisure,
     Garden,
     Mining,
+    /// Not built: caves.
+    Natural,
 }
 
 /// One room of a placeholder layout: purpose, level, features (`None`
@@ -173,7 +179,7 @@ const fn info(
 }
 
 /// Every kind's id, in the order of `StructureKind::ALL`.
-pub const IDS: [&str; 50] = [
+pub const IDS: [&str; 52] = [
     "house",
     "temple",
     "storehouse",
@@ -224,11 +230,13 @@ pub const IDS: [&str; 50] = [
     "mausoleum",
     "labyrinth",
     "processional way",
+    "cave",
+    "sea cave",
 ];
 
 impl StructureKind {
     /// Every kind, in order.
-    pub const ALL: [StructureKind; 50] = {
+    pub const ALL: [StructureKind; 52] = {
         use StructureKind::*;
         [
             House,
@@ -281,6 +289,8 @@ impl StructureKind {
             Mausoleum,
             Labyrinth,
             ProcessionalWay,
+            Cave,
+            SeaCave,
         ]
     };
 
@@ -837,6 +847,14 @@ impl StructureKind {
                 );
                 &I
             }
+            K::Cave => {
+                const I: KindInfo = info("cave", 0.0, 0.0, Natural, &[]);
+                &I
+            }
+            K::SeaCave => {
+                const I: KindInfo = info("sea cave", 0.0, 0.0, Natural, &[]);
+                &I
+            }
         }
     }
 }
@@ -889,13 +907,36 @@ impl Exit {
 }
 
 /// How two rooms connect.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Passage {
     Door,
     Arch,
     Stair,
     Opening,
+    // D04: great interiors and caves.
+    Ramp,
+    Ladder,
+    /// A vertical shaft or pit: climbable with care, or a drop.
+    Shaft,
+    /// Low and tight: crawled through.
+    Crawlway,
+    /// Seen through, never passed: a window, a grating, a gallery rail.
+    Window,
+    /// A hole in a floor: a drop down that can't be climbed back.
+    Hole,
+    /// A loose panel or a stone that turns: hidden until found.
+    Panel,
+}
+
+impl Passage {
+    /// Whether it changes level.
+    pub fn vertical(self) -> bool {
+        matches!(
+            self,
+            Passage::Stair | Passage::Ramp | Passage::Ladder | Passage::Shaft | Passage::Hole
+        )
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -915,12 +956,90 @@ pub struct Feature {
     pub texts: Vec<usize>,
 }
 
+/// One space of an interior: a room, hall, corridor, stair, chamber or
+/// passage, with real geometry (D04) so maps can be checked against it.
 #[derive(Debug, Clone, Serialize)]
 pub struct Room {
     pub purpose: &'static str,
     pub level: i8,
     pub features: Vec<Feature>,
     pub collapsed: bool,
+    /// Where it lies: its north-west corner, in 2 m cells east and south
+    /// of the entrance's corner (D04).
+    pub x: i16,
+    pub y: i16,
+    /// Its footprint, in 2 m cells east-west and north-south.
+    pub w: u8,
+    pub d: u8,
+    /// Its height in metres.
+    pub h: u8,
+    /// What shape of space it is: an id such as "room", "hall",
+    /// "corridor", "stair", "courtyard", "gallery", "chamber", "passage",
+    /// "crawl", "pit".
+    pub space: &'static str,
+    /// The era it was built in (caves: 0), and its building style.
+    pub era: u32,
+    pub style: &'static str,
+    /// Leads straight outdoors (an entrance, or a cave's other mouth).
+    pub outside: bool,
+    /// Found only by a hidden way in (D04).
+    pub hidden: bool,
+    /// Water in it: "", "pool", "stream", "river", "flooded", "sump".
+    pub water: &'static str,
+}
+
+impl Room {
+    /// Its area in square metres.
+    pub fn area(&self) -> u32 {
+        u32::from(self.w) * u32::from(self.d) * 4
+    }
+
+    /// Whether two spaces on the same level overlap.
+    pub fn overlaps(&self, o: &Room) -> bool {
+        self.level == o.level
+            && self.x < o.x + i16::from(o.w)
+            && o.x < self.x + i16::from(self.w)
+            && self.y < o.y + i16::from(o.d)
+            && o.y < self.y + i16::from(self.d)
+    }
+
+    /// Whether two spaces on the same level share a stretch of wall, and
+    /// on which side of this one.
+    pub fn touches(&self, o: &Room) -> Option<Exit> {
+        if self.level != o.level {
+            return None;
+        }
+        let along_x = self.x < o.x + i16::from(o.w) && o.x < self.x + i16::from(self.w);
+        let along_y = self.y < o.y + i16::from(o.d) && o.y < self.y + i16::from(self.d);
+        if along_x && o.y + i16::from(o.d) == self.y {
+            Some(Exit::North)
+        } else if along_x && self.y + i16::from(self.d) == o.y {
+            Some(Exit::South)
+        } else if along_y && self.x + i16::from(self.w) == o.x {
+            Some(Exit::East)
+        } else if along_y && o.x + i16::from(o.w) == self.x {
+            Some(Exit::West)
+        } else {
+            None
+        }
+    }
+
+    /// Whether two spaces on neighbouring levels lie one over the other.
+    pub fn stacked(&self, o: &Room) -> bool {
+        (i16::from(self.level) - i16::from(o.level)).abs() == 1
+            && self.x < o.x + i16::from(o.w)
+            && o.x < self.x + i16::from(self.w)
+            && self.y < o.y + i16::from(o.d)
+            && o.y < self.y + i16::from(self.d)
+    }
+
+    /// Its centre, in metres east and south of the entrance's corner.
+    pub fn centre(&self) -> (f64, f64) {
+        (
+            (f64::from(self.x) + f64::from(self.w) / 2.0) * 2.0,
+            (f64::from(self.y) + f64::from(self.d) / 2.0) * 2.0,
+        )
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -931,6 +1050,10 @@ pub struct Link {
     pub exit: Exit,
     pub passage: Passage,
     pub state: PassageState,
+    /// Passable only from a to b (a drop, a door barred on a's side) (D04).
+    pub one_way: bool,
+    /// Not noticed until found (a loose panel, a crawlway behind rubble).
+    pub hidden: bool,
 }
 
 /// Rooms and how they connect. Room 0 is the entrance.
@@ -941,7 +1064,7 @@ pub struct Interior {
 }
 
 impl Interior {
-    fn room(
+    pub(crate) fn room(
         &mut self,
         purpose: &'static str,
         level: i8,
@@ -959,17 +1082,30 @@ impl Interior {
                 })
                 .collect(),
             collapsed: false,
+            x: 0,
+            y: 0,
+            w: 0,
+            d: 0,
+            h: 3,
+            space: "room",
+            era: 0,
+            style: "",
+            outside: false,
+            hidden: false,
+            water: "",
         });
         self.rooms.len() - 1
     }
 
-    fn link(&mut self, a: usize, b: usize, exit: Exit, passage: Passage) {
+    pub(crate) fn link(&mut self, a: usize, b: usize, exit: Exit, passage: Passage) {
         self.links.push(Link {
             a,
             b,
             exit,
             passage,
             state: PassageState::Open,
+            one_way: false,
+            hidden: false,
         });
     }
 
@@ -983,10 +1119,15 @@ impl Interior {
         seen[0] = true;
         while let Some(r) = stack.pop() {
             for l in &self.links {
-                if l.state == PassageState::Blocked {
+                if l.state == PassageState::Blocked || l.passage == Passage::Window {
                     continue;
                 }
-                for (from, to) in [(l.a, l.b), (l.b, l.a)] {
+                let ways: &[(usize, usize)] = if l.one_way {
+                    &[(l.a, l.b)][..]
+                } else {
+                    &[(l.a, l.b), (l.b, l.a)][..]
+                };
+                for &(from, to) in ways {
                     if from == r && !seen[to] && !self.rooms[to].collapsed {
                         seen[to] = true;
                         stack.push(to);

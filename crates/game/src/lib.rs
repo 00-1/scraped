@@ -24,6 +24,11 @@ mod ending_tests;
 pub mod fairness;
 #[cfg(test)]
 mod fairness_tests;
+mod interior;
+mod interior_slots;
+#[cfg(test)]
+mod interior_tests;
+pub mod mapper;
 pub mod parser;
 mod physical;
 mod place_slots;
@@ -55,7 +60,7 @@ use serde_json::{json, Value as Json};
 
 use scraped_content::{Context, Pack, Registry, Renderer, Value};
 use scraped_lang::slots::{describe_glyph, LangHooks};
-use scraped_world::structures::{Exit, PassageState};
+use scraped_world::structures::{Exit, Passage, PassageState};
 
 use outdoors::Pos;
 use parser::{resolve, Candidate, Command, ParseError, Resolution};
@@ -88,8 +93,9 @@ pub const PAGE: usize = 16;
 pub enum Target {
     Thing(usize),
     Structure(usize),
-    /// A way out of the current room, by direction.
-    Way(Exit),
+    /// A way out of the current room, by its link in the interior (D04:
+    /// several ways may face one direction).
+    Way(usize),
     /// Something seen in the distance, by index into `Land::landmarks`.
     Landmark(usize),
     /// A place the player named, by index into `State::names`.
@@ -111,6 +117,8 @@ pub enum Target {
     /// A natural feature or old mark close by, by index into
     /// `World::features` (D03).
     Feature(usize),
+    /// A space of this building the player has been in (D04).
+    Room(usize),
 }
 
 /// How a run ended, for the end-of-run summary.
@@ -220,6 +228,16 @@ pub struct State {
     /// attention model's memory (D02).
     #[serde(default)]
     pub told: BTreeMap<String, attention::Told>,
+    /// Hidden ways found, by (structure, link) (D04).
+    #[serde(default)]
+    pub revealed: BTreeSet<(usize, usize)>,
+    /// Rooms the player has marked (chalk, scratches), by (structure, room).
+    #[serde(default)]
+    pub marks: BTreeSet<(usize, usize)>,
+    /// Rooms the player has stood in, by (structure, room): what they can
+    /// find their way back to.
+    #[serde(default)]
+    pub rooms_seen: BTreeSet<(usize, usize)>,
 }
 
 /// A brief, machine-readable summary of what the player can perceive.
@@ -374,6 +392,10 @@ pub struct Game {
     /// Bots that measure the late game rather than survival keep the
     /// body well after every command. Never set in play. // DEBUG-TEXT
     pub sustain: bool,
+    /// The way last gone through inside, so `follow` keeps on (D04).
+    last_link: Option<usize>,
+    /// A light that never fails, for bots that measure places (D04).
+    pub forced_light: bool,
 }
 
 /// A slot rendered during play, with the variables it was given: what the
@@ -464,6 +486,9 @@ impl Game {
             acts: Vec::new(),
             story: storylets::StoryState::default(),
             told: BTreeMap::new(),
+            revealed: BTreeSet::new(),
+            marks: BTreeSet::new(),
+            rooms_seen: BTreeSet::new(),
         };
         let claims = site
             .writing
@@ -503,6 +528,8 @@ impl Game {
             renders: Vec::new(),
             keep_renders: false,
             sustain: false,
+            last_link: None,
+            forced_light: false,
         };
         g.storylets = g.pack.storylets().cloned().collect();
         g.recompute_drivers();
@@ -686,14 +713,20 @@ impl Game {
     // ---------- the world as the player sees it ----------
 
     /// Ways out of the current place, with doors the player has moved.
-    fn ways(&self) -> Vec<Way> {
-        let Place::Room { structure, .. } = self.state.place else {
+    pub(crate) fn ways(&self) -> Vec<Way> {
+        self.ways_at(self.state.place)
+    }
+
+    /// Ways out of a room the player knows of, with doors as they stand.
+    pub(crate) fn ways_at(&self, place: Place) -> Vec<Way> {
+        let Place::Room { structure, .. } = place else {
             return Vec::new();
         };
         let held = self.doors_held();
         self.site
-            .ways(self.state.place)
+            .ways(place)
             .into_iter()
+            .filter(|w| !w.hidden || self.state.revealed.contains(&(structure, w.link)))
             .map(|mut w| {
                 match self.state.doors.get(&format!("{structure}:{}", w.link)) {
                     Some(true) if w.state == PassageState::Closed => w.state = PassageState::Open,
@@ -775,7 +808,7 @@ impl Game {
         for w in self.ways() {
             let name = self.way_name(&w);
             let dir = label(&w.exit);
-            out.push(Candidate::new(Target::Way(w.exit), &name, &[&dir]));
+            out.push(Candidate::new(Target::Way(w.link), &name, &[&dir]));
         }
         if self.state.place == Place::Outside {
             for s in self.local_structures() {
@@ -785,6 +818,8 @@ impl Game {
             }
             out.extend(self.outdoor_targets());
             out.extend(self.place_targets());
+        } else {
+            out.extend(self.room_targets());
         }
         // Alike things together, by their plural ("the tombs", "the jars").
         let mut groups: BTreeMap<(bool, usize), usize> = BTreeMap::new();
@@ -839,6 +874,9 @@ impl Game {
     /// Describes the place on arriving: a room as it's entered, or the
     /// land on stepping out or ending a journey (D02's attention model).
     fn look(&mut self) -> String {
+        if let Place::Room { structure, room } = self.state.place {
+            self.state.rooms_seen.insert((structure, room));
+        }
         let r = match self.state.place {
             Place::Outside => attention::Response::Arrival,
             Place::Room { .. } => attention::Response::Room,
@@ -869,7 +907,18 @@ impl Game {
                 .into_iter()
                 .map(|s| self.structure_name(s))
                 .collect(),
-            _ => self.ways().iter().map(|w| label(&w.exit)).collect(),
+            // Ways that can be gone through from here: not windows, and not
+            // the far side of a one-way way (D04).
+            _ => {
+                let mut v: Vec<String> = self
+                    .ways()
+                    .iter()
+                    .filter(|w| w.passage != Some(Passage::Window) && !w.against)
+                    .map(|w| label(&w.exit))
+                    .collect();
+                v.dedup();
+                v
+            }
         };
         let (landmarks, edges, weather) = if self.state.place == Place::Outside {
             self.outdoor_summary()
@@ -1077,7 +1126,10 @@ impl Game {
             "north" | "south" | "east" | "west" | "up" | "down" | "northeast" | "northwest"
             | "southeast" | "southwest" => self.go_dir(&cmd.verb),
             "head" => self.head(&cmd.words),
+            // Inside, `follow the passage` runs on through it (D04).
+            "follow" if self.state.place != Place::Outside => self.follow_passage(),
             "follow" => self.follow(&cmd.words),
+            "mark" => self.mark_here(),
             "back" => self.go_back(),
             "name" => self.name_place(&cmd.words),
             "light" => self.light(&cmd.words),
@@ -1228,9 +1280,9 @@ impl Game {
         match t {
             Target::Thing(i) => self.thing_name(i),
             Target::Structure(i) => self.structure_name(i),
-            Target::Way(e) => match self.ways().into_iter().find(|w| w.exit == e) {
+            Target::Way(l) => match self.ways().into_iter().find(|w| w.link == l) {
                 Some(w) => self.way_name(&w),
-                None => label(&e),
+                None => String::new(),
             },
             Target::Landmark(i) => self.landmark_name(i),
             Target::Named(i) => self.state.names[i].0.clone(),
@@ -1242,6 +1294,10 @@ impl Game {
                 None => String::new(),
             },
             Target::Feature(f) => self.feature_name(f),
+            Target::Room(r) => match self.state.place {
+                Place::Room { structure, .. } => self.room_name(structure, r),
+                Place::Outside => String::new(),
+            },
             Target::Buildings(k, c) => {
                 let kind = slots::STRUCTURES.get(k).copied().unwrap_or("house");
                 let condition = c
@@ -1296,6 +1352,7 @@ impl Game {
             ("go", Target::Feature(f)) => return self.go_feature(f),
             ("examine" | "look", Target::Feature(f)) => return self.examine_feature(f),
             ("touch", Target::Feature(_)) => return self.touch(None),
+            ("go" | "examine" | "look", Target::Room(r)) => return self.go_room(r),
             _ => {}
         }
         if verb == "touch" {
@@ -1418,7 +1475,7 @@ impl Game {
                 self.state.last_read = Some(i);
                 self.page()
             }
-            ("go", Target::Way(e)) => self.go_dir(&label(&e)),
+            ("go", Target::Way(l)) => self.go_way(l),
             ("go", Target::Landmark(i)) => self.go_landmark(i),
             ("go", Target::Named(i)) => {
                 let pos = self.state.names[i].1;
@@ -1433,12 +1490,12 @@ impl Game {
                 let t = self.describe_far(target);
                 self.output(vec![t], None)
             }
-            ("open", Target::Way(e)) | ("close", Target::Way(e)) => self.door(verb == "open", e),
-            ("examine", Target::Way(e)) => {
+            ("open", Target::Way(l)) | ("close", Target::Way(l)) => self.door(verb == "open", l),
+            ("examine", Target::Way(l)) => {
                 let w = self
                     .ways()
                     .into_iter()
-                    .find(|w| w.exit == e)
+                    .find(|w| w.link == l)
                     .expect("resolved from ways");
                 let t = self.way_name(&w);
                 self.output(vec![t], None)
@@ -1454,15 +1511,20 @@ impl Game {
         }
     }
 
+    /// Opens a door, for bots that move without commands (the mapper).
+    pub(crate) fn step_quiet_door(&mut self, link: usize) {
+        self.door(true, link);
+    }
+
     /// Opens or closes a door. Blocked and collapsed ways stay as they are.
-    fn door(&mut self, open: bool, exit: Exit) -> Output {
+    fn door(&mut self, open: bool, link: usize) -> Output {
         let Place::Room { structure, .. } = self.state.place else {
             unreachable!("ways exist only in rooms")
         };
         let w = self
             .ways()
             .into_iter()
-            .find(|w| w.exit == exit)
+            .find(|w| w.link == link)
             .expect("resolved from ways");
         let named = ctx(&[("thing", Value::from(self.way_name(&w)))]);
         let movable = !w.collapsed
@@ -1513,9 +1575,21 @@ impl Game {
                 let t = self.say("say.outside_already", Context::new());
                 self.output(vec![t], None)
             }
-            Place::Room { room: 0, .. } => {
+            Place::Room { structure, room }
+                if room == 0 || self.site.structure(structure).interior.rooms[room].outside =>
+            {
                 self.pass(1);
                 self.state.place = Place::Outside;
+                if room != 0 {
+                    // Out by another mouth: where it lies (D04).
+                    let (x, y) = self.site.structure(structure).interior.rooms[room].centre();
+                    let p = self.site.land.structure_pos[structure];
+                    let out = Pos::new(p.x + x.round() as i32, p.y + y.round() as i32);
+                    let (cx, cy) = out.cell();
+                    if self.site.land.passable(&self.site.world, cx, cy) {
+                        self.state.pos = out;
+                    }
+                }
                 let t = self.look();
                 self.output(vec![t], None)
             }
@@ -1544,29 +1618,103 @@ impl Game {
             "up" => Exit::Up,
             _ => Exit::Down,
         };
-        let way = self.ways().into_iter().find(|w| w.exit == exit);
-        let Some(way) = way else {
-            let t = self.say("say.no_exit", ctx(&[("direction", Value::from(dir))]));
+        let ways: Vec<Way> = self
+            .ways()
+            .into_iter()
+            .filter(|w| w.exit == exit && w.passage != Some(Passage::Window))
+            .collect();
+        match ways.len() {
+            0 => {
+                let t = self.say("say.no_exit", ctx(&[("direction", Value::from(dir))]));
+                self.output(vec![t], None)
+            }
+            1 => self.go_way(ways[0].link),
+            // Several ways that way (a great hall's doors): which?
+            _ => self.with_target("go", &[dir.to_string()]),
+        }
+    }
+
+    /// Whether a room lies under water no one can wade (D04: a sump, a
+    /// flooded working).
+    pub(crate) fn under_water(&self, p: Place) -> bool {
+        match p {
+            Place::Room { structure, room } => {
+                matches!(
+                    self.site.structure(structure).interior.rooms[room].water,
+                    "sump" | "flooded"
+                )
+            }
+            Place::Outside => false,
+        }
+    }
+
+    /// Which way and how far the player went, honestly, so a map can be
+    /// drawn (D04): only the direction by feel in the dark.
+    fn move_report(&mut self, way: &Way) -> Option<String> {
+        let metres = (way.metres / 2.0).round() as i64 * 2;
+        // The move's two components, so a map can be drawn true.
+        let (north, east) = match (self.state.place, way.to) {
+            (Place::Room { structure, room: a }, Place::Room { room: b, .. }) => {
+                let rooms = &self.site.structure(structure).interior.rooms;
+                let (ax, ay) = rooms[a].centre();
+                let (bx, by) = rooms[b].centre();
+                ((ay - by).round() as i64, (bx - ax).round() as i64)
+            }
+            _ => (0, 0),
+        };
+        let c = ctx(&[
+            ("north", Value::Number(north)),
+            ("east", Value::Number(east)),
+            ("direction", Value::from(label(&way.exit))),
+            (
+                "passage",
+                Value::from(way.passage.map_or("opening".to_string(), |p| label(&p))),
+            ),
+            ("metres", Value::Number(metres)),
+            ("dark", Value::Bool(self.is_dark())),
+        ]);
+        Some(self.say("move.report", c))
+    }
+
+    /// Goes through one way out of a room.
+    pub(crate) fn go_way(&mut self, link: usize) -> Output {
+        let Some(way) = self.ways().into_iter().find(|w| w.link == link) else {
+            let t = self.say("say.not_here", ctx(&[("words", Value::from(""))]));
             return self.output(vec![t], None);
         };
+        if way.passage == Some(Passage::Window) {
+            let named = ctx(&[("thing", Value::from(self.way_name(&way)))]);
+            let t = self.say("move.window", named);
+            return self.output(vec![t], None);
+        }
         if way.collapsed || way.state != PassageState::Open {
             let c = self.site.way_vars(&way);
             let t = self.say("say.blocked", c);
             return self.output(vec![t], None);
         }
-        if self.flooded(way.to) {
+        if way.against {
+            let named = ctx(&[("thing", Value::from(self.way_name(&way)))]);
+            let t = self.say("move.against", named);
+            return self.output(vec![t], None);
+        }
+        if self.flooded(way.to) || self.under_water(way.to) {
             let named = ctx(&[("thing", Value::from(self.way_name(&way)))]);
             let t = self.say("hazard.flooded", named);
             return self.output(vec![t], None);
         }
         let fall = self.dark_stair(way.passage);
-        self.pass(1);
+        // Time by distance: a slow walk, slower by feel (D04).
+        let pace = if self.is_dark() { 30.0 } else { 70.0 };
+        let minutes = (way.metres / pace).ceil().max(1.0) as u32;
+        self.pass(minutes);
         if self.state.dead.is_some() {
             return self.output(fall.into_iter().collect(), None);
         }
+        let report = self.move_report(&way);
+        self.last_link = Some(way.link);
         self.state.place = way.to;
         let t = self.look();
-        self.output(fall.into_iter().chain([t]).collect(), None)
+        self.output(fall.into_iter().chain(report).chain([t]).collect(), None)
     }
 
     // ---------- reading ----------

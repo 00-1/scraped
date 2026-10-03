@@ -19,3 +19,23 @@ example = true
 slot = "room.thing"
 text = "{cap name}[if item] lies here[else] stands here[end]."
 example = true
+
+[[variant]]
+slot = "room.window"
+text = "Through an opening {direction}: {a purpose}[if lit], lit[end]"
+example = true
+
+[[variant]]
+slot = "room.found"
+text = "You find a hidden {passage} leading {direction}"
+example = true
+
+[[variant]]
+slot = "room.mark"
+text = "Your mark is on the wall here"
+example = true
+
+[[variant]]
+slot = "room.name"
+text = "the [if marked]marked [end]{style} {purpose}"
+example = true

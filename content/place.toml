@@ -7,7 +7,7 @@ example = true
 
 [[variant]]
 slot = "place.exit"
-text = "{a passage} {direction}[if state != 'open'] ({state})[end]"
+text = "[if along == '']{a passage}[else]the [if along == 'middle']middle[else]{along}ern[end] {passage}[end] {direction}[if state != 'open'] ({state})[end]"
 example = true
 
 [[variant]]

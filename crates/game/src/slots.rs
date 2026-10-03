@@ -134,6 +134,30 @@ pub const PURPOSES: &[&str] = &[
     "heart",
     "way",
     "fountain-room",
+    "audience hall",
+    "kitchen",
+    "refectory",
+    "cloister",
+    "colonnade",
+    "workshop",
+    "bath",
+    "lightwell",
+    "landing",
+    "undercroft",
+    "tunnel",
+    "ossuary",
+    "burial gallery",
+    "working",
+    "sump",
+    "cavern",
+    "grotto",
+    "squeeze",
+    "chimney",
+    "stream passage",
+    "mouth",
+    "dwelling",
+    "maze",
+    "corridor",
 ];
 pub const KINDS: &[&str] = &[
     "hearth",
@@ -202,6 +226,14 @@ pub const KINDS: &[&str] = &[
     "bars",
     "tree",
     "seat",
+    "stalactites",
+    "flowstone",
+    "crystals",
+    "column",
+    "fossil",
+    "rubble",
+    "trough",
+    "cot",
 ];
 pub const NEEDS: &[&str] = &["warmth", "thirst", "hunger", "rest", "injury", "wet"];
 pub const ALL_NEED_STATES: &[&str] = &[
@@ -293,8 +325,11 @@ pub const MODES: &[&str] = &["walk", "head", "follow", "back"];
 pub const OBSTACLES: &[&str] = &["sea", "lake", "river"];
 pub const EDGE_ENDS: &[&str] = &["end", "sea", "lake", "river"];
 pub const SHAPES: &[&str] = &["island", "basin"];
-pub const PASSAGES: &[&str] = &["door", "arch", "stair", "opening"];
-pub const STATES: &[&str] = &["open", "closed", "blocked", "collapsed"];
+pub const PASSAGES: &[&str] = &[
+    "door", "arch", "stair", "opening", "ramp", "ladder", "shaft", "crawlway", "window", "hole",
+    "panel",
+];
+pub const STATES: &[&str] = &["open", "closed", "blocked", "collapsed", "barred"];
 pub const LIGHTS: &[&str] = &["daylight", "dim", "dark"];
 pub const WEATHERS: &[&str] = &["clear", "rain", "fog"];
 pub const TIMES: &[&str] = &["dawn", "morning", "afternoon", "evening", "night"];
@@ -370,12 +405,14 @@ fn s_structure(seed: u64) -> Vec<Context> {
 
 fn s_exit(seed: u64) -> Vec<Context> {
     let site = sample_site(seed);
-    let mut out: Vec<Context> = rooms(&site)
+    // Distinct cases only: a great interior has thousands of ways (D04).
+    let mut seen = std::collections::BTreeSet::new();
+    let out: Vec<Context> = rooms(&site)
         .into_iter()
         .flat_map(|p| site.ways(p))
         .map(|w| site.way_vars(&w))
+        .filter(|c| seen.insert(serde_json::to_string(c).unwrap_or_default()))
         .collect();
-    out.dedup();
     out
 }
 
@@ -1256,7 +1293,8 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("place.exit", "One way out of a room, used inside place.room ('a narrow stair leading down'). Include the direction word so the player knows what to type.")
             .var("direction", e(DIRECTIONS), "Which way.")
             .var("passage", e(PASSAGES), "What kind of passage.")
-            .var("state", e(STATES), "Open, closed, blocked by rubble, or leading to a collapsed room.")
+            .var("state", e(STATES), "Open, closed, blocked by rubble, leading to a collapsed room, or barred (won't open from this side).")
+            .var("along", e(&["", "west", "east", "middle", "north", "south"]), "When other ways face the same way: where this one lies along the wall (the western door north), so the player can tell them apart; else empty.")
             .min_variants(1)
             .max_len(80)
             .sampler(s_exit),
@@ -1326,6 +1364,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("direction", e(DIRECTIONS), "Which way.")
             .var("passage", e(PASSAGES), "What kind of passage.")
             .var("state", e(STATES), "Why it cannot be passed.")
+            .var("along", e(&["", "west", "east", "middle", "north", "south"]), "Where it lies along its wall when several face the same way.")
             .sampler(s_way),
         SlotDef::new("say.door_open", "The player opens a door.").var("thing", VarType::Text, "The door, as named by place.exit.").sampler(s_named),
         SlotDef::new("say.door_close", "The player closes a door.").var("thing", VarType::Text, "The door, as named by place.exit.").sampler(s_named),
@@ -1801,6 +1840,7 @@ pub fn registry() -> Registry {
     all.extend(slots());
     all.extend(crate::quiet_slots::slots());
     all.extend(crate::place_slots::slots());
+    all.extend(crate::interior_slots::slots());
     Registry::new(all)
 }
 
@@ -1972,6 +2012,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(slots());
     all.extend(crate::quiet_slots::slots());
     all.extend(crate::place_slots::slots());
+    all.extend(crate::interior_slots::slots());
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {

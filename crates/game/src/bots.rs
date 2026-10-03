@@ -145,6 +145,11 @@ pub struct DepthBot {
     entered_kinds: BTreeMap<&'static str, usize>,
     /// Gone indoors for the night: stays in till morning.
     sheltering: bool,
+    /// The last way asked for by its direction, for answering "which?".
+    asked: Option<String>,
+    /// Turns taken wandering when no known way leads out (D04: after a
+    /// drop that can't be climbed back).
+    wander: std::cell::RefCell<BTreeMap<String, usize>>,
     shut: BTreeSet<((i32, i32), String)>,
     /// Landmarks reached, or given up on.
     visited: BTreeSet<String>,
@@ -195,6 +200,8 @@ impl DepthBot {
             tried_here: BTreeMap::new(),
             entered_kinds: BTreeMap::new(),
             sheltering: false,
+            asked: None,
+            wander: std::cell::RefCell::new(BTreeMap::new()),
             shut: BTreeSet::new(),
             visited: BTreeSet::new(),
             attempts: BTreeMap::new(),
@@ -231,6 +238,9 @@ impl DepthBot {
         self.step += 1;
         self.learn(g, last);
         let mut cmd = self.choose(g, last);
+        if last.state.exits.contains(&cmd) {
+            self.asked = Some(cmd.clone());
+        }
         // Going round in circles: drop the goal, or strike out somewhere.
         self.recent
             .push_back((last.state.place.clone(), square_of(g)));
@@ -272,7 +282,17 @@ impl DepthBot {
         }
         if let Some((cmd, from, pos)) = self.last.clone() {
             // Inside, through a way: note where it led, both ways.
-            if from.starts_with("structure") && here.starts_with("structure") && from != here {
+            // (Only by a way's own word: an answer to "which?" or a walk
+            // back to a named room isn't a way.)
+            let is_way = self
+                .rooms
+                .get(&from)
+                .is_some_and(|r| r.exits.contains(&cmd));
+            if from.starts_with("structure")
+                && here.starts_with("structure")
+                && from != here
+                && is_way
+            {
                 self.rooms
                     .entry(from.clone())
                     .or_default()
@@ -829,7 +849,33 @@ impl DepthBot {
             .rsplit_once(" room ")
             .map(|(b, _)| format!("{b} room 0"))
             .unwrap_or_default();
-        self.route(here, &entrance).unwrap_or_else(|| "out".into())
+        if let Some(step) = self.route(here, &entrance) {
+            return step;
+        }
+        // No known way back (a drop, a door barred behind): wander on by
+        // the ways here, a different one each time, until the way out is
+        // found.
+        let mut ways: Vec<&String> = self
+            .rooms
+            .get(here)
+            .map(|r| r.exits.iter().filter(|e| !r.barred.contains(*e)).collect())
+            .unwrap_or_default();
+        if ways.is_empty() {
+            // Every way here barred: try them again (a held door may give).
+            ways = self
+                .rooms
+                .get(here)
+                .map(|r| r.exits.iter().collect())
+                .unwrap_or_default();
+        }
+        if ways.is_empty() {
+            return "look closer".into();
+        }
+        // Each room's ways in turn, so it never just paces between two.
+        let mut turns = self.wander.borrow_mut();
+        let n = turns.entry(here.to_string()).or_default();
+        *n += 1;
+        ways[*n % ways.len()].clone()
     }
 
     /// A way not yet taken from this room; stairs only with a light to
@@ -837,9 +883,11 @@ impl DepthBot {
     fn next_way(&self, s: &Summary) -> Option<String> {
         let stairs = can_light(s, self.lamp_empty);
         self.rooms.get(&s.place).and_then(|r| {
-            r.open_exits()
-                .find(|e| stairs || !matches!(e.as_str(), "up" | "down"))
-                .cloned()
+            let open: Vec<&String> = r
+                .open_exits()
+                .filter(|e| stairs || !matches!(e.as_str(), "up" | "down"))
+                .collect();
+            open.first().map(|e| (*e).clone())
         })
     }
 
@@ -904,6 +952,12 @@ impl DepthBot {
         let here = s.place.clone();
         // A way that didn't let us through: open it, or prise it open.
         if let Some((cmd, from, _)) = self.last.clone() {
+            // An answer to "which way?" stands for the way asked about.
+            let cmd = if cmd == "first" {
+                self.asked.clone().unwrap_or(cmd)
+            } else {
+                cmd
+            };
             if from == here && s.exits.contains(&cmd) {
                 let can_pry = s.carried.iter().any(|c| c.contains("pry"));
                 let r = self.rooms.entry(here.clone()).or_default();
@@ -927,6 +981,16 @@ impl DepthBot {
                 {
                     return way;
                 }
+            }
+        }
+        // A great interior (D04) could take days: after forty of its
+        // rooms, the explorer makes its way out and on (the scholar keeps
+        // looking for writing).
+        if let Some((b, _)) = here.rsplit_once(" room ").filter(|_| !self.scholar()) {
+            let prefix = format!("{b} room ");
+            let seen = self.rooms.keys().filter(|p| p.starts_with(&prefix)).count();
+            if seen >= 40 {
+                return self.towards_entrance(&here);
             }
         }
         // A way not yet taken from here.

@@ -91,7 +91,14 @@ fn every_structure_is_reachable_from_another() {
             *per.entry(comp[s.cell.uy() * SIZE + s.cell.ux()])
                 .or_default() += 1;
         }
-        for s in &w.structures {
+        // Caves are found, not built: one on an islet may be cut off.
+        for s in w.structures.iter().filter(|s| {
+            !matches!(
+                s.kind,
+                scraped_world::structures::StructureKind::Cave
+                    | scraped_world::structures::StructureKind::SeaCave
+            )
+        }) {
             let c = comp[s.cell.uy() * SIZE + s.cell.ux()];
             assert!(
                 c != usize::MAX && per[&c] > 1,

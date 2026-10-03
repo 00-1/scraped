@@ -348,7 +348,30 @@ impl Game {
             "storylets": self.storylets_truth(),
             "claims_here": self.claims_here(),
             "regions": self.regions_truth(),
+            "plan": self.plan_here(),
         })
+    }
+
+    /// The floor plan of this level of the building underfoot, with the
+    /// spaces the player has stood in (D04; spoilers).
+    pub fn plan_here(&self) -> Option<String> {
+        let crate::site::Place::Room { structure, room } = self.state.place else {
+            return None;
+        };
+        let st = self.site.structure(structure);
+        let seen: Vec<usize> = self
+            .state
+            .rooms_seen
+            .iter()
+            .filter(|(s, _)| *s == structure)
+            .map(|&(_, r)| r)
+            .collect();
+        Some(scraped_world::debug::floor_plan(
+            &st.interior,
+            st.interior.rooms[room].level,
+            &seen,
+            Some(room),
+        ))
     }
 
     /// What this run leaves to the next world, once it has ended.

@@ -888,7 +888,7 @@ impl Game {
         };
         let mut out = Vec::new();
         let st = self.site.structure(structure);
-        let r = &st.interior.rooms[room];
+        let r = st.interior.rooms[room].clone();
         let (purpose, level, kind, condition) =
             (r.purpose, r.level, label(&st.kind), label(&st.condition));
         let dark = self.is_dark();
@@ -936,6 +936,14 @@ impl Game {
                     ("level", Value::Number(i64::from(level))),
                     ("light", Value::from(light)),
                     ("time", Value::from(time_of_day(self.state.minutes))),
+                    ("space", Value::from(r.space)),
+                    ("size", Value::from(crate::quiet_slots::size_band(r.area()))),
+                    ("height", Value::from(crate::quiet_slots::height_band(r.h))),
+                    ("style", Value::from(r.style)),
+                    (
+                        "water",
+                        Value::from(if r.water.is_empty() { "none" } else { r.water }),
+                    ),
                 ]),
             )
         });
@@ -1003,6 +1011,7 @@ impl Game {
             ));
         }
         self.room_scene_facts(response, &mut out);
+        self.interior_facts(response, &mut out);
         self.felt_facts(&mut out);
         if self.great_here() {
             self.hook("great_reached", "", "");

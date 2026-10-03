@@ -204,6 +204,85 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     );
     let roles: BTreeSet<_> = w.towns.iter().map(|t| t.role).collect();
     put("places.town_roles", roles.len() as f64);
+    // D04: great interiors.
+    let shapes: Vec<(
+        scraped_world::interiors::GreatKind,
+        usize,
+        scraped_world::interiors::Shape,
+    )> = w
+        .greats
+        .iter()
+        .map(|&(i, k)| {
+            (
+                k,
+                i,
+                scraped_world::interiors::shape(&w.structures[i].interior),
+            )
+        })
+        .collect();
+    let great: Vec<_> = shapes.iter().filter(|(_, _, s)| s.spaces >= 200).collect();
+    put("interiors.great", great.len() as f64);
+    put(
+        "interiors.great_caves",
+        great
+            .iter()
+            .filter(|(k, _, _)| *k == scraped_world::interiors::GreatKind::Cave)
+            .count() as f64,
+    );
+    put(
+        "interiors.largest_spaces",
+        shapes.iter().map(|(_, _, s)| s.spaces).max().unwrap_or(0) as f64,
+    );
+    put(
+        "interiors.deepest_levels",
+        shapes.iter().map(|(_, _, s)| s.levels).max().unwrap_or(0) as f64,
+    );
+    put(
+        "interiors.loops_least",
+        great.iter().map(|(_, _, s)| s.loops).min().unwrap_or(0) as f64,
+    );
+    put(
+        "interiors.hidden_least",
+        great.iter().map(|(_, _, s)| s.hidden).min().unwrap_or(0) as f64,
+    );
+    put(
+        "interiors.one_way_least",
+        great.iter().map(|(_, _, s)| s.one_way).min().unwrap_or(0) as f64,
+    );
+    put(
+        "interiors.dead_ends_mean",
+        great
+            .iter()
+            .map(|(_, _, s)| s.dead_ends as f64)
+            .sum::<f64>()
+            / great.len().max(1) as f64,
+    );
+    put(
+        "interiors.deepest_path",
+        shapes
+            .iter()
+            .map(|(_, _, s)| s.deepest_path)
+            .max()
+            .unwrap_or(0) as f64,
+    );
+    // The mapper bot on the largest: how true its plan is, and how long a
+    // careful exploration takes.
+    if let Some((_, i, _)) = shapes
+        .iter()
+        .max_by_key(|(_, i, s)| (s.spaces, std::cmp::Reverse(*i)))
+    {
+        let run = crate::mapper::map(pack, seed, *i);
+        put("interiors.mapper_error_max", run.error_max);
+        put(
+            "interiors.mapper_topology_exact",
+            f64::from(u8::from(run.topology_exact)),
+        );
+        put(
+            "interiors.mapper_seen_share",
+            run.visited as f64 / run.spaces.max(1) as f64,
+        );
+        put("interiors.explore_hours_largest", run.hours);
+    }
 
     // ---------- things ----------
     let thing_kinds: BTreeSet<&str> = site.things.iter().map(|t| t.kind).collect();

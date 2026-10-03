@@ -279,7 +279,7 @@ fn held_doors_will_not_move_by_hand() {
                     "seed {seed}: room {room} of {structure}"
                 );
                 let before = g.ways();
-                g.door(false, w.exit);
+                g.door(false, w.link);
                 assert_eq!(before, g.ways(), "seed {seed}: a held door was closed");
             }
         }
