@@ -8,7 +8,9 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**D04 — Great interiors** (`docs/milestones/D04-great-interiors.md`), the fourth milestone of the depth roadmap in `docs/DEPTH.md`. D01 (instruments: `scraped-lang depth`, `bots`, `samples`), D02 (quiet text: the attention model in `crates/game/src/attention.rs`) and D03 (places with character: geology, features, towns, scenes in `crates/world`) are done. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
+**First: S01 — Course corrections** (`docs/milestones/S01-course-corrections.md`), from Jb's review of D01–D03. If D04 is under way, finish the step in hand and commit, then do S01, then resume D04.
+
+**Then: D04 — Great interiors** (`docs/milestones/D04-great-interiors.md`), the fourth milestone of the depth roadmap in `docs/DEPTH.md`. D01 (instruments: `scraped-lang depth`, `bots`, `samples`), D02 (quiet text: the attention model in `crates/game/src/attention.rs`) and D03 (places with character: geology, features, towns, scenes in `crates/world`) are done. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
 

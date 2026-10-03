@@ -601,3 +601,11 @@
 **For Jb**
 - What each role builds, and how roles are chosen, are first guesses. They are listed in DECISIONS.
 - The scenes are ready for set pieces: a storylet can ask for "barricade", "meal left", "plague pit" and the rest.
+
+## 2026-10-03 — Review of D01–D03 and S01
+
+**Review** (from the D03 samples and metrics; the session couldn't build): brevity and place variety are much better and targets are met. Problems: the explorer bot rarely digs or leaves town, so samples under-show D02 and D03; arriving at a feature doesn't describe it; `read` is the longest output in the game; examines mostly return only a name (expected until D05); identical "Which do you mean" options, a dangling "Among them", raw ids, unexplained closed doors.
+
+**Jb's concern:** the script as long lists of strokes may be too obscure. He wants it somewhat obscure, but learnable, and suggested that scraping a sign might make its sound.
+
+**Added** `docs/milestones/S01-course-corrections.md`, to do before resuming D04: a curious explorer bot, arrivals that describe their place, reading as an impression first, signs with handles and names that compress as the player learns them, heard sounds from scraping (proposed default, a design gate), and the bug fixes.
