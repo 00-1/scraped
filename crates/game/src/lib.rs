@@ -7,6 +7,7 @@
 //! prose.
 
 pub use scraped_sim::outdoors;
+pub mod bots;
 pub mod composing;
 #[cfg(test)]
 mod composing_tests;
@@ -203,6 +204,9 @@ pub struct Summary {
     pub things: Vec<String>,
     pub carried: Vec<String>,
     pub exits: Vec<String>,
+    /// Things here that can be worked: doors, levers, sluices.
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub mechanisms: Vec<String>,
     pub minutes: u32,
     /// Landmarks in view, most salient first (outdoors).
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -338,6 +342,9 @@ pub struct Game {
     /// `keep_renders` is set), with their variables.
     renders: Vec<Rendered>,
     pub keep_renders: bool,
+    /// Bots that measure the late game rather than survival keep the
+    /// body well after every command. Never set in play. // DEBUG-TEXT
+    pub sustain: bool,
 }
 
 /// A slot rendered during play, with the variables it was given: what the
@@ -464,6 +471,7 @@ impl Game {
             trace: false,
             renders: Vec::new(),
             keep_renders: false,
+            sustain: false,
         };
         g.storylets = g.pack.storylets().cloned().collect();
         g.recompute_drivers();
@@ -852,11 +860,20 @@ impl Game {
             .local(self.spot(), self.state.minutes, self.carried_light())
             .light
             .to_string();
+        let mechanisms = if self.is_dark() {
+            Vec::new()
+        } else {
+            self.mechanisms_here()
+                .into_iter()
+                .map(|m| self.mech_name(m))
+                .collect()
+        };
         Summary {
             place,
             things,
             carried,
             exits,
+            mechanisms,
             minutes: self.state.minutes,
             landmarks,
             edges,
@@ -1067,7 +1084,16 @@ impl Game {
     }
 
     fn with_target(&mut self, verb: &str, words: &[String]) -> Output {
-        let cands = self.visible_targets();
+        let mut cands = self.visible_targets();
+        // You can only drop what you carry, and only take what you don't.
+        let carried = self.state.carried.clone();
+        let held =
+            |c: &Candidate<Target>| matches!(c.target, Target::Thing(t) if carried.contains(&t));
+        match verb {
+            "drop" if cands.iter().any(held) => cands.retain(held),
+            "take" if cands.iter().any(|c| !held(c)) => cands.retain(|c| !held(c)),
+            _ => {}
+        }
         match resolve(words, &cands, self.state.it.as_ref()) {
             Resolution::One(t) => self.act(verb, t),
             Resolution::None if verb == "go" && self.state.place == Place::Outside => {

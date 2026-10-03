@@ -171,7 +171,11 @@ impl Game {
                 activity,
             };
             self.state.body.age = self.age();
-            if let Some(cause) = self.state.body.pass(dt, &exposure) {
+            if self.sustain {
+                // A measuring bot's body is kept well (never in play).
+                let b = &mut self.state.body;
+                (b.thirst, b.hunger, b.fatigue, b.chill, b.wet, b.injury) = (0, 0, 0, 0, 0, 0);
+            } else if let Some(cause) = self.state.body.pass(dt, &exposure) {
                 self.die(cause);
             }
             // Fires burn their fuel, by the rules.
@@ -269,7 +273,7 @@ impl Game {
     }
 
     pub(crate) fn die(&mut self, cause: &str) {
-        if self.state.dead.is_some() {
+        if self.state.dead.is_some() || (self.sustain && cause != "old_age") {
             return;
         }
         let doing = self.log.last().cloned().unwrap_or_default();
@@ -299,6 +303,9 @@ impl Game {
 
     /// Injury from something: a fall, falling stone, a creature.
     pub(crate) fn hurt(&mut self, levels: u32, cause: &str) {
+        if self.sustain {
+            return;
+        }
         if self.state.body.hurt(levels).is_some() {
             self.die(cause);
         }

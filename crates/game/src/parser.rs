@@ -185,9 +185,12 @@ pub fn resolve<T: Clone + PartialEq>(
             _ => Resolution::None,
         };
     }
+    // A bare ordinal ("first", "the second") picks among all of them, as
+    // when answering "which do you mean?".
+    let bare = wanted.is_empty() && ordinal.is_some();
     let all: Vec<&Candidate<T>> = cands
         .iter()
-        .filter(|c| !wanted.is_empty() && wanted.iter().all(|w| c.words.contains(*w)))
+        .filter(|c| bare || (!wanted.is_empty() && wanted.iter().all(|w| c.words.contains(*w))))
         .collect();
     // Prefer the things named most exactly.
     let score = |c: &Candidate<T>| {
@@ -277,6 +280,38 @@ mod tests {
         assert_eq!(
             resolve(&words("fifth door"), &cands, None),
             Resolution::None
+        );
+        // Answering "which do you mean?" with an ordinal alone.
+        assert_eq!(resolve(&words("first"), &cands, None), Resolution::One(1));
+        assert_eq!(
+            resolve(&words("the third"), &cands, None),
+            Resolution::One(3)
+        );
+        // Saying all of one name picks it over a longer one.
+        let nested = vec![
+            Candidate::new(1, "the hilltop mountain", &[]),
+            Candidate::new(2, "the twin hilltop mountain", &[]),
+        ];
+        assert_eq!(
+            resolve(&words("hilltop mountain"), &nested, None),
+            Resolution::One(1)
+        );
+        assert_eq!(
+            resolve(&words("twin mountain"), &nested, None),
+            Resolution::One(2)
+        );
+        // Loose words lose to exact ones.
+        let ways = vec![
+            Candidate::new(1, "the town", &["west"]),
+            Candidate::new(2, "the town", &["northwest"]).loosely(&["north", "west"]),
+        ];
+        assert_eq!(
+            resolve(&words("town to the west"), &ways, None),
+            Resolution::One(1)
+        );
+        assert_eq!(
+            resolve(&words("north town"), &ways, None),
+            Resolution::One(2)
         );
     }
 }
