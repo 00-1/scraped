@@ -157,8 +157,10 @@ impl Server {
                 let json = scraped_game::saves::unseal(&raw).map_err(|e| (-32602, e))?;
                 let save: Save = serde_json::from_str(&json)
                     .map_err(|e| (-32602, format!("not a save: {e}")))?;
-                let (mut g, _) = Game::load(&save, self.pack.clone());
-                let o = g.step("look");
+                let (mut g, said) =
+                    Game::open(&save, self.pack.clone()).map_err(|e| (-32000, e))?;
+                let mut o = g.step("look");
+                o.text = format!("{said}\n\n{}", o.text);
                 self.game = Some(g);
                 self.world = None;
                 Ok(output(o))

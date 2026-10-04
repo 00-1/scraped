@@ -218,14 +218,9 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                     .map_err(|e| e.to_string())?,
                 None => field(req, "save")?,
             };
-            let (mut game, changed) = scraped_game::Game::load(&save, pack);
+            let (mut game, text) = scraped_game::Game::open(&save, pack)?;
             game.spoil = opt(req, "spoil", false);
             game.trace = opt(req, "trace", false);
-            let mut text = game.message("say.loaded");
-            if changed {
-                text.push_str("\n\n");
-                text.push_str(&game.message("say.pack_changed"));
-            }
             let look = game.step("look");
             GAME.with(|g| *g.borrow_mut() = Some(game));
             Ok(

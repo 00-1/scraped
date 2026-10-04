@@ -88,3 +88,19 @@ fn saves_record_turns_chain_and_builds() {
     let (mut b, _) = Game::load(&s, pack);
     assert_eq!(a.step("look").text, b.step("look").text);
 }
+
+#[test]
+fn a_game_replays_stretch_by_stretch() {
+    use scraped_game::saves::{replay_stretch, same_play};
+    let mut g = Game::create(42, pack(), "standard", None);
+    g.start();
+    for c in FIRST.iter().chain(THEN) {
+        g.step(c);
+    }
+    let save = g.save();
+    let mid = FIRST.len();
+    let a = replay_stretch(&save, 0, mid, None, pack()).unwrap();
+    let b = replay_stretch(&save, mid, save.turn, Some(&a), pack()).unwrap();
+    assert!(same_play(&b, &save));
+    assert!(replay_stretch(&save, 3, mid, None, pack()).is_err());
+}

@@ -112,6 +112,162 @@ pub enum Continuity {
     Split,
 }
 
+// ---------- versions ----------
+
+/// The smallest version bump a change needs (see docs/VERSIONING.md).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Bump {
+    /// Saved worlds replay identically.
+    Patch,
+    /// Saved worlds load from their snapshot and carry on, but replay
+    /// differently.
+    Minor,
+    /// Saved worlds don't load, or their worlds generate differently.
+    Major,
+}
+
+/// What this build makes of a saved world: whether its world still
+/// generates the same (`world`: the fingerprint recorded with the save),
+/// whether its snapshot loads and carries on, and whether its moves replay
+/// to the same state.
+pub fn verdict(save: &crate::Save, world: &str, pack: scraped_content::Pack) -> (Bump, String) {
+    let fresh = Game::create(
+        save.seed,
+        pack.clone(),
+        &save.difficulty,
+        save.legacy.clone(),
+    );
+    if fresh.site.world.fingerprint() != world {
+        return (Bump::Major, "its world generates differently".into());
+    }
+    let Some(snap) = &save.snapshot else {
+        return (Bump::Major, "it has no snapshot to load".into());
+    };
+    let (mut loaded, _) = Game::load(save, pack.clone());
+    loaded.step("look");
+    let mut replay = fresh;
+    replay.start();
+    for c in &save.commands {
+        replay.step(c);
+    }
+    // Wording is not rules: what was said, and what the templates
+    // remember saying, may change in a patch.
+    let rules = |s: &Snapshot| {
+        let mut s = s.clone();
+        s.transcript.clear();
+        s.memory.clear();
+        s
+    };
+    if rules(&replay.snapshot()) == rules(snap) {
+        (Bump::Patch, "it replays identically".into())
+    } else {
+        (
+            Bump::Minor,
+            "it loads and carries on, but replays differently".into(),
+        )
+    }
+}
+
+/// Replays one stretch of a saved game on this build: moves `from..to`,
+/// starting from the seed (`start` none, `from` 0) or from the save the
+/// previous stretch's build left. Returns the save at `to`.
+pub fn replay_stretch(
+    save: &crate::Save,
+    from: usize,
+    to: usize,
+    start: Option<&crate::Save>,
+    pack: scraped_content::Pack,
+) -> Result<crate::Save, String> {
+    let to = to.min(save.commands.len());
+    let mut g = match start {
+        Some(prev) => {
+            if prev.turn != from {
+                return Err(format!(
+                    "the previous stretch ended at move {}, not {from}",
+                    prev.turn
+                ));
+            }
+            Game::load(prev, pack).0
+        }
+        None => {
+            if from != 0 {
+                return Err("only the first stretch starts from the seed".into());
+            }
+            let mut g = Game::create(save.seed, pack, &save.difficulty, save.legacy.clone());
+            g.start();
+            g
+        }
+    };
+    for c in &save.commands[from..to] {
+        g.step(c);
+    }
+    Ok(g.save())
+}
+
+/// Whether two saves reached the same play (wording aside).
+pub fn same_play(a: &crate::Save, b: &crate::Save) -> bool {
+    let rules = |s: &crate::Save| {
+        s.snapshot.as_ref().map(|s| {
+            let mut s = (**s).clone();
+            s.transcript.clear();
+            s.memory.clear();
+            s
+        })
+    };
+    a.commands == b.commands && rules(a) == rules(b)
+}
+
+/// Whether this build may open a world last played on `engine` (C01): never
+/// one from another major version (a newer one needs this program updated;
+/// an older one needs a new world), and noting the step up from an older
+/// minor version. `Ok(true)` means an upgrade to note.
+// DEBUG-TEXT: errors for players' programs and agents.
+pub fn may_open(engine: &str) -> Result<bool, String> {
+    may_open_on(engine, ENGINE)
+}
+
+fn may_open_on(engine: &str, ours: &str) -> Result<bool, String> {
+    let part = |v: &str, i: usize| -> u64 {
+        v.trim_start_matches('v')
+            .split('.')
+            .nth(i)
+            .and_then(|p| p.parse().ok())
+            .unwrap_or(0)
+    };
+    let major = |v: &str| part(v, 0);
+    let minor = |v: &str| part(v, 1);
+    if engine.is_empty() {
+        return Ok(false);
+    }
+    match bump_between(engine, ours) {
+        Some(Bump::Major) if major(engine) > major(ours) => Err(format!(
+            "this world was played on version {engine}, newer than this program ({ours}): update the player program"
+        )),
+        Some(Bump::Major) => Err(format!(
+            "this world was played on version {engine}, which this program ({ours}) cannot carry on: start a new world"
+        )),
+        Some(Bump::Minor) => Ok(minor(engine) < minor(ours)),
+        _ => Ok(false),
+    }
+}
+
+/// The bump between two versions ("0.1.0" to "0.2.0" is minor).
+pub fn bump_between(old: &str, new: &str) -> Option<Bump> {
+    let parse = |v: &str| -> Option<(u64, u64, u64)> {
+        let mut it = v.trim_start_matches('v').split('.').map(|p| p.parse().ok());
+        Some((it.next()??, it.next()??, it.next()??))
+    };
+    let (a, b) = (parse(old)?, parse(new)?);
+    Some(if b.0 != a.0 {
+        Bump::Major
+    } else if b.1 != a.1 {
+        Bump::Minor
+    } else {
+        Bump::Patch
+    })
+}
+
 // ---------- sealing ----------
 
 /// The prefix of a sealed save.
@@ -229,6 +385,18 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bumps_between_versions() {
+        assert_eq!(bump_between("0.1.0", "0.1.1"), Some(Bump::Patch));
+        assert_eq!(bump_between("0.1.3", "0.2.0"), Some(Bump::Minor));
+        assert_eq!(bump_between("v0.9.0", "1.0.0"), Some(Bump::Major));
+        assert!(Bump::Patch < Bump::Minor && Bump::Minor < Bump::Major);
+        assert_eq!(may_open_on("0.9.3", "0.10.0"), Ok(true));
+        assert_eq!(may_open_on("0.10.1", "0.10.0"), Ok(false));
+        assert!(may_open_on("2.0.0", "1.4.0").is_err());
+        assert!(may_open_on("1.0.0", "2.0.0").is_err());
+    }
 
     #[test]
     fn sealing_round_trips_and_hides() {

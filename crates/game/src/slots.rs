@@ -1224,6 +1224,13 @@ fn s_code(_: u64) -> Vec<Context> {
     vec![ctx(&[("code", Value::from("K5G0-9ZQ1"))])]
 }
 
+fn s_versions(_: u64) -> Vec<Context> {
+    vec![ctx(&[
+        ("from", Value::from("0.1.0")),
+        ("to", Value::from("0.2.0")),
+    ])]
+}
+
 fn s_chronicle(_: u64) -> Vec<Context> {
     vec![ctx(&[("words", Value::Number(14))])]
 }
@@ -1886,6 +1893,11 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.export_offer", "After the end of a run, in the terminal client: the player can type 'export' to save their notebook (the transcript, the places they named, and the run record) as files.").max_len(300).sampler(s_none),
         SlotDef::new("say.exported", "The notebook was saved as files.").max_len(200).sampler(s_none),
         SlotDef::new("say.legacy_kept", "Legacy is on and the run ended with an inscription of the player's: it will lie, faint and very old, somewhere in the next world.").max_len(300).sampler(s_none),
+        SlotDef::new("say.upgraded", "A loaded world was last played on an older minor version of the game: it carries on under the newer rules (places not yet seen may come out differently).")
+            .var("from", VarType::Text, "The version it was last played on, e.g. 0.1.0.")
+            .var("to", VarType::Text, "This version, e.g. 0.2.0.")
+            .max_len(300)
+            .sampler(s_versions),
         SlotDef::new("say.pack_changed", "A loaded save was made with different text (content pack) than now: the story replays the same, but wording may differ.")
             .sampler(s_none),
     ]

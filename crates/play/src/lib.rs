@@ -207,18 +207,12 @@ impl Session {
                     .map_err(|e| e.to_string())
                     .and_then(|t| scraped_game::saves::unseal(&t))
                     .and_then(|t| serde_json::from_str::<Save>(&t).map_err(|e| e.to_string()));
-                match loaded {
-                    Ok(save) => {
+                match loaded.and_then(|save| Game::open(&save, self.pack.clone())) {
+                    Ok((game, mut text)) => {
                         let spoil = self.game.spoil;
-                        let (game, changed) = Game::load(&save, self.pack.clone());
                         self.game = game;
                         self.ended = self.game.ending().is_some();
                         self.game.spoil = spoil;
-                        let mut text = self.game.message("say.loaded");
-                        if changed {
-                            text.push_str("\n\n");
-                            text.push_str(&self.game.message("say.pack_changed"));
-                        }
                         let look = self.game.step("look");
                         text.push_str("\n\n");
                         text.push_str(&look.text);

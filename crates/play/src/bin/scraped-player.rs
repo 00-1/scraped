@@ -31,6 +31,11 @@ in a shared world: talk TEXT (a message to your partner), talk since N, quit";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    // For the replay tool (scraped-lang replay): one stretch of a saved
+    // game on this build, from the seed or from the previous build's save.
+    if args.first().map(String::as_str) == Some("replay-stretch") {
+        return replay_stretch(&args[1..]);
+    }
     if args.first().map(String::as_str) == Some("merge") {
         return match (args.get(1), args.get(2)) {
             (Some(a), Some(b)) => match merge(&PathBuf::from(a), &PathBuf::from(b)) {
@@ -201,6 +206,32 @@ fn main() -> ExitCode {
         }
     }
     ExitCode::SUCCESS
+}
+
+fn replay_stretch(args: &[String]) -> ExitCode {
+    use scraped_game::saves::{seal, unseal};
+    let read = |p: &str| -> Result<scraped_game::Save, String> {
+        let t = std::fs::read_to_string(p).map_err(|e| format!("{p}: {e}"))?;
+        serde_json::from_str(&unseal(&t)?).map_err(|e| format!("{p}: {e}"))
+    };
+    let (Some(save), Some(from), Some(to)) = (
+        args.first(),
+        args.get(1).and_then(|v| v.parse().ok()),
+        args.get(2).and_then(|v| v.parse().ok()),
+    ) else {
+        return fail("replay-stretch SAVE FROM TO [START]");
+    };
+    let result = read(save).and_then(|s| {
+        let start = args.get(3).map(|p| read(p)).transpose()?;
+        scraped_game::saves::replay_stretch(&s, from, to, start.as_ref(), baked_pack())
+    });
+    match result {
+        Ok(s) => {
+            println!("{}", seal(&serde_json::to_string(&s).expect("save")));
+            ExitCode::SUCCESS
+        }
+        Err(e) => fail(&e),
+    }
 }
 
 /// A bare command, or `{"cmd": "..."}` from an agent.

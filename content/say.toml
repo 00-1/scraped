@@ -110,6 +110,11 @@ text = "Loaded."
 example = true
 
 [[variant]]
+slot = "say.upgraded"
+text = "(This world was last played on version {from}; it carries on under {to}'s rules.)"
+example = true
+
+[[variant]]
 slot = "say.pack_changed"
 text = "(This save was made with different text. Events replay the same; the wording may differ.)"
 example = true

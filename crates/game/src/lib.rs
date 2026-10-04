@@ -721,6 +721,28 @@ impl Game {
         (g, changed)
     }
 
+    /// Opens a save in a client (C01): refuses one this version cannot carry
+    /// on (see [`saves::may_open`]), and returns the loaded game with the
+    /// text that says so: loaded, and any upgrade or change of wording.
+    pub fn open(save: &Save, pack: Pack) -> Result<(Self, String), String> {
+        let upgraded = saves::may_open(&save.engine)?;
+        let (mut g, changed) = Game::load(save, pack);
+        let mut text = g.message("say.loaded");
+        if upgraded {
+            let c = ctx(&[
+                ("from", Value::from(save.engine.as_str())),
+                ("to", Value::from(saves::ENGINE)),
+            ]);
+            text.push_str("\n\n");
+            text.push_str(&g.say("say.upgraded", c));
+        }
+        if changed {
+            text.push_str("\n\n");
+            text.push_str(&g.message("say.pack_changed"));
+        }
+        Ok((g, text))
+    }
+
     /// The current state summary with no text, for session-level replies.
     pub fn step_quiet(&mut self) -> Output {
         self.output(Vec::new(), None)

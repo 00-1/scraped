@@ -1,4 +1,5 @@
-# Publishes the authoring tool and the language bench to GitHub Pages.
+# Publishes the authoring tool, the language bench, the browser player and
+# the list of released player builds to GitHub Pages.
 # One-time setup: repository Settings → Pages → Source: "GitHub Actions".
 name: Pages
 
@@ -35,6 +36,9 @@ jobs:
           mkdir -p _site
           cp tools/dist/author.html tools/dist/bench.html tools/dist/play.html _site/
           cp tools/site/index.html _site/
+      - run: tools/site/players.sh "$GITHUB_REPOSITORY" _site/players.html
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
       - id: deploy

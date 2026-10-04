@@ -16,6 +16,11 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
+      # Which version bump this change needs (docs/VERSIONING.md).
+      - run: cargo run -q --release -p scraped-cli -- saves check
+      # The player program builds without its spoilers (C01).
+      - run: cargo build --profile player -p scraped-play --bin scraped-player --no-default-features
+      - run: tools/smoke/player.sh target/player/scraped-player
       # The depth bots go as deep as D01 asks (slow, so in release).
       - run: cargo test --release -p scraped-game --test depth -- --ignored
       # Library crates must stay WebAssembly-compatible.

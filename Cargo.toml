@@ -19,3 +19,9 @@ toml = { version = "1", default-features = false, features = ["std", "parse", "d
 opt-level = "s"
 lto = true
 codegen-units = 1
+
+# The player program (C01): optimised, symbols stripped.
+# cargo build --profile player -p scraped-play --bin scraped-player --no-default-features
+[profile.player]
+inherits = "release"
+strip = true

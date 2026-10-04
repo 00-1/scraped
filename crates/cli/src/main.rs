@@ -6,6 +6,8 @@
 mod content;
 mod depth;
 mod fair;
+mod replay;
+mod saves;
 mod world;
 
 /// A subcommand: arguments in, text out (or an error message).
@@ -44,7 +46,8 @@ difficulty dials:
   --fused                fuse a few affix combinations
 
 see also: scraped-lang content (content pack tools), scraped-lang world (world views),
-          scraped-lang fair (solvability), scraped-lang depth | bots | samples (depth instruments)";
+          scraped-lang fair (solvability), scraped-lang depth | bots | samples (depth instruments),
+          scraped-lang saves add | check (the save corpus, docs/VERSIONING.md)";
 
 #[derive(Debug, PartialEq)]
 enum Command {
@@ -287,6 +290,8 @@ fn main() -> ExitCode {
         Some("depth") => Some(depth::depth),
         Some("bots") => Some(depth::bots),
         Some("samples") => Some(depth::samples),
+        Some("saves") => Some(saves::run),
+        Some("replay") => Some(replay::run),
         _ => None,
     };
     if let Some(sub) = sub {

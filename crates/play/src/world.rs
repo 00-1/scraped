@@ -114,8 +114,9 @@ impl Shared {
             }
         }
         let save = file.open()?;
-        let (mut game, _) = Game::load(&save, pack);
-        let look = game.step_quiet();
+        let (mut game, said) = Game::open(&save, pack)?;
+        let mut look = game.step_quiet();
+        look.text = said;
         record_seen(&file);
         Ok((
             Shared {

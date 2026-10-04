@@ -201,6 +201,17 @@ impl World {
         }
     }
 
+    /// A cheap fingerprint of everything generated (FNV-1a over its JSON):
+    /// any change to generation changes it (C01: such a change is a major
+    /// version).
+    pub fn fingerprint(&self) -> String {
+        let json = serde_json::to_string(self).expect("a world serialises");
+        let h = json.bytes().fold(0xcbf2_9ce4_8422_2325u64, |h, b| {
+            (h ^ u64::from(b)).wrapping_mul(0x0100_0000_01b3)
+        });
+        format!("{h:016x}")
+    }
+
     /// A text rendered in the language of its era.
     pub fn render(&self, text: &Text) -> Rendered {
         self.renderer(text.era).render(&text.meaning)
