@@ -8,6 +8,7 @@
 pub mod debug;
 pub mod decay;
 pub mod features;
+pub mod genres;
 pub mod geology;
 pub mod history;
 pub mod interiors;
@@ -16,6 +17,7 @@ pub mod objects;
 pub mod phenomena;
 pub mod scenes;
 pub mod sky;
+pub mod society;
 pub mod structures;
 pub mod terrain;
 pub mod texts;
@@ -76,9 +78,12 @@ pub struct World {
     /// The language at each era, oldest first.
     #[serde(skip)]
     pub languages: Vec<Language>,
-    /// Every person's name, indexed like `history.people`.
+    /// Every name as said in each era (D08): people, indexed like
+    /// `history.people`, then towns. A name made of words is said with
+    /// that era's words; a coined one carries the sound changes since it
+    /// was given.
     #[serde(skip)]
-    pub names: Vec<Phonemes>,
+    pub names: Vec<Vec<Phonemes>>,
 }
 
 impl World {
@@ -100,7 +105,8 @@ impl World {
         let towns = towns::plan(seed, &terrain, &water, &geology, &history);
         let mut structures = structures::place(seed, &terrain, &water, &history);
         structures::place_more(seed, &terrain, &water, &history, &towns, &mut structures);
-        let texts = texts::place(seed, &history, &mut structures);
+        let mut texts = texts::place(seed, &history, &mut structures);
+        genres::write(seed, &history, &languages, &mut structures, &mut texts);
         let (traces, effects) = decay::apply(seed, &terrain, &history, &mut structures);
         let features = features::place(seed, &terrain, &water, &geology, &history, &structures);
         let greats = interiors::grow(
@@ -127,7 +133,49 @@ impl World {
         let locks = objects::hide_and_lock(seed, &history, &structures, &features, &mut objects);
         let sky = sky::Sky::generate(seed, languages.first());
         let phenomena = phenomena::place(seed, &terrain, &water, &geology, &features);
-        let names = history.people.iter().map(|p| p.name.clone()).collect();
+        // People first, then towns (D08): a town is named as `people + id`.
+        let given: Vec<(u32, &Phonemes, &[String])> = history
+            .people
+            .iter()
+            .map(|p| (p.era, &p.name, p.name_meaning.as_slice()))
+            .chain(
+                history
+                    .settlements
+                    .iter()
+                    .map(|s| (s.era, &s.name, s.name_meaning.as_slice())),
+            )
+            .collect();
+        let names = languages
+            .iter()
+            .map(|lang| {
+                given
+                    .iter()
+                    .map(|&(era, form, meaning)| {
+                        if era == lang.era {
+                            return form.clone();
+                        }
+                        let first = &languages[era as usize];
+                        // A later name never stands in an earlier text, but
+                        // the era's reader still needs a spelling for it.
+                        let spellable = || {
+                            let ipa: Vec<&str> = first
+                                .phonology
+                                .to_ipa(form)
+                                .into_iter()
+                                .filter(|i| lang.phonology.from_ipa(&[i]).is_some())
+                                .collect();
+                            lang.phonology.from_ipa(&ipa).filter(|w| !w.is_empty())
+                        };
+                        (!meaning.is_empty())
+                            .then(|| lang.say_name(meaning))
+                            .flatten()
+                            .or_else(|| lang.carry(first, form))
+                            .or_else(spellable)
+                            .unwrap_or_else(|| form.clone())
+                    })
+                    .collect()
+            })
+            .collect();
         World {
             seed,
             terrain,
@@ -162,7 +210,7 @@ impl World {
     pub fn renderer(&self, era: u32) -> Renderer<'_> {
         Renderer {
             lang: &self.languages[era as usize],
-            names: &self.names,
+            names: &self.names[era as usize],
         }
     }
 

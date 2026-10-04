@@ -88,10 +88,28 @@ impl Language {
     /// The same name said in this era: its words, with this era's sounds
     /// (names of places live on and change with the language).
     pub fn say_name(&self, meaning: &[String]) -> Option<Phonemes> {
+        if meaning.is_empty() {
+            return None;
+        }
         meaning
             .iter()
             .all(|p| self.lexicon.has(p))
             .then(|| self.named_from(meaning.to_vec()).form)
+    }
+
+    /// A word of an earlier era of this language, as it sounds now: the
+    /// sound changes since `from` applied in order (D08: a coined name met
+    /// in a later text). `None` if `from` is later than this era.
+    pub fn carry(&self, from: &Language, w: &Phonemes) -> Option<Phonemes> {
+        if from.era > self.era {
+            return None;
+        }
+        let ipa = self
+            .history
+            .iter()
+            .filter(|s| s.era > from.era && s.era <= self.era)
+            .fold(from.phonology.to_ipa(w), |ipa, step| step.apply(&ipa));
+        self.phonology.from_ipa(&ipa)
     }
 
     /// A personal name in this language's style, distinct from every word

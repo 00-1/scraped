@@ -47,7 +47,7 @@ family|noun|kin|group|pl=families
 friend|noun|kin|person|opp=enemy
 enemy|noun|kin|person|opp=friend pl=enemies
 guest|noun|kin|person
-elder|noun|kin|person|opp=youth
+elder|noun|kin|person,title|opp=youth
 youth|noun|kin|person|opp=elder
 stranger|noun|kin|person
 heir|noun|kin|person,family
@@ -58,7 +58,7 @@ lord|noun|kin|person,rank
 lady|noun|kin|person,rank|pl=ladies
 chief|noun|kin|person,rank
 herald|noun|kin|person,rank
-healer|noun|kin|person,trade
+healer|noun|kin|person,trade,title
 
 # --- the land (core) -------------------------------------------------------
 earth|noun|land|ground

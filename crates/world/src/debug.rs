@@ -275,6 +275,20 @@ pub fn timeline(w: &World) -> String {
                     if claim.negative { "not " } else { "" },
                     claim.verb
                 ),
+                // D08's events: their kind, the people in them, and the
+                // story they belong to.
+                other => {
+                    let v = serde_json::to_value(other).unwrap_or_default();
+                    let kind = v["type"].as_str().unwrap_or("?").replace('_', " ");
+                    let who: Vec<String> = e.actors.iter().map(|&a| person(a)).collect();
+                    let arc = h
+                        .arcs
+                        .iter()
+                        .find(|a| a.events.contains(&e.id))
+                        .map(|a| format!(" [arc {} {:?}]", a.id, a.kind))
+                        .unwrap_or_default();
+                    format!("{kind}: {}{arc}", who.join(", "))
+                }
             };
             out.push_str(&format!("  {:>5}  {what}\n", e.year));
         }

@@ -416,5 +416,6 @@ fn cause_id(c: Cause) -> &'static str {
         Cause::Famine => "famine",
         Cause::Age => "last days",
         Cause::Writing => "last days",
+        Cause::Disaster => "last days",
     }
 }

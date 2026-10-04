@@ -378,6 +378,12 @@ pub fn place(site: &mut Site, pack: &Pack) -> Vec<Placed> {
                 } else {
                     Kind::Warning
                 },
+                genre: if req.register == "potent" {
+                    scraped_world::texts::Genre::Potent
+                } else {
+                    scraped_world::texts::Genre::Warning
+                },
+                arc: None,
                 meaning,
                 author: None,
                 event: None,

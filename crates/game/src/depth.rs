@@ -352,7 +352,12 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     for e in &w.history.events {
         let v = serde_json::to_value(&e.kind).unwrap_or_default();
         let k = match v {
-            serde_json::Value::Object(o) => o.keys().next().cloned().unwrap_or_default(),
+            // Tagged by "type" (D08); older kinds were keyed by name.
+            serde_json::Value::Object(o) => o
+                .get("type")
+                .and_then(|t| t.as_str().map(str::to_string))
+                .or_else(|| o.keys().next().cloned())
+                .unwrap_or_default(),
             serde_json::Value::String(s) => s,
             _ => String::new(),
         };
@@ -368,10 +373,26 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     let mut concepts = BTreeSet::new();
     let mut words = 0usize;
     let mut traces: BTreeMap<usize, usize> = BTreeMap::new();
+    let mut places: BTreeMap<usize, BTreeSet<usize>> = BTreeMap::new();
+    let mut arcs: BTreeMap<usize, BTreeSet<usize>> = BTreeMap::new();
     for id in 0..count_texts {
         let t = site.writing.text(w, id);
-        *genres.entry(genre(t.kind).to_string()).or_default() += 1;
-        shapes.insert(shape(&t.meaning));
+        // D08: by genre; a sentence shape for each sentence of a text.
+        let g = serde_json::to_value(t.genre).unwrap_or_default();
+        *genres
+            .entry(g.as_str().unwrap_or(genre(t.kind)).to_string())
+            .or_default() += 1;
+        match &t.meaning {
+            Sentence::Text(parts) => parts.iter().for_each(|p| {
+                shapes.insert(shape(p));
+            }),
+            m => {
+                shapes.insert(shape(m));
+            }
+        }
+        if let Some(a) = t.arc {
+            arcs.entry(a).or_default().insert(t.structure);
+        }
         concepts_of(
             &t.meaning,
             &mut concepts,
@@ -382,6 +403,9 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
         names_in(&t.meaning, &mut n);
         for p in n.into_iter().collect::<BTreeSet<_>>() {
             *traces.entry(p).or_default() += 1;
+            if p < w.history.people.len() {
+                places.entry(p).or_default().insert(t.structure);
+            }
         }
     }
     let largest = genres.values().copied().max().unwrap_or(0);
@@ -400,6 +424,17 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     put(
         "history.people_with_traces",
         traces.values().filter(|&&n| n > 1).count() as f64,
+    );
+    // D08: people named in writing in three places or more; story arcs,
+    // and those told in three places or more.
+    put(
+        "history.people_in_3_places",
+        places.values().filter(|p| p.len() >= 3).count() as f64,
+    );
+    put("story.arcs", w.history.arcs.len() as f64);
+    put(
+        "story.arcs_in_3_places",
+        arcs.values().filter(|p| p.len() >= 3).count() as f64,
     );
 
     // ---------- magic ----------

@@ -79,6 +79,12 @@ pub enum Role {
     Smith,
     Servant,
     Commoner,
+    // D08
+    Merchant,
+    Builder,
+    Healer,
+    Judge,
+    Elder,
 }
 
 impl Role {
@@ -91,6 +97,11 @@ impl Role {
             Role::Smith => Some("smith"),
             Role::Servant => Some("servant"),
             Role::Commoner => None,
+            Role::Merchant => Some("sell+agt"),
+            Role::Builder => Some("build+agt"),
+            Role::Healer => Some("healer"),
+            Role::Judge => Some("judge+agt"),
+            Role::Elder => Some("elder"),
         }
     }
 }
@@ -189,6 +200,8 @@ pub enum Cause {
     Famine,
     Age,
     Writing,
+    /// A flood, fire or earthquake (D08).
+    Disaster,
 }
 
 /// What happened.
@@ -234,6 +247,106 @@ pub enum EventKind {
         effect: Effect,
         author: usize,
         root: bool,
+    },
+    // D08: lives, institutions, trade, worship, works, disasters, law.
+    Birth {
+        person: usize,
+    },
+    Marriage {
+        a: usize,
+        b: usize,
+    },
+    Founded {
+        institution: usize,
+    },
+    Appointment {
+        person: usize,
+        institution: usize,
+    },
+    Venture {
+        merchant: usize,
+        from: usize,
+        to: usize,
+        good: &'static str,
+    },
+    Shortage {
+        settlement: usize,
+        good: &'static str,
+    },
+    Glut {
+        settlement: usize,
+        good: &'static str,
+    },
+    Loan {
+        lender: usize,
+        borrower: usize,
+        good: &'static str,
+        amount: u16,
+    },
+    Festival {
+        deity: usize,
+        settlement: usize,
+    },
+    Vow {
+        person: usize,
+        deity: usize,
+    },
+    Omen {
+        settlement: usize,
+        sign: &'static str,
+    },
+    Oracle {
+        deity: usize,
+        settlement: usize,
+        asker: usize,
+    },
+    ProjectBegun {
+        project: usize,
+    },
+    ProjectFinished {
+        project: usize,
+    },
+    ProjectAbandoned {
+        project: usize,
+    },
+    Flood {
+        settlement: usize,
+    },
+    Fire {
+        settlement: usize,
+    },
+    Earthquake {
+        settlement: usize,
+    },
+    Decree {
+        ruler: usize,
+        settlement: usize,
+        law: crate::society::Law,
+    },
+    Theft {
+        thief: usize,
+        victim: usize,
+        good: &'static str,
+    },
+    /// Brought before a court; the cause is what it is about.
+    Dispute {
+        plaintiff: usize,
+        defendant: usize,
+        court: usize,
+    },
+    /// The court's finding; the cause is the dispute.
+    Judgement {
+        judge: usize,
+        winner: usize,
+        loser: usize,
+    },
+    Feud {
+        a: usize,
+        b: usize,
+    },
+    Reconciliation {
+        a: usize,
+        b: usize,
     },
 }
 
@@ -287,6 +400,12 @@ pub struct History {
     /// The deepest text: the writing event that explains the world's state.
     pub root: usize,
     pub trajectory: Trajectory,
+    /// D08: institutions, gods, works and the stories that run through
+    /// the events.
+    pub institutions: Vec<crate::society::Institution>,
+    pub deities: Vec<crate::society::Deity>,
+    pub projects: Vec<crate::society::Project>,
+    pub arcs: Vec<crate::society::Arc>,
 }
 
 struct Builder<'a> {
@@ -521,6 +640,10 @@ impl History {
                 events: Vec::new(),
                 root: 0,
                 trajectory,
+                institutions: Vec::new(),
+                deities: Vec::new(),
+                projects: Vec::new(),
+                arcs: Vec::new(),
             },
         };
         for (e, lang) in langs.iter().enumerate() {
@@ -528,11 +651,22 @@ impl History {
             // Names already used in earlier eras must not collide either.
             for p in &b.h.people {
                 maker.reserve(&p.name, Pos::Noun);
+                // An older name made of words is said anew in this era: a
+                // new name must not sound like it (D08).
+                if let Some(again) = lang.say_name(&p.name_meaning) {
+                    maker.reserve(&again, Pos::Noun);
+                }
+            }
+            for t in &b.h.settlements {
+                if let Some(again) = lang.say_name(&t.name_meaning) {
+                    maker.reserve(&again, Pos::Noun);
+                }
             }
             let mut namer = Namer { lang, maker };
             simulate_era(&mut b, e as u32, &mut namer);
         }
         build_roads(&mut b);
+        crate::society::deepen(seed, &mut b.h, t, w, langs);
         let mut h = b.h;
         h.events.sort_by_key(|e| (e.year, e.id));
         // Keep ids equal to positions after sorting, remapping references.
@@ -548,6 +682,11 @@ impl History {
             e.cause = e.cause.map(|c| remap[c]);
         }
         h.root = remap[h.root];
+        for a in &mut h.arcs {
+            for e in &mut a.events {
+                *e = remap[*e];
+            }
+        }
         h
     }
 

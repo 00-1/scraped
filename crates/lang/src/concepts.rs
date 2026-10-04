@@ -196,7 +196,9 @@ fn built_concepts(base: &[Concept]) -> Vec<Concept> {
                     format!("{}+agt", c.id),
                     Pos::Noun,
                     Domain::People,
-                    vec!["person", "doer"],
+                    // One who does it names a calling, like "smith": a
+                    // title after a name (D08).
+                    vec!["person", "doer", "title"],
                     f,
                 ));
                 out.push(make(

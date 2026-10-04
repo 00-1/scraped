@@ -147,6 +147,8 @@ impl Game {
             era: self.writing_era() as u32,
             year: self.site.world.history.eras.last().map_or(0, |e| e.end) + 1 + i as i32,
             kind: if potent { Kind::Potent } else { Kind::Label },
+            genre: scraped_world::texts::Genre::of(if potent { Kind::Potent } else { Kind::Label }),
+            arc: None,
             meaning: meaning.unwrap_or(Sentence::List(Vec::new())),
             author: None,
             event: None,

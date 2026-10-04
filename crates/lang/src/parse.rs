@@ -1173,7 +1173,8 @@ impl<'a> Parser<'a> {
         if at >= input.len() {
             return Some(Vec::new());
         }
-        if depth > 6 {
+        // Long texts (D08's annals, letters) run to dozens of sentences.
+        if depth > 40 {
             return None;
         }
         let mut units = self.unit(input, at, 0, true);
