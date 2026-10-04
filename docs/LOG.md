@@ -725,3 +725,7 @@ Jb's decisions: trust the AI but make the engine hard to see inside (a stripped 
 **New content slots:** `spell.cue` (quality, rising, class, thing, strength, with, with_rising, indoors), `effect.fast` (thing, how). Changed: `effect.change` takes all fifteen qualities and ten classes. New words in every language: greatly, slightly, widely, and "unless".
 
 **Next:** D10.
+
+## 2026-10-04 — S03 added (review)
+
+Review of D08, C01 and D09: large and solid, but 279 of 280 text variants are still examples, so the transcripts can't yet show whether it plays well. Jb is playing tomorrow. Added `docs/milestones/S03-before-jb-plays.md`, to do before D10: tag v0.1.0 and refresh the APK so Jb has a current build, and fix the wording bugs in the D09 samples (plurals, plural feature names, exact counts in `read.whole`, related signs whose base can't be found, the `say.take_fixed` lint error, open code fences in samples).
