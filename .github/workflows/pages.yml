@@ -6,6 +6,10 @@ name: Pages
 on:
   push:
     branches: [claude/laughing-edison-9brdzg]
+  # Again once a release is out, so players.html lists it.
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
   workflow_dispatch:
 
 permissions:

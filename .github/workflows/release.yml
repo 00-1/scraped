@@ -1,12 +1,15 @@
 # The release gate and release binaries. Push a tag like v1.0.0 to release;
-# run by hand (Actions → Release → Run workflow) to try the gate, or give
-# the run a tag to release the commit it runs on under that tag (for
-# sessions that may push branches but not tags).
+# or, where only branches may be pushed (agent sessions), write the tag
+# into .github/RELEASE on the development branch and push: that commit is
+# released under that tag. Run by hand (Actions → Release → Run workflow)
+# to try the gate, or give the run a tag to release its commit.
 name: Release
 
 on:
   push:
     tags: ["v*"]
+    branches: ["claude/laughing-edison-9brdzg"]
+    paths: [".github/RELEASE"]
   workflow_dispatch:
     inputs:
       tag:
@@ -18,8 +21,24 @@ permissions:
   contents: write
 
 jobs:
+  # The tag this run releases under (empty: only try the gate).
+  which:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: tag
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then tag="${GITHUB_REF_NAME}"
+          elif [ -n "${{ inputs.tag }}" ]; then tag="${{ inputs.tag }}"
+          elif [ "${GITHUB_EVENT_NAME}" = push ]; then tag=$(tr -d '[:space:]' < .github/RELEASE)
+          else tag=""; fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
   # Everything that must hold before a release.
   gate:
+    needs: which
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +62,7 @@ jobs:
       # DESIGN-Q: for v0.x play builds (S03) this only reports, since the
       # text still waits on Jb; from v1.0.0 it blocks the release.
       - run: cargo run -q -p scraped-cli -- content release-check
-        continue-on-error: ${{ startsWith(inputs.tag || github.ref_name, 'v0.') }}
+        continue-on-error: ${{ startsWith(needs.which.outputs.tag, 'v0.') }}
       # Every seed of a batch, at every difficulty, gives a fair world.
       - run: cargo run -q --release -p scraped-cli -- fair --seeds 1-50 --all
       # The browser builds, works headless, and matches native transcripts.
@@ -144,8 +163,8 @@ jobs:
           path: android/dist/scraped-again.apk
 
   publish:
-    needs: [binaries, android]
-    if: startsWith(github.ref, 'refs/tags/') || inputs.tag != ''
+    needs: [which, binaries, android]
+    if: needs.which.outputs.tag != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -163,7 +182,7 @@ jobs:
           (cd players && sha256sum * > SHA256SUMS)
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.tag || github.ref_name }}
+          tag_name: ${{ needs.which.outputs.tag }}
           target_commitish: ${{ github.sha }}
           files: |
             players/*
