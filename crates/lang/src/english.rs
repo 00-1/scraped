@@ -130,8 +130,17 @@ fn clause_without(c: &Clause, gap: Option<Role>, name: &dyn Fn(usize) -> String)
             if c.polarity == Polarity::Negative {
                 parts.push("not".to_string());
             }
-            let past = if c.tense == Tense::Past { "have " } else { "" };
-            parts.push(format!("{past}{aspect}{}", verb.id));
+            // The past here is "have" and the past form (a spoiler gloss:
+            // close enough where the participle differs, as "went").
+            let verb = if c.tense == Tense::Past {
+                format!(
+                    "have {aspect}{}",
+                    finite(verb, c.tense, Polarity::Positive, number)
+                )
+            } else {
+                format!("{aspect}{}", verb.id)
+            };
+            parts.push(verb);
         }
         Mood::Declarative | Mood::Interrogative => {
             if c.mood == Mood::Interrogative {

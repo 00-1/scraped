@@ -238,9 +238,9 @@ pub fn scene_room(w: &World, structure: usize, kinds: &[String]) -> Option<usize
 
 /// The meaning of a storylet's generated writing.
 fn inscription_meaning(seed: u64, s: &Storylet, register: &str, about: &str) -> Sentence {
-    let nouns: Vec<&concepts::Concept> = concepts::all()
-        .iter()
-        .filter(|c| c.pos == PartOfSpeech::Noun && !c.has_tag("departure"))
+    // Core nouns only: every language has them (D07's cultural words vary).
+    let nouns: Vec<&concepts::Concept> = concepts::with_pos(PartOfSpeech::Noun)
+        .filter(|c| !c.has_tag("departure"))
         .filter(|c| c.id == about || c.has_tag(about))
         .collect();
     let h = hash(&[
@@ -867,10 +867,8 @@ pub fn lint(pack: &Pack) -> Vec<Issue> {
                         "the register must be potent or everyday".into(),
                     );
                 }
-                let known = concepts::all().iter().any(|c| {
-                    c.pos == PartOfSpeech::Noun
-                        && !c.has_tag("departure")
-                        && (c.id == req.about || c.has_tag(&req.about))
+                let known = concepts::with_pos(PartOfSpeech::Noun).any(|c| {
+                    !c.has_tag("departure") && (c.id == req.about || c.has_tag(&req.about))
                 });
                 if !known {
                     issue(

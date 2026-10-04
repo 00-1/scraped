@@ -209,6 +209,30 @@ impl<'a> Corpus<'a> {
         out
     }
 
+    /// D07: `count` longer random sentences using every construction, each
+    /// with its translation and glosses (all spoilers), for seeing the
+    /// grammar at work. Meanings are random, not texts.
+    pub fn long_text(&self, seed: u64, count: usize) -> String {
+        let r = self.renderer();
+        let mut rng = crate::rng::Rng::new(seed, crate::rng::Stream::Inscription(9_000));
+        let mut out = String::new();
+        for _ in 0..count {
+            let m = crate::sample::sentence(self.lang, &mut rng, r.names.len());
+            let rendered = r.render(&m);
+            out.push_str(&r.surface(&rendered));
+            out.push('\n');
+            out.push_str(&format!(
+                "    {}\n",
+                crate::english::translate(&m, &|n| r.name(n))
+            ));
+            let segs: Vec<String> = rendered.words.iter().map(|w| r.segmented(w)).collect();
+            let glosses: Vec<String> = rendered.words.iter().map(|w| w.gloss()).collect();
+            let (a, b) = align(&segs, &glosses);
+            out.push_str(&format!("    {a}\n    {b}\n\n"));
+        }
+        out
+    }
+
     /// Width of a glyph line on a surface, in glyphs.
     // DESIGN-Q: a fixed line width until surfaces have real sizes (M04/M08).
     pub const GLYPH_LINE: usize = 16;

@@ -27,6 +27,7 @@ usage:
   scraped-lang --seed N grammar --spoil [--era E] [--json]
   scraped-lang --seed N script --spoil [--era E] [--json]
   scraped-lang --seed N eras --spoil [--json]
+  scraped-lang --seed N long --spoil [--count 12] [--era E]
 
   --seed N         language seed (any unsigned 64-bit number)
   --count K        number of inscriptions (default 40)
@@ -51,6 +52,7 @@ enum Command {
     Grammar,
     Script,
     Eras,
+    Long,
 }
 
 #[derive(Debug, PartialEq)]
@@ -135,6 +137,7 @@ fn parse(args: &[String]) -> Result<Args, String> {
             "grammar" if command.is_none() => command = Some(Command::Grammar),
             "script" if command.is_none() => command = Some(Command::Script),
             "eras" if command.is_none() => command = Some(Command::Eras),
+            "long" if command.is_none() => command = Some(Command::Long),
             other => return Err(format!("unexpected argument: {other}")),
         }
     }
@@ -196,6 +199,11 @@ fn run(args: &Args) -> Result<String, String> {
         }
         Command::Eras if !args.spoil => needs_spoil("sound-change history"),
         Command::Eras => Ok(eras(&lang, args.json)),
+        Command::Long if !args.spoil => needs_spoil("long-sentence sample"),
+        Command::Long => {
+            Ok(Corpus::generate(&lang, args.count)
+                .long_text(args.seed, args.count.min(40) as usize))
+        }
     }
 }
 

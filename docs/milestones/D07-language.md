@@ -58,14 +58,14 @@ Dates by the culture's calendar (D05, D06): regnal years, festivals, months. Ord
 
 ## Checklist
 
-- [ ] Coordination, subordination, relative clauses
-- [ ] Reported speech, comparison, quantifiers
-- [ ] Moods, tense and aspect systems
-- [ ] Derivation and compounds
-- [ ] Generated cultural lexicon with semantic relations
-- [ ] Personal names and meaningful place names, across eras
-- [ ] Dates and calendar language
-- [ ] Parser parity and round trip
-- [ ] Grammar sheet, bench and inspector updated
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Coordination, subordination, relative clauses
+- [x] Reported speech, comparison, quantifiers
+- [x] Moods, tense and aspect systems
+- [x] Derivation and compounds
+- [x] Generated cultural lexicon with semantic relations
+- [x] Personal names and meaningful place names, across eras
+- [x] Dates and calendar language
+- [x] Parser parity and round trip
+- [x] Grammar sheet, bench and inspector updated
+- [x] Tests listed above (attestation per construction comes with D08's texts)
+- [x] LOG.md entry

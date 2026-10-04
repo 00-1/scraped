@@ -175,12 +175,23 @@ New metrics: `things.puzzles`, `things.maps`, `things.object_kinds`; `things.lon
 
 Strange places are now counted as sites (each live spell, each natural wonder) rather than every structure within a spell's reach. The explorer meets few animals in a day (3.4) because it spends most of its time in towns and buildings. New metrics: `life.animals`, `life.plants`, `life.met`, `life.known_by_signs_first`, `weather.consequences_per_month`, `magic.natural_wonders`.
 
+### After D07 (seeds 1–10)
+
+| Metric | Before | D07 | Target |
+|---|---|---|---|
+| Concepts in a world's lexicon | 110 | 566–603 (core, five culture fields, species, derived words, compounds) | 400–700 |
+| Constructions (coordination, eight subordinators, relatives, reported and quoted speech, comparison, quantifiers, four moods, aspect, ordinals, dates) | 0 | all, each rendered and parsed back | every one regular and round-tripping |
+| Derivations / compound order | none | six affixes per seed; head-first or head-last | regular per seed |
+| Names that mean something (people, towns) | 0% | 100% (`name_meaning`; place names from the site) | all |
+
+Fairness attestation per construction in readable texts waits for D08's texts.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
 
-- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 9 of seeds 1–10 after D06 (8 after D03, S01 and D05; 16 of 1–20 before D03). Since D06 it fishes when hungry by water (warm, by day), won't forage while shivering, waits outdoors now and then, and looks up once a night. Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
-- **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 5 of seeds 1–10 and a great inscription on 6. The spec asks for 8. What stops it is in the game, not the bot:
+- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 after D07 (worlds changed with the new lexicon; 9 after D06, 8 after D03, S01 and D05; 16 of 1–20 before D03). Since D07 it goes out by day to gather wood when cold under a roof with no fire. Since D06 it fishes when hungry by water (warm, by day), won't forage while shivering, waits outdoors now and then, and looks up once a night. Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
+- **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 6 of seeds 1–10 after D07 (5 after D06) and a great inscription on 9 (6). The spec asks for 8. What stops it is in the game, not the bot:
   - **Held doors.** Old writing holds whole towns' doors shut. The only counter is to write "open" with a passage word (door, gate, tomb, box), and those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets the scholar write them.
   - **Scarce light.** Torches burn an hour, lamps four. Deep rooms are often dark, and the scholar must come back later with fuel.
   - **Distance.** The first lens is placed in roughly the 90th-percentile building by distance from the start, so reaching it means exploring most of the world.

@@ -291,3 +291,18 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Steering by night | On a clear night outside the woods the still star keeps the heading true, as the sun does by day; a near-full moon lets the eye reach 1.5 km | `crates/game/src/travel.rs` | now |
 | Natural wonders | Marsh lights, booming dunes, tidal bores, steam vents, echoing gorges, mirages, aurora, glowing shores, fogbows, singing arches; at most two of each (one aurora), 4.5 km apart, each where the land makes it and shown at its time | `crates/world/src/phenomena.rs`, `crates/game/src/skies.rs` | D09 |
 | Strange places | Counted as sites: each live spell and each natural wonder (before D06, every structure within a spell's reach) | `crates/game/src/depth.rs` | D09 |
+
+## A language for long texts (D07)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How deep can clauses nest? | One level: a main clause may hold one relative, adverbial or reported clause, but those hold none; long texts chain sentences instead (deeper nesting makes attachment ambiguous in many word orders) | `crates/lang/src/parse.rs` (`CLAUSE_DEPTH`) | D08 |
+| Word order of the new constructions | Correlated with verb-final or not: "that" faces the verb, linking words stand between the two clauses, relative clauses on the adjectives' side with the relative word closing them on the far side, the compared-with phrase outside the adjectives; adverbial clauses mostly first | `crates/lang/src/syntax.rs` | now |
+| Aspect and mood | A quarter of languages mark tense only; the rest tense plus one aspect (perfective, imperfective or habitual). Optative, conditional and question each have a marker; commands are a bare verb. Each marker is a particle about 30% of the time; the difficulty dial makes them all words (gentle) or all affixes (archaeologist) | `crates/lang/src/morphology.rs`, `crates/lang/src/difficulty.rs` (`Markers`) | now |
+| Derivation | Six affixes (agent, place, instrument, abstract, diminutive, adjective-from-noun), always affixes next to the root; compound order drawn freely per seed (the real tendency, head-last in verb-final languages, isn't followed) | `crates/lang/src/morphology.rs` | now |
+| Compounds | Formed on eight heads (stone, road, gate, house, field, water, song, day) with modifiers of fitting kinds; a language has every such compound whose parts it names | `crates/lang/src/concepts.rs` (`COMPOUNDS`) | D08 |
+| Which words a world has | A core every language has, plus five culture fields: two rich and three partial, drawn by weight (10 each plus the world's coast, open land and rivers), plus its species. 566–603 concepts per world | `crates/lang/src/lib.rs` (`Culture`), `crates/lang/data/lexicon.txt` | D08, D09 |
+| Personal names | Two words compounded (45%), a word and a derivation (20%) or either (35%) per world; patronymics, clan names and epithets are not yet built | `crates/lang/src/names.rs` | D08 |
+| Place names | Heads from the site (ford on a river, shore by the sea, hill on high ground…), modifiers from colour, age, size, holiness and a few things of the land | `crates/world/src/history.rs` (`place_words`) | now |
+| Dates | "In the Nth year/day of …" with ordinals as the numeral and an ordinal word; in the language now, used by texts from D08 | `crates/lang/src/meaning.rs` (`Role::Time`) | D08 |
+| Storylet writing | A storylet's inscription picks among core nouns only, so every world has the word | `crates/game/src/storylets.rs` | now |

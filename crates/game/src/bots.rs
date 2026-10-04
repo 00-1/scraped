@@ -1094,6 +1094,11 @@ impl DepthBot {
         if !evening && !shivering {
             self.sheltering = false;
         }
+        // A roof without a fire doesn't warm: by day, cold and with no
+        // wood, out to gather some rather than wait the cold out.
+        if !outside && self.sheltering && !evening && cold && !has("wood") && has("firesteel") {
+            self.sheltering = false;
+        }
         if !outside && self.sheltering && !evening {
             // In from the cold by day: warm up indoors first.
             return Some("wait 1 hour".into());

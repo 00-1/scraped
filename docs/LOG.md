@@ -666,3 +666,13 @@
 ## 2026-10-04 — S02 added (review)
 
 Review of D04–D06: targets met except those already reported (features visited, scholar). Sign impressions in `read closely` are still stroke lists ("a tail turned right, with a bar, right…"), against Jb's design; the cause is the impression model, not the wording. Added a small, contained steer, `docs/milestones/S02-sign-impressions.md`, to do after D07 and before D08.
+
+## 2026-10-04 — D07 done
+
+**A language for long texts:** coordination, eight subordinators, relative clauses, reported and quoted speech, comparison, quantifiers, four moods, a tense-and-aspect system per seed, ordinals and dates, all rendered and parsed back (round trip on random sentences in every era); six derivations and compounds per seed; a cultural lexicon of about 630 concepts from which each world takes 566–603 by its coast, land, rivers and species; personal names built from words and town names from their sites, each with its meaning, sound-changed across eras (`crates/lang/`, `crates/world/src/history.rs`). A difficulty dial puts aspect and mood markers in words (gentle) or affixes (archaeologist). The grammar sheet, the bench ("Longer sentences") and a new `scraped-lang long --spoil` show it. Explorer 8 of 10 (it now goes out to gather wood when cold indoors), scholar 6 of 10. Fixed along the way: a pivot over a great inscription, routes squeezing between closed cells at a corner, a hermitage on unreachable land, storylet writing that used words a world lacks.
+
+**Open questions:** "A language for long texts (D07)" in DECISIONS: one level of clause nesting, how often markers are particles, compounds on eight heads, culture-field weights, name styles (no patronymics or epithets yet), place-name words. Attestation of each construction in readable texts waits for D08. The scholar loops on seeds 6 and 10 (many commands, few hours) without failing.
+
+**New content slots:** none (names and sentences are generated language).
+
+**Next:** S02, then D08.

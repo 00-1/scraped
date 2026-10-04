@@ -233,11 +233,19 @@ pub fn timeline(w: &World) -> String {
         ));
         for e in h.events.iter().filter(|e| e.era == era.index) {
             let what = match &e.kind {
-                EventKind::Founding { settlement } => format!("{} founded", town(*settlement)),
+                EventKind::Founding { settlement } => format!(
+                    "{} founded ({})",
+                    town(*settlement),
+                    h.settlements[*settlement].name_meaning.join(" ")
+                ),
                 EventKind::Abandonment { settlement, cause } => {
                     format!("{} abandoned ({cause:?})", town(*settlement))
                 }
-                EventKind::Succession { ruler, .. } => format!("{} becomes ruler", person(*ruler)),
+                EventKind::Succession { ruler, .. } => format!(
+                    "{} becomes ruler ({})",
+                    person(*ruler),
+                    h.people[*ruler].name_meaning.join(" ")
+                ),
                 EventKind::Death { person: p, .. } if h.people[*p].role == Role::Ruler => {
                     format!("{} dies", person(*p))
                 }

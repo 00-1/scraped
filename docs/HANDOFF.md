@@ -4,8 +4,8 @@ Where the project stands, for the next agent. Read `CLAUDE.md` first, then this.
 
 ## State (2026-10-04)
 
-- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D06** and the course corrections **S01**.
-- **Next:** **D07 — A language for long texts** (`docs/milestones/D07-language.md`). The sky's figures and planets are already named in the oldest language from the few concepts it has (`World::sky`); D07's cultural lexicon can widen that, and D08 texts can name them.
+- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D07** and the course corrections **S01**.
+- **Next:** **S02 — Sign impressions as whole shapes** (`docs/milestones/S02-sign-impressions.md`), then **D08 — History and texts**. D07's grammar (clauses, moods, derivation, names, dates) is in the language but the world's texts don't use it yet; D08 writes them, and checks each construction is attested often enough to learn.
 - **Wasm:** usize is 32 bits there. Take a hash modulo as u64 before casting to usize, or picks differ from native (`node tools/smoke/determinism.cjs` catches it).
 - **Branch:** `claude/laughing-edison-9brdzg`. Everything is committed and pushed. CI (`.github/workflows/ci.yml`) runs fmt, clippy, tests, the release-mode bot tests, the wasm build, the browser smoke tests and the Android build.
 - `content release-check` fails on purpose. It is the release gate, and it waits for Jb's own text.
@@ -54,5 +54,5 @@ The game side is `crates/game/src/places.rs`: facts for districts, features and 
 - **Example text prints raw ids** in places ("lake", "birds"). It is for Jb to write over; don't polish the example prose.
 - **Group members read alike** ("the intact tomb, to the east" twice).
 - **The bots are sensitive** to any change in what's in view or in towns. Check survival on seeds 1–20 after world changes (`bots --seeds 1-20 --bot explorer`; D03: 17 of 20).
-- **The scholar bot** reads the deepest text on only 5 of 10 seeds (held doors need rare words; see the D01 findings in `docs/DEPTH.md`). This is expected to improve in D07/D09; its test holds at 5.
+- **The scholar bot** reads the deepest text on only 6 of 10 seeds (held doors need rare words; see the D01 findings in `docs/DEPTH.md`). This is expected to improve in D08/D09; its test holds at 5.
 - **Open design questions** are collected in `docs/DECISIONS.md`. Build on the defaults there and add new `// DESIGN-Q:` rows as you go.
