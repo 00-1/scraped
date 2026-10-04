@@ -9,6 +9,7 @@
 use std::cell::RefCell;
 
 use scraped_content::{coverage, lint, Pack, Registry, Renderer, Variant, SAMPLE_SEEDS};
+use scraped_game::shared::{merge_files, Move, WorldFile};
 use scraped_lang::corpus::Corpus;
 use scraped_lang::difficulty::{Difficulty, NameMarking, Regularity, Separation};
 use scraped_lang::script::ScriptKind;
@@ -226,6 +227,47 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             Ok(
                 json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state, "truth": look.truth }),
             )
+        }
+        // Shared worlds (C01), for the app: the world file is the record;
+        // the client supplies who and when, and stores and syncs the file.
+        "world_share" => GAME.with(|g| match g.borrow().as_ref() {
+            Some(game) => Ok(json!({ "file": WorldFile::new(&field::<String>(req, "id")?, game) })),
+            None => Err("no game started".to_string()),
+        }),
+        "world_open" => {
+            let (pack, _) = pack(req)?;
+            let file: WorldFile = field(req, "file")?;
+            let (mut game, text) = scraped_game::Game::open(&file.open()?, pack)?;
+            let look = game.step_quiet();
+            let code = game.seed_code();
+            GAME.with(|g| *g.borrow_mut() = Some(game));
+            Ok(json!({ "text": text, "state": look.state, "code": code }))
+        }
+        "world_play" => {
+            let mut file: WorldFile = field(req, "file")?;
+            let line: String = field(req, "line")?;
+            let who: String = field(req, "who")?;
+            let at: u64 = opt(req, "at", 0);
+            GAME.with(|g| match g.borrow_mut().as_mut() {
+                Some(game) => {
+                    let o = game.step(&line);
+                    file.moves.push(Move {
+                        who,
+                        at,
+                        command: line,
+                        text: o.text.clone(),
+                    });
+                    file.store(game);
+                    Ok(json!({ "file": file, "text": o.text, "state": o.state }))
+                }
+                None => Err("no game started".to_string()),
+            })
+        }
+        "world_merge" => {
+            let ours: WorldFile = field(req, "ours")?;
+            let theirs: WorldFile = field(req, "theirs")?;
+            let (how, file, branch) = merge_files(&ours, &theirs)?;
+            Ok(json!({ "merge": how, "file": file, "branch": branch }))
         }
         #[cfg(feature = "spoilers")]
         "regions" => {

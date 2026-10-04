@@ -173,6 +173,48 @@ pub fn merge_talk(ours: &[Talk], theirs: &[Talk]) -> Vec<Talk> {
     all
 }
 
+/// Merges another copy of a world into ours, for a sync that found both
+/// changed: the newer copy is kept with both copies' table talk; after a
+/// split ours is kept and theirs comes back as a branch, named for who
+/// moved first after the split and when.
+// DEBUG-TEXT: errors for players' programs and agents.
+pub fn merge_files(
+    ours: &WorldFile,
+    theirs: &WorldFile,
+) -> Result<(Merge, WorldFile, Option<WorldFile>), String> {
+    if ours.id != theirs.id {
+        return Err("these are two different worlds".into());
+    }
+    let how = compare(ours, theirs);
+    let talk = merge_talk(&ours.talk, &theirs.talk);
+    Ok(match how {
+        Merge::Same | Merge::Newer { newest: Side::Ours } => (
+            how,
+            WorldFile {
+                talk,
+                ..ours.clone()
+            },
+            None,
+        ),
+        Merge::Newer {
+            newest: Side::Theirs,
+        } => (
+            how,
+            WorldFile {
+                talk,
+                ..theirs.clone()
+            },
+            None,
+        ),
+        Merge::Split { turn } => {
+            let mut branch = theirs.clone();
+            let who = theirs.moves.get(turn).map_or("other", |m| m.who.as_str());
+            branch.branch = format!("{who}-{turn}");
+            (how, ours.clone(), Some(branch))
+        }
+    })
+}
+
 /// Whether a player program that has seen this world at (`turn`, `chain`)
 /// may carry on from `file`: never from an older copy (no undo).
 pub fn may_continue(file: &WorldFile, seen: Option<(usize, &str)>) -> Continuity {
@@ -217,6 +259,20 @@ mod tests {
             }
         );
         assert_eq!(compare(&on, &other), Merge::Split { turn: 2 });
+    }
+
+    #[test]
+    fn merging_keeps_the_newer_copy_or_branches() {
+        let base = file(&[("jb", "look")]);
+        let on = file(&[("jb", "look"), ("ai", "read")]);
+        let other = file(&[("jb", "look"), ("jb", "sleep")]);
+        let (_, kept, branch) = merge_files(&base, &on).unwrap();
+        assert_eq!(kept.moves.len(), 2);
+        assert!(branch.is_none());
+        let (how, kept, branch) = merge_files(&other, &on).unwrap();
+        assert_eq!(how, Merge::Split { turn: 1 });
+        assert_eq!(kept.moves[1].command, "sleep");
+        assert_eq!(branch.unwrap().branch, "ai-1");
     }
 
     #[test]

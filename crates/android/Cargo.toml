@@ -13,3 +13,7 @@ crate-type = ["cdylib", "rlib"]
 scraped-web = { path = "../web" }
 serde_json.workspace = true
 jni = { version = "0.21", default-features = false }
+
+[dev-dependencies]
+scraped-play = { path = "../play" }
+scraped-content = { path = "../content" }

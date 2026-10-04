@@ -61,6 +61,17 @@ The plug icon on the worlds screen.
   including Google Drive. Every change is written there. On another phone,
   *Restore from file* brings the worlds in (newer copies win). *Import*
   takes a single exported world.
+- **Shared worlds.** Play a world with a partner, a person or an AI in a
+  Claude Code session, taking turns whenever either likes. Worlds sync
+  through a private GitHub repository used only for worlds: give its
+  `owner/name`, a fine-grained token with *Contents: read and write* on that
+  one repository, and your name (`jb` by default). Then *Share this world*
+  from a world's menu. The world list marks shared worlds, says who moved
+  last and counts unread table talk; in a world, the envelope opens table
+  talk. The app syncs when it starts, when you open a shared world and a
+  moment after each move or note. If you both played on from the same
+  point, the world has split: your line stays, and the other comes in as a
+  separate world (a branch). An agent's side is in `docs/coop/PLAYING.md`.
 - **Agent access.** Lets an AI agent play the open world. It can read the
   game's text and type commands, and nothing else: no saves, no other worlds,
   no spoilers, no code. Its moves appear in your transcript, tagged. Turn it

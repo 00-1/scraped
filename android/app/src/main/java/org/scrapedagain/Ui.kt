@@ -54,11 +54,14 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -215,6 +218,11 @@ private fun WorldsScreen(model: AppModel) {
             LargeTopAppBar(
                 title = { Text(model.label("worlds"), fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold) },
                 actions = {
+                    if (model.worldsReady()) {
+                        IconButton(onClick = { model.syncWorlds() }) {
+                            Icon(Icons.Filled.Refresh, contentDescription = model.label("sync_now"))
+                        }
+                    }
                     IconButton(onClick = { sheet = "appearance" }) {
                         Icon(Icons.Filled.Settings, contentDescription = model.label("appearance"))
                     }
@@ -281,7 +289,11 @@ private fun Avatar(w: World) {
 @Composable
 private fun WorldRow(model: AppModel, w: World, onClick: () -> Unit, onLong: () -> Unit) {
     val preview = w.lastGame().lineSequence().firstOrNull { it.isNotBlank() }?.trim() ?: ""
-    val tag = if (w.ended) model.label("ended") else "${model.label("day")} ${w.day}"
+    val day = if (w.ended) model.label("ended") else "${model.label("day")} ${w.day}"
+    // A shared world says so, and who moved last.
+    val tag = if (w.shared == null) day
+    else listOfNotNull(model.label("shared"), w.lastMover()?.let { "${model.label("moved_last")} $it" }, day).joinToString(" · ")
+    val unread = if (w.shared == null) 0 else w.unread(model.worldsMe)
     ListItem(
         modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLong).testTag("world"),
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
@@ -291,11 +303,17 @@ private fun WorldRow(model: AppModel, w: World, onClick: () -> Unit, onLong: () 
         },
         supportingContent = { Text("$tag · $preview", maxLines = 1, overflow = TextOverflow.Ellipsis) },
         trailingContent = {
-            Text(
-                DateUtils.getRelativeTimeSpanString(w.updated, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    DateUtils.getRelativeTimeSpanString(w.updated, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (unread > 0) {
+                    Spacer(Modifier.height(4.dp))
+                    Badge { Text(unread.toString()) }
+                }
+            }
         },
     )
 }
@@ -406,6 +424,12 @@ private fun WorldMenuSheet(model: AppModel, w: World, inGame: Boolean, onClose: 
                 context.startActivity(Intent.createChooser(i, null))
                 onClose()
             }
+            if (inGame && w.shared == null && model.worldsReady()) {
+                MenuItem(model.label("share_world")) {
+                    onClose()
+                    model.share()
+                }
+            }
             if (inGame) {
                 MenuItem(model.label("manual")) {
                     onClose()
@@ -446,6 +470,7 @@ private fun GameScreen(model: AppModel, ink: Ink) {
     val view = LocalView.current
     val clipboard = LocalClipboardManager.current
     var menu by remember { mutableStateOf(false) }
+    var talk by remember { mutableStateOf(false) }
     var open by remember { mutableStateOf(-1) }
     var input by remember { mutableStateOf(TextFieldValue("")) }
     val focus = remember { FocusRequester() }
@@ -478,14 +503,23 @@ private fun GameScreen(model: AppModel, ink: Ink) {
             title = {
                 Column {
                     Text("${model.label("world")} ${w.code}", maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium)
+                    val status = if (w.shared != null && model.worldsStatus.isNotEmpty()) " · ${model.label(model.worldsStatus)}" else ""
                     Text(
-                        "${model.label("day")} ${w.day} · ${model.label(w.difficulty)}",
+                        "${model.label("day")} ${w.day} · ${model.label(w.difficulty)}$status",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             },
             actions = {
+                if (w.shared != null) {
+                    val unread = model.talkVersion.let { w.unread(model.worldsMe) }
+                    IconButton(onClick = { talk = true }) {
+                        BadgedBox(badge = { if (unread > 0) Badge { Text(unread.toString()) } }) {
+                            Icon(Icons.Filled.Email, contentDescription = model.label("talk"))
+                        }
+                    }
+                }
                 IconButton(onClick = { model.screen = Screen.Notebook }) {
                     Icon(Icons.Filled.Edit, contentDescription = model.label("notebook"))
                 }
@@ -549,6 +583,56 @@ private fun GameScreen(model: AppModel, ink: Ink) {
         )
     }
     if (menu) WorldMenuSheet(model, w, inGame = true) { menu = false }
+    if (talk) TalkSheet(model, w) { talk = false }
+}
+
+/** Table talk (C01): messages with the other player, beside the game. */
+@Composable
+private fun TalkSheet(model: AppModel, w: World, onClose: () -> Unit) {
+    var text by remember { mutableStateOf("") }
+    val version = model.talkVersion
+    LaunchedEffect(version) { model.talkSeen() }
+    val talk = w.talk()
+    ModalBottomSheet(onDismissRequest = onClose) {
+        Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 24.dp).imePadding()) {
+            Text(model.label("talk"), style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(12.dp))
+            if (talk.length() == 0) {
+                Text(model.label("talk_none"), color = MaterialTheme.colorScheme.onSurfaceVariant, fontStyle = FontStyle.Italic)
+            }
+            LazyColumn(Modifier.weight(1f, fill = false).testTag("talk")) {
+                items(talk.length()) { i ->
+                    val m = talk.optJSONObject(i) ?: return@items
+                    val mine = m.optString("who") == model.worldsMe
+                    Column(
+                        Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
+                    ) {
+                        Text(m.optString("who"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Surface(
+                            color = if (mine) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+                            shape = RoundedCornerShape(14.dp),
+                        ) {
+                            Text(m.optString("text"), Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    placeholder = { Text(model.label("talk_hint")) },
+                    modifier = Modifier.weight(1f).testTag("talkInput"),
+                )
+                Spacer(Modifier.width(8.dp))
+                FilledIconButton(onClick = { model.talk(text); text = "" }) {
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = model.label("send"))
+                }
+            }
+        }
+    }
 }
 
 /** Scrolls to the newest entry; if it's taller than the screen, to its top. */
@@ -799,6 +883,32 @@ private fun IntegrationsScreen(model: AppModel) {
                     if (u != null) model.importFrom(u) else openFile.launch(arrayOf("application/json", "*/*"))
                 }) { Text(model.label("sync_restore")) }
                 FilledTonalButton(onClick = { openFile.launch(arrayOf("application/json", "*/*")) }) { Text(model.label("import")) }
+            }
+            Section(model.label("worlds_repo"), model.label("worlds_repo_hint")) {
+                var repo by remember { mutableStateOf(model.worldsRepo) }
+                var token by remember { mutableStateOf("") }
+                var me by remember { mutableStateOf(model.worldsMe) }
+                OutlinedTextField(repo, { repo = it }, label = { Text(model.label("worlds_repo_name")) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(
+                    token, { token = it },
+                    label = { Text(model.label("worlds_token")) },
+                    placeholder = if (model.hasToken()) ({ Text(model.label("worlds_token_set")) }) else null,
+                    singleLine = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(me, { me = it }, label = { Text(model.label("worlds_you")) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Button(onClick = { model.setWorlds(repo, token.ifBlank { null }, me); token = ""; model.syncWorlds() }) {
+                        Text(model.label("worlds_save"))
+                    }
+                    if (model.worldsReady()) {
+                        FilledTonalButton(onClick = { model.syncWorlds() }) { Text(model.label("sync_now")) }
+                    }
+                    if (model.worldsStatus.isNotEmpty()) {
+                        Text(model.label(model.worldsStatus), style = MaterialTheme.typography.labelMedium)
+                    }
+                }
             }
             Section(model.label("agent_access"), model.label("agent_hint"), toggle = {
                 Switch(

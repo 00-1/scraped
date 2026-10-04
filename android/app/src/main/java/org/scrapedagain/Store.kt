@@ -25,6 +25,15 @@ class World(
     var updated: Long,
     var day: Int,
     var ended: Boolean,
+    /** For a shared world (C01): its world file, the source of truth. */
+    var shared: JSONObject? = null,
+    /** The shared file's name where worlds sync, and its tag there when last synced. */
+    var remote: String = "",
+    var tag: String? = null,
+    /** How many table-talk messages have been seen. */
+    var talkRead: Int = 0,
+    /** The moves and talk the copy where worlds sync had when last synced. */
+    var synced: String = "",
 ) {
     fun toJson(): JSONObject {
         val t = JSONArray()
@@ -33,6 +42,26 @@ class World(
             .put("id", id).put("seed", seed).put("difficulty", difficulty).put("code", code)
             .put("save", save).put("transcript", t).put("notebook", notebook)
             .put("created", created).put("updated", updated).put("day", day).put("ended", ended)
+            .apply {
+                shared?.let { put("shared", it).put("remote", remote).put("tag", tag ?: "").put("talk_read", talkRead).put("synced", synced) }
+            }
+    }
+
+    /** Table talk in a shared world. */
+    fun talk(): JSONArray = shared?.optJSONArray("talk") ?: JSONArray()
+
+    /** Messages from the other player not yet seen. */
+    fun unread(me: String): Int {
+        val t = talk()
+        return (talkRead until t.length()).count { t.optJSONObject(it)?.optString("who") != me }
+    }
+
+    /** What [synced] records: the moves and talk the file holds. */
+    fun mark(): String = "${shared?.optJSONArray("moves")?.length() ?: 0}/${talk().length()}"
+
+    /** Who made the last move in a shared world. */
+    fun lastMover(): String? = shared?.optJSONArray("moves")?.let { m ->
+        if (m.length() == 0) null else m.optJSONObject(m.length() - 1)?.optString("who")
     }
 
     /** The last thing the game said. */
@@ -60,6 +89,11 @@ class World(
                 updated = o.optLong("updated"),
                 day = o.optInt("day", 1),
                 ended = o.optBoolean("ended"),
+                shared = o.optJSONObject("shared"),
+                remote = o.optString("remote"),
+                tag = o.optString("tag").ifEmpty { null },
+                talkRead = o.optInt("talk_read"),
+                synced = o.optString("synced"),
             )
         }
     }

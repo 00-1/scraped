@@ -171,6 +171,8 @@ name = "scraped-android"
 version = "0.1.0"
 dependencies = [
  "jni",
+ "scraped-content",
+ "scraped-play",
  "scraped-web",
  "serde_json",
 ]

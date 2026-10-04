@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 
 use scraped_content::Pack;
 use scraped_game::saves::Continuity;
-use scraped_game::shared::{compare, may_continue, merge_talk, Merge, Move, Side, Talk, WorldFile};
+use scraped_game::shared::{may_continue, merge_files, Merge, Move, Side, Talk, WorldFile};
 use scraped_game::{Game, Output};
 
 /// A shared world being played.
@@ -172,28 +172,10 @@ pub enum Merged {
 pub fn merge(ours_path: &Path, theirs_path: &Path) -> Result<Merged, String> {
     let ours = read_file(ours_path)?;
     let theirs = read_file(theirs_path)?;
-    if ours.id != theirs.id {
-        return Err("these are two different worlds".into());
-    }
-    match compare(&ours, &theirs) {
-        Merge::Same | Merge::Newer { newest: Side::Ours } => {
-            let mut out = ours.clone();
-            out.talk = merge_talk(&ours.talk, &theirs.talk);
-            write_file(ours_path, &out)?;
-            Ok(Merged::Kept(Side::Ours))
-        }
-        Merge::Newer {
-            newest: Side::Theirs,
-        } => {
-            let mut out = theirs.clone();
-            out.talk = merge_talk(&ours.talk, &theirs.talk);
-            write_file(ours_path, &out)?;
-            Ok(Merged::Kept(Side::Theirs))
-        }
-        Merge::Split { turn } => {
-            let mut branch = theirs.clone();
-            let who = theirs.moves.get(turn).map_or("other", |m| m.who.as_str());
-            branch.branch = format!("{who}-{turn}");
+    let (how, kept, branch) = merge_files(&ours, &theirs)?;
+    write_file(ours_path, &kept)?;
+    match (how, branch) {
+        (_, Some(branch)) => {
             let name = format!(
                 "{}.{}.world",
                 ours_path
@@ -205,6 +187,13 @@ pub fn merge(ours_path: &Path, theirs_path: &Path) -> Result<Merged, String> {
             write_file(&path, &branch)?;
             Ok(Merged::Branched(path))
         }
+        (
+            Merge::Newer {
+                newest: Side::Theirs,
+            },
+            None,
+        ) => Ok(Merged::Kept(Side::Theirs)),
+        _ => Ok(Merged::Kept(Side::Ours)),
     }
 }
 

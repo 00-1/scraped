@@ -23,6 +23,7 @@ include!(concat!(env!("OUT_DIR"), "/content.rs"));
 const NEEDS_PACK: &[&str] = &[
     "play_new",
     "play_load",
+    "world_open",
     "play_pack",
     "app_labels",
     "ui_labels",

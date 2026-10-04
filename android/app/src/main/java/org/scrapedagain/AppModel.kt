@@ -77,10 +77,22 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         private set
     var agentKey by mutableStateOf("")
         private set
+    /** Shared worlds (C01): the sync's state, as a label id ("" when idle). */
+    var worldsStatus by mutableStateOf("")
+        private set
+    var worldsRepo by mutableStateOf("")
+        private set
+    var worldsMe by mutableStateOf("jb")
+        private set
+    /** Bumped when a shared world's file changes, so its talk redraws. */
+    var talkVersion by mutableStateOf(0)
+        private set
     private val history = ArrayList<String>()
     private var recallAt = 0
     private var agent: AgentServer? = null
     private var syncJob: Job? = null
+    private var worldsJob: Job? = null
+    private val syncing = Mutex()
 
     /** Brief notices for the snackbar, as label ids. */
     val notices = MutableSharedFlow<String>(extraBufferCapacity = 8)
@@ -92,7 +104,10 @@ class AppModel(app: Application) : AndroidViewModel(app) {
             refreshWorlds()
             syncName = prefs.getString("sync", null)?.let { displayName(Uri.parse(it)) }
             if (prefs.getBoolean("agent", false)) setAgent(true)
+            worldsRepo = prefs.getString("worldsRepo", "") ?: ""
+            worldsMe = prefs.getString("worldsMe", "jb") ?: "jb"
             ready = true
+            syncWorlds()
         }
     }
 
@@ -141,13 +156,21 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         val w = store.worlds().firstOrNull { it.id == id } ?: return
         busy = true
         viewModelScope.launch {
-            playing.withLock {
-                val r = Engine.ask(Engine.req("play_load", "save" to w.save))
-                show(w, r.optJSONObject("state"))
+            val ok = playing.withLock {
+                val r = load(w)
+                if (r.has("error")) false else { show(w, r.optJSONObject("state")); true }
             }
             busy = false
-            screen = Screen.Game
+            if (ok) screen = Screen.Game else notices.tryEmit("world_refused")
+            if (ok && w.shared != null) syncWorlds()
         }
+    }
+
+    /** Loads a world into the engine: a shared one from its world file. */
+    private suspend fun load(w: World): JSONObject {
+        val f = w.shared
+        return if (f != null) Engine.ask(Engine.req("world_open", "file" to f))
+        else Engine.ask(Engine.req("play_load", "save" to w.save))
     }
 
     private fun show(w: World, state: JSONObject?) {
@@ -183,8 +206,15 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         if (cmd.isEmpty()) return ""
         return playing.withLock {
             val w = world ?: return@withLock ""
-            val r = Engine.ask(Engine.req("play", "line" to cmd))
+            val file = w.shared
+            val r = if (file != null) {
+                val name = if (who == 'y') worldsMe else "agent"
+                Engine.ask(Engine.req("world_play", "file" to file, "line" to cmd, "who" to name, "at" to System.currentTimeMillis() / 1000))
+            } else {
+                Engine.ask(Engine.req("play", "line" to cmd))
+            }
             val text = r.optString("text")
+            r.optJSONObject("file")?.let { w.shared = it }
             val save = Engine.ask(Engine.req("play_save"))
             withContext(Dispatchers.Main) {
                 w.transcript += Entry(who, cmd)
@@ -202,6 +232,7 @@ class AppModel(app: Application) : AndroidViewModel(app) {
                 recallAt = 0
             }
             persist(w)
+            if (w.shared != null) pushSoon()
             text
         }
     }
@@ -370,6 +401,203 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    // ---------- shared worlds (C01) ----------
+
+    /** Where shared worlds sync, if it's set up. */
+    private fun worldSync(): WorldSync? {
+        val repo = prefs.getString("worldsRepo", "") ?: ""
+        val token = prefs.getString("worldsToken", "") ?: ""
+        if (repo.isBlank() || token.isBlank()) return null
+        return GitHubSync(repo.trim(), token.trim())
+    }
+
+    fun worldsReady() = worldSync() != null
+
+    fun setWorlds(repo: String, token: String?, me: String) {
+        val e = prefs.edit().putString("worldsRepo", repo.trim()).putString("worldsMe", me.trim().ifEmpty { "jb" })
+        if (token != null) e.putString("worldsToken", token.trim())
+        e.apply()
+        worldsRepo = repo.trim()
+        worldsMe = me.trim().ifEmpty { "jb" }
+    }
+
+    fun hasToken() = !(prefs.getString("worldsToken", "") ?: "").isBlank()
+
+    /** Shares the open world: from now on its moves and talk sync. */
+    fun share() {
+        val w = world ?: return
+        if (w.shared != null) return
+        viewModelScope.launch {
+            playing.withLock {
+                val r = Engine.ask(Engine.req("world_share", "id" to w.id))
+                val f = r.optJSONObject("file") ?: return@withLock
+                w.shared = f
+                w.remote = "${w.code.ifEmpty { w.id }}.world"
+                persist(w)
+            }
+            talkVersion++
+            syncWorlds()
+        }
+    }
+
+    /** Leaves a message across the table in the open shared world. */
+    fun talk(text: String) {
+        val w = world ?: return
+        val f = w.shared ?: return
+        val t = text.trim()
+        if (t.isEmpty()) return
+        val talk = f.optJSONArray("talk") ?: JSONArray().also { f.put("talk", it) }
+        talk.put(
+            JSONObject().put("who", worldsMe).put("at", System.currentTimeMillis() / 1000)
+                .put("turn", f.optInt("turn")).put("text", t),
+        )
+        w.talkRead = talk.length()
+        talkVersion++
+        persist(w)
+        pushSoon()
+    }
+
+    /** The open world's talk has been read. */
+    fun talkSeen() {
+        val w = world ?: return
+        val n = w.talk().length()
+        if (w.talkRead != n) {
+            w.talkRead = n
+            persist(w)
+        }
+    }
+
+    private fun pushSoon() {
+        worldsJob?.cancel()
+        worldsJob = viewModelScope.launch {
+            delay(2000)
+            syncWorlds()
+        }
+    }
+
+    /**
+     * Brings shared worlds up to date both ways: each local one is merged
+     * with the copy where worlds sync (the newer wins, talk is joined, a
+     * split keeps the other line as a branch) and written back; worlds
+     * shared from elsewhere are brought in.
+     */
+    fun syncWorlds() {
+        val sync = worldSync() ?: return
+        viewModelScope.launch {
+            syncing.withLock {
+                worldsStatus = "syncing"
+                worldsStatus = try {
+                    syncOnce(sync)
+                    "synced"
+                } catch (e: Exception) {
+                    "sync_failed"
+                }
+            }
+        }
+    }
+
+    private suspend fun syncOnce(sync: WorldSync) {
+        val there = withContext(Dispatchers.IO) { sync.list() }
+        val locals = store.worlds().filter { it.shared != null }
+        for (local in locals) {
+            // The open world's copy is the live one.
+            val w = if (world?.id == local.id) world!! else local
+            var tag = there[w.remote]
+            if (tag != null && tag != w.tag) {
+                val (text, t) = withContext(Dispatchers.IO) { sync.get(w.remote) } ?: continue
+                merge(w, JSONObject(text))
+                tag = t
+            }
+            if (tag != null && tag == w.tag && w.mark() == w.synced) continue
+            val text = w.shared.toString()
+            val wrote = withContext(Dispatchers.IO) {
+                sync.put(w.remote, text, tag, "${worldsMe}: ${w.shared?.optJSONArray("moves")?.length() ?: 0} moves")
+            }
+            if (wrote != null) {
+                w.tag = wrote
+                w.synced = w.mark()
+                persist(w)
+            }
+        }
+        val known = store.worlds().map { it.remote }.toSet()
+        for (name in there.keys) {
+            if (name in known) continue
+            val (text, t) = withContext(Dispatchers.IO) { sync.get(name) } ?: continue
+            adopt(name, JSONObject(text), t)
+        }
+        withContext(Dispatchers.Main) { refreshWorlds() }
+    }
+
+    /** Merges the synced copy of a world into ours. */
+    private suspend fun merge(w: World, theirs: JSONObject) {
+        val ours = w.shared ?: return
+        val r = Engine.ask(Engine.req("world_merge", "ours" to ours, "theirs" to theirs))
+        val file = r.optJSONObject("file") ?: return
+        val before = ours.optJSONArray("moves")?.length() ?: 0
+        val moves = file.optJSONArray("moves") ?: JSONArray()
+        val kept = r.optJSONObject("merge")?.optString("newest")
+        withContext(Dispatchers.Main) {
+            w.shared = file
+            if (kept == "theirs") {
+                // The other player's moves, into the transcript as they saw them.
+                for (i in before until moves.length()) {
+                    val m = moves.optJSONObject(i) ?: continue
+                    val e = listOf(Entry(if (m.optString("who") == worldsMe) 'y' else 'a', m.optString("command")), Entry('g', m.optString("text")))
+                    w.transcript += e
+                    if (world?.id == w.id) transcript += e
+                }
+                w.save = JSONObject().put("sealed", file.optString("save")).put("turn", file.optInt("turn"))
+            }
+            talkVersion++
+        }
+        if (kept == "theirs" && world?.id == w.id) {
+            playing.withLock {
+                val o = Engine.ask(Engine.req("world_open", "file" to file))
+                withContext(Dispatchers.Main) { chips = chipsFor(o.optJSONObject("state")) }
+            }
+        }
+        persist(w)
+        r.optJSONObject("branch")?.let { b ->
+            val name = w.remote.removeSuffix(".world") + "." + b.optString("branch") + ".world"
+            adopt(name, b, null)
+            notices.tryEmit("world_split")
+        }
+    }
+
+    /** Brings in a world shared from elsewhere (or a branch of one). */
+    private suspend fun adopt(name: String, file: JSONObject, tag: String?) {
+        val opened = playing.withLock {
+            val o = Engine.ask(Engine.req("world_open", "file" to file))
+            // Put the open world back in the engine.
+            world?.let { load(it) }
+            o
+        }
+        if (opened.has("error")) {
+            notices.tryEmit("world_refused")
+            return
+        }
+        val entries = mutableListOf<Entry>()
+        val moves = file.optJSONArray("moves") ?: JSONArray()
+        for (i in 0 until moves.length()) {
+            val m = moves.optJSONObject(i) ?: continue
+            entries += Entry(if (m.optString("who") == worldsMe) 'y' else 'a', m.optString("command"))
+            entries += Entry('g', m.optString("text"))
+        }
+        if (entries.isEmpty()) entries += Entry('g', opened.optString("text"))
+        val now = System.currentTimeMillis()
+        val state = opened.optJSONObject("state")
+        val w = World(
+            id = now.toString(36) + (SecureRandom().nextInt(1 shl 20)).toString(36),
+            seed = "", difficulty = "standard", code = opened.optString("code"),
+            save = JSONObject().put("sealed", file.optString("save")).put("turn", file.optInt("turn")),
+            transcript = entries, notebook = "", created = now, updated = now,
+            day = (state?.optInt("minutes") ?: 0) / 1440 + 1, ended = false,
+            shared = file, remote = name, tag = tag,
+        )
+        if (tag != null) w.synced = w.mark()
+        store.putWorld(w)
+    }
+
     // ---------- appearance ----------
 
     private fun loadLook() = Look(
@@ -429,7 +657,8 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         if (world == null) {
             val recent = store.worlds().firstOrNull() ?: return ""
             playing.withLock {
-                val r = Engine.ask(Engine.req("play_load", "save" to recent.save))
+                val r = load(recent)
+                if (r.has("error")) return ""
                 show(recent, r.optJSONObject("state"))
             }
         }
