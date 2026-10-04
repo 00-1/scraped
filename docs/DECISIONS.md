@@ -363,4 +363,6 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 
 ## Before Jb plays (S03)
 
-- **Release gate for v0.x.** `content release-check` fails while the text is still examples, which would stop every release. For v0.x tags it only reports; from v1.0.0 it blocks (`release.yml`). Alternative: drop the check from the gate until Jb's text is in.
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Release gate for v0.x | `content release-check` fails while the text is still examples, which would stop every release; for v0.x tags it only reports, and from v1.0.0 it blocks | `.github/workflows/release.yml` | now |

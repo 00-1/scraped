@@ -1,11 +1,18 @@
 # The release gate and release binaries. Push a tag like v1.0.0 to release;
-# run by hand (Actions → Release → Run workflow) to try the gate.
+# run by hand (Actions → Release → Run workflow) to try the gate, or give
+# the run a tag to release the commit it runs on under that tag (for
+# sessions that may push branches but not tags).
 name: Release
 
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release this commit as this tag (e.g. v0.1.0); empty only tries the gate"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -28,7 +35,7 @@ jobs:
       # The version is bumped at least as far as the change needs.
       - name: Version bump
         run: |
-          last=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          last=$(git describe --tags --match 'v[0-9]*' --abbrev=0 HEAD^ 2>/dev/null || true)
           if [ -n "$last" ]; then
             cargo run -q --release -p scraped-cli -- saves check --against "$last"
           fi
@@ -36,7 +43,7 @@ jobs:
       # DESIGN-Q: for v0.x play builds (S03) this only reports, since the
       # text still waits on Jb; from v1.0.0 it blocks the release.
       - run: cargo run -q -p scraped-cli -- content release-check
-        continue-on-error: ${{ startsWith(github.ref_name, 'v0.') }}
+        continue-on-error: ${{ startsWith(inputs.tag || github.ref_name, 'v0.') }}
       # Every seed of a batch, at every difficulty, gives a fair world.
       - run: cargo run -q --release -p scraped-cli -- fair --seeds 1-50 --all
       # The browser builds, works headless, and matches native transcripts.
@@ -138,7 +145,7 @@ jobs:
 
   publish:
     needs: [binaries, android]
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || inputs.tag != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -156,6 +163,8 @@ jobs:
           (cd players && sha256sum * > SHA256SUMS)
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          target_commitish: ${{ github.sha }}
           files: |
             players/*
             artifacts/*.zip
