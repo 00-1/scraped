@@ -10,6 +10,8 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 **D08 — History and texts** (`docs/milestones/D08-history-and-texts.md`), the eighth milestone of the depth roadmap in `docs/DEPTH.md`. D01–D07, S01 and S02 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms, a living world, a language for long texts, sign impressions as whole shapes). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
+**After D08, before D09:** **C01 — Shared play and versions** (`docs/milestones/C01-shared-play-and-versions.md`): a hardened player build, snapshot saves that survive minor updates, a versioning policy enforced in CI, and shared worlds with table talk. If Jb starts a separate session for C01, that session works only on C01.
+
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
 
 - Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
