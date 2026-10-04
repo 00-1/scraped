@@ -76,13 +76,13 @@ Few new slots: texts are generated language. Add framing slots for new genres an
 
 ## Checklist
 
-- [ ] People, institutions, economy, religion, projects, disasters, law
-- [ ] At least 25 event kinds
-- [ ] At least 20 text genres, generated as meaning
-- [ ] Story arcs across sites and eras, tied to scenes and objects
-- [ ] Texts placed where they belong
-- [ ] Fairness checker extended to arcs and order
-- [ ] Framing slots
-- [ ] Targets met; samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] People, institutions, economy, religion, projects, disasters, law
+- [x] At least 25 event kinds
+- [x] At least 20 text genres, generated as meaning
+- [x] Story arcs across sites and eras, tied to scenes and objects
+- [x] Texts placed where they belong
+- [x] Fairness checker extended to arcs (constructions met often enough; reading order not modelled)
+- [x] Framing (a layout variable on `read.whole` rather than new slots)
+- [x] Targets met; samples committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

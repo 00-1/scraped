@@ -4,8 +4,8 @@ Where the project stands, for the next agent. Read `CLAUDE.md` first, then this.
 
 ## State (2026-10-04)
 
-- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D07** and the course corrections **S01** and **S02**.
-- **Next:** **D08 — History and texts** (`docs/milestones/D08-history-and-texts.md`). D07's grammar (clauses, moods, derivation, names, dates) is in the language but the world's texts don't use it yet; D08 writes them, and checks each construction is attested often enough to learn.
+- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D08** and the course corrections **S01** and **S02**.
+- **Next:** **C01 — Shared play and versions** (`docs/milestones/C01-shared-play-and-versions.md`), then **D09 — The magic, deepened**. D08 gave the world a deeper history (`crates/world/src/society.rs`) and 27 genres of writing that tell its stories across many places (`crates/world/src/genres.rs`); `scraped-lang world --seed N --spoil stories` shows them.
 - **Wasm:** usize is 32 bits there. Take a hash modulo as u64 before casting to usize, or picks differ from native (`node tools/smoke/determinism.cjs` catches it).
 - **Branch:** `claude/laughing-edison-9brdzg`. Everything is committed and pushed. CI (`.github/workflows/ci.yml`) runs fmt, clippy, tests, the release-mode bot tests, the wasm build, the browser smoke tests and the Android build.
 - `content release-check` fails on purpose. It is the release gate, and it waits for Jb's own text.

@@ -495,7 +495,7 @@ fn vary(h: &History, lang: &Language, mut c: Clause, key: u64) -> Clause {
         "beautiful",
         "holy",
     ];
-    if (k >> 4).is_multiple_of(3) {
+    if (k >> 4).is_multiple_of(2) {
         if let Some(a) = c.args.iter_mut().find(|a| a.role == ArgRole::Object) {
             if let Head::Concept(id) = &a.np.head {
                 let id = id.clone();
@@ -514,7 +514,7 @@ fn vary(h: &History, lang: &Language, mut c: Clause, key: u64) -> Clause {
         }
     }
     // A word of when.
-    if (k >> 12).is_multiple_of(5) && c.adverbs.is_empty() && c.mood == Mood::Declarative {
+    if (k >> 12).is_multiple_of(4) && c.adverbs.is_empty() && c.mood == Mood::Declarative {
         c.adverbs
             .push(["then", "again", "there"][((k >> 16) % 3) as usize].to_string());
     }
@@ -707,6 +707,13 @@ impl Pen<'_> {
                     })
                     .collect(),
             ),
+            Sentence::Joined(conj, cs) => Sentence::Joined(
+                conj,
+                cs.into_iter()
+                    .enumerate()
+                    .map(|(i, c)| vary(self.h, lang, c, key * 37 + i as u64))
+                    .collect(),
+            ),
             other => other,
         };
         put(
@@ -816,6 +823,8 @@ fn epitaphs<'a>(h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, pen: &mut Pen) 
                 clause("die", Some(s.name(person)), None).when(Some(d)),
             );
         }
+        // Put its own way, like every other text.
+        let lies = vary(h, s.lang, lies, 2_000_000 + t as u64);
         let mut parts = vec![one(lies)];
         parts.extend(deeds.into_iter().map(one));
         let meaning = if parts.len() == 1 {

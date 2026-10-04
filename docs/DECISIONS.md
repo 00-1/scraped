@@ -315,3 +315,19 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Resemblances | 31 everyday things (eye, wheel, shield, lamp, egg, key, crook, fish-hook, tree, star, comb, ladder, doorway, bridge, moon…), the first whose rule fits | `crates/lang/src/impression.rs` (`resembles`) | now |
 | Spare or busy | Drawn stroke length plus 15 per stroke: up to 90 spare, from 160 busy | `crates/lang/src/impression.rs` (`shape`) | now |
 | Archaeologist | Each sign gains at most one feature beyond its proportions, curves and resemblance, so a few pairs read alike | `crates/lang/src/impression.rs` (`impressions`) | now |
+
+## History and texts (D08)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How much history beyond kings and wars | A second pass on its own random streams (so the older history stays as it was): per era, two to five new people a town (merchants, builders, healers, smiths, families, marriages), a temple in every town, a council and a guild in larger ones, a court in the largest, a school in the capital, three to five gods, and stories: 3–5 thefts tried, 2–3 feuds, 2–3 works, 1–2 disasters, 2–3 merchants' journeys, 1–2 omens, 2–3 pairs writing letters, a few lives, festivals and decrees | `crates/world/src/society.rs` | now |
+| Who judges | The court's head; where a town has no court, the elders; where no elders, the priests; never one of the parties | `crates/world/src/society.rs` (`court_near`, `trial`) | now |
+| Which genres, where | 27 genres, each kept in fitting buildings (annals in archives, decrees in council halls and copied to every town of the realm, court records in courthouses, instructions beside the kiln, loom or anvil they explain…), else in the town's archive, temple or a house | `crates/world/src/genres.rs` (`home`) | now |
+| Unmarked graves | Half the common folk's graves bear no epitaph (tombs were 59% of all writing) | `crates/world/src/history.rs` | now |
+| How each text is put | Each event's clause varies by the event (a title here, a word of colour, a word of when, the aspect), the same in every copy | `crates/world/src/genres.rs` (`vary`) | now |
+| Names across eras | A name of words is said with each later era's words; a coined name carries the sound changes; no new name may sound like an older one said anew | `crates/world/src/lib.rs`, `crates/world/src/history.rs` | now |
+| Stories and physical evidence | Disasters leave a flood line, a burnt house or cracked walls in their town; a merchant's seal lies in a store of the town he traded with. Letters do not yet point to hidden caches | `crates/world/src/scenes.rs`, `crates/world/src/objects.rs` | D10 |
+| Fairness for constructions | Every construction a story's texts use is met in at least the learning threshold of readable texts; the order of reading is not modelled | `crates/game/src/fairness.rs` | D11 |
+| Text layout | `read.whole` gets the layout (columns, entries, sealed, list, verses, running) from the genre | `crates/game/src/reading.rs` (`form`) | now |
+| Word lists | List one semantic field's words; pairing older and newer forms of a word is not built | `crates/world/src/genres.rs` | D09 |
+

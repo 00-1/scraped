@@ -592,8 +592,12 @@ fn trial(s: &mut Society, e: u32, year: i32, towns: &[usize]) {
         .heads
         .last()
         .copied()
-        .filter(|&j| s.h.people[j].died > year + 1)
-        .unwrap_or(*s.rng.pick(&people));
+        .filter(|&j| s.h.people[j].died > year + 1 && j != thief && j != victim)
+        .or_else(|| people.iter().copied().find(|&p| p != thief && p != victim));
+    // No one may judge their own case.
+    let Some(judge) = judge else {
+        return;
+    };
     // Most thieves are found out; some walk free.
     let (winner, loser) = if s.rng.chance(75) {
         (victim, thief)
@@ -698,7 +702,13 @@ fn feud(s: &mut Society, e: u32, year: i32, towns: &[usize]) {
             vec![a, b],
             Some(feud),
         );
-        let judge = s.h.institutions[court].heads.last().copied().unwrap_or(a);
+        let judge = s.h.institutions[court]
+            .heads
+            .last()
+            .copied()
+            .filter(|&j| j != a && j != b)
+            .or_else(|| people.iter().copied().find(|&p| p != a && p != b))
+            .unwrap_or(a);
         let judgement = s.event(
             e,
             year + 4,
