@@ -6,6 +6,7 @@ use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
+use scraped_world::life::Habitat;
 use scraped_world::structures::{Condition, Family, Passage, PassageState, StructureKind};
 use scraped_world::terrain::{Biome, SIZE};
 use scraped_world::water::RIVER_FLOW;
@@ -137,6 +138,8 @@ pub struct Flooded {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Spawn {
     pub archetype: &'static str,
+    /// The species it is (D06), from the world's life.
+    pub species: Option<usize>,
     pub home: Spot,
     pub pos: Pos,
 }
@@ -550,8 +553,21 @@ impl Fixtures {
             if pos.dist(home) < 2000.0 || land.town(w, pos).is_some() {
                 continue;
             }
+            let roles: &[&str] = match archetype {
+                "grazer" => &["grazer", "browser"],
+                a => &[a],
+            };
+            let hab = Habitat::of_biome(b);
+            let kinds: Vec<usize> = w
+                .life
+                .of(hab)
+                .filter(|s| roles.contains(&s.role))
+                .map(|s| s.id)
+                .collect();
+            let species = (!kinds.is_empty()).then(|| kinds[(h >> 44) as usize % kinds.len()]);
             self.creatures.push(Spawn {
                 archetype,
+                species,
                 home: Spot::out(pos),
                 pos,
             });
@@ -573,6 +589,7 @@ impl Fixtures {
                 {
                     self.creatures.push(Spawn {
                         archetype: "deep",
+                        species: w.life.of(Habitat::Deep).next().map(|s| s.id),
                         home: Spot::Room {
                             structure: st.id,
                             room: ri,

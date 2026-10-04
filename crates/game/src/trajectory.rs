@@ -140,10 +140,24 @@ impl Game {
             left -= step;
         }
         let waited = minutes - left;
-        let t = self.say(
+        let mut t = self.say(
             "say.wait",
             ctx(&[("minutes", Value::Number(i64::from(waited)))]),
         );
+        // Someone who waits a while out of doors, quietly, may see what
+        // lives there come out (D06).
+        if waited == minutes && waited <= 180 && self.state.place == Place::Outside {
+            self.attentive = true;
+            let mut facts = Vec::new();
+            self.life_facts(crate::attention::Response::Look, &mut facts);
+            facts.retain(|f| f.slot == "life.seen");
+            if !facts.is_empty() {
+                let parts = self.attend(facts, crate::attention::Response::Travel);
+                if !parts.is_empty() {
+                    t = format!("{t} {}", parts.join(" "));
+                }
+            }
+        }
         self.output(vec![t], None)
     }
 

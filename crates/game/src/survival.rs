@@ -164,11 +164,10 @@ fn careful(seed: u64, days: u32) -> (Option<String>, u32) {
             continue;
         }
         if g.state.body.hunger_state() >= 1 {
-            let food = g
-                .state
-                .carried
-                .iter()
-                .any(|&t| matches!(g.thing(t).kind, "provisions" | "berries"));
+            let food =
+                g.state.carried.iter().any(|&t| {
+                    scraped_sim::items::kind(g.thing(t).kind).is_some_and(|k| k.meal > 0)
+                });
             if food {
                 g.eat(&[]);
             } else {

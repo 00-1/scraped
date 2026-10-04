@@ -11,6 +11,7 @@ pub mod features;
 pub mod geology;
 pub mod history;
 pub mod interiors;
+pub mod life;
 pub mod objects;
 pub mod scenes;
 pub mod structures;
@@ -64,6 +65,8 @@ pub struct World {
     pub objects: Vec<objects::Object>,
     /// Locked doors and their keys (D05).
     pub locks: Vec<objects::DoorLock>,
+    /// Animals and plants, and where they make their homes (D06).
+    pub life: life::Life,
     /// The language at each era, oldest first.
     #[serde(skip)]
     pub languages: Vec<Language>,
@@ -112,6 +115,7 @@ impl World {
         );
         let mut objects = objects::place(seed, &history, &structures);
         let locks = objects::hide_and_lock(seed, &history, &structures, &features, &mut objects);
+        let life = life::Life::generate(seed, &terrain, &water);
         let names = history.people.iter().map(|p| p.name.clone()).collect();
         World {
             seed,
@@ -130,6 +134,7 @@ impl World {
             greats,
             objects,
             locks,
+            life,
             languages,
             names,
         }

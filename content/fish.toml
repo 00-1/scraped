@@ -1,0 +1,16 @@
+notes = "Fishing."
+
+[[variant]]
+slot = "fish.no_water"
+text = "There is no water close enough to fish."
+example = true
+
+[[variant]]
+slot = "fish.caught"
+text = "After a long wait you land a {colour} {form}."
+example = true
+
+[[variant]]
+slot = "fish.none"
+text = "Nothing bites."
+example = true

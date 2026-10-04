@@ -324,15 +324,21 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     );
 
     // ---------- life ----------
-    let species: BTreeSet<&str> = site
-        .fixtures
-        .creatures
-        .iter()
-        .map(|c| c.archetype)
-        .collect();
-    put("life.species", species.len() as f64);
-    // No creature leaves signs (tracks, nests) yet.
-    put("life.with_signs", 0.0);
+    use scraped_world::life::Kingdom;
+    put("life.animals", w.life.count(Kingdom::Animal) as f64);
+    put("life.plants", w.life.count(Kingdom::Plant) as f64);
+    put(
+        "life.species",
+        (w.life.count(Kingdom::Animal) + w.life.count(Kingdom::Plant)) as f64,
+    );
+    put(
+        "life.with_signs",
+        w.life
+            .species
+            .iter()
+            .filter(|s| !s.signs.is_empty())
+            .count() as f64,
+    );
 
     // ---------- history ----------
     let mut events: BTreeMap<String, usize> = BTreeMap::new();
@@ -414,6 +420,20 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
 
     // ---------- play ----------
     let run = bots::play(pack, seed, "explorer", hours, 20_000);
+    // D06: of the animals the explorer met at all, the share met first
+    // by a sign (a track, a call, a home) rather than in sight.
+    let met = run.life.len().max(1);
+    let by_signs = run
+        .life
+        .values()
+        .filter(|[sign, seen]| match (sign, seen) {
+            (Some(a), Some(b)) => a < b,
+            (Some(_), None) => true,
+            _ => false,
+        })
+        .count();
+    put("life.met", run.life.len() as f64);
+    put("life.known_by_signs_first", by_signs as f64 / met as f64);
     let mut variety: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
     for r in &run.renders {
         let family = r.trace.slot.split('.').next().unwrap_or("").to_string();

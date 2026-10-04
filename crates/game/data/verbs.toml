@@ -229,6 +229,16 @@ words = ["forage", "search for food", "look for food", "gather food", "pick berr
 object = "none"
 
 [[verb]]
+id = "fish"
+words = ["fish", "go fishing", "catch fish", "try fishing"]
+object = "none"
+
+[[verb]]
+id = "snare"
+words = ["snare", "set a snare", "set snare", "set a trap", "trap", "check the snare", "check snare", "check the trap"]
+object = "none"
+
+[[verb]]
 id = "gather"
 words = ["gather", "gather wood", "collect wood", "gather firewood", "collect firewood", "chop wood"]
 object = "optional"

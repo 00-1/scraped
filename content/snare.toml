@@ -1,0 +1,21 @@
+notes = "Snares."
+
+[[variant]]
+slot = "snare.set"
+text = "You set a snare across a run."
+example = true
+
+[[variant]]
+slot = "snare.waiting"
+text = "The snare is as you left it. Too soon."
+example = true
+
+[[variant]]
+slot = "snare.caught"
+text = "The snare holds a {colour} {form}."
+example = true
+
+[[variant]]
+slot = "snare.empty"
+text = "The snare is empty. You set it again."
+example = true

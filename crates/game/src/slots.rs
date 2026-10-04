@@ -992,6 +992,10 @@ fn s_creature_name(_: u64) -> Vec<Context> {
         ctx(&[
             ("archetype", Value::from("scavenger")),
             ("biome", Value::from("grassland")),
+            ("form", Value::from("fox")),
+            ("colour", Value::from("red")),
+            ("mark", Value::from("a bushy tail")),
+            ("size", Value::from("small")),
         ]),
         ctx(&[
             ("archetype", Value::from("grazer")),
@@ -1627,9 +1631,11 @@ pub fn slots() -> Vec<SlotDef> {
             .var("hours", VarType::Number, "Hours slept.")
             .var("woken", VarType::Bool, "Woken before rested.")
             .sampler(s_sleep),
-        SlotDef::new("forage.found", "An hour's foraging finds something to eat.")
-            .var("kind", e(&["berries"]), "What was found.")
+        SlotDef::new("forage.found", "An hour's foraging finds something to eat, from a plant that grows there (D06).")
+            .var("kind", e(&["berries", "nuts", "fungi", "greens"]), "What was found: berries, nuts, fungi, or greens (young leaves and shoots).")
             .var("biome", e(BIOMES), "Where.")
+            .var("form", e(&[&[""], &scraped_world::life::forms(scraped_world::life::Kingdom::Plant)[..]].concat()), "The plant it came from (its body plan), or empty when no particular plant.")
+            .var("role", e(&[&[""], &scraped_world::life::ROLES[11..]].concat()), "What kind of plant, or empty.")
             .sampler(s_found),
         SlotDef::new("forage.none", "An hour's foraging finds nothing.").var("biome", e(BIOMES), "Where.").sampler(s_biome),
         SlotDef::new("gather.found", "The player gathers a bundle of firewood.").var("biome", e(BIOMES), "Where.").sampler(s_biome),
@@ -1657,6 +1663,10 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("creature.name", "A creature's short name ('the scavenger', 'the thing in the dark'). Invent the beasts of this world in words, never a real species; include a word the player can type.")
             .var("archetype", e(ARCHETYPES), "What kind: a scavenger (steals food, scared off by fire and noise), a grazer (charges if you come close), a predator (strikes from hiding, kept off by fire), or something deep (lives in dark underground rooms, fears light).")
             .var("biome", e(&[BIOMES, &["underground"]].concat()), "Where it lives.")
+            .var("form", VarType::Text, "Its body plan (D06), from the world's species: deer, wolf, pale crawler…; name it as this world's beast. Empty if it has none.")
+            .var("colour", VarType::Text, "Its coat (D06), or empty.")
+            .var("mark", VarType::Text, "What sets it apart (D06), or empty.")
+            .var("size", VarType::Text, "How big (D06): small, middling, large, or empty.")
             .min_variants(1)
             .max_len(60)
             .sampler(s_creature_name),
@@ -1870,6 +1880,7 @@ pub fn registry() -> Registry {
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());
     all.extend(crate::object_slots::slots());
+    all.extend(crate::life_slots::slots());
     Registry::new(all)
 }
 
@@ -2010,6 +2021,9 @@ pub const REVIEW: &[(&str, &str)] = &[
     ("fill", "early"),
     ("eat", "early"),
     ("forage", "early"),
+    ("fish", "early"),
+    ("snare", "early"),
+    ("life", "early"),
     ("gather", "early"),
     ("fire", "early"),
     ("sleep", "early"),
@@ -2044,6 +2058,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());
     all.extend(crate::object_slots::slots());
+    all.extend(crate::life_slots::slots());
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {

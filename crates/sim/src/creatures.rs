@@ -265,6 +265,7 @@ mod tests {
 
     fn spawn(arch: &'static str) -> Spawn {
         Spawn {
+            species: None,
             archetype: arch,
             home: Spot::out(Pos::new(10_000, 10_000)),
             pos: Pos::new(10_000, 10_000),
@@ -327,6 +328,7 @@ mod tests {
     #[test]
     fn scavengers_steal_and_deep_things_fear_light() {
         let sp = Spawn {
+            species: None,
             archetype: "scavenger",
             ..spawn("scavenger")
         };
@@ -343,6 +345,7 @@ mod tests {
             room: 2,
         };
         let deep = Spawn {
+            species: None,
             archetype: "deep",
             home: room,
             pos: Pos::new(0, 0),

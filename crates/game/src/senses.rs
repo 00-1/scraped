@@ -22,6 +22,8 @@ pub(crate) struct Source {
     name: String,
     pub(crate) strength: f64,
     from: Option<usize>,
+    /// For a call: (call, role, size) of what makes it.
+    call: Option<(&'static str, &'static str, &'static str, usize)>,
 }
 
 /// Whether it is quiet enough here to hear faint sounds: nothing louder
@@ -59,7 +61,7 @@ impl Game {
     }
 
     /// Water near the player: (edge kind, metres, bearing).
-    fn water_near(&self, radius_cells: i64) -> Vec<(&'static str, f64, Option<usize>)> {
+    pub(crate) fn water_near(&self, radius_cells: i64) -> Vec<(&'static str, f64, Option<usize>)> {
         let p = self.state.pos;
         let mut out = Vec::new();
         for (e, kind) in EDGES.iter().enumerate() {
@@ -101,6 +103,7 @@ impl Game {
                 name: String::new(),
                 strength: carry(base, d, near) * wall,
                 from,
+                call: None,
             });
         }
         if local.weather == "rain"
@@ -111,6 +114,7 @@ impl Game {
                 name: String::new(),
                 strength: if indoors { 0.3 } else { 0.7 },
                 from: None,
+                call: None,
             });
         }
         if local.air == "windy" {
@@ -119,6 +123,7 @@ impl Game {
                 name: String::new(),
                 strength: 0.5,
                 from: Some(self.wind_from()),
+                call: None,
             });
             if !indoors && self.wooded() {
                 out.push(Source {
@@ -126,6 +131,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.4,
                     from: None,
+                    call: None,
                 });
             }
         }
@@ -135,6 +141,7 @@ impl Game {
                 name: String::new(),
                 strength: 0.4,
                 from: None,
+                call: None,
             });
         }
         // Creatures, by distance.
@@ -151,35 +158,20 @@ impl Game {
                 name,
                 strength: carry(0.6, d, 250.0) * wall,
                 from: bearing(p, at).filter(|_| d > 100.0),
+                call: None,
             });
         }
-        // The season's life: birds by day, insects in summer.
-        let season = scraped_sim::region::season(self.state.minutes);
-        let time = time_of_day(self.state.minutes);
-        let (x, y) = p.cell();
-        let biome = *self.site.world.terrain.biome.get(x, y);
-        let living = !matches!(biome, Biome::Snow | Biome::Desert | Biome::Rock);
-        if !indoors && living && season != 3 && matches!(time, "dawn" | "morning" | "afternoon") {
-            out.push(Source {
-                what: "birds",
-                name: String::new(),
-                strength: if time == "dawn" { 0.5 } else { 0.25 },
-                from: None,
-            });
-        }
-        if !indoors
-            && season == 1
-            && matches!(
-                biome,
-                Biome::Marsh | Biome::Grassland | Biome::Shore | Biome::Forest
-            )
-        {
-            out.push(Source {
-                what: "insects",
-                name: String::new(),
-                strength: if time == "evening" { 0.4 } else { 0.2 },
-                from: None,
-            });
+        // Calls of the living things about (D06).
+        if !indoors {
+            for (call, role, size, strength, from, sp) in self.calls() {
+                out.push(Source {
+                    what: "call",
+                    name: String::new(),
+                    strength,
+                    from,
+                    call: Some((call, role, size, sp)),
+                });
+            }
         }
         // Inside: water dripping, timber creaking.
         if let Place::Room { structure, room } = self.state.place {
@@ -191,6 +183,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.3,
                     from: None,
+                    call: None,
                 });
             }
             if st.condition >= Condition::Damaged && local.air != "still" {
@@ -199,6 +192,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.25,
                     from: None,
+                    call: None,
                 });
             }
         }
@@ -235,6 +229,7 @@ impl Game {
                     name: String::new(),
                     strength: carry(0.6, d, 300.0 * drift(from)),
                     from,
+                    call: None,
                 });
             }
         }
@@ -244,6 +239,7 @@ impl Game {
                 name: String::new(),
                 strength: 0.8,
                 from: None,
+                call: None,
             });
         }
         let (x, y) = p.cell();
@@ -256,6 +252,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.4,
                     from: None,
+                    call: None,
                 }),
                 Biome::Grassland | Biome::Scrub | Biome::Forest | Biome::Marsh if season <= 1 => {
                     out.push(Source {
@@ -263,6 +260,7 @@ impl Game {
                         name: String::new(),
                         strength: 0.3,
                         from: None,
+                        call: None,
                     })
                 }
                 Biome::Desert => out.push(Source {
@@ -270,6 +268,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.3,
                     from: None,
+                    call: None,
                 }),
                 _ => {}
             }
@@ -279,6 +278,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.5,
                     from: None,
+                    call: None,
                 });
             }
         }
@@ -295,6 +295,7 @@ impl Game {
                 name: String::new(),
                 strength: carry(0.5, d, 150.0 * drift(from)),
                 from,
+                call: None,
             });
         }
         // Old stone and the dead.
@@ -308,6 +309,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.4,
                     from: None,
+                    call: None,
                 });
             }
             if matches!(st.kind, StructureKind::Tomb | StructureKind::Cemetery) {
@@ -316,6 +318,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.25,
                     from: None,
+                    call: None,
                 });
             }
             if st.condition >= Condition::Ruined {
@@ -324,6 +327,7 @@ impl Game {
                     name: String::new(),
                     strength: 0.3,
                     from: None,
+                    call: None,
                 });
             }
         }
@@ -391,7 +395,13 @@ impl Game {
                     Value::from(s.from.map_or("here", |b| BEARINGS[b])),
                 ),
                 ("indoors", Value::Bool(indoors)),
+                ("call", Value::from(s.call.map_or("", |c| c.0))),
+                ("role", Value::from(s.call.map_or("", |c| c.1))),
+                ("size", Value::from(s.call.map_or("", |c| c.2))),
             ]);
+            if let Some((_, _, _, sp)) = s.call {
+                self.note_life(&format!("life-call:{sp}"));
+            }
             let t = self.say("sense.sound", c);
             parts.push(crate::attention::sentence(&t));
         }
@@ -607,6 +617,13 @@ impl Game {
                 out.push(f);
             }
         }
+        // What animals left underfoot (D06).
+        let mut life = Vec::new();
+        self.life_facts(Response::Closer, &mut life);
+        out.extend(
+            life.into_iter()
+                .filter(|f| matches!(f.slot, "life.sign" | "life.home")),
+        );
     }
 
     /// `count the tombs`: the one exact number in the game.

@@ -2,7 +2,7 @@ notes = "Foraging for food."
 
 [[variant]]
 slot = "forage.found"
-text = "You find some {kind}."
+text = "You find some {kind}[if form != ''] ({form})[end]."
 example = true
 
 [[variant]]

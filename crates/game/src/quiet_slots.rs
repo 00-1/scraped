@@ -69,7 +69,7 @@ pub const STANDOUTS: &[&str] = &["tallest", "only", "best kept", "worst kept"];
 /// What makes a sound.
 pub const SOUNDS: &[&str] = &[
     "river", "stream", "sea", "lake", "wind", "rain", "fire", "creature", "birds", "insects",
-    "dripping", "creaking", "rustling",
+    "call", "dripping", "creaking", "rustling",
 ];
 /// What makes a smell.
 pub const SMELLS: &[&str] = &[
@@ -451,6 +451,9 @@ fn s_sound(_: u64) -> Vec<Context> {
                 ("strength", Value::from(STRENGTHS[i % 3])),
                 ("bearing", Value::from(["here", BEARINGS[i % 8]][i % 2])),
                 ("indoors", Value::Bool(i % 3 == 0)),
+                ("call", Value::from(if *s == "call" { "trill" } else { "" })),
+                ("role", Value::from(if *s == "call" { "bird" } else { "" })),
+                ("size", Value::from(if *s == "call" { "small" } else { "" })),
             ])
         })
         .collect()
@@ -737,6 +740,9 @@ pub fn slots() -> Vec<SlotDef> {
             .var("strength", e(STRENGTHS), "How strongly it comes.")
             .var("bearing", e(&["here", "north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"]), "Where from (here: all around, or close).")
             .var("indoors", VarType::Bool, "The listener is inside a building (sounds from outside come muffled).")
+            .var("call", e(&crate::life_slots::call_values()), "For an animal's call (source 'call'): what it sounds like (bellow, trill, howl…); otherwise empty. The animal is not named: the player learns whose call it is.")
+            .var("role", e(&[&[""], scraped_world::life::ROLES].concat()), "For a call: what kind of animal makes it, for wording only.")
+            .var("size", e(&["", "small", "middling", "large"]), "For a call: how big the animal.")
             .max_len(140)
             .sampler(s_sound),
         SlotDef::new("sense.silence", "Nothing to hear but the listener's own breath.").var("indoors", VarType::Bool, "Inside a building.").max_len(120).sampler(s_indoors),

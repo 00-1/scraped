@@ -88,6 +88,33 @@ pub const ITEMS: &[ItemKind] = &[
         meal: 4,
         ..BASE
     },
+    // D06: what the land gives a forager, a fisher or a snare.
+    ItemKind {
+        id: "nuts",
+        meal: 5,
+        ..BASE
+    },
+    ItemKind {
+        id: "fungi",
+        meal: 4,
+        ..BASE
+    },
+    ItemKind {
+        id: "greens",
+        meal: 4,
+        ..BASE
+    },
+    ItemKind {
+        id: "fish",
+        meal: 8,
+        ..BASE
+    },
+    ItemKind {
+        id: "game",
+        weight: 2,
+        meal: 12,
+        ..BASE
+    },
     ItemKind {
         id: "pry_bar",
         weight: 3,

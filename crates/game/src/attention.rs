@@ -340,6 +340,7 @@ impl Game {
                 if !f.interrupt {
                     taken += 1;
                 }
+                self.note_life(&f.key);
                 keep.push(f);
             } else {
                 noticed.push((f.key.clone(), f.signature()));
@@ -723,6 +724,7 @@ impl Game {
         self.felt_facts(&mut out);
         self.outdoor_evidence(&mut out);
         self.creature_facts(&mut out);
+        self.life_facts(response, &mut out);
         out
     }
 

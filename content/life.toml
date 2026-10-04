@@ -1,0 +1,21 @@
+notes = "Living things: signs animals leave, their homes, plants in season, animals glimpsed."
+
+[[variant]]
+slot = "life.sign"
+text = "[if sign == 'tracks']{cap size} {foot} prints in the {ground}[else]{cap sign}[end][if fresh], fresh[end]."
+example = true
+
+[[variant]]
+slot = "life.home"
+text = "A {home}[if bearing != 'here'] to the {bearing}[end][if occupied], not empty[end]."
+example = true
+
+[[variant]]
+slot = "life.plant"
+text = "{cap colour} {form}, {state}."
+example = true
+
+[[variant]]
+slot = "life.seen"
+text = "{cap count} {colour} {form} to the {bearing}, {doing}."
+example = true

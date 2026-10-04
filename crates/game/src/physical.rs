@@ -432,9 +432,14 @@ impl Game {
             Spot::Room { .. } => "underground".to_string(),
             Spot::Out { .. } => self.site.biome_at(s.pos),
         };
+        let sp = s.species.map(|k| &self.site.world.life.species[k]);
         let c = ctx(&[
             ("archetype", Value::from(s.archetype)),
             ("biome", Value::from(biome)),
+            ("form", Value::from(sp.map_or("", |k| k.form))),
+            ("colour", Value::from(sp.map_or("", |k| k.colour))),
+            ("mark", Value::from(sp.map_or("", |k| k.mark))),
+            ("size", Value::from(sp.map_or("", |k| k.size))),
         ]);
         self.stable("creature.name", c, 6_000_000 + i as u64)
     }
@@ -901,10 +906,20 @@ impl Game {
         if !words.is_empty() {
             return self.with_target("eat", words);
         }
-        match self
-            .carrying("provisions")
-            .or_else(|| self.carrying("berries"))
-        {
+        // The most perishable first: fish and game, then what was found,
+        // provisions last.
+        let food = [
+            "fish",
+            "game",
+            "fungi",
+            "greens",
+            "berries",
+            "nuts",
+            "provisions",
+        ]
+        .into_iter()
+        .find_map(|k| self.carrying(k));
+        match food {
             Some(t) => self.eat_thing(t),
             None => {
                 let t = self.say("eat.none", Context::new());
@@ -964,52 +979,6 @@ impl Game {
     /// An hour searching for food.
     // DESIGN-Q: foraging odds by biome (forest 60%, shore 50%, grassland
     // 45%, marsh 40%, scrub 35%, pine 30%, tundra 15%, desert and rock 10%).
-    pub(crate) fn forage(&mut self) -> Output {
-        if self.state.place != Place::Outside {
-            return self.outdoors_needed("forage");
-        }
-        let chance = match self.biome_here() {
-            Biome::Forest => 60,
-            Biome::Shore => 50,
-            Biome::Grassland => 45,
-            Biome::Marsh => 40,
-            Biome::Scrub => 35,
-            Biome::Pine => 30,
-            Biome::Tundra => 15,
-            Biome::Desert | Biome::Rock => 10,
-            _ => 0,
-        };
-        let roll = hash(&[
-            self.seed(),
-            0xf0a6,
-            u64::from(self.state.minutes),
-            self.state.pos.x as u64,
-        ]) % 100;
-        // Less to find where the region's life has fallen.
-        let life = self
-            .env()
-            .region_ratio(self.state.pos, scraped_sim::region::LIFE)
-            .unwrap_or(1000)
-            .clamp(0, 1500);
-        let chance = chance * life as u64 / 1000;
-        self.advance(60, Activity::Walking);
-        let biome = label(&self.biome_here());
-        if roll < chance && self.state.dead.is_none() {
-            self.make_item("berries", true);
-            let t = self.say(
-                "forage.found",
-                ctx(&[
-                    ("kind", Value::from("berries")),
-                    ("biome", Value::from(biome)),
-                ]),
-            );
-            self.output(vec![t], None)
-        } else {
-            let t = self.say("forage.none", ctx(&[("biome", Value::from(biome))]));
-            self.output(vec![t], None)
-        }
-    }
-
     pub(crate) fn wooded(&self) -> bool {
         matches!(
             self.biome_here(),
@@ -1035,7 +1004,7 @@ impl Game {
         self.output(vec![t], None)
     }
 
-    fn outdoors_needed(&mut self, verb: &str) -> Output {
+    pub(crate) fn outdoors_needed(&mut self, verb: &str) -> Output {
         let t = self.say("travel.indoors", ctx(&[("verb", Value::from(verb))]));
         self.output(vec![t], None)
     }

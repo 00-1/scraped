@@ -830,6 +830,7 @@ impl DepthBot {
             ("look down", 25),
             ("look up", 20),
             ("look closer", 35),
+            ("wait", 15),
         ];
         const IN: &[(&str, u64)] = &[
             ("look closer", 60),
@@ -936,6 +937,10 @@ impl DepthBot {
         if matches!(need("hunger").as_str(), "hungry" | "starving") {
             if self.worth(g, s, "eat") {
                 return Some("eat".into());
+            }
+            let water = outside && g.water_near(1).iter().any(|(_, d, _)| *d <= 300.0);
+            if water && self.worth(g, s, "fish") {
+                return Some("fish".into());
             }
             if outside && self.worth(g, s, "forage") {
                 return Some("forage".into());
@@ -1987,6 +1992,9 @@ pub struct BotRun {
     pub towns: usize,
     /// Signs whose sound it heard (S01).
     pub heard: usize,
+    /// Per species met: the minute its first sign and the minute it was
+    /// first seen were put before the player (D06).
+    pub life: BTreeMap<usize, [Option<u32>; 2]>,
     #[serde(skip)]
     pub renders: Vec<Rendered>,
 }
@@ -2021,8 +2029,8 @@ pub fn verb_family(cmd: &str) -> &'static str {
             "handle"
         }
         "scrape" | "write" => "writing",
-        "eat" | "drink" | "sleep" | "forage" | "gather" | "make" | "fill" | "light" | "wear"
-        | "extinguish" | "status" | "wait" | "feed" => "body",
+        "eat" | "drink" | "sleep" | "forage" | "fish" | "snare" | "gather" | "make" | "fill"
+        | "light" | "wear" | "extinguish" | "status" | "wait" | "feed" => "body",
         _ => "other",
     }
 }
@@ -2114,6 +2122,7 @@ pub fn play_with(
         features: BTreeSet::new(),
         towns: 0,
         heard: 0,
+        life: BTreeMap::new(),
         renders: Vec::new(),
     };
     let mut seen: BTreeSet<String> = BTreeSet::new();
@@ -2229,6 +2238,7 @@ pub fn play_with(
         .collect();
     run.entered = g.state.visited.iter().copied().collect();
     run.heard = g.state.heard.len();
+    run.life = g.life_log.clone();
     run.towns = g
         .state
         .visited

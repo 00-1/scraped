@@ -28,6 +28,10 @@ mod interior;
 mod interior_slots;
 #[cfg(test)]
 mod interior_tests;
+mod life;
+mod life_slots;
+#[cfg(test)]
+mod life_tests;
 pub mod mapper;
 mod object_slots;
 #[cfg(test)]
@@ -187,6 +191,9 @@ pub struct State {
     /// the one thing the game keeps for them (S01).
     #[serde(default)]
     pub heard: BTreeSet<(u32, usize)>,
+    /// Snares set (D06): where, and the minute they were set.
+    #[serde(default)]
+    pub snares: Vec<(Pos, u32)>,
     /// Containers opened, caches uncovered and doors unlocked (D05).
     #[serde(default)]
     pub opened: BTreeSet<usize>,
@@ -381,6 +388,9 @@ pub struct Game {
     /// Facts already said in this response before the description (a move
     /// report inside), taken off its budget (D04).
     said_already: usize,
+    /// For the depth metrics: per species, the minute its first sign and
+    /// the minute it was first seen were put before the player (D06).
+    pub life_log: BTreeMap<usize, [Option<u32>; 2]>,
     /// The facts about where a journey just arrived, said first (S01).
     arrival_keys: Vec<String>,
     /// Whether the last command was `listen`, and so whether the player
@@ -501,6 +511,7 @@ impl Game {
             reading: None,
             last_read: None,
             heard: BTreeSet::new(),
+            snares: Vec::new(),
             foul_since: None,
             opened: BTreeSet::new(),
             uncovered: BTreeSet::new(),
@@ -556,6 +567,7 @@ impl Game {
             attentive: false,
             arrival_keys: Vec::new(),
             said_already: 0,
+            life_log: BTreeMap::new(),
             last_travel: None,
             extra: Vec::new(),
             notes: Vec::new(),
@@ -1211,6 +1223,8 @@ impl Game {
             "eat" => self.eat(&cmd.words),
             "sleep" => self.sleep(),
             "forage" => self.forage(),
+            "fish" => self.fish(),
+            "snare" => self.snare(),
             "gather" => self.gather(),
             "make" => self.make(&cmd.words),
             "feed" => self.feed_fire(),
