@@ -701,3 +701,15 @@ Jb's decisions: trust the AI but make the engine hard to see inside (a stripped 
 
 **Next:** C01, then D09.
 
+
+## 2026-10-04 — C01 done
+
+**Shared play and versions:** saves are snapshots now (`crates/game/src/saves.rs`): loading restores play instead of replaying it, so a minor update carries old worlds on. Each save is sealed (unreadable by eye), carries a turn count, a chain over its moves, the version that made the world and the one that last wrote it, and the builds each stretch of play ran on. `scraped-player` is a separate build (`--no-default-features`, profile `player`): terminal, JSON lines and MCP in one stripped binary with spoilers compiled out and only the templates baked in; the browser player is the same engine in wasm. It shows `docs/coop/FAIR-PLAY.md` to agents. Shared worlds (`crates/game/src/shared.rs`): a world file of the sealed save, every move with what it showed, and table talk, each tagged with who and when; the player program plays one (`--world FILE --as ai`, `talk`, `talk since N`, MCP `open_world`/`talk`/`talk_since`), refuses an older copy than it has seen, and merges copies (`merge OURS THEIRS`; a split keeps the other line as a branch). The Android app shares a world from its menu, syncs it through a private GitHub repo, shows who moved last and unread talk in the world list, and has a table-talk sheet. Versioning (`docs/VERSIONING.md`): a save corpus (`tests/saves/0.1.0/`), `scraped-lang saves check` reports the bump a change needs, CI runs it and the release workflow refuses a tag whose bump is too small; another major version won't open, an older minor one opens with a note. `scraped-lang replay SAVE --build VERSION=PATH` replays a game stretch by stretch on its own builds. Releases publish every player build with `SHA256SUMS`; the Pages site lists them (`players.html`). `docs/coop/PLAYING.md` tells an agent how to fetch the player, clone the worlds repo, play, merge and push.
+
+**Not yet tried end to end:** Jb in the app and an AI in a cloud session on one world (the "done when"). The app's Kotlin is built and tested only in CI (no Android SDK in this environment); a scripted test covers the same turns through the engine calls the app makes and the player program's own code. No release has been tagged, so the Pages list is empty until the first.
+
+**Open questions:** "Shared play and versions (C01)" in DECISIONS: the world made again from its seed (so generation changes are major), the fixed seal key, the GitHub repo as the sync place, default names, how splits are kept, the Android app keeping the full engine. Also found: `content lint` reports one error in `say.take_fixed` (a variant uses `cause`, which the slot doesn't have), from before C01.
+
+**New content slots:** `say.upgraded` (from, to). New `app.label` ids: shared, share_world, moved_last, talk, talk_hint, talk_none, worlds_repo, worlds_repo_hint, worlds_repo_name, worlds_token, worlds_token_set, worlds_you, worlds_save, sync_now, syncing, synced, world_split, world_refused.
+
+**Next:** D09.

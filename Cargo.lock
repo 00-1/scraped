@@ -184,6 +184,7 @@ dependencies = [
  "scraped-content",
  "scraped-game",
  "scraped-lang",
+ "scraped-play",
  "scraped-sim",
  "scraped-world",
  "serde",

@@ -2,9 +2,10 @@
 # Checks a built player program (C01): no spoiler options, no ground truth
 # in its replies, the fair-play note shown, and no spoiler internals or
 # authoring notes inside the binary.
-#   tools/smoke/player.sh target/player/scraped-player
+#   tools/smoke/player.sh [PLAYER] [PLAYER-WASM]
 set -eu
 bin="${1:-target/player/scraped-player}"
+wasm="${2:-target/player/wasm32-unknown-unknown/release/scraped_web.wasm}"
 fail() { echo "player smoke: $1" >&2; exit 1; }
 "$bin" --version | grep -q "scraped-player" || fail "no version"
 if "$bin" --spoil </dev/null >/dev/null 2>&1; then fail "--spoil accepted"; fi
@@ -15,4 +16,10 @@ if echo "$out" | grep -q '"truth"'; then fail "ground truth in a reply"; fi
 # notes must not be in the binary at all.
 if strings "$bin" | grep -q 'salience'; then fail "spoiler fields compiled in"; fi
 if strings "$bin" | grep -q 'notes = "'; then fail "authoring notes baked in"; fi
+# The browser player's engine, built by tools/build.sh: the same, and no
+# bench or authoring calls.
+if [ -f "$wasm" ]; then
+  if grep -a -q 'salience' "$wasm"; then fail "spoiler fields in the browser player"; fi
+  if grep -a -q 'lint_variant' "$wasm"; then fail "authoring calls in the browser player"; fi
+fi
 echo "player smoke: ok"

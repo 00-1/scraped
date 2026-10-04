@@ -78,14 +78,16 @@ Write `docs/VERSIONING.md` and enforce it in CI:
 
 ## Checklist
 
-- [ ] Player build with spoilers compiled out, text embedded, stripped; published on GitHub Pages per release
-- [ ] Snapshot saves; opaque; turn counter and chain hash; version stamps
-- [ ] Version history per stretch of play; old builds kept downloadable; `replay` tool
-- [ ] `docs/VERSIONING.md`; save corpus; CI bump check; release refuses too-small bumps
-- [ ] Shared world file with transcript and table talk, tagged by who
-- [ ] Private worlds repo sync (default) behind a swappable sync layer; app sync, world list, table talk view
-- [ ] Splits and branches
-- [ ] MCP and protocol: `talk`, `talk_since`; `docs/coop/PLAYING.md`
-- [ ] `docs/coop/FAIR-PLAY.md` shown to agents; house rules updated
-- [ ] Tests listed above
-- [ ] LOG.md entry; then D09
+- [x] Player build with spoilers compiled out, text embedded, stripped; published on GitHub Pages per release
+- [x] Snapshot saves; opaque; turn counter and chain hash; version stamps
+- [x] Version history per stretch of play; old builds kept downloadable; `replay` tool
+- [x] `docs/VERSIONING.md`; save corpus; CI bump check; release refuses too-small bumps
+- [x] Shared world file with transcript and table talk, tagged by who
+- [x] Private worlds repo sync (default) behind a swappable sync layer; app sync, world list, table talk view
+- [x] Splits and branches
+- [x] MCP and protocol: `talk`, `talk_since`; `docs/coop/PLAYING.md`
+- [x] `docs/coop/FAIR-PLAY.md` shown to agents; house rules updated
+- [x] Tests listed above
+- [x] LOG.md entry; then D09
+
+Not yet done: the end-to-end trial in the "done when" (Jb in the app, an AI in a cloud session), which needs Jb.

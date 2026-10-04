@@ -331,3 +331,15 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Text layout | `read.whole` gets the layout (columns, entries, sealed, list, verses, running) from the genre | `crates/game/src/reading.rs` (`form`) | now |
 | Word lists | List one semantic field's words; pairing older and newer forms of a word is not built | `crates/world/src/genres.rs` | D09 |
 
+
+## Shared play and versions (C01)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| What a snapshot holds | The state of play (player, lasting changes, memory, clock); the world itself is made again from its seed, since every place, interiors included, is generated up front. So any change to world generation is a major bump (the save corpus checks each world's fingerprint), unless a later release versions the generator step | `crates/game/src/saves.rs` (`Snapshot`, `verdict`) | now |
+| Sealing saves | A fixed key in the source, an XOR keystream and a URL-safe alphabet behind `SCRAPED1:`: enough to stop reading or editing by eye, not to secure | `crates/game/src/saves.rs` (`seal`) | now |
+| Where worlds sync | A private GitHub repository used only for worlds, one `NAME.world` per world (`NAME.BRANCH.world` for a branch), reached with a token for that repository only; the app's sync sits behind `WorldSync`, so a synced folder could replace it | `android/.../WorldSync.kt` | now |
+| Names in shared worlds | The app's player is `jb` unless set; the player program's `--as` defaults to `ai`; an agent playing through the app's own agent access is `agent` | `AppModel.kt`, `scraped-player` | now |
+| Splits | Whoever merges keeps their own line; the other comes in as a branch named for who moved first after the split and at which move (`ai-12`). Choosing one line and dropping the other is done by deleting the unwanted world | `crates/game/src/shared.rs` (`merge_files`) | now |
+| Opening other versions | Another major version is refused (newer: update; older: new world); an older minor version opens with a note (`say.upgraded`) | `crates/game/src/saves.rs` (`may_open`) | now |
+| The Android app's spoilers | The app is built on the full engine (its JSON calls include the bench's), though it offers no spoiler views; only the terminal player and the browser player are built without them | `crates/android/Cargo.toml` | later |

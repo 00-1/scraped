@@ -7,6 +7,7 @@
 //! content slots.
 
 pub mod mcp;
+pub mod replay;
 
 mod baked {
     include!(concat!(env!("OUT_DIR"), "/pack.rs"));

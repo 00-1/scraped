@@ -14,6 +14,8 @@ import java.net.URLEncoder
  * this interface so the place can change (a private GitHub repo now; a
  * synced folder later, if wanted).
  */
+// DESIGN-Q: worlds sync through a private GitHub repo (the spec's proposed
+// default); a synced folder (Google Drive) would be another WorldSync.
 interface WorldSync {
     /** Every world file there: its name and a tag that changes with it. */
     fun list(): Map<String, String>

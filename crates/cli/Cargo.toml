@@ -17,4 +17,5 @@ scraped-content = { path = "../content" }
 serde.workspace = true
 scraped-world = { path = "../world" }
 scraped-game = { path = "../game" }
+scraped-play = { path = "../play", features = ["spoilers"] }
 scraped-sim = { path = "../sim" }

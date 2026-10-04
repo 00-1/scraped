@@ -4,8 +4,8 @@ Where the project stands, for the next agent. Read `CLAUDE.md` first, then this.
 
 ## State (2026-10-04)
 
-- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D08** and the course corrections **S01** and **S02**.
-- **Next:** **C01 — Shared play and versions** (`docs/milestones/C01-shared-play-and-versions.md`), then **D09 — The magic, deepened**. D08 gave the world a deeper history (`crates/world/src/society.rs`) and 27 genres of writing that tell its stories across many places (`crates/world/src/genres.rs`); `scraped-lang world --seed N --spoil stories` shows them.
+- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D08**, the course corrections **S01** and **S02**, and **C01** (shared play and versions).
+- **Next:** **D09 — The magic, deepened** (`docs/milestones/D09-magic.md`). C01 made saves snapshots (`crates/game/src/saves.rs`), added the stripped player program (`scraped-player`, built `--no-default-features`), shared worlds with table talk (`crates/game/src/shared.rs`, `crates/play/src/world.rs`, the app's `WorldSync.kt`) and the versioning policy (`docs/VERSIONING.md`): after a change to rules or generation, `scraped-lang saves check` says which bump it needs. Anything only for developers or spoilers goes behind the `spoilers` feature.
 - **Wasm:** usize is 32 bits there. Take a hash modulo as u64 before casting to usize, or picks differ from native (`node tools/smoke/determinism.cjs` catches it).
 - **Branch:** `claude/laughing-edison-9brdzg`. Everything is committed and pushed. CI (`.github/workflows/ci.yml`) runs fmt, clippy, tests, the release-mode bot tests, the wasm build, the browser smoke tests and the Android build.
 - `content release-check` fails on purpose. It is the release gate, and it waits for Jb's own text.
