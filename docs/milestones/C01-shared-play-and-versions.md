@@ -41,6 +41,9 @@ Today a save is the seed plus the command list, and loading replays it. Almost a
 - **Opaque:** the save is serialised compactly and scrambled with a key built into the player program, so the seed and state can't be read or edited by eye. This is to discourage, not to secure.
 - **No undo:** each save carries a turn counter and a chain hash of its moves. The player program refuses to continue a world from an older copy than the newest it has seen for that world (it records the newest per world locally), and table talk flags any rewind.
 - **Version stamp:** each save records the engine version that last wrote it and the version that created the world.
+- **Version history (Jb):** the save also keeps a list of the builds used for each stretch of play: engine version and content-pack hash, from which turn to which. A new entry starts whenever a different build continues the world. With that list, the whole game can be **replayed exactly** by running each stretch's commands on its own build, in order: the first from the seed, each later one loading the snapshot the previous build left at the boundary.
+- **Old builds stay available:** every released player build stays downloadable from the GitHub Pages site (with checksums), so a replay can fetch the builds the history names.
+- **`replay` tool** (developer CLI): given a save, fetches the listed builds and replays the world stretch by stretch, checking that the final state matches the save. Useful for chasing bugs from Jb's playtests.
 
 ### 4. Versioning policy
 
@@ -68,6 +71,7 @@ Write `docs/VERSIONING.md` and enforce it in CI:
 - Snapshot round trip: save, load, continue gives the same transcript as playing straight through.
 - A world saved by the previous minor release loads and continues; a patch release replays identically (save corpus).
 - Rewinding to an older copy of a world is refused.
+- Version history: a world played across three builds (patch, then minor) replays stretch by stretch with the `replay` tool to the same final state.
 - Splits are detected; both branches load.
 - Sync: a scripted app-side and agent-side session alternate moves through a local test repo.
 
@@ -75,6 +79,7 @@ Write `docs/VERSIONING.md` and enforce it in CI:
 
 - [ ] Player build with spoilers compiled out, text embedded, stripped; published on GitHub Pages per release
 - [ ] Snapshot saves; opaque; turn counter and chain hash; version stamps
+- [ ] Version history per stretch of play; old builds kept downloadable; `replay` tool
 - [ ] `docs/VERSIONING.md`; save corpus; CI bump check; release refuses too-small bumps
 - [ ] Shared world file with transcript and table talk, tagged by who
 - [ ] Private worlds repo sync (default) behind a swappable sync layer; app sync, world list, table talk view
