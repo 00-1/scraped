@@ -22,7 +22,17 @@ use crate::site::{ctx, Place};
 use crate::{Death, Game, Output};
 
 /// Ways a run ends. "death" covers every cause in `body::DEATHS`.
-pub const ENDINGS: &[&str] = &["death", "left", "written_in", "old_age", "overtaken"];
+pub const ENDINGS: &[&str] = &[
+    "death",
+    "left",
+    "written_in",
+    "old_age",
+    "overtaken",
+    "beyond",
+];
+
+/// How near the world's rim a player must stand to go beyond it, metres.
+pub const RIM: f64 = 400.0;
 
 /// The age at which a life ends of itself, in years.
 // DESIGN-Q: eighty.
@@ -60,7 +70,7 @@ pub struct Release {
 pub struct Act {
     pub day: u32,
     pub text: usize,
-    /// "released" (a push begins) or "silenced" (a push ends).
+    /// "started" (a push begins) or "stopped" (a push ends).
     pub act: String,
     /// "region" or "great".
     pub scale: String,
@@ -113,6 +123,19 @@ pub struct Record {
     pub written: usize,
     pub releases: Vec<Release>,
     pub acts: Vec<Act>,
+    /// D10: what exploring came to. Kinds of building entered, rooms seen,
+    /// secrets found (hidden things uncovered, containers opened, locks
+    /// undone), kilometres walked, and whether the world's rim was reached.
+    #[serde(default)]
+    pub kinds: usize,
+    #[serde(default)]
+    pub rooms: usize,
+    #[serde(default)]
+    pub secrets: usize,
+    #[serde(default)]
+    pub walked_km: u32,
+    #[serde(default)]
+    pub rim: bool,
     pub regions: Vec<RegionOutcome>,
     /// The player's last parsed text, if any: what legacy carries.
     pub final_inscription: Option<usize>,
@@ -145,6 +168,22 @@ impl Game {
         } else {
             "death"
         })
+    }
+
+    /// `go beyond` at the world's rim (D10): the run ends by a long road
+    /// walked, not by writing.
+    pub(crate) fn go_beyond(&mut self) -> crate::Output {
+        let at_rim = self.state.place == crate::site::Place::Outside
+            && self
+                .site
+                .edge
+                .is_some_and(|e| e.dist(self.state.pos) <= RIM);
+        if !at_rim {
+            let t = self.say("say.no_beyond", scraped_content::Context::new());
+            return self.output(vec![t], None);
+        }
+        self.end_run("beyond");
+        self.ended()
     }
 
     /// Ends the run some way other than death.
@@ -215,7 +254,7 @@ impl Game {
         let key = |d: &scraped_sim::region::Driver| (d.region, d.variable, d.target, d.reach);
         let was: BTreeSet<_> = before.iter().map(key).collect();
         let now: BTreeSet<_> = self.drivers.iter().map(key).collect();
-        for (act, set, other) in [("released", &now, &was), ("silenced", &was, &now)] {
+        for (act, set, other) in [("started", &now, &was), ("stopped", &was, &now)] {
             for &(region, variable, target, reach) in set.difference(other) {
                 self.state.acts.push(Act {
                     day,
@@ -326,6 +365,29 @@ impl Game {
             acts: self.state.acts.clone(),
             regions,
             final_inscription,
+            kinds: self
+                .state
+                .visited
+                .iter()
+                .map(|&s| self.site.world.structures[s].kind)
+                .collect::<std::collections::BTreeSet<_>>()
+                .len(),
+            rooms: self.state.rooms_seen.len(),
+            secrets: self.state.uncovered.len()
+                + self.state.opened.len()
+                + self.state.unlocked.len(),
+            walked_km: (self
+                .state
+                .trail
+                .windows(2)
+                .map(|w| w[0].dist(w[1]))
+                .sum::<f64>()
+                / 1000.0) as u32,
+            rim: self.site.edge.is_some_and(|e| {
+                self.state.trail.iter().any(|p| p.dist(e) <= RIM)
+                    || (self.state.place == crate::site::Place::Outside
+                        && self.state.pos.dist(e) <= RIM)
+            }),
         }
     }
 
@@ -477,6 +539,11 @@ impl Game {
             ("read", Value::Number(rec.texts_read.len() as i64)),
             ("wrote", Value::Number(rec.written as i64)),
             ("released", Value::Number(released as i64)),
+            ("kinds", Value::Number(rec.kinds as i64)),
+            ("rooms", Value::Number(rec.rooms as i64)),
+            ("secrets", Value::Number(rec.secrets as i64)),
+            ("walked", Value::Number(i64::from(rec.walked_km))),
+            ("rim", Value::Bool(rec.rim)),
         ]);
         out.push(self.say("end.summary", c));
         // Regions that changed alike are told together; the player's doing
@@ -707,7 +774,7 @@ pub fn chronicle_of(
         ));
     }
     parts.push(match rec.ending.as_str() {
-        "left" => clause(
+        "left" | "beyond" => clause(
             "depart",
             Tense::Past,
             false,

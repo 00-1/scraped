@@ -806,7 +806,9 @@ impl Game {
         let th = self.thing(t);
         let size = match th.kind {
             "jar" | "tablet" | "scroll" | "torch" | "lamp" | "oil" | "firesteel" | "lens"
-            | "stylus" | "scraper" => "small",
+            | "stylus" | "knife" | "penknife" | "mason_chisel" | "graver" | "loupe" | "pumice" => {
+                "small"
+            }
             "shelf" | "basin" | "chest" | "table" | "lintel" | "niche" | "gravestone"
             | "milestone" => "middling",
             "inscription" | "gate" | "wall" => "huge",

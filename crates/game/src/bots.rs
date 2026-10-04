@@ -239,6 +239,9 @@ pub struct DepthBot {
     dull: BTreeMap<String, u32>,
     /// Commands given since anything new was perceived.
     pub idle: u32,
+    /// A grimy surface just read, to clean so it reads better (D10: the
+    /// ordinary reason a naive player scrapes).
+    clean_next: Option<String>,
     /// What the bot set out to do and why, for reading its runs.
     pub notes: Vec<String>,
 }
@@ -285,6 +288,7 @@ impl DepthBot {
             entrances: BTreeMap::new(),
             marked: BTreeSet::new(),
             idle: 0,
+            clean_next: None,
             notes: Vec::new(),
         }
     }
@@ -301,6 +305,11 @@ impl DepthBot {
     pub fn next(&mut self, g: &Game, last: &Output) -> String {
         self.step += 1;
         self.learn(g, last);
+        if let Some(n) = self.clean_next.take() {
+            if last.state.dead.is_none() {
+                return format!("clean {n}");
+            }
+        }
         let mut cmd = self.choose(g, last);
         // Going round in circles: drop the goal, or strike out somewhere.
         self.recent
@@ -518,6 +527,15 @@ impl DepthBot {
                         self.notes
                             .push(format!("step {}: the way {way} gave at {here}", self.step));
                     }
+                }
+            }
+            // Moss or soot on what was read: the explorer cleans it once.
+            if self.kind == "explorer" && cmd.starts_with("read ") {
+                let grimy = g.renders[self.renders.min(g.renders.len())..]
+                    .iter()
+                    .any(|r| r.trace.slot == "read.grime");
+                if grimy {
+                    self.clean_next = Some(cmd.trim_start_matches("read ").to_string());
                 }
             }
             // Fainter layers beneath what was read.
@@ -1178,7 +1196,7 @@ impl DepthBot {
         let s = &last.state;
         let kind = self.kind;
         let scholar = self.scholar();
-        let can_scrape = s.carried.iter().any(|c| c.contains("scraper"));
+        let can_scrape = s.carried.iter().any(|c| scrapes(c));
         let load_room = s.load.0 + 3 <= s.load.1;
         let room = self.rooms.entry(s.place.clone()).or_default();
         for (i, name) in s.things.iter().enumerate() {
@@ -1397,9 +1415,8 @@ impl DepthBot {
         let s = &last.state;
         let here = s.place.clone();
         let (way, cast) = self.rooms.get(&here)?.held.clone()?;
-        let tools = ["stylus", "scraper"]
-            .iter()
-            .all(|t| s.carried.iter().any(|c| c.contains(t)));
+        let tools =
+            s.carried.iter().any(|c| c.contains("stylus")) && s.carried.iter().any(|c| scrapes(c));
         if !self.scholar() || !tools || cast >= 4 {
             return None;
         }
@@ -1536,9 +1553,8 @@ impl DepthBot {
         let words = known("open") && ["door", "gate", "tomb", "box"].iter().any(|w| known(w));
         let lit = can_light(s, self.lamp_empty);
         let pry = s.carried.iter().any(|c| c.contains("pry"));
-        let write = ["stylus", "scraper"]
-            .iter()
-            .all(|t| s.carried.iter().any(|c| c.contains(t)));
+        let write =
+            s.carried.iter().any(|c| c.contains("stylus")) && s.carried.iter().any(|c| scrapes(c));
         // With a stronger lens, the deepest stack seen first (D09: shallow
         // stacks of everyday spells are everywhere).
         let deepest = self
@@ -1910,10 +1926,10 @@ fn writing_rank(name: &str) -> usize {
 /// How much a bot wants to carry something, by its name: 0 not at all.
 fn want(kind: &str, name: &str) -> u8 {
     let has = |w: &str| name.contains(w);
-    let tool = has("scraper") || has("lens") || has("stylus");
+    let tool = scrapes(name) || has("lens") || has("loupe") || has("stylus");
     let light = has("lamp") || has("torch") || has("oil") || has("firesteel");
     if kind == "scholar" {
-        if has("first") && tool {
+        if (has("graver") || has("loupe") || has("mason") || has("penknife")) && tool {
             9
         } else if tool {
             8
@@ -1964,12 +1980,17 @@ fn can_light(s: &Summary, lamp_empty: bool) -> bool {
     has("firesteel") && ((has("lamp") && (!lamp_empty || has("oil"))) || has("torch"))
 }
 
-/// The best lens carried: 0 none, 1 a lens, 2 the first lens.
-fn carried_lens(s: &Summary) -> u8 {
-    if s.carried
+/// Whether a carried thing, by its name, can scrape a surface (D10:
+/// ordinary edged and abrasive tools).
+fn scrapes(name: &str) -> bool {
+    ["knife", "chisel", "graver", "pumice"]
         .iter()
-        .any(|c| c.contains("first") && c.contains("lens"))
-    {
+        .any(|w| name.contains(w))
+}
+
+/// The best lens carried: 0 none, 1 a lens, 2 a loupe.
+fn carried_lens(s: &Summary) -> u8 {
+    if s.carried.iter().any(|c| c.contains("loupe")) {
         2
     } else if s.carried.iter().any(|c| c.contains("lens")) {
         1
@@ -2068,6 +2089,12 @@ pub struct BotRun {
     pub life: BTreeMap<usize, [Option<u32>; 2]>,
     #[serde(skip)]
     pub renders: Vec<Rendered>,
+    /// D10: when writing was first set loose by the player's hand (hours
+    /// in), and the command that did it.
+    pub first_release: Option<(f64, String)>,
+    /// D10: responses in the first hour that bring writing forward
+    /// (scraping, writing, a release, a great inscription).
+    pub pointers_first_hour: u32,
 }
 
 /// The family a command's verb belongs to, for the verb mix (S01).
@@ -2195,7 +2222,10 @@ pub fn play_with(
         heard: 0,
         life: BTreeMap::new(),
         renders: Vec::new(),
+        first_release: None,
+        pointers_first_hour: 0,
     };
+    let scraped_at_start = g.state.scraped.clone();
     let mut seen: BTreeSet<String> = BTreeSet::new();
     let mut kinds_seen: BTreeSet<String> = BTreeSet::new();
     let mut taken = 0;
@@ -2268,6 +2298,26 @@ pub fn play_with(
         if matches!(run.kinds.last(), Some(&"arrival" | &"travel")) && g.state.dead.is_none() {
             let shown = run.facts.last().copied().unwrap_or(0);
             run.on_demand.push((shown, g.on_demand() as u32));
+        }
+        let hour = f64::from(g.state.minutes - start) / 60.0;
+        if hour <= 1.0
+            && g.renders[taken.min(g.renders.len())..].iter().any(|r| {
+                let sl = r.trace.slot.as_str();
+                sl.starts_with("scrape.")
+                    || sl.starts_with("write.")
+                    || sl.starts_with("great.")
+                    || matches!(sl, "story.release" | "story.first_write")
+            })
+        {
+            run.pointers_first_hour += 1;
+        }
+        if run.first_release.is_none()
+            && g.state.scraped.iter().any(|t| {
+                !scraped_at_start.contains(t)
+                    && g.text(*t).kind == scraped_lang::corpus::Kind::Potent
+            })
+        {
+            run.first_release = Some((hour, run.commands.last().cloned().unwrap_or_default()));
         }
         note(&g, &mut run, &mut taken);
         if g.state.place == Place::Outside {

@@ -238,6 +238,8 @@ impl Fixtures {
                         put("cloak", 25, 8);
                         put("provisions", 30, 9);
                         put("torch", 20, 10);
+                        // D10: everyday tools.
+                        put("knife", 14, 41);
                     }
                     StructureKind::Temple => {
                         put("lamp", 35, 11);
@@ -268,11 +270,17 @@ impl Fixtures {
                             put("wood", 40, 31);
                         }
                         Family::Craft | Family::Mining => {
+                            put("knife", 20, 42);
+                            put("pumice", 15, 43);
                             put("pry_bar", 30, 32);
                             put("firesteel", 30, 33);
                             put("torch", 30, 34);
                         }
                         Family::Learning | Family::Holy | Family::Rule => {
+                            if k.info().family == Family::Learning {
+                                put("stylus", 20, 44);
+                                put("knife", 15, 45);
+                            }
                             put("lamp", 25, 35);
                             put("oil", 25, 36);
                             put("torch", 20, 37);
@@ -281,7 +289,10 @@ impl Fixtures {
                             put("torch", 35, 38);
                             put("cloak", 25, 39);
                         }
-                        Family::Water => put("waterskin", 40, 40),
+                        Family::Water => {
+                            put("waterskin", 40, 40);
+                            put("pumice", 35, 46);
+                        }
                         _ => {}
                     },
                 }
@@ -691,13 +702,13 @@ impl Fixtures {
             .filter(|&sid| land.route(w, from, land.structure_pos[sid]).is_some())
             .collect();
         for (n, tool) in [
-            "scraper",
+            "knife",
             "stylus",
             "lens",
-            "fine_scraper",
-            "old_scraper",
-            "first_scraper",
-            "first_lens",
+            "penknife",
+            "mason_chisel",
+            "graver",
+            "loupe",
         ]
         .into_iter()
         .enumerate()
@@ -734,10 +745,10 @@ impl Fixtures {
                     .collect();
                 far.sort_by_key(|&sid| (land.structure_pos[sid].dist2(from), sid));
                 match (tool, root_home) {
-                    ("first_scraper", Some(r)) => Some(r),
-                    ("first_scraper", None) => far.last().copied(),
-                    ("old_scraper", _) => far.get(far.len() * 4 / 5).copied(),
-                    ("first_lens", _) => far.get(far.len() * 9 / 10).copied(),
+                    ("graver", Some(r)) => Some(r),
+                    ("graver", None) => far.last().copied(),
+                    ("mason_chisel", _) => far.get(far.len() * 4 / 5).copied(),
+                    ("loupe", _) => far.get(far.len() * 9 / 10).copied(),
                     _ => far.get(far.len() / 2).copied(),
                 }
             };

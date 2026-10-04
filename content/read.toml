@@ -104,3 +104,8 @@ example = true
 slot = "glyph.heard"
 text = "As the strokes come away, something faint, almost a voice: «{list sounds}»."
 example = true
+
+[[variant]]
+slot = "read.grime"
+text = "{cap cover} hides some of the signs."
+example = true

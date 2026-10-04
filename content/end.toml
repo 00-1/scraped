@@ -2,7 +2,7 @@ notes = "The end of a run: other endings than death, and the summary of what it 
 
 [[variant]]
 slot = "end.summary"
-text = "Your time here is over, after {days} days. You entered {places} buildings, read {read} texts, wrote {wrote} and scraped {released}."
+text = "Your time here is over, after {days} days. You walked {walked} kilometres, entered {places} buildings of {kinds} kinds, found {secrets} hidden things[if rim] and reached the end of the land[end], read {read} texts, wrote {wrote} and scraped {released}."
 example = true
 
 [[variant]]
@@ -12,7 +12,7 @@ example = true
 
 [[variant]]
 slot = "end.written_in"
-text = "As the scraper lifts, you feel yourself set into the stone, one more layer among the rest."
+text = "As the blade lifts, you feel yourself set into the stone, one more layer among the rest."
 example = true
 
 [[variant]]
@@ -43,4 +43,9 @@ example = true
 [[variant]]
 slot = "end.chronicle"
 text = "Later hands wrote of you, in {words} words:"
+example = true
+
+[[variant]]
+slot = "end.beyond"
+text = "You walk on past the last of the land, and do not come back."
 example = true

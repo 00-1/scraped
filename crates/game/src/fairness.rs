@@ -25,13 +25,14 @@ pub use scraped_lang::difficulty::PRESETS;
 /// them.
 pub const GOALS: &[&str] = &[
     "constructions",
-    "scraper",
-    "first_release",
+    "tool",
+    "latent",
     "first_write",
     "powers",
     "great",
     "deepest",
     "leaving",
+    "edge",
 ];
 
 /// Concepts that must be attested in both the oldest and the newest era's
@@ -244,19 +245,37 @@ pub fn check(site: &Site, preset: &str) -> Report {
     };
     let need = |ok: bool, what: &str| (!ok).then(|| what.to_string());
     goal("constructions", unlearnt);
-    // The scraper, and the pivot inscription beside it.
+    // D10: no path, only reachability. Some tool that scrapes (a knife,
+    // pumice, a chisel), and more than one spell lying in wait, so a first
+    // release can come in more than one place and order.
+    let tool = ["knife", "pumice", "penknife", "mason_chisel", "graver"]
+        .iter()
+        .any(|k| reach.item(k));
     goal(
-        "scraper",
-        need(reach.item("scraper"), "scraper unreachable")
+        "tool",
+        need(tool, "no scraping tool reachable")
             .into_iter()
             .collect(),
     );
-    let pivot = writing.pivot.is_some_and(|p| reach.text(p));
+    let latent: Vec<usize> = (0..writing.count(w))
+        .filter(|&t| {
+            writing.text(w, t).kind == scraped_lang::corpus::Kind::Potent
+                && !writing.scraped.contains(&t)
+                && writing
+                    .surface_of(t)
+                    .and_then(|s| writing.top_unscraped(s, &writing.scraped))
+                    == Some(t)
+        })
+        .collect();
+    let reachable_latent = latent.iter().filter(|&&t| reach.text(t)).take(2).count();
     goal(
-        "first_release",
-        need(pivot, "pivot inscription unreachable")
-            .into_iter()
-            .collect(),
+        "latent",
+        need(
+            reachable_latent >= 2,
+            "fewer than two latent spells reachable",
+        )
+        .into_iter()
+        .collect(),
     );
     // Writing a claim: the stylus, and some potent verb and subject the
     // player can have met often enough, in a construction they have seen.
@@ -303,7 +322,7 @@ pub fn check(site: &Site, preset: &str) -> Report {
     goal(
         "great",
         [
-            need(reach.item("first_scraper"), "first scraper unreachable"),
+            need(reach.item("graver"), "first scraper unreachable"),
             need(great, "no great inscription reachable"),
         ]
         .into_iter()
@@ -315,7 +334,7 @@ pub fn check(site: &Site, preset: &str) -> Report {
     goal(
         "deepest",
         [
-            need(reach.item("first_lens"), "first lens unreachable"),
+            need(reach.item("loupe"), "first lens unreachable"),
             need(deepest, "deepest text unreachable or missing"),
         ]
         .into_iter()
@@ -356,6 +375,13 @@ pub fn check(site: &Site, preset: &str) -> Report {
         .into_iter()
         .flatten()
         .collect(),
+    );
+    // A way out without writing (D10): the world's rim, walked to.
+    goal(
+        "edge",
+        need(site.edge.is_some(), "no rim a walker can reach")
+            .into_iter()
+            .collect(),
     );
     // Ambiguity: roots of the newest era that write the same as another.
     let lang = &w.languages[newest as usize];

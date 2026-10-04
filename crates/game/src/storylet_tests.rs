@@ -66,13 +66,13 @@ text = "second"
 [[storylet]]
 id = "a"
 about = "a"
-effects = ["flag seen_a", "give scraper"]
+effects = ["flag seen_a", "give knife"]
 
 [[storylet]]
 id = "b"
 about = "b"
 after = "a"
-when = "flags has 'seen_a' and carrying has 'scraper'"
+when = "flags has 'seen_a' and carrying has 'knife'"
 "#,
     );
     let mut g = Game::new(7, p);
@@ -86,11 +86,7 @@ when = "flags has 'seen_a' and carrying has 'scraper'"
         .filter(|h| *h != "opening")
         .collect();
     assert_eq!(happened, ["a", "b"]);
-    assert!(g
-        .state
-        .carried
-        .iter()
-        .any(|&t| g.thing(t).kind == "scraper"));
+    assert!(g.state.carried.iter().any(|&t| g.thing(t).kind == "knife"));
 }
 
 #[test]
@@ -179,7 +175,7 @@ fn a_spine_run_reaches_every_beat() {
     assert!(g2.state.story.happened.contains(&"opening".to_string()));
     g.hooks_seen.insert("opening".to_string());
     // A tool picked up.
-    let scraper = g.make_item("scraper", false).unwrap();
+    let scraper = g.make_item("knife", false).unwrap();
     g.act("take", Target::Thing(scraper));
     // The deepest text through the first lens (also scraped writing).
     let root = g.site.writing.deep[0];
@@ -189,11 +185,24 @@ fn a_spine_run_reaches_every_beat() {
     let back = (g.state.place, g.state.pos);
     g.state.place = g.site.things[t].home;
     g.state.pos = g.site.things[t].pos;
-    g.make_item("first_lens", true);
+    g.make_item("loupe", true);
     g.make_item("firesteel", true);
     let torch = g.make_item("torch", true).unwrap();
     g.light_item(torch);
     g.act("read", Target::Thing(t));
+    (g.state.place, g.state.pos) = back;
+    // Old writing set loose: a latent spell scraped (D10).
+    let latent = (0..g.site.things.len())
+        .find(|&t| {
+            !g.site.things[t].texts.is_empty()
+                && scraped_sim::writing::top_unscraped_of(&g.layers(t), &g.state.scraped)
+                    .and_then(|x| g.site.writing.claim(&g.site.world, &g.site.land, x))
+                    .is_some()
+        })
+        .expect("a latent spell");
+    g.state.place = g.site.things[latent].home;
+    g.state.pos = g.site.things[latent].pos;
+    g.scrape(latent);
     (g.state.place, g.state.pos) = back;
     // A great inscription in a room.
     let great = g

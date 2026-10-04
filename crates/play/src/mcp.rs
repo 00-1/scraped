@@ -190,7 +190,7 @@ fn tools() -> Value {
         },
         {
             "name": "act",
-            "description": "Send one command, exactly as a player would type it (look, read stele, go temple, take scraper, write 4 12 / 3 on wall, help). Returns what the player sees and a state summary.",
+            "description": "Send one command, exactly as a player would type it (look, read stele, go temple, take knife, write 4 12 / 3 on wall, help). Returns what the player sees and a state summary.",
             "inputSchema": { "type": "object", "properties": { "command": { "type": "string" } }, "required": ["command"] }
         },
         {

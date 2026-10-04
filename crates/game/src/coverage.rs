@@ -38,14 +38,7 @@ impl Bot {
     /// Gets a game ready for this bot.
     pub fn prepare(&self, g: &mut Game) {
         if self.kind == "scholar" {
-            for k in [
-                "scraper",
-                "stylus",
-                "lens",
-                "torch",
-                "firesteel",
-                "waterskin",
-            ] {
+            for k in ["knife", "stylus", "lens", "torch", "firesteel", "waterskin"] {
                 g.make_item(k, true);
             }
         }

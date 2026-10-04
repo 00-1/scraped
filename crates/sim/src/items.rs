@@ -122,40 +122,47 @@ pub const ITEMS: &[ItemKind] = &[
         ..BASE
     },
     ItemKind {
-        id: "scraper",
-        tool: Some("writing"),
+        id: "knife",
+        tool: Some("edge"),
         ..BASE
     },
     ItemKind {
-        id: "fine_scraper",
-        tool: Some("writing"),
+        id: "penknife",
+        tool: Some("edge"),
         ..BASE
     },
     ItemKind {
-        id: "old_scraper",
-        tool: Some("writing"),
+        id: "mason_chisel",
+        tool: Some("edge"),
         ..BASE
     },
     ItemKind {
-        id: "first_scraper",
-        tool: Some("writing"),
+        id: "graver",
+        tool: Some("edge"),
+        ..BASE
+    },
+    // D10: scraping tools are ordinary: a knife, a penknife, a mason's
+    // chisel, an engraver's graver, and pumice for scouring.
+    ItemKind {
+        id: "pumice",
+        tool: Some("abrasive"),
         ..BASE
     },
     ItemKind {
         id: "stylus",
-        tool: Some("writing"),
+        tool: Some("marking"),
         ..BASE
     },
     ItemKind {
         id: "lens",
-        tool: Some("writing"),
+        tool: Some("glass"),
         ..BASE
     },
     // The strongest deep-reading tool: reads every faint layer, and the
     // deepest text.
     ItemKind {
-        id: "first_lens",
-        tool: Some("writing"),
+        id: "loupe",
+        tool: Some("glass"),
         ..BASE
     },
     // Portable things from the world itself.
@@ -177,14 +184,16 @@ pub const ITEMS: &[ItemKind] = &[
 ];
 
 /// How far a scraping tool reaches: 1 a door or room, 2 a site, 3 a
-/// region, 4 the great inscriptions.
-// DESIGN-Q: four scrapers of rising power, all found rather than made.
+/// region, 4 the great inscriptions. Any edged or abrasive tool scrapes
+/// (D10): pumice and the chisels the old world left as weakly as a knife.
+// DESIGN-Q: four tools of rising bite, all found rather than made: knife,
+// penknife, mason's chisel, graver; pumice and an old chisel as a knife.
 pub fn scrape_power(id: &str) -> u8 {
     match id {
-        "scraper" => 1,
-        "fine_scraper" => 2,
-        "old_scraper" => 3,
-        "first_scraper" => 4,
+        "knife" | "pumice" | "chisel" => 1,
+        "penknife" => 2,
+        "mason_chisel" => 3,
+        "graver" => 4,
         _ => 0,
     }
 }

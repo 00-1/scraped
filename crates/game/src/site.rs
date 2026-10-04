@@ -79,6 +79,9 @@ pub struct Site {
     pub regions: Regions,
     /// The great inscriptions of history.
     pub greats: Vec<Great>,
+    /// Where the land ends (D10): a place on the world's rim a walker can
+    /// reach from the start, beyond which a player may go and leave.
+    pub edge: Option<Pos>,
 }
 
 /// One way out of a room.
@@ -264,6 +267,7 @@ impl Site {
                 things[t].texts = s.layers.clone();
             }
         }
+        let edge = world_edge(&world, &land, settlement);
         Site {
             world,
             settlement,
@@ -274,6 +278,7 @@ impl Site {
             writing,
             regions,
             greats,
+            edge,
         }
     }
 
@@ -512,11 +517,39 @@ pub fn place_of(s: Spot) -> Place {
     }
 }
 
+/// The last land before the world's outer edge (D10; most worlds are
+/// ringed by sea), that a walker can reach from the start: of the cells
+/// nearest the edge, the farthest from the start.
+// DESIGN-Q: the non-writing way out is the reachable land cell nearest the
+// map's edge (trying the twelve nearest, farthest from the start first); a
+// world whose rim can't be walked to has none.
+fn world_edge(w: &World, land: &Land, start: usize) -> Option<Pos> {
+    use scraped_world::terrain::SIZE;
+    let s = &w.history.settlements[start];
+    let from = Pos::of_cell(s.cell.ux(), s.cell.uy());
+    let mut cells: Vec<(usize, i64, usize, usize)> = (1..SIZE - 1)
+        .flat_map(|y| (1..SIZE - 1).map(move |x| (x, y)))
+        .filter(|&(x, y)| land.passable(w, x, y))
+        .map(|(x, y)| {
+            let rim = x.min(y).min(SIZE - 1 - x).min(SIZE - 1 - y);
+            (rim, -Pos::of_cell(x, y).dist2(from), x, y)
+        })
+        .collect();
+    cells.sort_unstable();
+    cells
+        .into_iter()
+        .take(12)
+        .map(|(_, _, x, y)| Pos::of_cell(x, y))
+        .find(|&p| land.route(w, from, p).is_some())
+}
+
 /// What an item is mostly made of, for descriptions.
 pub fn item_material(kind: &str) -> Material {
     match kind {
         "torch" | "wood" | "berries" => Material::Wood,
-        "lamp" | "firesteel" | "pry_bar" | "scraper" | "stylus" | "lens" => Material::Metal,
+        "lamp" | "firesteel" | "pry_bar" | "knife" | "penknife" | "mason_chisel" | "graver"
+        | "stylus" | "lens" | "loupe" => Material::Metal,
+        "pumice" => Material::Stone,
         "waterskin" | "cloak" => Material::Vellum,
         _ => Material::Clay,
     }

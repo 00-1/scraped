@@ -17,7 +17,7 @@ example = true
 
 [[variant]]
 slot = "story.tool"
-text = "It fits your hand as if it remembered it."
+text = "A good tool, kept sharp by someone."
 example = true
 
 [[variant]]
@@ -76,7 +76,7 @@ example = true
 
 [[storylet]]
 id = "tool"
-about = "The first writing tool the player picks up."
+about = "The first good craft tool the player picks up (a knife, pumice, a lens…)."
 at = "hook"
 hook = "tool_found"
 example = true

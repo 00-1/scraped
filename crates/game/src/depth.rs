@@ -318,6 +318,33 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
         "things.maps",
         objs.iter().filter(|o| o.map.is_some()).count() as f64,
     );
+    // D10: goals a player who never writes can pursue, each with a payoff
+    // in the world: kinds present, counted once each.
+    let goals = [
+        !w.structures.is_empty(), // places to map
+        site.fixtures.mechanisms.len() + site.fixtures.works.len() > 0, // machines
+        boxes + caches > 0,       // caches and locked boxes
+        !w.locks.is_empty(),      // locked doors
+        !site.fixtures.calendar.is_empty(), // calendar doors
+        objs.iter().any(|o| o.map.is_some()), // old maps
+        objs.iter().any(|o| o.marked), // emblems to trace
+        !w.scenes.is_empty(),     // scenes of history
+        !w.life.species.is_empty(), // life to learn
+        !w.phenomena.is_empty(),  // natural wonders
+        !w.features.is_empty(),   // natural features
+        site.edge.is_some(),      // the world's rim
+        w.structures
+            .iter()
+            .any(|st| st.interior.rooms.iter().any(|r| r.level <= -3)), // the deep below
+    ];
+    put(
+        "goals.non_writing",
+        goals.iter().filter(|g| **g).count() as f64,
+    );
+    put(
+        "goals.rim_reachable",
+        f64::from(u8::from(site.edge.is_some())),
+    );
     put(
         "things.object_kinds",
         objs.iter().map(|o| o.kind).collect::<BTreeSet<_>>().len() as f64,
@@ -549,6 +576,18 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     let more: Vec<f64> = run.on_demand.iter().map(|&(_, m)| f64::from(m)).collect();
     put("depth_on_demand.per_place", spread(more).median);
     put("play.hours", run.hours);
+    // D10: when the explorer first set writing loose (24 if it never did
+    // in the run), and how often the first hour brought writing forward.
+    put(
+        "pacing.first_release_hours",
+        run.first_release
+            .as_ref()
+            .map_or(run.hours.max(24.0), |r| r.0),
+    );
+    put(
+        "pacing.pointers_first_hour",
+        f64::from(run.pointers_first_hour),
+    );
     put(
         "play.novel_per_hour",
         run.novelty.len() as f64 / run.hours.max(0.1),
@@ -598,7 +637,7 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     }
     // The scholar, with a scraper in hand from the first hour.
     let scholar = bots::play_with(pack, seed, "scholar", 10.0, 20_000, |g| {
-        g.make_item("scraper", true);
+        g.make_item("knife", true);
     });
     put("reading.heard_scholar_10h", scholar.heard as f64);
 

@@ -196,7 +196,7 @@ public final class AgentProtocol {
     private static JSONArray tools() throws JSONException {
         JSONObject act = new JSONObject()
                 .put("name", "act")
-                .put("description", "Type one command into the game, as a player would (look, read stele, go temple, take scraper, help). Returns the game's reply.")
+                .put("description", "Type one command into the game, as a player would (look, read stele, go temple, take knife, help). Returns the game's reply.")
                 .put("inputSchema", new JSONObject()
                         .put("type", "object")
                         .put("properties", new JSONObject().put("command", new JSONObject().put("type", "string")))

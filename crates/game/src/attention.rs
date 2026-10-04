@@ -817,6 +817,37 @@ impl Game {
     /// Evidence of the season and of the region's state, never their
     /// names.
     pub(crate) fn outdoor_evidence(&mut self, out: &mut Vec<Fact>) {
+        // The world's rim, when it is near (D10).
+        if let Some(edge) = self.site.edge {
+            let d = edge.dist(self.state.pos);
+            if d <= 3000.0 {
+                let distance = if d <= crate::ending::RIM {
+                    "here"
+                } else if d <= 1000.0 {
+                    "near"
+                } else {
+                    "far"
+                };
+                let (x, y) = edge.cell();
+                let biome = *self.site.world.terrain.biome.get(x, y);
+                out.push(Fact::new(
+                    "land.rim",
+                    format!("rim:{distance}"),
+                    if distance == "here" { 60.0 } else { 38.0 },
+                    ctx(&[
+                        (
+                            "bearing",
+                            Value::from(
+                                scraped_sim::outdoors::bearing(self.state.pos, edge)
+                                    .map_or("north", |b| BEARINGS[b]),
+                            ),
+                        ),
+                        ("distance", Value::from(distance)),
+                        ("biome", Value::from(scraped_sim::outdoors::label(&biome))),
+                    ]),
+                ));
+            }
+        }
         let pos = self.state.pos;
         let (x, y) = pos.cell();
         let biome = *self.site.world.terrain.biome.get(x, y);
@@ -1054,7 +1085,7 @@ fn order(slot: &str) -> u8 {
         "great.site" => 2,
         "room.ways" => 3,
         "land.ground" | "land.edge" | "ground.wet" => 4,
-        "land.landmark" | "land.unseen" | "land.region" => 5,
+        "land.landmark" | "land.unseen" | "land.region" | "land.rim" => 5,
         "sky.weather" => 6,
         "air.felt" | "air.moving" | "air.uncanny" | "fire.near" | "spell.cue" => 7,
         "evidence.season" | "evidence.region" => 8,

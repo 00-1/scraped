@@ -43,7 +43,7 @@ pub(crate) fn counter(g: &mut Game, great: usize) -> bool {
     g.state.pos = g.site.things[thing].pos;
     g.forced = Some(("clear", "daylight"));
     g.threshold = 0;
-    for k in ["first_scraper", "stylus", "torch", "firesteel"] {
+    for k in ["graver", "stylus", "torch", "firesteel"] {
         g.make_item(k, true);
     }
     let torch = *g
@@ -123,7 +123,7 @@ fn every_great_inscription_is_reachable_and_affectable_with_the_strongest_tool()
             let mut g = Game::new(seed, pack());
             g.start();
             let thing = great_thing(&g, gr.text);
-            g.make_item("old_scraper", true);
+            g.make_item("mason_chisel", true);
             assert!(g.power() < g.needs_power(thing));
             assert!(
                 counter(&mut g, i),

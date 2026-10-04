@@ -299,6 +299,19 @@ id = "scrape"
 words = ["scrape", "scrape off", "scrape away", "scratch out", "rub out", "erase"]
 object = "required"
 
+# Cleaning a surface (D10): with a tool in hand the whole top layer comes
+# away with the grime, as scraping; by hand only the grime.
+[[verb]]
+id = "clean"
+words = ["clean", "scrub", "scour", "wipe", "wipe off", "brush off", "clear moss from", "clean off"]
+object = "required"
+
+# Leaving by the world's rim (D10).
+[[verb]]
+id = "beyond"
+words = ["go beyond", "walk beyond", "pass beyond", "walk on beyond", "leave this land", "step beyond"]
+object = "none"
+
 # Player writing (M09).
 [[verb]]
 id = "write"

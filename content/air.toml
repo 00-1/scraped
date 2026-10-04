@@ -19,3 +19,8 @@ example = true
 slot = "spell.cue"
 text = "[if quality == 'light']A light lies on the {thing} that nothing casts.[else]Something about the {thing} is not as it should be.[end]"
 example = true
+
+[[variant]]
+slot = "land.rim"
+text = "[if distance == 'here']The land runs out here.[else]To the {bearing} the land runs out into haze.[end]"
+example = true

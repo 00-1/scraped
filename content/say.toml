@@ -173,3 +173,8 @@ example = true
 slot = "say.seed_code"
 text = "This world's code is {code}."
 example = true
+
+[[variant]]
+slot = "say.no_beyond"
+text = "The land goes on."
+example = true

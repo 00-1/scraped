@@ -102,7 +102,7 @@ fn tracing_takes_time_and_light_and_gives_the_strokes() {
 #[test]
 fn scraping_where_it_is_quiet_lets_signs_be_heard() {
     let (mut g, thing) = by_writing(42);
-    g.make_item("scraper", true);
+    g.make_item("knife", true);
     // Listening first, so the place's sounds don't drown them.
     g.step("listen");
     let o = g.act("scrape", Target::Thing(thing));

@@ -239,6 +239,9 @@ pub struct State {
     pub scraped: BTreeSet<usize>,
     /// Writing tools the player has come across (for the first-find note).
     pub found: BTreeSet<String>,
+    /// Surfaces cleaned of moss, soot or dust (D10).
+    #[serde(default)]
+    pub cleaned: BTreeSet<usize>,
     /// What the player has written, in order. These layers enter history.
     pub written: Vec<composing::Written>,
     /// Roots the player has met, and in which texts (tracked silently).
@@ -560,6 +563,7 @@ impl Game {
             dead: None,
             scraped: site.writing.scraped.clone(),
             found: BTreeSet::new(),
+            cleaned: BTreeSet::new(),
             written: Vec::new(),
             encountered: BTreeMap::new(),
             regions: site.regions.initial.clone(),
@@ -1314,6 +1318,7 @@ impl Game {
             "shout" => self.shout(),
             "cross" => self.cross(&cmd.words),
             "status" => self.status(),
+            "beyond" => self.go_beyond(),
             "look_around" => {
                 self.pass(2);
                 let r = if self.state.place == Place::Outside {
@@ -1611,6 +1616,7 @@ impl Game {
             ("use", Target::Mechanism(m)) => self.operate(m, "operate"),
             ("pry", t) => self.pry(t),
             ("scrape", Target::Thing(i)) => self.scrape(i),
+            ("clean", Target::Thing(i)) => self.clean(i),
             ("examine", Target::Structure(s)) | ("go", Target::Structure(s)) => {
                 if verb == "examine" {
                     self.pass(1);
@@ -2031,7 +2037,8 @@ impl Game {
                     Some(k) => Mark::Glyph {
                         era: text.era,
                         index: script.index(&k),
-                        lost: partial && self.lost(tid, g, deep.contains(&tid)),
+                        lost: (partial && self.lost(tid, g, deep.contains(&tid)))
+                            || self.grimed(thing, tid, g),
                     },
                     None => Mark::Gap,
                 });

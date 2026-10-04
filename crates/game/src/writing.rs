@@ -64,7 +64,7 @@ impl Game {
             .iter()
             .map(|&t| match self.thing(t).kind {
                 "lens" => 1,
-                "first_lens" => 2,
+                "loupe" => 2,
                 _ => 0,
             })
             .max()
@@ -94,6 +94,124 @@ impl Game {
         let layers = self.layers(thing);
         let ghosts = ghosts_of(&layers, &self.state.scraped);
         ghosts - self.deep_layers(thing).len()
+    }
+
+    /// What covers a written surface, if anything (D10): moss or lichen on
+    /// stone out of doors, soot or dust within. Gone once cleaned.
+    // DESIGN-Q: two in five surfaces out of doors or in worn buildings are
+    // grimed, one in eight elsewhere, four in five where a spell waits;
+    // grime hides two signs in five.
+    pub(crate) fn grime(&self, thing: usize) -> Option<&'static str> {
+        if self.state.cleaned.contains(&thing) {
+            return None;
+        }
+        let t = self.thing(thing);
+        if t.texts.is_empty() {
+            return None;
+        }
+        let (outside, worn) = match t.home {
+            Place::Outside => (true, true),
+            Place::Room { structure, .. } => (
+                false,
+                self.site.world.structures[structure].condition
+                    != scraped_world::structures::Condition::Intact,
+            ),
+        };
+        // Writing never cast was never tended either: a spell left waiting
+        // mostly lies under moss or soot.
+        let waiting = top_unscraped_of(&self.layers(thing), &self.state.scraped)
+            .is_some_and(|t| self.text(t).kind == scraped_lang::corpus::Kind::Potent);
+        let h = hash(&[self.seed(), 0x6e1e, thing as u64]);
+        let chance = match (waiting, worn) {
+            (true, _) => 80,
+            (false, true) => 40,
+            (false, false) => 12,
+        };
+        if h % 100 >= chance {
+            return None;
+        }
+        let covers: &[&'static str] = if outside {
+            &["moss", "lichen", "grime"]
+        } else {
+            &["soot", "dust", "grime"]
+        };
+        Some(covers[((h >> 12) % covers.len() as u64) as usize])
+    }
+
+    /// Whether glyph `g` of a text on `thing` is hidden by grime.
+    pub(crate) fn grimed(&self, thing: usize, text: usize, g: usize) -> bool {
+        self.grime(thing).is_some() && hash(&[self.seed(), 0x6e1f, text as u64, g as u64]) % 5 < 2
+    }
+
+    /// Writing taken off by the world itself (D10): falling stone scours a
+    /// room's surfaces; floodwater washes the soft ones (clay, plaster,
+    /// wood, vellum). The top layer comes away whole, as any scrape, and
+    /// whatever it held is loose. Returns what the player feels of it.
+    pub(crate) fn world_strips(
+        &mut self,
+        structure: usize,
+        room: usize,
+        soft: bool,
+    ) -> Vec<String> {
+        let here = Place::Room { structure, room };
+        let mut stripped = false;
+        let before = self.claims.clone();
+        for t in 0..self.thing_count() {
+            if self.thing(t).home != here || self.thing(t).texts.is_empty() {
+                continue;
+            }
+            if soft
+                && matches!(
+                    self.thing(t).material,
+                    scraped_world::structures::Material::Stone
+                        | scraped_world::structures::Material::Metal
+                )
+            {
+                continue;
+            }
+            let layers = self.layers(t);
+            if let Some(top) = top_unscraped_of(&layers, &self.state.scraped) {
+                // Only what was meant to act is set loose: plain writing
+                // simply wears away unread.
+                if self.text(top).kind == scraped_lang::corpus::Kind::Potent {
+                    self.state.scraped.insert(top);
+                    self.state.cleaned.insert(t);
+                    stripped = true;
+                }
+            }
+        }
+        if !stripped {
+            return Vec::new();
+        }
+        self.recompute_claims();
+        self.hook("first_accident", "", "");
+        self.claim_changes(&before)
+    }
+
+    /// `clean the stele` (D10): with an edged or abrasive tool in hand,
+    /// the grime comes off and the whole top layer with it, exactly as a
+    /// scrape; by hand, only the grime.
+    pub(crate) fn clean(&mut self, thing: usize) -> Output {
+        let name = self.thing_name(thing);
+        if self.power() > 0 && !self.layers(thing).is_empty() {
+            self.state.cleaned.insert(thing);
+            return self.scrape(thing);
+        }
+        match self.grime(thing) {
+            Some(cover) => {
+                self.pass(15);
+                self.state.cleaned.insert(thing);
+                let t = self.say(
+                    "clean.done",
+                    ctx(&[("thing", Value::from(name)), ("cover", Value::from(cover))]),
+                );
+                self.output(vec![t], None)
+            }
+            None => {
+                let t = self.say("clean.nothing", ctx(&[("thing", Value::from(name))]));
+                self.output(vec![t], None)
+            }
+        }
     }
 
     /// Whether glyph `g` of a scraped text is lost to the eye here: more
@@ -216,6 +334,9 @@ impl Game {
         if self.claims.iter().any(|c| c.text == text) && text >= base {
             felt.extend(self.release_feeling(power));
             self.hook("first_release", "", "");
+        } else if self.claims.iter().any(|c| c.text == text) {
+            // Old writing set loose, most likely by accident (D10).
+            self.hook("first_accident", "", "");
         }
         self.scrape_felt = !felt.is_empty();
         parts.extend(felt);
@@ -460,13 +581,14 @@ impl Game {
     pub(crate) fn tool_found(&mut self, kind: &str) -> Option<String> {
         if !matches!(
             kind,
-            "scraper"
+            "knife"
+                | "pumice"
                 | "stylus"
                 | "lens"
-                | "fine_scraper"
-                | "old_scraper"
-                | "first_scraper"
-                | "first_lens"
+                | "penknife"
+                | "mason_chisel"
+                | "graver"
+                | "loupe"
         ) || self.state.found.contains(kind)
         {
             return None;

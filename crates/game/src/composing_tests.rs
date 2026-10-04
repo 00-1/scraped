@@ -69,7 +69,7 @@ pub(crate) fn at_blank_surface(seed: u64) -> Option<(Game, usize)> {
     g.state.place = g.site.things[thing].home;
     g.state.pos = g.site.things[thing].pos;
     g.make_item("stylus", true);
-    g.make_item("scraper", true);
+    g.make_item("knife", true);
     Some((g, thing))
 }
 

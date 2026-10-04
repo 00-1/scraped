@@ -76,8 +76,10 @@ Staying alive: `drink` (from a well, river or lake), `fill waterskin`, `eat`,
 `sleep`, `forage`, `gather wood`, `make fire` (firesteel and wood), `make
 torch`, `light torch`, `wear cloak`, `status`. Mechanisms: `open sluice`,
 `pull lever`, `pry door`. `shout` scares some creatures off and brings down
-loose stone; `cross` tries ice, wading or swimming. With the scraper,
-`scrape <thing>` scrapes its top fresh writing away, and potent writing acts.
+loose stone; `cross` tries ice, wading or swimming. With a knife, pumice or
+any edged tool, `scrape <thing>` or `clean <thing>` takes its top fresh
+writing away (by hand, `clean` takes off only moss, soot or dust), and potent
+writing acts.
 Signs give their sound as they are scraped away, heard where it is quiet or
 after `listen`; from then on they read by that sound. With the stylus,
 `write kati mo on wall` writes words by their sounds (`#4` copies in the
@@ -85,7 +87,8 @@ fourth sign of the last text read) once you have heard their signs and met
 each word in two texts;
 the lens shows the layer beneath when you read. Time: `wait 2 weeks`; the
 world drifts by region (spoilers: `world --seed N regions --spoil`), and
-stronger scrapers reach farther, up to the great inscriptions.
+finer tools (a penknife, a mason's chisel, a graver) reach farther, up to the
+great inscriptions. At the world's rim, `go beyond` leaves it.
 
 Agents can play too: `--json` (see [`docs/PROTOCOL.md`](docs/PROTOCOL.md)),
 or the MCP server `scraped-mcp`, with house rules for playing alongside a

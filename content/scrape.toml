@@ -22,5 +22,5 @@ example = true
 
 [[variant]]
 slot = "scrape.too_weak"
-text = "Your scraper skids on {thing}."
+text = "Your blade skids on {thing}."
 example = true

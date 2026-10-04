@@ -14,3 +14,13 @@ example = true
 slot = "effect.fast"
 text = "[if how == 'heavy']{cap thing} will not lift, as if rooted.[else]{cap thing} will not come away from where it lies.[end]"
 example = true
+
+[[variant]]
+slot = "clean.done"
+text = "You rub the {cover} from {thing}."
+example = true
+
+[[variant]]
+slot = "clean.nothing"
+text = "There is nothing to clean from {thing}."
+example = true

@@ -20,20 +20,32 @@ fn crafted_worlds_fail_where_they_should() {
     assert!(r.ok, "{:?}", r.goals);
     assert_eq!(r.goals.len(), GOALS.len());
     // Remove each tool in turn.
+    // No tool that scrapes at all.
+    let mut s = Site::create(1, "standard", None);
+    s.fixtures
+        .items
+        .retain(|p| scraped_sim::items::scrape_power(p.kind) == 0);
+    assert_eq!(failing(&s), ["tool", "great"], "without any scraping tool");
     for (tool, goal) in [
-        ("scraper", "scraper"),
         ("stylus", "first_write"),
-        ("first_scraper", "great"),
-        ("first_lens", "deepest"),
+        ("graver", "great"),
+        ("loupe", "deepest"),
     ] {
         let mut s = Site::create(1, "standard", None);
         s.fixtures.items.retain(|p| p.kind != tool);
         assert_eq!(failing(&s), [goal], "without the {tool}");
     }
-    // No pivot inscription.
+    // No spell left latent: every one already cast.
     let mut s = Site::create(1, "standard", None);
-    s.writing.pivot = None;
-    assert_eq!(failing(&s), ["first_release"]);
+    let all: Vec<usize> = (0..s.writing.count(&s.world))
+        .filter(|&t| s.writing.text(&s.world, t).kind == scraped_lang::corpus::Kind::Potent)
+        .collect();
+    s.writing.scraped.extend(all);
+    assert_eq!(failing(&s), ["latent"]);
+    // No rim to walk to.
+    let mut s = Site::create(1, "standard", None);
+    s.edge = None;
+    assert_eq!(failing(&s), ["edge"]);
     // The deepest text missing: neither it nor leaving can be done.
     let mut s = Site::create(1, "standard", None);
     s.writing.deep.truncate(1);

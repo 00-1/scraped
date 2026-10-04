@@ -193,13 +193,13 @@ const BASE_KINDS: &[&str] = &[
     "provisions",
     "berries",
     "pry_bar",
-    "scraper",
+    "knife",
     "stylus",
     "lens",
-    "fine_scraper",
-    "old_scraper",
-    "first_scraper",
-    "first_lens",
+    "penknife",
+    "mason_chisel",
+    "graver",
+    "loupe",
     "millstone",
     "waterwheel",
     "bin",
@@ -619,6 +619,31 @@ pub(crate) const CLASSES: [&str; 10] = [
     "air",
     "person",
 ];
+
+fn s_cover(_: u64) -> Vec<Context> {
+    ["moss", "soot"]
+        .iter()
+        .map(|c| {
+            ctx(&[
+                ("thing", Value::from("the stele")),
+                ("cover", Value::from(*c)),
+            ])
+        })
+        .collect()
+}
+
+fn s_rim(_: u64) -> Vec<Context> {
+    ["here", "near", "far"]
+        .iter()
+        .map(|d| {
+            ctx(&[
+                ("bearing", Value::from("north")),
+                ("distance", Value::from(*d)),
+                ("biome", Value::from("grassland")),
+            ])
+        })
+        .collect()
+}
 
 fn s_fast(_: u64) -> Vec<Context> {
     ["bound", "heavy"]
@@ -1140,6 +1165,11 @@ fn s_end(_: u64) -> Vec<Context> {
                 ("read", Value::Number(i as i64 * 3)),
                 ("wrote", Value::Number(i as i64 % 2)),
                 ("released", Value::Number(i as i64 % 4)),
+                ("kinds", Value::Number(i as i64 + 3)),
+                ("rooms", Value::Number(i as i64 * 7)),
+                ("secrets", Value::Number(i as i64 % 5)),
+                ("walked", Value::Number(i as i64 * 11)),
+                ("rim", Value::Bool(i % 3 == 0)),
             ])
         })
         .collect();
@@ -1157,6 +1187,11 @@ fn s_end(_: u64) -> Vec<Context> {
             ("read", Value::Number(30)),
             ("wrote", Value::Number(4)),
             ("released", Value::Number(5)),
+            ("kinds", Value::Number(9)),
+            ("rooms", Value::Number(60)),
+            ("secrets", Value::Number(4)),
+            ("walked", Value::Number(80)),
+            ("rim", Value::Bool(*e == "beyond")),
         ]));
     }
     out
@@ -1221,7 +1256,7 @@ fn s_end_act(_: u64) -> Vec<Context> {
     vec![
         ctx(&[
             ("day", Value::Number(3)),
-            ("act", Value::from("silenced")),
+            ("act", Value::from("stopped")),
             ("scale", Value::from("great")),
             ("aspect", Value::from("stability")),
             ("rising", Value::Bool(false)),
@@ -1229,7 +1264,7 @@ fn s_end_act(_: u64) -> Vec<Context> {
         ]),
         ctx(&[
             ("day", Value::Number(9)),
-            ("act", Value::from("released")),
+            ("act", Value::from("started")),
             ("scale", Value::from("region")),
             ("aspect", Value::from("water")),
             ("rising", Value::Bool(true)),
@@ -1335,7 +1370,7 @@ fn s_effect(_: u64) -> Vec<Context> {
 }
 
 fn s_tool(_: u64) -> Vec<Context> {
-    ["scraper", "stylus", "lens"]
+    ["knife", "pumice", "lens"]
         .iter()
         .map(|k| ctx(&[("kind", Value::from(*k))]))
         .collect()
@@ -1767,7 +1802,7 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(600)
             .sampler(s_death),
         SlotDef::new("end.summary", "The run is over: the opening of the end-of-run summary, after the death or ending narration. The whole picture follows (region by region, the player's acts, the chronicle); this frames it with what the player did in plain counts.")
-            .var("ending", e(crate::ending::ENDINGS), "How it ended: death, leaving (left), writing yourself into the world (written_in), old age, or being overtaken by the land's collapse.")
+            .var("ending", e(crate::ending::ENDINGS), "How it ended: death, leaving by writing (left), writing yourself into the world (written_in), old age, being overtaken by the land's collapse, or walking beyond the world's rim (beyond).")
             .var("cause", e(&[scraped_sim::body::DEATHS, crate::ending::ENDINGS].concat()), "The cause of death, or the ending again.")
             .var("days", VarType::Number, "Days of the run, from 1.")
             .var("years", VarType::Number, "The player's age at the end.")
@@ -1776,6 +1811,11 @@ pub fn slots() -> Vec<SlotDef> {
             .var("read", VarType::Number, "Texts read.")
             .var("wrote", VarType::Number, "Texts the player wrote.")
             .var("released", VarType::Number, "Texts the player scraped (claims released).")
+            .var("kinds", VarType::Number, "D10: kinds of building entered.")
+            .var("rooms", VarType::Number, "D10: rooms seen.")
+            .var("secrets", VarType::Number, "D10: hidden things uncovered, containers opened, locks undone.")
+            .var("walked", VarType::Number, "D10: kilometres walked.")
+            .var("rim", VarType::Bool, "D10: whether the player reached the world's rim.")
             .max_len(600)
             .sampler(s_end),
         SlotDef::new("end.left", "The player scrapes the departure claim they wrote and leaves the world: the run ends by choice. The world stays as it is now.")
@@ -1784,6 +1824,19 @@ pub fn slots() -> Vec<SlotDef> {
             .var("years", VarType::Number, "The player's age.")
             .max_len(600)
             .sampler(s_ending),
+        SlotDef::new("end.beyond", "D10: the player walks on past the world's rim, the end of a long road found by exploring, and leaves: the run ends by choice, with no writing. The world stays as it is now.")
+            .var("day", VarType::Number, "Day of the run.")
+            .var("indoors", VarType::Bool, "Whether they were indoors.")
+            .var("years", VarType::Number, "The player's age.")
+            .max_len(600)
+            .sampler(s_ending),
+        SlotDef::new("say.no_beyond", "The player tries to go beyond the edge of the world where there is no edge: the land goes on.").max_len(160).sampler(s_none),
+        SlotDef::new("land.rim", "D10: the edge of the world is near, seen or sensed: the land runs out (a last pass, a shore with nothing beyond, a plain that ends in haze). Evidence only; never say it is a way out. At the rim itself the player may go beyond.")
+            .var("bearing", e(&BEARINGS), "Which way the rim lies.")
+            .var("distance", e(&["here", "near", "far"]), "At it (here), within a kilometre (near), or farther.")
+            .var("biome", e(BIOMES), "The land at the rim.")
+            .max_len(200)
+            .sampler(s_rim),
         SlotDef::new("end.written_in", "The player scrapes a claim they wrote about themselves (not the departure): they become part of the world, a trace in it, and the run ends.")
             .var("day", VarType::Number, "Day of the run.")
             .var("indoors", VarType::Bool, "Whether they were indoors.")
@@ -1816,7 +1869,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("end.calm", "In the end summary: nothing changed across the land that anyone would notice, by the player's hand or otherwise.").max_len(300).sampler(s_none),
         SlotDef::new("end.act", "In the end summary, the causal chain: one thing the player did that began or ended a push on a region's course (scraping their own writing with a strong scraper, or silencing a great inscription).")
             .var("day", VarType::Number, "Day of the run.")
-            .var("act", e(&["released", "silenced"]), "Began a push (released) or ended one (silenced).")
+            .var("act", e(&["started", "stopped"]), "Began a push (started) or ended one (stopped).")
             .var("scale", e(&["region", "great"]), "A region, or several (a great inscription's reach).")
             .var("aspect", e(&VARIABLES), "What it pushes.")
             .var("rising", VarType::Bool, "Toward more (true) or less.")
@@ -1861,14 +1914,27 @@ pub fn slots() -> Vec<SlotDef> {
             .var("indoors", VarType::Bool, "Whether the player is indoors.")
             .max_len(300)
             .sampler(s_effect),
+        SlotDef::new("read.grime", "Moss, lichen, soot or dust covers part of the writing, so some of its signs can't be made out (D10). It can be cleaned off.")
+            .var("cover", e(&["moss", "lichen", "soot", "dust", "grime"]), "What covers it.")
+            .max_len(160)
+            .sampler(s_cover),
+        SlotDef::new("clean.done", "The player cleans a surface by hand, with no tool: the moss, soot or dust comes away, the writing beneath is clearer. Only the act.")
+            .var("thing", VarType::Text, "The surface, as named.")
+            .var("cover", e(&["moss", "lichen", "soot", "dust", "grime"]), "What came off.")
+            .max_len(200)
+            .sampler(s_cover),
+        SlotDef::new("clean.nothing", "The player tries to clean something with nothing on it to clean off, and no tool in hand.")
+            .var("thing", VarType::Text, "The thing, as named.")
+            .max_len(160)
+            .sampler(s_named),
         SlotDef::new("effect.fast", "A thing won't come up when the player tries to take it, though nothing holds it (writing's doing; never say so): it is held fast where it lies, or far heavier than it should be.")
             .var("thing", VarType::Text, "The thing, as named in the room.")
             .var("how", e(&["bound", "heavy"]), "Held fast to its place, or too heavy to lift.")
             .max_len(200)
             .sampler(s_fast),
         SlotDef::new("effect.held", "A door won't move, though nothing bars it: it is held (writing's doing; never say so). The cue is that there is nothing to see: no bar, no rubble, no lock, and still it won't move.").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
-        SlotDef::new("tool.found", "The player first picks up one of the three writing tools: the scraper, the stylus or the lens. A moment of discovery; don't explain what it does.")
-            .var("kind", e(&["scraper", "stylus", "lens", "fine_scraper", "old_scraper", "first_scraper", "first_lens"]), "Which tool: the scraper, the stylus, the lens, one of the stronger scrapers (fine, old, and the first, strongest of all), or the first lens, which reads the faintest layers.")
+        SlotDef::new("tool.found", "The player first picks up a good tool of some craft (D10: ordinary, never magical): a knife, pumice, a penknife, a mason's chisel, an engraver's graver, a stylus, a lens or a jeweller's loupe. Say what it is like as a tool; never hint at writing.")
+            .var("kind", e(&["knife", "stylus", "lens", "penknife", "mason_chisel", "graver", "loupe"]), "Which tool: the scraper, the stylus, the lens, one of the stronger scrapers (fine, old, and the first, strongest of all), or the first lens, which reads the faintest layers.")
             .max_len(400)
             .sampler(s_tool),
         SlotDef::new("write.done", "The player writes new text on a surface. Echo the signs back as they were cut or painted, never what they mean.")

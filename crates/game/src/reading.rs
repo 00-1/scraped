@@ -206,6 +206,9 @@ impl Game {
             ("form", Value::from(form(self.text(top).genre))),
         ]);
         let mut parts = vec![self.say("read.whole", c)];
+        if let Some(cover) = self.grime(thing) {
+            parts.push(self.say("read.grime", ctx(&[("cover", Value::from(cover))])));
+        }
         if let Some(&(_, true)) = seen.first() {
             let lost = signs.iter().filter(|s| s.2).count();
             let c = ctx(&[

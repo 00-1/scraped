@@ -283,6 +283,13 @@ impl Game {
             }
             self.creatures_tick(dt);
             self.state.minutes += dt;
+            // Floodwater washes writing off soft surfaces (D10).
+            if let Place::Room { structure, room } = self.state.place {
+                if self.env().flood(structure, room, self.state.minutes) > 0 {
+                    let felt = self.world_strips(structure, room, true);
+                    self.notes.extend(felt);
+                }
+            }
             self.step_regions();
             self.check_time_endings();
             left -= dt;
@@ -1302,6 +1309,9 @@ impl Game {
             ctx(&[("hurt", Value::Number(i64::from(levels)))]),
         );
         self.hurt(levels, "collapse");
+        // Falling stone scours the room's surfaces (D10).
+        let felt = self.world_strips(structure, room, false);
+        self.notes.extend(felt);
         Some(t)
     }
 

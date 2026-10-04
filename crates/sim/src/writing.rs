@@ -17,11 +17,11 @@ use scraped_lang::meaning::{
 };
 use scraped_lang::powers::{Power, Powers};
 use scraped_world::history::{EventKind, Role as PersonRole};
-use scraped_world::structures::{Material, Passage, PassageState};
+use scraped_world::structures::Material;
 use scraped_world::texts::Text;
 use scraped_world::World;
 
-use crate::fixtures::{Fixtures, Spot};
+use crate::fixtures::Fixtures;
 use crate::outdoors::{hash, Land, Pos, CELL};
 
 /// What kind of thing a claim's target is.
@@ -488,9 +488,6 @@ pub struct Writing {
     pub surfaces: Vec<Surface>,
     /// Texts already scraped when play begins (historic potent writing).
     pub scraped: BTreeSet<usize>,
-    /// The first unscraped potent inscription a player is likely to meet,
-    /// near the scraping tool.
-    pub pivot: Option<usize>,
     /// The root inscription: the world's first great writing.
     pub root: Option<usize>,
     /// The deepest stack's accounts beneath the root, oldest first: how
@@ -607,8 +604,8 @@ const INSCRIBABLE: &[&str] = &[
 ];
 
 impl Writing {
-    /// Surfaces from history, plus a few latent potent inscriptions: the
-    /// pivot beside the scraping tool and some further afield.
+    /// Surfaces from history, plus a few latent potent inscriptions away
+    /// from the start.
     pub fn new(
         w: &World,
         land: &Land,
@@ -619,27 +616,34 @@ impl Writing {
     ) -> Self {
         let mut out = Writing::default();
         let n = w.texts.len();
-        // History's potent writing was cast: it lies scraped, and acts.
+        // History's potent writing was cast: it lies scraped, and acts. Some
+        // everyday spells were written and never cast (D10): their writers
+        // died, fled or thought better of it, and they wait for whoever
+        // scrapes or cleans them off.
+        // DESIGN-Q: one everyday spell in three lies latent.
         for t in &w.texts {
-            if t.kind == Kind::Potent {
+            let everyday = matches!(
+                t.genre,
+                scraped_world::texts::Genre::Charm
+                    | scraped_world::texts::Genre::Ward
+                    | scraped_world::texts::Genre::Invocation
+            );
+            if t.kind == Kind::Potent
+                && !(everyday && hash(&[w.seed, 0x1a7f, t.id as u64]).is_multiple_of(3))
+            {
                 out.scraped.insert(t.id);
             }
         }
         // Latent inscriptions.
-        // DESIGN-Q: one pivot inscription with the scraping tool, plus four
-        // latent ones further from the start than it, in the newest era's
-        // language, written after everything else on their surface.
+        // DESIGN-Q: four latent ones away from the start (1.5 km or more),
+        // in the newest era's language, written after everything else on
+        // their surface. Nothing is placed beside a tool (D10).
         let era = (w.languages.len() as u32).saturating_sub(1);
         let year = w.history.eras.last().map_or(0, |e| e.end);
         let start_pos = Pos::of_cell(
             w.history.settlements[start].cell.ux(),
             w.history.settlements[start].cell.uy(),
         );
-        let scraper = fixtures
-            .items
-            .iter()
-            .find(|p| p.kind == "scraper")
-            .map(|p| p.at);
         let add = |out: &mut Writing,
                    structure: usize,
                    room: usize,
@@ -667,92 +671,6 @@ impl Writing {
             });
             id
         };
-        if let Some(Spot::Room { structure, room }) = scraper {
-            let reach_rooms = fixtures.reachable_rooms(w, structure);
-            let st = &w.structures[structure];
-            // A surface in the tool's room if possible, else the nearest
-            // reachable room with one.
-            // Never over a great inscription, which this scraper cannot
-            // reach; a bare surface is best.
-            let greats = crate::region::great_events(w);
-            let great = |r: usize, f: usize| {
-                w.texts.iter().any(|t| {
-                    t.structure == structure
-                        && t.room == Some(r)
-                        && t.feature == Some(f)
-                        && t.event.is_some_and(|e| greats.contains(&e))
-                })
-            };
-            let written = |r: usize, f: usize| {
-                great(r, f)
-                    || w.texts.iter().any(|t| {
-                        t.structure == structure && t.room == Some(r) && t.feature == Some(f)
-                    })
-            };
-            let mut spot = None;
-            for bare in [true, false] {
-                for r in std::iter::once(room).chain(reach_rooms.iter().copied()) {
-                    if let Some(f) =
-                        st.interior.rooms[r]
-                            .features
-                            .iter()
-                            .enumerate()
-                            .position(|(i, f)| {
-                                INSCRIBABLE.contains(&f.kind)
-                                    && !great(r, i)
-                                    && (!bare || !written(r, i))
-                            })
-                    {
-                        spot = Some((r, f));
-                        break;
-                    }
-                }
-                if spot.is_some() {
-                    break;
-                }
-            }
-            if let Some((r, f)) = spot {
-                // Visible, safe and unambiguous: a shut door nearby swings
-                // open, or else the rooms grow warm.
-                // Not where older writing already holds the doors: opening
-                // them would change nothing to see.
-                let held = w.history.events.iter().any(|e| match &e.kind {
-                    scraped_world::history::EventKind::Writing { effect, .. } => {
-                        effect.property == scraped_world::history::Property::Openness
-                            && effect.cell.dist2(st.cell)
-                                <= i64::from(effect.radius) * i64::from(effect.radius)
-                    }
-                    _ => false,
-                });
-                // Nor where an everyday spell holds or hides them (D09).
-                let held = held
-                    || w.texts.iter().any(|t| {
-                        t.structure == structure
-                            && claim_of(w, land, t, t.id).is_some_and(|c| {
-                                matches!(
-                                    c.property,
-                                    Property::Openness | Property::Binding | Property::Visibility
-                                ) && c.class == Class::Passage
-                            })
-                    });
-                let door = !held
-                    && st
-                        .interior
-                        .links
-                        .iter()
-                        .any(|l| l.passage == Passage::Door && l.state == PassageState::Closed);
-                let (verb, subject) = if door {
-                    ("open", "door")
-                } else {
-                    ("burn", "house")
-                };
-                out.pivot = Some(add(&mut out, structure, r, f, verb, subject, false));
-            }
-        }
-        let pivot_dist = scraper.and_then(|s| match s {
-            Spot::Room { structure, .. } => Some(land.structure_pos[structure].dist(start_pos)),
-            _ => None,
-        });
         let claims: [(&str, &[&str]); 3] = [
             ("open", &["gate", "door", "tomb"]),
             ("burn", &["field", "tree", "house"]),
@@ -766,7 +684,7 @@ impl Writing {
             let structure = (h % w.structures.len() as u64) as usize;
             let st = &w.structures[structure];
             let far = land.structure_pos[structure].dist(start_pos);
-            if st.settlement == Some(start) || pivot_dist.is_some_and(|d| far <= d) {
+            if st.settlement == Some(start) || far < 1500.0 {
                 continue;
             }
             let rooms = fixtures.reachable_rooms(w, structure);
@@ -1418,12 +1336,7 @@ pub fn debug(w: &World, land: &Land, writing: &Writing, scraped: &BTreeSet<usize
                 } else {
                     "unscraped"
                 };
-                let pivot = if writing.pivot == Some(t) {
-                    " PIVOT"
-                } else {
-                    ""
-                }; // DEBUG-TEXT
-                format!("{t}:era{} {:?} {state}{pivot}", x.era, x.kind) // DEBUG-TEXT
+                format!("{t}:era{} {:?} {state}", x.era, x.kind) // DEBUG-TEXT
             })
             .collect();
         let _ = writeln!(

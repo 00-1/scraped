@@ -52,7 +52,7 @@ fn read_the_deepest(g: &mut Game) {
     let back = (g.state.place, g.state.pos);
     g.state.place = g.site.things[t].home;
     g.state.pos = g.site.things[t].pos;
-    g.make_item("first_lens", true);
+    g.make_item("loupe", true);
     g.make_item("firesteel", true);
     let torch = g.make_item("torch", true).unwrap();
     g.light_item(torch);
@@ -89,7 +89,7 @@ fn the_deepest_text_is_deepest_and_needs_the_first_lens() {
             }
         }
         assert!(
-            g.site.fixtures.items.iter().any(|p| p.kind == "first_lens"),
+            g.site.fixtures.items.iter().any(|p| p.kind == "loupe"),
             "seed {seed}: no first lens"
         );
         // By eye and through the lens, no account shows.
@@ -98,7 +98,7 @@ fn the_deepest_text_is_deepest_and_needs_the_first_lens() {
         let deep = g.site.writing.deep.clone();
         g.make_item("lens", true);
         assert!(g.layers_seen(t).iter().all(|(x, _)| !deep.contains(x)));
-        g.make_item("first_lens", true);
+        g.make_item("loupe", true);
         let seen: Vec<usize> = g.layers_seen(t).iter().map(|x| x.0).collect();
         assert!(deep.iter().all(|d| seen.contains(d)), "seed {seed}");
     }
@@ -327,4 +327,46 @@ fn notebook_holds_the_run() {
     assert!(transcript.contains("> wait 1 hour"));
     assert!(!places.is_empty());
     let _ = Place::Outside;
+}
+
+/// D10: a run without writing reaches the world's rim and ends there.
+#[test]
+fn walking_beyond_the_rim_ends_the_run_without_writing() {
+    let mut g = Game::new(1, pack());
+    g.start();
+    let edge = g.site.edge.expect("a rim to walk to");
+    // Not here: the land goes on.
+    let out = g.step("go beyond");
+    assert!(g.ending().is_none(), "{}", out.text);
+    g.state.place = crate::site::Place::Outside;
+    g.state.pos = edge;
+    g.step("go beyond");
+    assert_eq!(g.ending(), Some("beyond"));
+    let rec = g.record();
+    assert!(rec.rim && rec.written == 0);
+}
+
+/// D10: nothing the player sees by name carries the machinery's words.
+#[test]
+fn no_player_facing_name_names_the_mechanic() {
+    const INTERNAL: [&str; 7] = [
+        "scraper", "first_", "potent", "claim", "spell", "release", "pivot",
+    ];
+    let mut names: Vec<String> = scraped_sim::items::ids()
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+    for slot in crate::slots::slots() {
+        for v in &slot.variables {
+            if let scraped_content::VarType::Enum { values } = &v.ty {
+                names.extend(values.iter().cloned());
+            }
+        }
+    }
+    for n in names {
+        assert!(
+            !INTERNAL.iter().any(|w| n.contains(w)),
+            "a player-facing name carries a mechanic's word: {n}"
+        );
+    }
 }
