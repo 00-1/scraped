@@ -1,10 +1,14 @@
 # Handoff
 
+- **Where Jb plays:** in the browser at https://00-1.github.io/scraped/play.html, or on Android with the APK attached to the release https://github.com/00-1/scraped/releases/tag/v0.1.0 (newer test builds: the latest `android-preview-N` prerelease).
+- **Version:** v0.1.0, the first release (S03). The player programs for a terminal or an agent are listed at https://00-1.github.io/scraped/players.html.
+- **Sending a bug:** export the save (browser: menu → Export save; Android: long-press the world in the list → Export; terminal: `save`) and send the save file with a line on what looked wrong. It is replayed exactly with `scraped-lang replay SAVE` (add `--build VERSION=PATH` for stretches played on another release).
+
 Where the project stands, for the next agent. Read `CLAUDE.md` first, then this.
 
 ## State (2026-10-04)
 
-- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D08**, the course corrections **S01** and **S02**, **C01** (shared play and versions) and **D09** (the magic, deepened; targets partly met, see LOG).
+- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D08**, the course corrections **S01** and **S02**, **C01** (shared play and versions), **D09** (the magic, deepened; targets partly met, see LOG) and **S03** (v0.1.0 released).
 - **Next:** **D10 — The slow realisation** (`docs/milestones/D10-slow-realisation.md`). D09 gave concepts powers (`crates/lang/data/powers.toml`, `crates/lang/src/powers.rs`), spells their shape and conditions (`crates/sim/src/writing.rs`, classes in `crates/sim/data/claims.toml`), and the old civilisation its everyday spells (`crates/world/src/charms.rs`); `scraped-lang world --seed N --spoil writing` lists every live spell with its condition. Since C01, saves are snapshots and releases follow `docs/VERSIONING.md` (`scraped-lang saves check` after a change to rules or generation).
 - **Wasm:** usize is 32 bits there. Take a hash modulo as u64 before casting to usize, or picks differ from native (`node tools/smoke/determinism.cjs` catches it).
 - **Branch:** `claude/laughing-edison-9brdzg`. Everything is committed and pushed. CI (`.github/workflows/ci.yml`) runs fmt, clippy, tests, the release-mode bot tests, the wasm build, the browser smoke tests and the Android build.

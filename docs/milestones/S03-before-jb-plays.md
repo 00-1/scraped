@@ -28,13 +28,13 @@
 
 ## Checklist
 
-- [ ] v0.1.0 tagged; player builds on Pages; browser player checked
-- [ ] Android preview APK refreshed
-- [ ] HANDOFF: where and how Jb plays
-- [ ] Plurals for every name; groups and counts use them
-- [ ] Plural feature names without an article
-- [ ] `read.whole`: coarse amount lost, not exact counts
-- [ ] Related signs name a base that can be found
-- [ ] `say.take_fixed` lint error
-- [ ] Sample code fences
-- [ ] D09 samples regenerated; LOG entry; then D10
+- [x] v0.1.0 tagged; player builds on Pages; browser player checked
+- [x] Android preview APK refreshed
+- [x] HANDOFF: where and how Jb plays
+- [x] Plurals for every name; groups and counts use them
+- [x] Plural feature names without an article
+- [x] `read.whole`: coarse amount lost, not exact counts
+- [x] Related signs name a base that can be found
+- [x] `say.take_fixed` lint error
+- [x] Sample code fences
+- [x] D09 samples regenerated; LOG entry; then D10

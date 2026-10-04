@@ -729,3 +729,15 @@ Jb's decisions: trust the AI but make the engine hard to see inside (a stripped 
 ## 2026-10-04 — S03 added (review)
 
 Review of D08, C01 and D09: large and solid, but 279 of 280 text variants are still examples, so the transcripts can't yet show whether it plays well. Jb is playing tomorrow. Added `docs/milestones/S03-before-jb-plays.md`, to do before D10: tag v0.1.0 and refresh the APK so Jb has a current build, and fix the wording bugs in the D09 samples (plurals, plural feature names, exact counts in `read.whole`, related signs whose base can't be found, the `say.take_fixed` lint error, open code fences in samples).
+
+## 2026-10-04 — S03 done (before Jb plays)
+
+**A build to play:** v0.1.0 is tagged; the release workflow publishes the player programs, the browser player and the APK, and the Pages site lists them. The save corpus for 0.1.0 was made again from this build, since nothing had been released. `content release-check` still fails on purpose (the text waits on Jb), so for v0.x tags it only reports (`DESIGN-Q:` in `release.yml`); from v1.0.0 it blocks. HANDOFF opens with where Jb plays, which version, and how to send a save back.
+
+**Wording fixes:** every creature, plant and object name has a plural (regular by rule; irregular and unchanging names in `crates/content/data/plurals.toml`), and groups and counts use it. Feature names that are plural (rapids, standing stones, field walls…) take no article. `read.whole` says roughly how much is lost (a few, some, about half, most, nearly all) instead of exact counts. A related sign names its base by its sound once heard, otherwise by a resemblance no other sign shares, otherwise by its own impression when that is unique. `say.take_fixed` declares `cause`. The sample writer closes every code fence whatever the transcript holds. The D09 samples were regenerated; none of the bugs remain in them.
+
+**Open questions:** the v0.x release gate above.
+
+**New content slots:** none. Changed: `read.whole` `lost` is a coarse amount and `glyphs` is gone; `glyph.impression` gains `like_sound` and `like_resembles`; `land.feature` and `feature.closer` gain `plural`; `say.take_fixed` gains `cause`.
+
+**Next:** D10 (in hand: its first commit is in, and the slow bots fall short with it: explorer 6 of 10, scholar 2 of 10).

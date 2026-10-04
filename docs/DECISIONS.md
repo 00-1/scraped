@@ -360,3 +360,7 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Spell genres | Everyday spells are charms (houses, stores, things), wards (doors, tombs, who may pass) or invocations (land, water, sky, plants, beasts); history's casts stay "potent" | `crates/world/src/charms.rs` (`genre`) | now |
 | What the player perceives | Heat, doors and loose stone as before; light and wetness change rooms and the land; mills turn; things held fast or too heavy won't lift; beasts kept off or drawn and plants withered or thriving change what lives where; everything else shows only as evidence (`spell.cue`) through the attention model | `crates/sim/src/env.rs`, `crates/game/src/writing.rs`, `crates/game/src/life.rs` | D10 |
 | Regions | Wetting and flowing move a region's water, growth its life (great inscriptions and the player's strongest releases only) | `crates/sim/src/region.rs` (`regional_push`) | now |
+
+## Before Jb plays (S03)
+
+- **Release gate for v0.x.** `content release-check` fails while the text is still examples, which would stop every release. For v0.x tags it only reports; from v1.0.0 it blocks (`release.yml`). Alternative: drop the check from the gate until Jb's text is in.
