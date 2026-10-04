@@ -798,9 +798,10 @@ mod tests {
                         continue;
                     }
                     tried += 1;
+                    let ok = walk_to(&mut g, i);
                     assert!(
-                        walk_to(&mut g, i),
-                        "seed {seed}: never reached landmark {i}"
+                        ok,
+                        "seed {seed}: never reached landmark {i} from {from:?} to {goal:?}"
                     );
                 }
             }

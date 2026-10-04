@@ -167,7 +167,7 @@ scene = ["meal left", "barricade", "bones with belongings"]
 #[test]
 fn arriving_somewhere_describes_it_first() {
     let mut arrived = 0;
-    for seed in [1u64, 42, 9001] {
+    for seed in [1u64, 42, 9001, 7] {
         let probe = {
             let mut g = Game::new(seed, crate::composing_tests::pack());
             g.start();
@@ -207,7 +207,13 @@ fn arriving_somewhere_describes_it_first() {
                 .unwrap_or(0);
             let first = o.renders[at + 1..]
                 .iter()
-                .filter(|r| r.trace.depth == 0 && !r.trace.slot.starts_with("travel."))
+                // Names are parts of facts, not facts.
+                .filter(|r| {
+                    r.trace.depth == 0
+                        && !r.trace.slot.starts_with("travel.")
+                        && !r.trace.slot.ends_with(".name")
+                        && !r.trace.slot.ends_with("_name")
+                })
                 .filter_map(|r| {
                     let t = r.trace.text.trim().to_lowercase();
                     let t = t.trim_end_matches('.');

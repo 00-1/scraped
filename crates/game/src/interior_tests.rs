@@ -22,7 +22,7 @@ fn the_mapper_draws_a_true_plan() {
             .greats
             .iter()
             .map(|&(i, _)| i)
-            .take(3)
+            .take(6)
             .collect();
         let mut most = 0;
         for i in greats {
@@ -40,16 +40,16 @@ fn the_mapper_draws_a_true_plan() {
 
 #[test]
 fn the_largest_interior_takes_days_to_explore() {
+    // The largest that writing or bars do not hold shut.
     let p = pack();
     let g = Game::new(42, p.clone());
-    let (i, _) = *g
-        .site
-        .world
-        .greats
-        .iter()
-        .max_by_key(|(i, _)| g.site.world.structures[*i].interior.rooms.len())
-        .unwrap();
-    let run = map(&p, 42, i);
+    let mut greats: Vec<usize> = g.site.world.greats.iter().map(|&(i, _)| i).collect();
+    greats.sort_by_key(|&i| std::cmp::Reverse(g.site.world.structures[i].interior.rooms.len()));
+    let run = greats
+        .into_iter()
+        .map(|i| map(&p, 42, i))
+        .find(|r| r.visited * 2 >= r.spaces)
+        .expect("an open great interior");
     assert!(run.hours >= 24.0, "{run:?}");
 }
 

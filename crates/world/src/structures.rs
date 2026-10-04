@@ -2038,8 +2038,26 @@ pub fn place_more(
             TownRole::HolyCity | TownRole::Refuge | TownRole::Capital
         )
     }) {
-        // A hermitage far from roads, on high ground some way off.
+        // A hermitage far from roads, on high ground some way off, but on
+        // land a walker can reach from the town (not an islet).
         let s = &h.settlements[town.settlement];
+        let reach = {
+            let mut seen = std::collections::BTreeSet::new();
+            let mut todo = vec![(s.cell.ux(), s.cell.uy())];
+            while let Some((x, y)) = todo.pop() {
+                if !seen.insert((x, y)) {
+                    continue;
+                }
+                for (nx, ny) in t.height.neighbours(x, y) {
+                    let near = (nx as i64 - s.cell.ux() as i64).abs() <= 12
+                        && (ny as i64 - s.cell.uy() as i64).abs() <= 12;
+                    if near && t.is_land(nx, ny) && !w.needs_crossing(t, nx, ny) {
+                        todo.push((nx, ny));
+                    }
+                }
+            }
+            seen
+        };
         let mut best: Option<(i64, Cell)> = None;
         for _ in 0..60 {
             let x = (i32::from(s.cell.x) + rng.range(0, 20) as i32 - 10).clamp(1, SIZE as i32 - 2)
@@ -2047,7 +2065,11 @@ pub fn place_more(
             let y = (i32::from(s.cell.y) + rng.range(0, 20) as i32 - 10).clamp(1, SIZE as i32 - 2)
                 as usize;
             let c = Cell::new(x, y);
-            if !t.is_land(x, y) || w.is_river(t, x, y) || c.dist2(s.cell) < 25 {
+            if !t.is_land(x, y)
+                || w.is_river(t, x, y)
+                || c.dist2(s.cell) < 25
+                || !reach.contains(&(x, y))
+            {
                 continue;
             }
             let road = h

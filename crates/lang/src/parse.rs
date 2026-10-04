@@ -132,7 +132,7 @@ impl<'a> Parser<'a> {
                 .collect();
             p.numerals.push((n, words));
         }
-        let mut heads: Vec<Head> = concepts::with_pos(Pos::Noun)
+        let mut heads: Vec<Head> = concepts::any_with_pos(Pos::Noun)
             .filter(|c| c.domain != concepts::Domain::Grammar && r.lang.lexicon.has(&c.id))
             .map(|c| Head::Concept(c.id.clone()))
             .collect();
@@ -155,7 +155,7 @@ impl<'a> Parser<'a> {
             p.heads.push((case, forms, idx));
         }
         let verb_forms = r.lang.morphology.verb_forms();
-        for v in concepts::with_pos(Pos::Verb) {
+        for v in concepts::any_with_pos(Pos::Verb) {
             if !r.lang.lexicon.has(&v.id) {
                 continue;
             }
@@ -619,7 +619,8 @@ impl<'a> Parser<'a> {
             }
         }
         for (n, e) in phrases {
-            if appositions {
+            // Appositions (titles, "child of X") follow personal names only.
+            if appositions && matches!(n.head, Head::Name(_)) {
                 for (apps, e2) in self.appositions(input, e, case, depth, cd) {
                     let mut n2 = n.clone();
                     n2.apposition = apps;
@@ -883,7 +884,8 @@ impl<'a> Parser<'a> {
                 return None;
             }
             let mood = if potent {
-                if form.mood.is_some() {
+                // Claims always name what they act on.
+                if form.mood.is_some() || (subject.is_none() && gap != Some(Role::Subject)) {
                     return None;
                 }
                 Mood::Potent
@@ -1029,10 +1031,7 @@ impl<'a> Parser<'a> {
             for conj in Conj::ALL {
                 let mut parts = vec![c.clone()];
                 let mut end = e;
-                loop {
-                    let Some(a) = self.fixed(input, end, conj.concept()) else {
-                        break;
-                    };
+                while let Some(a) = self.fixed(input, end, conj.concept()) {
                     // The longest next clause that leaves a parse.
                     let next = self
                         .clause(input, a, cd, commands)
@@ -1055,6 +1054,9 @@ impl<'a> Parser<'a> {
         for _ in 0..6 {
             let mut next = Vec::new();
             for (seq, e) in &seqs {
+                let Some(e) = &self.fixed(input, *e, "sent.end") else {
+                    continue;
+                };
                 for (s, e2) in self.unit(input, *e, cd, commands) {
                     if e2 > *e {
                         let mut v = seq.clone();
@@ -1115,7 +1117,17 @@ impl<'a> Parser<'a> {
             if e == at {
                 continue;
             }
-            if let Some(mut rest) = self.clauses(input, e, depth + 1) {
+            if e >= input.len() {
+                return Some(vec![u]);
+            }
+            // Sentences of a text are divided by the full stop word.
+            let Some(next) = self.fixed(input, e, "sent.end") else {
+                continue;
+            };
+            if let Some(mut rest) = self.clauses(input, next, depth + 1) {
+                if rest.is_empty() {
+                    continue;
+                }
                 rest.insert(0, u);
                 return Some(rest);
             }

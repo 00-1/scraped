@@ -328,14 +328,42 @@ impl Writing {
             let st = &w.structures[structure];
             // A surface in the tool's room if possible, else the nearest
             // reachable room with one.
+            // Never over a great inscription, which this scraper cannot
+            // reach; a bare surface is best.
+            let greats = crate::region::great_events(w);
+            let great = |r: usize, f: usize| {
+                w.texts.iter().any(|t| {
+                    t.structure == structure
+                        && t.room == Some(r)
+                        && t.feature == Some(f)
+                        && t.event.is_some_and(|e| greats.contains(&e))
+                })
+            };
+            let written = |r: usize, f: usize| {
+                great(r, f)
+                    || w.texts.iter().any(|t| {
+                        t.structure == structure && t.room == Some(r) && t.feature == Some(f)
+                    })
+            };
             let mut spot = None;
-            for r in std::iter::once(room).chain(reach_rooms.iter().copied()) {
-                if let Some(f) = st.interior.rooms[r]
-                    .features
-                    .iter()
-                    .position(|f| INSCRIBABLE.contains(&f.kind))
-                {
-                    spot = Some((r, f));
+            for bare in [true, false] {
+                for r in std::iter::once(room).chain(reach_rooms.iter().copied()) {
+                    if let Some(f) =
+                        st.interior.rooms[r]
+                            .features
+                            .iter()
+                            .enumerate()
+                            .position(|(i, f)| {
+                                INSCRIBABLE.contains(&f.kind)
+                                    && !great(r, i)
+                                    && (!bare || !written(r, i))
+                            })
+                    {
+                        spot = Some((r, f));
+                        break;
+                    }
+                }
+                if spot.is_some() {
                     break;
                 }
             }

@@ -90,7 +90,16 @@ impl Renderer<'_> {
                 .iter()
                 .flat_map(|np| self.noun_phrase(np, Case::Subject))
                 .collect(),
-            Sentence::Text(parts) => parts.iter().flat_map(|p| self.sentence(p)).collect(),
+            Sentence::Text(parts) => {
+                let mut out = Vec::new();
+                for (i, p) in parts.iter().enumerate() {
+                    if i > 0 && self.lang.lexicon.has("sent.end") {
+                        out.push(self.plain("sent.end"));
+                    }
+                    out.extend(self.sentence(p));
+                }
+                out
+            }
             Sentence::Joined(conj, parts) => {
                 let mut out = Vec::new();
                 for (i, c) in parts.iter().enumerate() {

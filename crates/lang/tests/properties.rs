@@ -335,7 +335,14 @@ impl Expect<'_> {
         match s {
             Sentence::Clause(c) => self.clause(c),
             Sentence::List(items) => items.iter().for_each(|np| self.np(np, "")),
-            Sentence::Text(parts) => parts.iter().for_each(|p| self.sentence(p)),
+            Sentence::Text(parts) => {
+                for (i, p) in parts.iter().enumerate() {
+                    if i > 0 {
+                        self.plain("sent.end");
+                    }
+                    self.sentence(p);
+                }
+            }
             Sentence::Joined(conj, parts) => {
                 for (i, c) in parts.iter().enumerate() {
                     if i > 0 {
@@ -563,9 +570,24 @@ fn plain_output_hides_ground_truth() {
     let corpus = Corpus::generate(&lang, 40);
     let text = corpus.to_text(false);
     assert_eq!(text.lines().count(), 40);
-    let json = corpus.to_json(false).to_string();
+    // Keys, not text: a romanised word may happen to spell "kind".
+    let json = corpus.to_json(false);
+    let mut keys = Vec::new();
+    fn walk(v: &serde_json::Value, keys: &mut Vec<String>) {
+        match v {
+            serde_json::Value::Object(m) => {
+                for (k, x) in m {
+                    keys.push(k.clone());
+                    walk(x, keys);
+                }
+            }
+            serde_json::Value::Array(a) => a.iter().for_each(|x| walk(x, keys)),
+            _ => {}
+        }
+    }
+    walk(&json, &mut keys);
     for key in ["gloss", "meaning", "translation", "cast", "kind"] {
-        assert!(!json.contains(key), "{key} leaked");
+        assert!(!keys.iter().any(|k| k == key), "{key} leaked");
     }
 }
 

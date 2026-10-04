@@ -71,136 +71,136 @@
     },
     {
       "index": 9,
-      "name": "Timoy",
+      "name": "Rede",
       "relation": {
-        "kin": "daughter",
-        "of": 5
+        "kin": "brother",
+        "of": 0
       },
-      "title": null
+      "title": "king"
     },
     {
       "index": 10,
-      "name": "Tubiben",
+      "name": "Pimpuybi",
       "relation": {
         "kin": "mother",
-        "of": 6
-      },
-      "title": null
-    },
-    {
-      "index": 11,
-      "name": "Notu",
-      "relation": {
-        "kin": "father",
         "of": 7
       },
       "title": null
     },
     {
-      "index": 12,
-      "name": "Huhilik",
+      "index": 11,
+      "name": "Kukiyho'",
       "relation": {
-        "kin": "son",
-        "of": 6
+        "kin": "daughter",
+        "of": 5
+      },
+      "title": "servant"
+    },
+    {
+      "index": 12,
+      "name": "Teni",
+      "relation": {
+        "kin": "brother",
+        "of": 8
       },
       "title": null
     },
     {
       "index": 13,
-      "name": "Fentey",
+      "name": "Xunge",
       "relation": {
-        "kin": "father",
-        "of": 4
-      },
-      "title": "queen"
-    },
-    {
-      "index": 14,
-      "name": "Nuyid",
-      "relation": {
-        "kin": "brother",
-        "of": 12
-      },
-      "title": null
-    },
-    {
-      "index": 15,
-      "name": "Tsiru",
-      "relation": {
-        "kin": "son",
+        "kin": "sister",
         "of": 1
       },
       "title": null
     },
     {
-      "index": 16,
-      "name": "Toh'o",
+      "index": 14,
+      "name": "Dinïh",
+      "relation": {
+        "kin": "mother",
+        "of": 10
+      },
+      "title": "scribe"
+    },
+    {
+      "index": 15,
+      "name": "Bitoh",
       "relation": {
         "kin": "son",
-        "of": 11
+        "of": 7
       },
       "title": null
+    },
+    {
+      "index": 16,
+      "name": "Hiyi'",
+      "relation": {
+        "kin": "child",
+        "of": 12
+      },
+      "title": "scribe"
     },
     {
       "index": 17,
-      "name": "Yi'kir",
+      "name": "Lebnï",
       "relation": {
-        "kin": "daughter",
-        "of": 16
-      },
-      "title": "priest"
-    },
-    {
-      "index": 18,
-      "name": "Nïfukï",
-      "relation": {
-        "kin": "mother",
-        "of": 14
+        "kin": "child",
+        "of": 12
       },
       "title": null
     },
     {
-      "index": 19,
-      "name": "Mengenxet",
+      "index": 18,
+      "name": "Loxume",
       "relation": {
-        "kin": "mother",
-        "of": 17
+        "kin": "brother",
+        "of": 11
+      },
+      "title": "scribe"
+    },
+    {
+      "index": 19,
+      "name": "Beritom",
+      "relation": {
+        "kin": "child",
+        "of": 9
       },
       "title": null
     },
     {
       "index": 20,
-      "name": "Keyi",
+      "name": "Bilkupi",
       "relation": {
-        "kin": "child",
-        "of": 19
+        "kin": "husband",
+        "of": 2
       },
       "title": null
     },
     {
       "index": 21,
-      "name": "Lutuk",
-      "relation": {
-        "kin": "husband",
-        "of": 16
-      },
-      "title": null
-    },
-    {
-      "index": 22,
       "name": "Toktïy",
       "relation": {
         "kin": "wife",
-        "of": 0
+        "of": 3
       },
       "title": "scribe"
     },
     {
-      "index": 23,
+      "index": 22,
       "name": "Debyïmet",
       "relation": {
         "kin": "husband",
-        "of": 19
+        "of": 20
+      },
+      "title": null
+    },
+    {
+      "index": 23,
+      "name": "Bïteppub",
+      "relation": {
+        "kin": "child",
+        "of": 6
       },
       "title": null
     }
@@ -209,8 +209,8 @@
   "inscriptions": [
     {
       "glyph_lines": [
-        "12 17 14 19 / 5 17 8 17 7 17 / 7 20 4 19 0",
-        "0 16 6 / 7 16 8"
+        "3 17 1 18 10 / 8 16 0 16 13 5 18 7 17 / 10 16 4",
+        "2 18 0 / 0 18 4"
       ],
       "index": 1,
       "kind": "tomb",
@@ -231,7 +231,7 @@
                     "number": "singular",
                     "possessor": {
                       "head": {
-                        "name": 1
+                        "name": 7
                       },
                       "number": "singular"
                     }
@@ -252,39 +252,40 @@
         }
       },
       "register": "everyday",
-      "text": "tsiru 'ingini nïdup pem neng",
-      "translation": "Tsiru, son of 'Ingi, lies here.",
+      "text": "bitoh ngepel'oni hed kop pod",
+      "translation": "Bitoh, son of Ngepel'o, lies here.",
       "words": [
         {
-          "gloss": "Tsiru",
-          "segmented": "tsiru",
-          "text": "tsiru"
+          "gloss": "Bitoh",
+          "segmented": "bitoh",
+          "text": "bitoh"
         },
         {
-          "gloss": "'Ingi-GEN",
-          "segmented": "'ingi-ni",
-          "text": "'ingini"
+          "gloss": "Ngepel'o-GEN",
+          "segmented": "ngepel'o-ni",
+          "text": "ngepel'oni"
         },
         {
           "gloss": "son",
-          "segmented": "nïdup",
-          "text": "nïdup"
+          "segmented": "hed",
+          "text": "hed"
         },
         {
           "gloss": "here",
-          "segmented": "pem",
-          "text": "pem"
+          "segmented": "kop",
+          "text": "kop"
         },
         {
           "gloss": "lie",
-          "segmented": "neng",
-          "text": "neng"
+          "segmented": "pod",
+          "text": "pod"
         }
       ]
     },
     {
       "glyph_lines": [
-        "1 18 5 / 13 17 8 / 14 20 7 / 12 18 13 / 6 17 0"
+        "12 17 14 / 10 18 7 18 3 / 4 17 2 / 1 18 8",
+        "3 20 13"
       ],
       "index": 2,
       "kind": "potent",
@@ -309,40 +310,40 @@
         }
       },
       "register": "potent",
-      "text": "to' ling rïn tsol mip",
+      "text": "tsir honob dik tong bïl",
       "translation": "[potent] let the grain burn.",
       "words": [
         {
           "gloss": "POT.OPEN",
-          "segmented": "to'",
-          "text": "to'"
+          "segmented": "tsir",
+          "text": "tsir"
         },
         {
           "gloss": "grain",
-          "segmented": "ling",
-          "text": "ling"
+          "segmented": "honob",
+          "text": "honob"
         },
         {
           "gloss": "POT",
-          "segmented": "rïn",
-          "text": "rïn"
+          "segmented": "dik",
+          "text": "dik"
         },
         {
           "gloss": "burn",
-          "segmented": "tsol",
-          "text": "tsol"
+          "segmented": "tong",
+          "text": "tong"
         },
         {
           "gloss": "POT.CLOSE",
-          "segmented": "mip",
-          "text": "mip"
+          "segmented": "bïl",
+          "text": "bïl"
         }
       ]
     },
     {
       "glyph_lines": [
-        "12 16 7 17 6 19 / 5 17 8 17 7 17 / 10 18",
-        "0 16 6 / 7 16 8"
+        "12 16 7 17 6 19 / 5 17 8 17 7 17 / 13 20 0",
+        "2 18 0 / 0 18 4"
       ],
       "index": 3,
       "kind": "tomb",
@@ -384,7 +385,7 @@
         }
       },
       "register": "everyday",
-      "text": "tsenimu 'ingini ho pem neng",
+      "text": "tsenimu 'ingini lïp kop pod",
       "translation": "Tsenimu, child of 'Ingi, lies here.",
       "words": [
         {
@@ -399,24 +400,24 @@
         },
         {
           "gloss": "child",
-          "segmented": "ho",
-          "text": "ho"
+          "segmented": "lïp",
+          "text": "lïp"
         },
         {
           "gloss": "here",
-          "segmented": "pem",
-          "text": "pem"
+          "segmented": "kop",
+          "text": "kop"
         },
         {
           "gloss": "lie",
-          "segmented": "neng",
-          "text": "neng"
+          "segmented": "pod",
+          "text": "pod"
         }
       ]
     },
     {
       "glyph_lines": [
-        "1 17 6 2 19 / 0 19 10 19 3 18 1"
+        "4 18 8 2 19 / 13 19 1"
       ],
       "index": 4,
       "kind": "warning",
@@ -441,25 +442,26 @@
         }
       },
       "register": "everyday",
-      "text": "timku puhubot",
+      "text": "dongku lut",
       "translation": "Eat the fish.",
       "words": [
         {
           "gloss": "fish-ACC",
-          "segmented": "tim-ku",
-          "text": "timku"
+          "segmented": "dong-ku",
+          "text": "dongku"
         },
         {
           "gloss": "eat",
-          "segmented": "puhubot",
-          "text": "puhubot"
+          "segmented": "lut",
+          "text": "lut"
         }
       ]
     },
     {
       "glyph_lines": [
-        "12 17 14 19 / 9 16 7 1 16 15 15 17 / 11 17 4 18 7",
-        "12 18 2 7 17 / 0 17 14 16 2 2 19 / 3 17 13 18 6"
+        "3 17 1 18 10 / 11 19 8 16 15 17 / 11 17 14 19 5",
+        "1 19 9 / 4 17 7 20 10 / 4 18 8 8 18 2 19",
+        "9 18 13 / 11 17 6 19 11"
       ],
       "index": 5,
       "kind": "letter",
@@ -502,67 +504,82 @@
                 {
                   "np": {
                     "head": {
-                      "concept": "temple"
+                      "name": 14
                     },
-                    "number": "singular",
-                    "possessor": {
-                      "head": {
-                        "concept": "king"
-                      },
-                      "number": "singular"
-                    }
+                    "number": "singular"
+                  },
+                  "role": "subject"
+                },
+                {
+                  "np": {
+                    "head": {
+                      "concept": "fish"
+                    },
+                    "number": "plural",
+                    "quantity": 9
                   },
                   "role": "object"
                 }
               ],
-              "mood": "imperative",
-              "polarity": "negative",
-              "predicate": "touch",
-              "tense": "nonpast"
+              "mood": "declarative",
+              "polarity": "positive",
+              "predicate": "bring",
+              "tense": "past"
             }
           }
         ]
       },
       "register": "everyday",
-      "text": "tsiru fenteyyi xidon tsokni pirekku bilom",
-      "translation": "Tsiru said to Fentey: Do not touch the temple of the king.",
+      "text": "bitoh xungeyi xiru' tuf dinïh dongngoku fol ximux",
+      "translation": "Bitoh said to Xunge: Dinïh brought nine fish.",
       "words": [
         {
-          "gloss": "Tsiru",
-          "segmented": "tsiru",
-          "text": "tsiru"
+          "gloss": "Bitoh",
+          "segmented": "bitoh",
+          "text": "bitoh"
         },
         {
-          "gloss": "Fentey-DAT",
-          "segmented": "fentey-yi",
-          "text": "fenteyyi"
+          "gloss": "Xunge-DAT",
+          "segmented": "xunge-yi",
+          "text": "xungeyi"
         },
         {
           "gloss": "PST-say",
-          "segmented": "xi-don",
-          "text": "xidon"
+          "segmented": "xi-ru'",
+          "text": "xiru'"
         },
         {
-          "gloss": "king-GEN",
-          "segmented": "tsok-ni",
-          "text": "tsokni"
+          "gloss": "SENT.END",
+          "segmented": "tuf",
+          "text": "tuf"
         },
         {
-          "gloss": "temple-ACC",
-          "segmented": "pirek-ku",
-          "text": "pirekku"
+          "gloss": "Dinïh",
+          "segmented": "dinïh",
+          "text": "dinïh"
         },
         {
-          "gloss": "NEG-touch",
-          "segmented": "bi-lom",
-          "text": "bilom"
+          "gloss": "fish-PL-ACC",
+          "segmented": "dong-ngo-ku",
+          "text": "dongngoku"
+        },
+        {
+          "gloss": "nine",
+          "segmented": "fol",
+          "text": "fol"
+        },
+        {
+          "gloss": "PST-bring",
+          "segmented": "xi-mux",
+          "text": "ximux"
         }
       ]
     },
     {
       "glyph_lines": [
-        "8 17 0 6 17 / 8 19 5 20 15 17 / 11 17 4 18 7",
-        "13 19 15 8 18 2 19 / 8 18 13 / 3 17 0 19 10 19 3 18 1"
+        "8 17 0 6 17 / 8 19 5 20 15 17 / 11 17 14 19 5",
+        "1 19 9 / 9 16 1 8 18 2 19 / 14 18 0 17 8",
+        "3 17 13 19 1"
       ],
       "index": 6,
       "kind": "letter",
@@ -624,7 +641,7 @@
         ]
       },
       "register": "everyday",
-      "text": "ngipmi ngu'ïyi xidon luyngoku ngol bipuhubot",
+      "text": "ngipmi ngu'ïyi xiru' tuf fetngoku roping bilut",
       "translation": "Ngipmi said to Ngu'ï: Do not eat the red loaves.",
       "words": [
         {
@@ -639,30 +656,35 @@
         },
         {
           "gloss": "PST-say",
-          "segmented": "xi-don",
-          "text": "xidon"
+          "segmented": "xi-ru'",
+          "text": "xiru'"
+        },
+        {
+          "gloss": "SENT.END",
+          "segmented": "tuf",
+          "text": "tuf"
         },
         {
           "gloss": "loaf-PL-ACC",
-          "segmented": "luy-ngo-ku",
-          "text": "luyngoku"
+          "segmented": "fet-ngo-ku",
+          "text": "fetngoku"
         },
         {
           "gloss": "red",
-          "segmented": "ngol",
-          "text": "ngol"
+          "segmented": "roping",
+          "text": "roping"
         },
         {
           "gloss": "NEG-eat",
-          "segmented": "bi-puhubot",
-          "text": "bipuhubot"
+          "segmented": "bi-lut",
+          "text": "bilut"
         }
       ]
     },
     {
       "glyph_lines": [
-        "15 17 5 2 17 14 / 1 18 10 5 18 7 17 / 14 18 13",
-        "0 16 6 / 7 16 8"
+        "13 16 3 7 20 / 1 16 7 17 7 17 / 13 20 0",
+        "2 18 0 / 0 18 4"
       ],
       "index": 7,
       "kind": "tomb",
@@ -678,12 +700,12 @@
                 "apposition": [
                   {
                     "head": {
-                      "concept": "daughter"
+                      "concept": "child"
                     },
                     "number": "singular",
                     "possessor": {
                       "head": {
-                        "name": 16
+                        "name": 12
                       },
                       "number": "singular"
                     }
@@ -704,39 +726,39 @@
         }
       },
       "register": "everyday",
-      "text": "yi'kir toh'oni rol pem neng",
-      "translation": "Yi'kir, daughter of Toh'o, lies here.",
+      "text": "lebnï tenini lïp kop pod",
+      "translation": "Lebnï, child of Teni, lies here.",
       "words": [
         {
-          "gloss": "Yi'kir",
-          "segmented": "yi'kir",
-          "text": "yi'kir"
+          "gloss": "Lebnï",
+          "segmented": "lebnï",
+          "text": "lebnï"
         },
         {
-          "gloss": "Toh'o-GEN",
-          "segmented": "toh'o-ni",
-          "text": "toh'oni"
+          "gloss": "Teni-GEN",
+          "segmented": "teni-ni",
+          "text": "tenini"
         },
         {
-          "gloss": "daughter",
-          "segmented": "rol",
-          "text": "rol"
+          "gloss": "child",
+          "segmented": "lïp",
+          "text": "lïp"
         },
         {
           "gloss": "here",
-          "segmented": "pem",
-          "text": "pem"
+          "segmented": "kop",
+          "text": "kop"
         },
         {
           "gloss": "lie",
-          "segmented": "neng",
-          "text": "neng"
+          "segmented": "pod",
+          "text": "pod"
         }
       ]
     },
     {
       "glyph_lines": [
-        "0 18 13 2 19 / 8 18 6"
+        "13 18 7 2 19 / 6 16 0"
       ],
       "index": 8,
       "kind": "warning",
@@ -761,24 +783,24 @@
         }
       },
       "register": "everyday",
-      "text": "polku ngom",
+      "text": "lonku mep",
       "translation": "Break the statue.",
       "words": [
         {
           "gloss": "statue-ACC",
-          "segmented": "pol-ku",
-          "text": "polku"
+          "segmented": "lon-ku",
+          "text": "lonku"
         },
         {
           "gloss": "break",
-          "segmented": "ngom",
-          "text": "ngom"
+          "segmented": "mep",
+          "text": "mep"
         }
       ]
     },
     {
       "glyph_lines": [
-        "4 16 5 2 19 / 3 17 8 16 5 18 3"
+        "6 18 6 2 19 / 3 17 8 17 14"
       ],
       "index": 9,
       "kind": "warning",
@@ -803,25 +825,25 @@
         }
       },
       "register": "everyday",
-      "text": "de'ku binge'ob",
+      "text": "momku bingir",
       "translation": "Do not scrape the seal.",
       "words": [
         {
           "gloss": "seal-ACC",
-          "segmented": "de'-ku",
-          "text": "de'ku"
+          "segmented": "mom-ku",
+          "text": "momku"
         },
         {
           "gloss": "NEG-scrape",
-          "segmented": "bi-nge'ob",
-          "text": "binge'ob"
+          "segmented": "bi-ngir",
+          "text": "bingir"
         }
       ]
     },
     {
       "glyph_lines": [
-        "6 16 8 16 7 11 16 1 / 5 17 8 17 15 17 / 6 16 6 2 19",
-        "6 19 1 11 19 / 10 17 2 / 11 17 2 19 13"
+        "3 16 14 17 1 18 6 / 5 17 8 17 15 17 / 13 17 4 2 19",
+        "1 16 3 / 6 18 8 / 11 17 5 19 13 18 1"
       ],
       "index": 10,
       "kind": "dedication",
@@ -868,13 +890,13 @@
         }
       },
       "register": "everyday",
-      "text": "mengenxet 'ingiyi memku mutxu hik xikul",
-      "translation": "Mengenxet made this small altar for 'Ingi.",
+      "text": "beritom 'ingiyi lidku teb mong xi'ulot",
+      "translation": "Beritom made this small altar for 'Ingi.",
       "words": [
         {
-          "gloss": "Mengenxet",
-          "segmented": "mengenxet",
-          "text": "mengenxet"
+          "gloss": "Beritom",
+          "segmented": "beritom",
+          "text": "beritom"
         },
         {
           "gloss": "'Ingi-DAT",
@@ -883,23 +905,23 @@
         },
         {
           "gloss": "altar-ACC",
-          "segmented": "mem-ku",
-          "text": "memku"
+          "segmented": "lid-ku",
+          "text": "lidku"
         },
         {
           "gloss": "small",
-          "segmented": "mutxu",
-          "text": "mutxu"
+          "segmented": "teb",
+          "text": "teb"
         },
         {
           "gloss": "this",
-          "segmented": "hik",
-          "text": "hik"
+          "segmented": "mong",
+          "text": "mong"
         },
         {
           "gloss": "PST-make",
-          "segmented": "xi-kul",
-          "text": "xikul"
+          "segmented": "xi-'ulot",
+          "text": "xi'ulot"
         }
       ]
     }

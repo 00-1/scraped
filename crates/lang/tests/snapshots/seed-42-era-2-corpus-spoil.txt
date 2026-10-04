@@ -1,200 +1,200 @@
-dulu 'eymuni nïdup pem neng
-    #1 tomb · Dulu, son of 'Eymu, lies here.
-    dulu  'eymu-ni   nïdup  pem   neng
-    Dulu  'Eymu-GEN  son    here  lie
+dubulu nibïyni tuk kup pud
+    #1 tomb · Dubulu, wife of Nibïy, lies here.
+    dubulu  nibïy-ni   tuk   kup   pud
+    Dubulu  Nibïy-GEN  wife  here  lie
 
-bïng ling rïn tsul mip
+tsir hunub dik tung bïl
     #2 potent · [potent] let the grain burn.
-    bïng      ling   rïn  tsul  mip
+    tsir      hunub  dik  tung  bïl
     POT.OPEN  grain  POT  burn  POT.CLOSE
 
-kelpini nikeni kur pem neng
-    #3 tomb · Kelpini, brother of Nike, lies here.
-    kelpini  nike-ni   kur      pem   neng
-    Kelpini  Nike-GEN  brother  here  lie
+kemildi xipïni ngum kup pud
+    #3 tomb · Kemildi, mother of Xipï, lies here.
+    kemildi  xipï-ni   ngum    kup   pud
+    Kemildi  Xipï-GEN  mother  here  lie
 
-timku puhubut
+dungku 'ïynim
     #4 warning · Eat the fish.
-    tim-ku    puhubut
+    dung-ku   'ïynim
     fish-ACC  eat
 
-dulu kinyuyyi xidun tsukni pirekku bilum
-    #5 letter · Dulu said to Kinyuy: Do not touch the temple of the king.
-    dulu  kinyuy-yi   xi-dun   tsuk-ni   pirek-ku    bi-lum
-    Dulu  Kinyuy-DAT  PST-say  king-GEN  temple-ACC  NEG-touch
+dubulu chu'tïyi xiru' tuf lilupne dungnguku ref ximux
+    #5 letter · Dubulu said to Chu'tï: Lilupne brought nine fish.
+    dubulu  chu'tï-yi   xi-ru'   tuf       lilupne  dung-ngu-ku  ref   xi-mux
+    Dubulu  Chu'tï-DAT  PST-say  SENT.END  Lilupne  fish-PL-ACC  nine  PST-bring
 
-pïki pïxuyi xidun luynguku ngul bipuhubut
-    #6 letter · Pïki said to Pïxu: Do not eat the red loaves.
-    pïki  pïxu-yi   xi-dun   luy-ngu-ku   ngul  bi-puhubut
-    Pïki  Pïxu-DAT  PST-say  loaf-PL-ACC  red   NEG-eat
+rimhe ritifiyi xiru' tuf fetnguku ruping bi'ïynim
+    #6 letter · Rimhe said to Ritifi: Do not eat the red loaves.
+    rimhe  ritifi-yi   xi-ru'   tuf       fet-ngu-ku   ruping  bi-'ïynim
+    Rimhe  Ritifi-DAT  PST-say  SENT.END  loaf-PL-ACC  red     NEG-eat
 
-bi'tir chïhheni rul pem neng
-    #7 tomb · Bi'tir, daughter of Chïhhe, lies here.
-    bi'tir  chïhhe-ni   rul       pem   neng
-    Bi'tir  Chïhhe-GEN  daughter  here  lie
+tuknuni dubuluni ngum kup pud
+    #7 tomb · Tuknuni, mother of Dubulu, lies here.
+    tuknuni  dubulu-ni   ngum    kup   pud
+    Tuknuni  Dubulu-GEN  mother  here  lie
 
-pulku ngum
+lunku mep
     #8 warning · Break the statue.
-    pul-ku      ngum
+    lun-ku      mep
     statue-ACC  break
 
-de'ku binge'ub
+mumku bingir
     #9 warning · Do not scrape the seal.
-    de'-ku    bi-nge'ub
+    mum-ku    bi-ngir
     seal-ACC  NEG-scrape
 
-nuhunnut 'eymuyi memku mutxu hik xikul
-    #10 dedication · Nuhunnut made this small altar for 'Eymu.
-    nuhunnut  'eymu-yi   mem-ku     mutxu  hik   xi-kul
-    Nuhunnut  'Eymu-DAT  altar-ACC  small  this  PST-make
+nebhi pul 'eymuyi lidku teb mung xi'ulut
+    #10 dedication · Nebhi, queen, made this small altar for 'Eymu.
+    nebhi  pul    'eymu-yi   lid-ku     teb    mung  xi-'ulut
+    Nebhi  queen  'Eymu-DAT  altar-ACC  small  this  PST-make
 
-nibïy kuhidni rul pem neng
-    #11 tomb · Nibïy, daughter of Kuhid, lies here.
-    nibïy  kuhid-ni   rul       pem   neng
-    Nibïy  Kuhid-GEN  daughter  here  lie
+rilipin peyunni ngum kup pud
+    #11 tomb · Rilipin, mother of Peyun, lies here.
+    rilipin  peyun-ni   ngum    kup   pud
+    Rilipin  Peyun-GEN  mother  here  lie
 
-neli pirekyi yipi tupku hik xikul
-    #12 dedication · Neli made this knife for the new temple.
-    neli  pirek-yi    yipi  tup-ku     hik   xi-kul
-    Neli  temple-DAT  new   knife-ACC  this  PST-make
+kïtsi pedmiyi kun hutku mung xi'ulut
+    #12 dedication · Kïtsi made this knife for the new temple.
+    kïtsi  pedmi-yi    kun  hut-ku     mung  xi-'ulut
+    Kïtsi  temple-DAT  new  knife-ACC  this  PST-make
 
-kuhid butilyi rir tukku hik xikul
-    #13 dedication · Kuhid made this lamp for the dark shrine.
-    kuhid  butil-yi    rir   tuk-ku    hik   xi-kul
-    Kuhid  shrine-DAT  dark  lamp-ACC  this  PST-make
+nimïpi pimyi ye' murukku mung xi'ulut
+    #13 dedication · Nimïpi made this lamp for the dark shrine.
+    nimïpi  pim-yi      ye'   muruk-ku  mung  xi-'ulut
+    Nimïpi  shrine-DAT  dark  lamp-ACC  this  PST-make
 
-'eymu nibïyyi xidun nike tuknguku fey ngung bud yuk xinguts
-    #14 letter · 'Eymu said to Nibïy: Nike gave 58 lamps.
-    'eymu  nibïy-yi   xi-dun   nike  tuk-ngu-ku   fey    ngung  bud   yuk  xi-nguts
-    'Eymu  Nibïy-DAT  PST-say  Nike  lamp-PL-ACC  eight  AND    five  ten  PST-give
+'eymu rilipinyi xiru' tuf nike muruknguku mif ngïm xur pup xipitsur
+    #14 letter · 'Eymu said to Rilipin: Nike gave 58 lamps.
+    'eymu  rilipin-yi   xi-ru'   tuf       nike  muruk-ngu-ku  mif    ngïm  xur   pup  xi-pitsur
+    'Eymu  Rilipin-DAT  PST-say  SENT.END  Nike  lamp-PL-ACC   eight  AND   five  ten  PST-give
 
-'eymu bulupukyi xidun tudi tupnguku muti yuk xikunub
-    #15 letter · 'Eymu said to Bulupuk: Tudi brought ten knives.
-    'eymu  bulupuk-yi   xi-dun   tudi  tup-ngu-ku    muti  yuk  xi-kunub
-    'Eymu  Bulupuk-DAT  PST-say  Tudi  knife-PL-ACC  one   ten  PST-bring
+'eymu 'ulingyi xiru' tuf nimïpini luyku bitung
+    #15 letter · 'Eymu said to 'Uling: Do not burn the field of Nimïpi.
+    'eymu  'uling-yi   xi-ru'   tuf       nimïpi-ni   luy-ku     bi-tung
+    'Eymu  'Uling-DAT  PST-say  SENT.END  Nimïpi-GEN  field-ACC  NEG-burn
 
-rilipin kelpinini mïh pem neng
-    #16 tomb · Rilipin, mother of Kelpini, lies here.
-    rilipin  kelpini-ni   mïh     pem   neng
-    Rilipin  Kelpini-GEN  mother  here  lie
+fuyïp ritifini hed ritslum kup pud
+    #16 tomb · Fuyïp, son of Ritifi, servant, lies here.
+    fuyïp  ritifi-ni   hed  ritslum  kup   pud
+    Fuyïp  Ritifi-GEN  son  servant  here  lie
 
-bulupuk kelpinini nïdup pem neng
-    #17 tomb · Bulupuk, son of Kelpini, lies here.
-    bulupuk  kelpini-ni   nïdup  pem   neng
-    Bulupuk  Kelpini-GEN  son    here  lie
+'uling 'eymuni kuy kup pud
+    #17 tomb · 'Uling, sister of 'Eymu, lies here.
+    'uling  'eymu-ni   kuy     kup   pud
+    'Uling  'Eymu-GEN  sister  here  lie
 
-punngu muti ngung fey yuk ngung muti kïd
+hudngu chip ngïm mif pup ngïm chip fub
     #18 ledger · 181 sheep.
-    pun-ngu   muti  ngung  fey    yuk  ngung  muti  kïd
-    sheep-PL  one   AND    eight  ten  AND    one   hundred
+    hud-ngu   chip  ngïm  mif    pup  ngïm  chip  fub
+    sheep-PL  one   AND   eight  ten  AND   one   hundred
 
-chïhheni mutsku der
-    #19 warning · Enter the city of Chïhhe.
-    chïhhe-ni   muts-ku   der
-    Chïhhe-GEN  city-ACC  enter
+merini memku nel
+    #19 warning · Enter the city of Meri.
+    meri-ni   mem-ku    nel
+    Meri-GEN  city-ACC  enter
 
-'ulnguku rupit
+chennguku biytse
     #20 warning · Open the doors.
-    'ul-ngu-ku   rupit
+    chen-ngu-ku  biytse
     door-PL-ACC  open
 
-ngïbni dungku ngul bidi
+pulni 'ufku ruping hum
     #21 warning · Take the red bowl of the queen.
-    ngïb-ni    dung-ku   ngul  bidi
-    queen-GEN  bowl-ACC  red   take
+    pul-ni     'uf-ku    ruping  hum
+    queen-GEN  bowl-ACC  red     take
 
-pimuk kumyi luynguku xihpu ngung xihpu yuk xikunub
-    #22 ledger · Pimuk brought 77 loaves for the god.
-    pimuk  kum-yi   luy-ngu-ku   xihpu  ngung  xihpu  yuk  xi-kunub
-    Pimuk  god-DAT  loaf-PL-ACC  seven  AND    seven  ten  PST-bring
+nengkip pimyi rulnguku mif ximux
+    #22 ledger · Nengkip brought eight cloths for the shrine.
+    nengkip  pim-yi      rul-ngu-ku    mif    xi-mux
+    Nengkip  shrine-DAT  cloth-PL-ACC  eight  PST-bring
 
-mïhku tsut
+ngumku tïkhit
     #23 warning · Honour the mother.
-    mïh-ku      tsut
+    ngum-ku     tïkhit
     mother-ACC  honour
 
-peyun tuknguku bud xikunub
-    #24 ledger · Peyun brought five lamps.
-    peyun  tuk-ngu-ku   bud   xi-kunub
-    Peyun  lamp-PL-ACC  five  PST-bring
+nibïy muruknguku xur ximux
+    #24 ledger · Nibïy brought five lamps.
+    nibïy  muruk-ngu-ku  xur   xi-mux
+    Nibïy  lamp-PL-ACC   five  PST-bring
 
-kuhid hedeni lel pem neng
-    #25 tomb · Kuhid, sister of Hede, lies here.
-    kuhid  hede-ni   lel     pem   neng
-    Kuhid  Hede-GEN  sister  here  lie
+nimïpi xipïni lïp kup pud
+    #25 tomb · Nimïpi, child of Xipï, lies here.
+    nimïpi  xipï-ni   lïp    kup   pud
+    Nimïpi  Xipï-GEN  child  here  lie
 
-kelpini 'ey hedeyi 'upupyi mub xidun peyun butilyi dungnguku fey xinguts
-    #26 letter · Kelpini, smith, said to Hede, great scribe,: Peyun gave eight bowls for the shrine.
-    kelpini  'ey    hede-yi   'upup-yi    mub    xi-dun   peyun  butil-yi    dung-ngu-ku  fey    xi-nguts
-    Kelpini  smith  Hede-DAT  scribe-DAT  great  PST-say  Peyun  shrine-DAT  bowl-PL-ACC  eight  PST-give
+kemildi ling xipïyi xiru' tuf ngumku tïkhit
+    #26 letter · Kemildi, priest, said to Xipï: Honour the mother.
+    kemildi  ling    xipï-yi   xi-ru'   tuf       ngum-ku     tïkhit
+    Kemildi  priest  Xipï-DAT  PST-say  SENT.END  mother-ACC  honour
 
-kelpini tsubiyi xidun chenku rup
-    #27 letter · Kelpini said to Tsubi: Drink the wine.
-    kelpini  tsubi-yi   xi-dun   chen-ku   rup
-    Kelpini  Tsubi-DAT  PST-say  wine-ACC  drink
+kemildi kumpipmiyi xiru' tuf litsehku dure
+    #27 letter · Kemildi said to Kumpipmi: Drink the wine.
+    kemildi  kumpipmi-yi   xi-ru'   tuf       litseh-ku  dure
+    Kemildi  Kumpipmi-DAT  PST-say  SENT.END  wine-ACC   drink
 
-kinyuy pïxuni mï ngïb pem neng
-    #28 tomb · Kinyuy, father of Pïxu, queen, lies here.
-    kinyuy  pïxu-ni   mï      ngïb   pem   neng
-    Kinyuy  Pïxu-GEN  father  queen  here  lie
+chu'tï ritifini mïr kup pud
+    #28 tomb · Chu'tï, daughter of Ritifi, lies here.
+    chu'tï  ritifi-ni   mïr       kup   pud
+    Chu'tï  Ritifi-GEN  daughter  here  lie
 
-chilud bulupukni kur pem neng
-    #29 tomb · Chilud, brother of Bulupuk, lies here.
-    chilud  bulupuk-ni   kur      pem   neng
-    Chilud  Bulupuk-GEN  brother  here  lie
+lilupne nimïpini ngum kup pud
+    #29 tomb · Lilupne, mother of Nimïpi, lies here.
+    lilupne  nimïpi-ni   ngum    kup   pud
+    Lilupne  Nimïpi-GEN  mother  here  lie
 
-neli kumyi mub dungku hik xikul
-    #30 dedication · Neli made this bowl for the great god.
-    neli  kum-yi   mub    dung-ku   hik   xi-kul
-    Neli  god-DAT  great  bowl-ACC  this  PST-make
+kïtsi xukyi nguku' 'ufku mung xi'ulut
+    #30 dedication · Kïtsi made this bowl for the great god.
+    kïtsi  xuk-yi   nguku'  'uf-ku    mung  xi-'ulut
+    Kïtsi  god-DAT  great   bowl-ACC  this  PST-make
 
-pimuk luynguku fehi xinguts
-    #31 ledger · Pimuk gave two loaves.
-    pimuk  luy-ngu-ku   fehi  xi-nguts
-    Pimuk  loaf-PL-ACC  two   PST-give
+nengkip hitnguku mif xipitsur
+    #31 ledger · Nengkip gave eight oxen.
+    nengkip  hit-ngu-ku  mif    xi-pitsur
+    Nengkip  ox-PL-ACC   eight  PST-give
 
-burku hebef rupit
+dukku lïh biytse
     #32 warning · Open the white gate.
-    bur-ku    hebef  rupit
+    duk-ku    lïh    biytse
     gate-ACC  white  open
 
-bulupuk kelpinini nïdup pem neng
-    #33 tomb · Bulupuk, son of Kelpini, lies here.
-    bulupuk  kelpini-ni   nïdup  pem   neng
-    Bulupuk  Kelpini-GEN  son    here  lie
+'uling 'eymuni kuy kup pud
+    #33 tomb · 'Uling, sister of 'Eymu, lies here.
+    'uling  'eymu-ni   kuy     kup   pud
+    'Uling  'Eymu-GEN  sister  here  lie
 
-chïhhe tsubini nïdup pem neng
-    #34 tomb · Chïhhe, son of Tsubi, lies here.
-    chïhhe  tsubi-ni   nïdup  pem   neng
-    Chïhhe  Tsubi-GEN  son    here  lie
+meri lilupneni kuy ling kup pud
+    #34 tomb · Meri, sister of Lilupne, priest, lies here.
+    meri  lilupne-ni   kuy     ling    kup   pud
+    Meri  Lilupne-GEN  sister  priest  here  lie
 
-nebhifïtni butilku bider
-    #35 warning · Do not enter the shrine of Nebhifït.
-    nebhifït-ni   butil-ku    bi-der
-    Nebhifït-GEN  shrine-ACC  NEG-enter
+hehkehni pimku binel
+    #35 warning · Do not enter the shrine of Hehkeh.
+    hehkeh-ni   pim-ku      bi-nel
+    Hehkeh-GEN  shrine-ACC  NEG-enter
 
-muduli chiludni mïh pem neng
-    #36 tomb · Muduli, mother of Chilud, lies here.
-    muduli  chilud-ni   mïh     pem   neng
-    Muduli  Chilud-GEN  mother  here  lie
+muftibfï tuknunini lïp ritslum kup pud
+    #36 tomb · Muftibfï, child of Tuknuni, servant, lies here.
+    muftibfï  tuknuni-ni   lïp    ritslum  kup   pud
+    Muftibfï  Tuknuni-GEN  child  servant  here  lie
 
-bïng yub kufe' rïn ngum mip
+tsir xung nguy dik mep bïl
     #37 potent · [potent] let the old tablet break.
-    bïng      yub     kufe'  rïn  ngum   mip
-    POT.OPEN  tablet  old    POT  break  POT.CLOSE
+    tsir      xung    nguy  dik  mep    bïl
+    POT.OPEN  tablet  old   POT  break  POT.CLOSE
 
-chilud bulupukni kur pem neng
-    #38 tomb · Chilud, brother of Bulupuk, lies here.
-    chilud  bulupuk-ni   kur      pem   neng
-    Chilud  Bulupuk-GEN  brother  here  lie
+lilupne nimïpini ngum kup pud
+    #38 tomb · Lilupne, mother of Nimïpi, lies here.
+    lilupne  nimïpi-ni   ngum    kup   pud
+    Lilupne  Nimïpi-GEN  mother  here  lie
 
-muduli butilyi tupku hik xikul
-    #39 dedication · Muduli made this knife for the shrine.
-    muduli  butil-yi    tup-ku     hik   xi-kul
-    Muduli  shrine-DAT  knife-ACC  this  PST-make
+muftibfï pimyi hutku mung xi'ulut
+    #39 dedication · Muftibfï made this knife for the shrine.
+    muftibfï  pim-yi      hut-ku     mung  xi-'ulut
+    Muftibfï  shrine-DAT  knife-ACC  this  PST-make
 
-neli kumyi tuknguku pur yuk xinguts
-    #40 ledger · Neli gave 90 lamps for the god.
-    neli  kum-yi   tuk-ngu-ku   pur   yuk  xi-nguts
-    Neli  god-DAT  lamp-PL-ACC  nine  ten  PST-give
+kïtsi burnguku xur ngïm yud pup xipitsur
+    #40 ledger · Kïtsi gave 45 jars.
+    kïtsi  bur-ngu-ku  xur   ngïm  yud   pup  xi-pitsur
+    Kïtsi  jar-PL-ACC  five  AND   four  ten  PST-give
 

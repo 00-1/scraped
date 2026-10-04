@@ -126,9 +126,23 @@ fn no_text_is_ever_empty_or_an_error() {
 
 #[test]
 fn reading_comes_in_layers() {
-    let mut g = Game::new(42, pack());
-    g.start();
-    g.step("go temple");
+    // A world whose first temple holds a stele with writing.
+    let p = pack();
+    let mut g = [42u64, 1, 7, 9001, 2, 3, 4, 5]
+        .into_iter()
+        .find_map(|seed| {
+            let mut g = Game::new(seed, p.clone());
+            g.start();
+            g.step("go temple");
+            let glance = g.step("read stele").text;
+            (!glance.contains("not reading") && glance.contains("signs")).then(|| {
+                let mut g = Game::new(seed, p.clone());
+                g.start();
+                g.step("go temple");
+                g
+            })
+        })
+        .expect("a temple with a written stele");
     // At a glance: the whole text, no sign by sign.
     let glance = g.step("read stele").text;
     assert!(!glance.contains("\n1. "), "{glance}");

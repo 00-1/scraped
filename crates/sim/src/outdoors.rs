@@ -629,6 +629,10 @@ impl Land {
                 if j != goal && !pass(nx, ny) {
                     continue;
                 }
+                // No squeezing between two closed cells at a corner.
+                if nx != x && ny != y && !pass(nx, y) && !pass(x, ny) {
+                    continue;
+                }
                 let step = self.walk_minutes(w, Pos::of_cell(x, y), Pos::of_cell(nx, ny));
                 let ng = g + (step * 100.0) as u64 + 1;
                 if ng < best[j] {
@@ -646,6 +650,22 @@ impl Land {
             cells.push(prev[*cells.last().expect("non-empty")]);
         }
         cells.reverse();
+        // A diagonal step with one closed cell beside it goes round by the
+        // open one, so walking it never clips the closed cell's corner.
+        let mut walked = vec![cells[0]];
+        for pair in cells.windows(2) {
+            let (a, b) = (pair[0], pair[1]);
+            let (ax, ay, bx, by) = (a % s, a / s, b % s, b / s);
+            if ax != bx && ay != by && (!pass(bx, ay) || !pass(ax, by)) {
+                walked.push(if pass(bx, ay) {
+                    idx(bx, ay)
+                } else {
+                    idx(ax, by)
+                });
+            }
+            walked.push(b);
+        }
+        let cells = walked;
         let mut path: Vec<Pos> = cells[1..]
             .iter()
             .map(|&i| Pos::of_cell(i % s, i / s))

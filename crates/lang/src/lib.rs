@@ -428,6 +428,13 @@ impl Language {
         for (id, root) in &self.lexicon.roots {
             add(root, &concepts::gloss(id), concepts::get(id).pos);
         }
+        // Derived words and compounds (D07).
+        for c in concepts::all()
+            .iter()
+            .filter(|c| c.is_built() && self.lexicon.has(&c.id))
+        {
+            add(&self.lexicon.root(&c.id), &concepts::gloss(&c.id), c.pos);
+        }
         for p in self.morphology.particles() {
             add(&p.form, p.gloss, Pos::Particle);
         }

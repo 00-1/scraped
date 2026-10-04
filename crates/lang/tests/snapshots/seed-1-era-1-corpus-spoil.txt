@@ -3,30 +3,30 @@ machu mahiğatina
     machu  mahiğa-ti-na
     enter  temple-PL-ACC
 
-muti babusa pavuna gifa tilisu
-    #2 dedication · Muti made this box for the god.
-    muti  babu-sa   pavu-na  gifa  tili-su
-    Muti  make-PST  box-ACC  this  god-DAT
+kiyisa babusa pavuna gifa tilisu
+    #2 dedication · Kiyisa made this box for the god.
+    kiyisa  babu-sa   pavu-na  gifa  tili-su
+    Kiyisa  make-PST  box-ACC  this  god-DAT
 
-sila yitapi ŋuya saĥavi gama nusa
-    #3 tomb · Sila, mother of Yita, king, lies here.
-    sila  yita-pi   ŋuya    saĥavi  gama  nusa
-    Sila  Yita-GEN  mother  king    lie   here
+ĥu'u vutipi yufiŋa gama nusa
+    #3 tomb · Ĥu'u, sister of Vuti, lies here.
+    ĥu'u  vuti-pi   yufiŋa  gama  nusa
+    Ĥu'u  Vuti-GEN  sister  lie   here
 
-ŋaĥabi silapi figana
-    #4 warning · Do not break the gate of Sila.
-    ŋaĥa-bi    sila-pi   figa-na
-    break-NEG  Sila-GEN  gate-ACC
+ŋaĥabi ĥu'upi figana
+    #4 warning · Do not break the gate of Ĥu'u.
+    ŋaĥa-bi    ĥu'u-pi   figa-na
+    break-NEG  Ĥu'u-GEN  gate-ACC
 
-manuwi babusa suvana gifa kuchasu
-    #5 dedication · Manuwi made this tablet for Kucha.
-    manuwi  babu-sa   suva-na     gifa  kucha-su
-    Manuwi  make-PST  tablet-ACC  this  Kucha-DAT
+suyicha babusa suvana gifa yayunisu
+    #5 dedication · Suyicha made this tablet for Yayuni.
+    suyicha  babu-sa   suva-na     gifa  yayuni-su
+    Suyicha  make-PST  tablet-ACC  this  Yayuni-DAT
 
-ŋituna lahupi pifaĥi kuhi gama nusa
-    #6 tomb · Ŋituna, son of Lahu, queen, lies here.
-    ŋituna  lahu-pi   pifaĥi  kuhi   gama  nusa
-    Ŋituna  Lahu-GEN  son     queen  lie   here
+tichuyu ŋalamupi nasu gama nusa
+    #6 tomb · Tichuyu, wife of Ŋalamu, lies here.
+    tichuyu  ŋalamu-pi   nasu  gama  nusa
+    Tichuyu  Ŋalamu-GEN  wife  lie   here
 
 ninimati tufu kağu
     #7 ledger · Eight knives.
@@ -38,163 +38,163 @@ lumiti tufu kağu
     lumi-ti  tufu  kağu
     fish-PL  five  three
 
-hiki ĥugapi chulu gama nusa
-    #9 tomb · Hiki, daughter of Ĥuga, lies here.
-    hiki  ĥuga-pi   chulu     gama  nusa
-    Hiki  Ĥuga-GEN  daughter  lie   here
+ğaku yayunipi wusu gama nusa
+    #9 tomb · Ğaku, brother of Yayuni, lies here.
+    ğaku  yayuni-pi   wusu     gama  nusa
+    Ğaku  Yayuni-GEN  brother  lie   here
 
-fuma ĥahapi sivisi gama nusa
-    #10 tomb · Fuma, husband of Ĥaha, lies here.
-    fuma  ĥaha-pi   sivisi   gama  nusa
-    Fuma  Ĥaha-GEN  husband  lie   here
+faba yibamapi chulu gama nusa
+    #10 tomb · Faba, daughter of Yibama, lies here.
+    faba  yibama-pi   chulu     gama  nusa
+    Faba  Yibama-GEN  daughter  lie   here
 
-tipu pufipi ŋuya gama nusa
-    #11 tomb · Tipu, mother of Pufi, lies here.
-    tipu  pufi-pi   ŋuya    gama  nusa
-    Tipu  Pufi-GEN  mother  lie   here
+'itu ĥikapi yufiŋa gama nusa
+    #11 tomb · 'Itu, sister of Ĥika, lies here.
+    'itu  ĥika-pi   yufiŋa  gama  nusa
+    'Itu  Ĥika-GEN  sister  lie   here
 
-manuwi saĥavi luhasa yitasu ŋaku wiŋafusa lifutina tufu yawa tufu kağu chiva yawa kichi buğu biĥusu
-    #12 letter · Manuwi, king, said to Yita: Ŋaku gave 185 goats for the city.
-    manuwi  saĥavi  luha-sa  yita-su   ŋaku  wiŋafu-sa  lifu-ti-na   tufu  yawa  tufu  kağu   chiva  yawa  kichi  buğu     biĥu-su
-    Manuwi  king    say-PST  Yita-DAT  Ŋaku  give-PST   goat-PL-ACC  five  AND   five  three  ten    AND   one    hundred  city-DAT
+suyicha saĥavi luhasa ŋalamusu muŋi ĥapa wiŋafusa li'itina kağu yawa kağu chiva yawa nimi buğu
+    #12 letter · Suyicha, king, said to Ŋalamu: Ĥapa gave 233 sheep.
+    suyicha  saĥavi  luha-sa  ŋalamu-su   muŋi      ĥapa  wiŋafu-sa  li'i-ti-na    kağu   yawa  kağu   chiva  yawa  nimi  buğu
+    Suyicha  king    say-PST  Ŋalamu-DAT  SENT.END  Ĥapa  give-PST   sheep-PL-ACC  three  AND   three  ten    AND   two   hundred
 
-manuwi saĥavi bivi babusa pavuna gifa tilipi mahiğasu husi
-    #13 dedication · Manuwi, old king, made this box for the dark temple of the god.
-    manuwi  saĥavi  bivi  babu-sa   pavu-na  gifa  tili-pi  mahiğa-su   husi
-    Manuwi  king    old   make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+suyicha saĥavi bivi babusa pavuna gifa tilipi mahiğasu husi
+    #13 dedication · Suyicha, old king, made this box for the dark temple of the god.
+    suyicha  saĥavi  bivi  babu-sa   pavu-na  gifa  tili-pi  mahiğa-su   husi
+    Suyicha  king    old   make-PST  box-ACC  this  god-GEN  temple-DAT  dark
 
-ŋaku luhasa ĥugasu kisaŋabi suyuvana
-    #14 letter · Ŋaku said to Ĥuga: Do not take the statue.
-    ŋaku  luha-sa  ĥuga-su   kisaŋa-bi  suyuva-na
-    Ŋaku  say-PST  Ĥuga-DAT  take-NEG   statue-ACC
+ĥapa luhasa niĥinasu muŋi kisaŋabi suyuvana
+    #14 letter · Ĥapa said to Niĥina: Do not take the statue.
+    ĥapa  luha-sa  niĥina-su   muŋi      kisaŋa-bi  suyuva-na
+    Ĥapa  say-PST  Niĥina-DAT  SENT.END  take-NEG   statue-ACC
 
-lahu luhasa watusu watu wiŋafusa chuĥitina hamu
-    #15 letter · Lahu said to Watu: Watu gave four jars.
-    lahu  luha-sa  watu-su   watu  wiŋafu-sa  chuĥi-ti-na  hamu
-    Lahu  say-PST  Watu-DAT  Watu  give-PST   jar-PL-ACC   four
+yibama luhasa tuŋiwasu muŋi vapi wiŋafusa chuĥitina hamu
+    #15 letter · Yibama said to Tuŋiwa: Vapi gave four jars.
+    yibama  luha-sa  tuŋiwa-su   muŋi      vapi  wiŋafu-sa  chuĥi-ti-na  hamu
+    Yibama  say-PST  Tuŋiwa-DAT  SENT.END  Vapi  give-PST   jar-PL-ACC   four
 
-sila yitapi ŋuya saĥavi gama nusa
-    #16 tomb · Sila, mother of Yita, king, lies here.
-    sila  yita-pi   ŋuya    saĥavi  gama  nusa
-    Sila  Yita-GEN  mother  king    lie   here
+ĥu'u vutipi yufiŋa gama nusa
+    #16 tomb · Ĥu'u, sister of Vuti, lies here.
+    ĥu'u  vuti-pi   yufiŋa  gama  nusa
+    Ĥu'u  Vuti-GEN  sister  lie   here
 
-manuwi ŋitunapi taŋu gama nusa
-    #17 tomb · Manuwi, child of Ŋituna, lies here.
-    manuwi  ŋituna-pi   taŋu   gama  nusa
-    Manuwi  Ŋituna-GEN  child  lie   here
+suyicha fupupi pani gama nusa
+    #17 tomb · Suyicha, father of Fupu, lies here.
+    suyicha  fupu-pi   pani    gama  nusa
+    Suyicha  Fupu-GEN  father  lie   here
 
 buwanupi pavu
     #18 label · The box of the priest.
     buwanu-pi   pavu
     priest-GEN  box
 
-ĥuga luhasa fumasu puta wiŋafusa safatina kağu
-    #19 letter · Ĥuga said to Fuma: Puta gave three lamps.
-    ĥuga  luha-sa  fuma-su   puta  wiŋafu-sa  safa-ti-na   kağu
-    Ĥuga  say-PST  Fuma-DAT  Puta  give-PST   lamp-PL-ACC  three
+niĥina luhasa fabasu muŋi ĥika yiþisa lifutina kichi chiva
+    #19 letter · Niĥina said to Faba: Ĥika brought ten goats.
+    niĥina  luha-sa  faba-su   muŋi      ĥika  yiþi-sa    lifu-ti-na   kichi  chiva
+    Niĥina  say-PST  Faba-DAT  SENT.END  Ĥika  bring-PST  goat-PL-ACC  one    ten
 
-watu ŋitunapi sivisi gama nusa
-    #20 tomb · Watu, husband of Ŋituna, lies here.
-    watu  ŋituna-pi   sivisi   gama  nusa
-    Watu  Ŋituna-GEN  husband  lie   here
+tuŋiwa ĥapapi ŋuya gama nusa
+    #20 tomb · Tuŋiwa, mother of Ĥapa, lies here.
+    tuŋiwa  ĥapa-pi   ŋuya    gama  nusa
+    Tuŋiwa  Ĥapa-GEN  mother  lie   here
 
 misi wuþa 'iğa ŋaĥabi suğa
     #21 potent · [potent] let the seal not break.
     misi      wuþa  'iğa  ŋaĥa-bi    suğa
     POT.OPEN  seal  POT   break-NEG  POT.CLOSE
 
-hacha putapi sivisi kuhi gama nusa
-    #22 tomb · Hacha, husband of Puta, queen, lies here.
-    hacha  puta-pi   sivisi   kuhi   gama  nusa
-    Hacha  Puta-GEN  husband  queen  lie   here
+sakita fupupi yufiŋa gama nusa
+    #22 tomb · Sakita, sister of Fupu, lies here.
+    sakita  fupu-pi   yufiŋa  gama  nusa
+    Sakita  Fupu-GEN  sister  lie   here
 
-watu ŋitunapi sivisi gama nusa
-    #23 tomb · Watu, husband of Ŋituna, lies here.
-    watu  ŋituna-pi   sivisi   gama  nusa
-    Watu  Ŋituna-GEN  husband  lie   here
+tuŋiwa ĥapapi ŋuya gama nusa
+    #23 tomb · Tuŋiwa, mother of Ĥapa, lies here.
+    tuŋiwa  ĥapa-pi   ŋuya    gama  nusa
+    Tuŋiwa  Ĥapa-GEN  mother  lie   here
 
-yita babusa tayichuna tima gifa sanabisu
-    #24 dedication · Yita made this holy altar for Sanabi.
-    yita  babu-sa   tayichu-na  tima  gifa  sanabi-su
-    Yita  make-PST  altar-ACC   holy  this  Sanabi-DAT
+ŋalamu babusa tayichuna tima gifa fupusu yilusu ŋina
+    #24 dedication · Ŋalamu made this holy altar for Fupu, good scribe.
+    ŋalamu  babu-sa   tayichu-na  tima  gifa  fupu-su   yilu-su     ŋina
+    Ŋalamu  make-PST  altar-ACC   holy  this  Fupu-DAT  scribe-DAT  good
 
-yita babusa suvana gifa biĥusu
-    #25 dedication · Yita made this tablet for the city.
-    yita  babu-sa   suva-na     gifa  biĥu-su
-    Yita  make-PST  tablet-ACC  this  city-DAT
+ŋalamu babusa suvana gifa biĥusu
+    #25 dedication · Ŋalamu made this tablet for the city.
+    ŋalamu  babu-sa   suva-na     gifa  biĥu-su
+    Ŋalamu  make-PST  tablet-ACC  this  city-DAT
 
 saĥavipi ŋasi
     #26 label · The bowl of the king.
     saĥavi-pi  ŋasi
     king-GEN   bowl
 
-pufi babusa ŋasina gifa matasu saĥavisu
-    #27 dedication · Pufi made this bowl for Mata, king.
-    pufi  babu-sa   ŋasi-na   gifa  mata-su   saĥavi-su
-    Pufi  make-PST  bowl-ACC  this  Mata-DAT  king-DAT
+ĥika babusa ŋasina gifa vapisu naŋisu
+    #27 dedication · Ĥika made this bowl for Vapi, servant.
+    ĥika  babu-sa   ŋasi-na   gifa  vapi-su   naŋi-su
+    Ĥika  make-PST  bowl-ACC  this  Vapi-DAT  servant-DAT
 
-sila yitapi ŋuya saĥavi gama nusa
-    #28 tomb · Sila, mother of Yita, king, lies here.
-    sila  yita-pi   ŋuya    saĥavi  gama  nusa
-    Sila  Yita-GEN  mother  king    lie   here
+ĥu'u vutipi yufiŋa gama nusa
+    #28 tomb · Ĥu'u, sister of Vuti, lies here.
+    ĥu'u  vuti-pi   yufiŋa  gama  nusa
+    Ĥu'u  Vuti-GEN  sister  lie   here
 
-tipu luhasa kuchasu kisaŋa luwuna
-    #29 letter · Tipu said to Kucha: Take the loaf.
-    tipu  luha-sa  kucha-su   kisaŋa  luwu-na
-    Tipu  say-PST  Kucha-DAT  take    loaf-ACC
+'itu luhasa yayunisu muŋi 'ava ya'ina
+    #29 letter · 'Itu said to Yayuni: Cross the sea.
+    'itu  luha-sa  yayuni-su   muŋi      'ava   ya'i-na
+    'Itu  say-PST  Yayuni-DAT  SENT.END  cross  sea-ACC
 
-ğimu yiþisa luwutina kağu tuĥasu
-    #30 ledger · Ğimu brought three loaves for the shrine.
-    ğimu  yiþi-sa    luwu-ti-na   kağu   tuĥa-su
-    Ğimu  bring-PST  loaf-PL-ACC  three  shrine-DAT
+giyabu yiþisa luwutina kağu tuĥasu
+    #30 ledger · Giyabu brought three loaves for the shrine.
+    giyabu  yiþi-sa    luwu-ti-na   kağu   tuĥa-su
+    Giyabu  bring-PST  loaf-PL-ACC  three  shrine-DAT
 
 winubi laþimana
     #31 warning · Do not burn the door.
     winu-bi   laþima-na
     burn-NEG  door-ACC
 
-sila yitapi ŋuya gama nusa
-    #32 tomb · Sila, mother of Yita, lies here.
-    sila  yita-pi   ŋuya    gama  nusa
-    Sila  Yita-GEN  mother  lie   here
+ĥu'u vutipi yufiŋa gama nusa
+    #32 tomb · Ĥu'u, sister of Vuti, lies here.
+    ĥu'u  vuti-pi   yufiŋa  gama  nusa
+    Ĥu'u  Vuti-GEN  sister  lie   here
 
 lumiti tufu nimi yawa nimi chiva yawa nimi buğu safati nimi chiŋiti nimi yawa tufu kichi chiva yawa kichi buğu yuĥama kichi yawa tufu hamu chiva yawa kağu buğu
     #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
     lumi-ti  tufu  nimi  yawa  nimi  chiva  yawa  nimi  buğu     safa-ti  nimi  chiŋi-ti  nimi  yawa  tufu  kichi  chiva  yawa  kichi  buğu     yuĥama  kichi  yawa  tufu  hamu  chiva  yawa  kağu   buğu
     fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
 
-fuma ĥahapi sivisi gama nusa
-    #34 tomb · Fuma, husband of Ĥaha, lies here.
-    fuma  ĥaha-pi   sivisi   gama  nusa
-    Fuma  Ĥaha-GEN  husband  lie   here
+faba yibamapi chulu gama nusa
+    #34 tomb · Faba, daughter of Yibama, lies here.
+    faba  yibama-pi   chulu     gama  nusa
+    Faba  Yibama-GEN  daughter  lie   here
 
-putapi chuĥi
-    #35 label · The jar of Puta.
-    puta-pi   chuĥi
-    Puta-GEN  jar
+yinalupi chuĥi
+    #35 label · The jar of Yinalu.
+    yinalu-pi   chuĥi
+    Yinalu-GEN  jar
 
-tipu luhasa ĥahasu hiĥasu 'avabi yitapi yaĥalatina
-    #36 letter · Tipu said to Ĥaha, smith,: Do not cross the rivers of Yita.
-    tipu  luha-sa  ĥaha-su   hiĥa-su    'ava-bi    yita-pi   yaĥala-ti-na
-    Tipu  say-PST  Ĥaha-DAT  smith-DAT  cross-NEG  Yita-GEN  river-PL-ACC
+'itu luhasa sanabisu muŋi 'itu yiþisa luwutina tufu kichi yawa kichi chiva mahiğasu
+    #36 letter · 'Itu said to Sanabi: 'Itu brought 16 loaves for the temple.
+    'itu  luha-sa  sanabi-su   muŋi      'itu  yiþi-sa    luwu-ti-na   tufu  kichi  yawa  kichi  chiva  mahiğa-su
+    'Itu  say-PST  Sanabi-DAT  SENT.END  'Itu  bring-PST  loaf-PL-ACC  five  one    AND   one    ten    temple-DAT
 
 lumiti kağu yawa tufu chiva
     #37 ledger · 53 fish.
     lumi-ti  kağu   yawa  tufu  chiva
     fish-PL  three  AND   five  ten
 
-mata luhasa watusu misu ya'itina
-    #38 letter · Mata said to Watu: Fear the seas.
-    mata  luha-sa  watu-su   misu  ya'i-ti-na
-    Mata  say-PST  Watu-DAT  fear  sea-PL-ACC
+vapi luhasa tuŋiwasu muŋi misu ya'itina
+    #38 letter · Vapi said to Tuŋiwa: Fear the seas.
+    vapi  luha-sa  tuŋiwa-su   muŋi      misu  ya'i-ti-na
+    Vapi  say-PST  Tuŋiwa-DAT  SENT.END  fear  sea-PL-ACC
 
 misubi ya'ina
     #39 warning · Do not fear the sea.
     misu-bi   ya'i-na
     fear-NEG  sea-ACC
 
-ğimu ŋakupi pifaĥi gama nusa
-    #40 tomb · Ğimu, son of Ŋaku, lies here.
-    ğimu  ŋaku-pi   pifaĥi  gama  nusa
-    Ğimu  Ŋaku-GEN  son     lie   here
+giyabu fabapi taŋu gama nusa
+    #40 tomb · Giyabu, child of Faba, lies here.
+    giyabu  faba-pi   taŋu   gama  nusa
+    Giyabu  Faba-GEN  child  lie   here
 

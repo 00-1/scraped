@@ -28,11 +28,11 @@ impl<'a> Words<'a> {
     fn new(lang: &'a Language, names: usize) -> Self {
         let has = |c: &&'static Concept| lang.lexicon.has(&c.id) && c.domain != Domain::Grammar;
         Words {
-            nouns: concepts::with_pos(Pos::Noun).filter(has).collect(),
-            verbs: concepts::with_pos(Pos::Verb).filter(has).collect(),
-            adjectives: concepts::with_pos(Pos::Adj).filter(has).collect(),
-            determiners: concepts::with_pos(Pos::Det).filter(has).collect(),
-            adverbs: concepts::with_pos(Pos::Adv).filter(has).collect(),
+            nouns: concepts::any_with_pos(Pos::Noun).filter(has).collect(),
+            verbs: concepts::any_with_pos(Pos::Verb).filter(has).collect(),
+            adjectives: concepts::any_with_pos(Pos::Adj).filter(has).collect(),
+            determiners: concepts::any_with_pos(Pos::Det).filter(has).collect(),
+            adverbs: concepts::any_with_pos(Pos::Adv).filter(has).collect(),
             lang,
             names,
         }

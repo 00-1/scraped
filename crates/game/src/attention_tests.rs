@@ -279,7 +279,25 @@ fn spoiled_truth_keeps_every_fact_weighed() {
 
 #[test]
 fn the_parser_understands_groups() {
-    let mut g = Game::new(42, pack());
+    // A world whose starting town has several worn tombs.
+    let seed = (1u64..60)
+        .find(|&s| {
+            let g = Game::new(s, pack());
+            let town = g.site.settlement;
+            g.site
+                .world
+                .structures
+                .iter()
+                .filter(|st| {
+                    st.settlement == Some(town)
+                        && st.kind == scraped_world::structures::StructureKind::Tomb
+                        && st.condition == scraped_world::structures::Condition::Worn
+                })
+                .count()
+                >= 2
+        })
+        .expect("a town with tombs");
+    let mut g = Game::new(seed, pack());
     g.trace = true;
     g.start();
     let slots = |o: &crate::Output| -> Vec<String> {

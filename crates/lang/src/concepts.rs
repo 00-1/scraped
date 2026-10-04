@@ -82,7 +82,7 @@ fn core_field() -> String {
 /// Fields every language names (D07); the rest are the culture's choice,
 /// and species are named where they live.
 pub const CORE_FIELDS: &[&str] = &[
-    "core", "body", "kin", "land", "nature", "sky", "weather", "time", "act", "quality",
+    "core", "grammar", "body", "kin", "land", "nature", "sky", "weather", "time", "act", "quality",
 ];
 
 /// Fields a culture may care about.
@@ -409,8 +409,17 @@ pub fn get(id: &str) -> &'static Concept {
         .unwrap_or_else(|| panic!("unknown concept {id:?}"))
 }
 
-/// All concepts with the given part of speech.
+/// The starter list's concepts with the given part of speech: what the
+/// pre-D07 text generators draw on, so their words stay as they were.
 pub fn with_pos(pos: Pos) -> impl Iterator<Item = &'static Concept> {
+    all()
+        .iter()
+        .filter(move |c| c.pos == pos && c.field == "core" && !c.is_built())
+}
+
+/// Every concept with the given part of speech, the cultural lexicon,
+/// derived words and compounds included (D07).
+pub fn any_with_pos(pos: Pos) -> impl Iterator<Item = &'static Concept> {
     all().iter().filter(move |c| c.pos == pos)
 }
 
@@ -450,7 +459,7 @@ mod tests {
     #[test]
     fn list_loads_with_expected_size() {
         let n = all().len();
-        assert!((100..=1500).contains(&n), "{n} concepts");
+        assert!((1000..=4000).contains(&n), "{n} concepts");
     }
 
     #[test]
@@ -494,13 +503,17 @@ mod tests {
 
     #[test]
     fn every_verb_object_tag_is_used_by_some_noun() {
-        for v in with_pos(Pos::Verb) {
+        for v in any_with_pos(Pos::Verb) {
             for t in &v.objects {
-                assert!(!nouns_tagged(t).is_empty(), "{}: {t}", v.id);
+                assert!(
+                    any_with_pos(Pos::Noun).any(|n| n.has_tag(t)),
+                    "{}: {t}",
+                    v.id
+                );
             }
         }
-        for a in with_pos(Pos::Adj) {
-            assert!(with_pos(Pos::Noun).any(|n| a.applies_to(n)), "{}", a.id);
+        for a in any_with_pos(Pos::Adj) {
+            assert!(any_with_pos(Pos::Noun).any(|n| a.applies_to(n)), "{}", a.id);
         }
     }
 }

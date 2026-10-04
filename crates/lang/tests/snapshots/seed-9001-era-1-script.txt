@@ -21,7 +21,7 @@ SCRIPT — seed 9001 era 1: alphabet written right to left
   #17  i                i        ring at the top; tail left at the bottom
   #18  o                o        dot on the right; wedge right on the right; wedge left at the bottom
   #19  u                u        hook right on the right; dot at the bottom; wedge down at the top
-  #20  ə                ë        arc left on the right
+  #20  ə                ë        arc right on the right; zigzag up at the bottom
   #21  numeral 0        0        arc right at the top
   #22  numeral 1        1        zigzag right on the right
   #23  numeral 2        2        cross at the top; cross at the bottom

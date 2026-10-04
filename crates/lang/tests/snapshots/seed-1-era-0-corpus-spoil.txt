@@ -3,30 +3,30 @@ machu mahigatina
     machu  mahiga-ti-na
     enter  temple-PL-ACC
 
-buchi yilu pumusa pabuna gipa tilisu
-    #2 dedication · Buchi, scribe, made this box for the god.
-    buchi  yilu    pumu-sa   pabu-na  gipa  tili-su
-    Buchi  scribe  make-PST  box-ACC  this  god-DAT
+yiyuka kuhi pumusa pabuna gipa tilisu
+    #2 dedication · Yiyuka, queen, made this box for the god.
+    yiyuka  kuhi   pumu-sa   pabu-na  gipa  tili-su
+    Yiyuka  queen  make-PST  box-ACC  this  god-DAT
 
-ŋapu ŋinapapi ŋuya gama nuxa
-    #3 tomb · Ŋapu, mother of Ŋinapa, lies here.
-    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
-    Ŋapu  Ŋinapa-GEN  mother  lie   here
+yitupu kiki'upi yupiŋa buwanu gama nuxa
+    #3 tomb · Yitupu, sister of Kiki'u, priest, lies here.
+    yitupu  kiki'u-pi   yupiŋa  buwanu  gama  nuxa
+    Yitupu  Kiki'u-GEN  sister  priest  lie   here
 
-ŋakabi ŋapupi sawukuna
-    #4 warning · Do not break the gate of Ŋapu.
-    ŋaka-bi    ŋapu-pi   sawuku-na
-    break-NEG  Ŋapu-GEN  gate-ACC
+ŋakabi yitupupi sawukuna
+    #4 warning · Do not break the gate of Yitupu.
+    ŋaka-bi    yitupu-pi   sawuku-na
+    break-NEG  Yitupu-GEN  gate-ACC
 
-halapi pumusa subana gipa manihasu
-    #5 dedication · Halapi made this tablet for Maniha.
-    halapi  pumu-sa   suba-na     gipa  maniha-su
-    Halapi  make-PST  tablet-ACC  this  Maniha-DAT
+nayaku pumusa subana gipa samu'asu
+    #5 dedication · Nayaku made this tablet for Samu'a.
+    nayaku  pumu-sa   suba-na     gipa  samu'a-su
+    Nayaku  make-PST  tablet-ACC  this  Samu'a-DAT
 
-xanu kuchupi pani yilu gama nuxa
-    #6 tomb · Xanu, father of Kuchu, scribe, lies here.
-    xanu  kuchu-pi   pani    yilu    gama  nuxa
-    Xanu  Kuchu-GEN  father  scribe  lie   here
+kiki'u sukachapi nasu gama nuxa
+    #6 tomb · Kiki'u, wife of Sukacha, lies here.
+    kiki'u  sukacha-pi   nasu  gama  nuxa
+    Kiki'u  Sukacha-GEN  wife  lie   here
 
 ninimati tupu kagu
     #7 ledger · Eight knives.
@@ -38,163 +38,163 @@ lumiti tupu kagu
     lumi-ti  tupu  kagu
     fish-PL  five  three
 
-lunaki xanupi chulu gama nuxa
-    #9 tomb · Lunaki, daughter of Xanu, lies here.
-    lunaki  xanu-pi   chulu     gama  nuxa
-    Lunaki  Xanu-GEN  daughter  lie   here
+sukuti suwamupi pani gama nuxa
+    #9 tomb · Sukuti, father of Suwamu, lies here.
+    sukuti  suwamu-pi   pani    gama  nuxa
+    Sukuti  Suwamu-GEN  father  lie   here
 
-wila kuchupi wusu gama nuxa
-    #10 tomb · Wila, brother of Kuchu, lies here.
-    wila  kuchu-pi   wusu     gama  nuxa
-    Wila  Kuchu-GEN  brother  lie   here
+sukacha magayupi sibisi gama nuxa
+    #10 tomb · Sukacha, husband of Magayu, lies here.
+    sukacha  magayu-pi   sibisi   gama  nuxa
+    Sukacha  Magayu-GEN  husband  lie   here
 
-'anuwa tigupi chulu gama nuxa
-    #11 tomb · 'Anuwa, daughter of Tigu, lies here.
-    'anuwa  tigu-pi   chulu     gama  nuxa
-    'Anuwa  Tigu-GEN  daughter  lie   here
+salanu tuyiyapi chulu gama nuxa
+    #11 tomb · Salanu, daughter of Tuyiya, lies here.
+    salanu  tuyiya-pi   chulu     gama  nuxa
+    Salanu  Tuyiya-GEN  daughter  lie   here
 
-halapi luhasa kachachisu yilusu kuchu wiŋapusa liputina tupu yawa tupu kagu chiba yawa kichi bugu bikusu
-    #12 letter · Halapi said to Kachachi, scribe,: Kuchu gave 185 goats for the city.
-    halapi  luha-sa  kachachi-su   yilu-su     kuchu  wiŋapu-sa  lipu-ti-na   tupu  yawa  tupu  kagu   chiba  yawa  kichi  bugu     biku-su
-    Halapi  say-PST  Kachachi-DAT  scribe-DAT  Kuchu  give-PST   goat-PL-ACC  five  AND   five  three  ten    AND   one    hundred  city-DAT
+nayaku luhasa puyunisu muŋi machu laŋana
+    #12 letter · Nayaku said to Puyuni: Enter the house.
+    nayaku  luha-sa  puyuni-su   muŋi      machu  laŋa-na
+    Nayaku  say-PST  Puyuni-DAT  SENT.END  enter  house-ACC
 
-halapi pumusa pabuna gipa tilipi mahigasu husi
-    #13 dedication · Halapi made this box for the dark temple of the god.
-    halapi  pumu-sa   pabu-na  gipa  tili-pi  mahiga-su   husi
-    Halapi  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+nayaku pumusa pabuna gipa tilipi mahigasu husi
+    #13 dedication · Nayaku made this box for the dark temple of the god.
+    nayaku  pumu-sa   pabu-na  gipa  tili-pi  mahiga-su   husi
+    Nayaku  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
 
-kuchu luhasa ŋinapasu kixaŋabi suyubana
-    #14 letter · Kuchu said to Ŋinapa: Do not take the statue.
-    kuchu  luha-sa  ŋinapa-su   kixaŋa-bi  suyuba-na
-    Kuchu  say-PST  Ŋinapa-DAT  take-NEG   statue-ACC
+magayu luhasa satayusu muŋi sukacha yitisa xuŋaŋitina tupu tukasu
+    #14 letter · Magayu said to Satayu: Sukacha brought five oxen for the shrine.
+    magayu  luha-sa  satayu-su   muŋi      sukacha  yiti-sa    xuŋaŋi-ti-na  tupu  tuka-su
+    Magayu  say-PST  Satayu-DAT  SENT.END  Sukacha  bring-PST  ox-PL-ACC     five  shrine-DAT
 
-lituhu luhasa 'axisu 'axi wiŋapusa chukitina hamu
-    #15 letter · Lituhu said to 'Axi: 'Axi gave four jars.
-    lituhu  luha-sa  'axi-su   'axi  wiŋapu-sa  chuki-ti-na  hamu
-    Lituhu  say-PST  'Axi-DAT  'Axi  give-PST   jar-PL-ACC   four
+suwamu luhasa 'isaŋasu muŋi yiyuka kuhi bibi wiŋapusa xapatina tupu kichi yawa hamu chiba
+    #15 letter · Suwamu said to 'Isaŋa: Yiyuka, old queen, gave 46 lamps.
+    suwamu  luha-sa  'isaŋa-su   muŋi      yiyuka  kuhi   bibi  wiŋapu-sa  xapa-ti-na   tupu  kichi  yawa  hamu  chiba
+    Suwamu  say-PST  'Isaŋa-DAT  SENT.END  Yiyuka  queen  old   give-PST   lamp-PL-ACC  five  one    AND   four  ten
 
-ŋapu ŋinapapi ŋuya gama nuxa
-    #16 tomb · Ŋapu, mother of Ŋinapa, lies here.
-    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
-    Ŋapu  Ŋinapa-GEN  mother  lie   here
+yitupu kiki'upi yupiŋa buwanu gama nuxa
+    #16 tomb · Yitupu, sister of Kiki'u, priest, lies here.
+    yitupu  kiki'u-pi   yupiŋa  buwanu  gama  nuxa
+    Yitupu  Kiki'u-GEN  sister  priest  lie   here
 
-halapi wilapi wusu gama nuxa
-    #17 tomb · Halapi, brother of Wila, lies here.
-    halapi  wila-pi   wusu     gama  nuxa
-    Halapi  Wila-GEN  brother  lie   here
+nayaku nununupi sunu gama nuxa
+    #17 tomb · Nayaku, son of Nununu, lies here.
+    nayaku  nununu-pi   sunu  gama  nuxa
+    Nayaku  Nununu-GEN  son   lie   here
 
 buwanupi pabu
     #18 label · The box of the priest.
     buwanu-pi   pabu
     priest-GEN  box
 
-ŋinapa luhasa wilasu tigu wiŋapusa xapatina kagu
-    #19 letter · Ŋinapa said to Wila: Tigu gave three lamps.
-    ŋinapa  luha-sa  wila-su   tigu  wiŋapu-sa  xapa-ti-na   kagu
-    Ŋinapa  say-PST  Wila-DAT  Tigu  give-PST   lamp-PL-ACC  three
+satayu luhasa sukachasu muŋi mayusa yitisa liputina kichi chiba
+    #19 letter · Satayu said to Sukacha: Mayusa brought ten goats.
+    satayu  luha-sa  sukacha-su   muŋi      mayusa  yiti-sa    lipu-ti-na   kichi  chiba
+    Satayu  say-PST  Sukacha-DAT  SENT.END  Mayusa  bring-PST  goat-PL-ACC  one    ten
 
-'axi tigupi sibisi gama nuxa
-    #20 tomb · 'Axi, husband of Tigu, lies here.
-    'axi  tigu-pi   sibisi   gama  nuxa
-    'Axi  Tigu-GEN  husband  lie   here
+'isaŋa sukachapi yupiŋa yilu gama nuxa
+    #20 tomb · 'Isaŋa, sister of Sukacha, scribe, lies here.
+    'isaŋa  sukacha-pi   yupiŋa  yilu    gama  nuxa
+    'Isaŋa  Sukacha-GEN  sister  scribe  lie   here
 
 mixi wuta 'iga ŋakabi xuga
     #21 potent · [potent] let the seal not break.
     mixi      wuta  'iga  ŋaka-bi    xuga
     POT.OPEN  seal  POT   break-NEG  POT.CLOSE
 
-katibu mulapi sunu kuhi gama nuxa
-    #22 tomb · Katibu, son of Mula, queen, lies here.
-    katibu  mula-pi   sunu  kuhi   gama  nuxa
-    Katibu  Mula-GEN  son   queen  lie   here
+sasiyi 'isaŋapi chulu gama nuxa
+    #22 tomb · Sasiyi, daughter of 'Isaŋa, lies here.
+    sasiyi  'isaŋa-pi   chulu     gama  nuxa
+    Sasiyi  'Isaŋa-GEN  daughter  lie   here
 
-'axi tigupi sibisi gama nuxa
-    #23 tomb · 'Axi, husband of Tigu, lies here.
-    'axi  tigu-pi   sibisi   gama  nuxa
-    'Axi  Tigu-GEN  husband  lie   here
+'isaŋa sukachapi yupiŋa gama nuxa
+    #23 tomb · 'Isaŋa, sister of Sukacha, lies here.
+    'isaŋa  sukacha-pi   yupiŋa  gama  nuxa
+    'Isaŋa  Sukacha-GEN  sister  lie   here
 
-kachachi yilu ŋina pumusa tayichuna tima gipa kanutusu
-    #24 dedication · Kachachi, good scribe, made this holy altar for Kanutu.
-    kachachi  yilu    ŋina  pumu-sa   tayichu-na  tima  gipa  kanutu-su
-    Kachachi  scribe  good  make-PST  altar-ACC   holy  this  Kanutu-DAT
+puyuni pumusa tayichuna tima gipa nununusu sakabisu ŋina
+    #24 dedication · Puyuni made this holy altar for Nununu, good king.
+    puyuni  pumu-sa   tayichu-na  tima  gipa  nununu-su   sakabi-su  ŋina
+    Puyuni  make-PST  altar-ACC   holy  this  Nununu-DAT  king-DAT   good
 
-kachachi pumusa subana gipa bikusu
-    #25 dedication · Kachachi made this tablet for the city.
-    kachachi  pumu-sa   suba-na     gipa  biku-su
-    Kachachi  make-PST  tablet-ACC  this  city-DAT
+puyuni pumusa subana gipa bikusu
+    #25 dedication · Puyuni made this tablet for the city.
+    puyuni  pumu-sa   suba-na     gipa  biku-su
+    Puyuni  make-PST  tablet-ACC  this  city-DAT
 
 sakabipi ŋasi
     #26 label · The bowl of the king.
     sakabi-pi  ŋasi
     king-GEN   bowl
 
-wiyi kuhi pumusa ŋasina gipa tuyisu
-    #27 dedication · Wiyi, queen, made this bowl for Tuyi.
-    wiyi  kuhi   pumu-sa   ŋasi-na   gipa  tuyi-su
-    Wiyi  queen  make-PST  bowl-ACC  this  Tuyi-DAT
+mayusa pumusa ŋasina gipa yasichasu sakabisu
+    #27 dedication · Mayusa made this bowl for Yasicha, king.
+    mayusa  pumu-sa   ŋasi-na   gipa  yasicha-su   sakabi-su
+    Mayusa  make-PST  bowl-ACC  this  Yasicha-DAT  king-DAT
 
-ŋapu ŋinapapi ŋuya gama nuxa
-    #28 tomb · Ŋapu, mother of Ŋinapa, lies here.
-    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
-    Ŋapu  Ŋinapa-GEN  mother  lie   here
+yitupu kiki'upi yupiŋa buwanu gama nuxa
+    #28 tomb · Yitupu, sister of Kiki'u, priest, lies here.
+    yitupu  kiki'u-pi   yupiŋa  buwanu  gama  nuxa
+    Yitupu  Kiki'u-GEN  sister  priest  lie   here
 
-'anuwa luhasa manihasu kixaŋa luwuna
-    #29 letter · 'Anuwa said to Maniha: Take the loaf.
-    'anuwa  luha-sa  maniha-su   kixaŋa  luwu-na
-    'Anuwa  say-PST  Maniha-DAT  take    loaf-ACC
+salanu luhasa samu'asu sakabisu muŋi tapacha gisina
+    #29 letter · Salanu said to Samu'a, king,: Touch the tomb.
+    salanu  luha-sa  samu'a-su   sakabi-su  muŋi      tapacha  gisi-na
+    Salanu  say-PST  Samu'a-DAT  king-DAT   SENT.END  touch    tomb-ACC
 
-yapapu sakabi yitisa ŋasitina hamu chiba
-    #30 ledger · Yapapu, king, brought 40 bowls.
-    yapapu  sakabi  yiti-sa    ŋasi-ti-na   hamu  chiba
-    Yapapu  king    bring-PST  bowl-PL-ACC  four  ten
+kinuni yitisa luwutina kagu tukasu
+    #30 ledger · Kinuni brought three loaves for the shrine.
+    kinuni  yiti-sa    luwu-ti-na   kagu   tuka-su
+    Kinuni  bring-PST  loaf-PL-ACC  three  shrine-DAT
 
 winubi latimana
     #31 warning · Do not burn the door.
     winu-bi   latima-na
     burn-NEG  door-ACC
 
-ŋapu ŋinapapi ŋuya gama nuxa
-    #32 tomb · Ŋapu, mother of Ŋinapa, lies here.
-    ŋapu  ŋinapa-pi   ŋuya    gama  nuxa
-    Ŋapu  Ŋinapa-GEN  mother  lie   here
+yitupu kiki'upi yupiŋa gama nuxa
+    #32 tomb · Yitupu, sister of Kiki'u, lies here.
+    yitupu  kiki'u-pi   yupiŋa  gama  nuxa
+    Yitupu  Kiki'u-GEN  sister  lie   here
 
 lumiti tupu nimi yawa nimi chiba yawa nimi bugu xapati nimi chiŋiti nimi yawa tupu kichi chiba yawa kichi bugu yukama kichi yawa tupu hamu chiba yawa kagu bugu
     #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
     lumi-ti  tupu  nimi  yawa  nimi  chiba  yawa  nimi  bugu     xapa-ti  nimi  chiŋi-ti  nimi  yawa  tupu  kichi  chiba  yawa  kichi  bugu     yukama  kichi  yawa  tupu  hamu  chiba  yawa  kagu   bugu
     fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
 
-wila kuchupi wusu gama nuxa
-    #34 tomb · Wila, brother of Kuchu, lies here.
-    wila  kuchu-pi   wusu     gama  nuxa
-    Wila  Kuchu-GEN  brother  lie   here
+sukacha magayupi sibisi gama nuxa
+    #34 tomb · Sukacha, husband of Magayu, lies here.
+    sukacha  magayu-pi   sibisi   gama  nuxa
+    Sukacha  Magayu-GEN  husband  lie   here
 
-tigupi chuki
-    #35 label · The jar of Tigu.
-    tigu-pi   chuki
-    Tigu-GEN  jar
+ni'ixipi chuki
+    #35 label · The jar of Ni'ixi.
+    ni'ixi-pi   chuki
+    Ni'ixi-GEN  jar
 
-'anuwa luhasa mulasu yilusu 'ababi kachachipi yakalatina
-    #36 letter · 'Anuwa said to Mula, scribe,: Do not cross the rivers of Kachachi.
-    'anuwa  luha-sa  mula-su   yilu-su     'aba-bi    kachachi-pi   yakala-ti-na
-    'Anuwa  say-PST  Mula-DAT  scribe-DAT  cross-NEG  Kachachi-GEN  river-PL-ACC
+salanu luhasa kahanasu naŋisu muŋi 'ababi puyunipi yakalatina
+    #36 letter · Salanu said to Kahana, servant,: Do not cross the rivers of Puyuni.
+    salanu  luha-sa  kahana-su   naŋi-su      muŋi      'aba-bi    puyuni-pi   yakala-ti-na
+    Salanu  say-PST  Kahana-DAT  servant-DAT  SENT.END  cross-NEG  Puyuni-GEN  river-PL-ACC
 
 lumiti kagu yawa tupu chiba
     #37 ledger · 53 fish.
     lumi-ti  kagu   yawa  tupu  chiba
     fish-PL  three  AND   five  ten
 
-tuyi luhasa 'axisu ŋugi yitisa luwutina tupu hamu
-    #38 letter · Tuyi said to 'Axi: Ŋugi brought nine loaves.
-    tuyi  luha-sa  'axi-su   ŋugi  yiti-sa    luwu-ti-na   tupu  hamu
-    Tuyi  say-PST  'Axi-DAT  Ŋugi  bring-PST  loaf-PL-ACC  five  four
+yasicha luhasa 'isaŋasu yilusu muŋi xuxibi sawukuna
+    #38 letter · Yasicha said to 'Isaŋa, scribe,: Do not open the gate.
+    yasicha  luha-sa  'isaŋa-su   yilu-su     muŋi      xuxi-bi   sawuku-na
+    Yasicha  say-PST  'Isaŋa-DAT  scribe-DAT  SENT.END  open-NEG  gate-ACC
 
 misubi ya'ina
     #39 warning · Do not fear the sea.
     misu-bi   ya'i-na
     fear-NEG  sea-ACC
 
-yapapu mulapi sunu gama nuxa
-    #40 tomb · Yapapu, son of Mula, lies here.
-    yapapu  mula-pi   sunu  gama  nuxa
-    Yapapu  Mula-GEN  son   lie   here
+kinuni sukachapi wusu gama nuxa
+    #40 tomb · Kinuni, brother of Sukacha, lies here.
+    kinuni  sukacha-pi   wusu     gama  nuxa
+    Kinuni  Sukacha-GEN  brother  lie   here
 

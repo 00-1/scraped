@@ -142,7 +142,12 @@ fn scraping_the_pivot_changes_the_world_and_loses_nothing() {
             .collect();
         assert_eq!(layers_before, layers_after);
         assert!(g.state.scraped.is_superset(&scraped_before));
-        assert_eq!(g.state.scraped.len(), scraped_before.len() + 1);
+        assert_eq!(
+            g.state.scraped.len(),
+            scraped_before.len() + 1,
+            "seed {seed}: {}",
+            out.text
+        );
         // The world changed, as the claim said.
         let pivot = g.site.writing.pivot.unwrap();
         let (verb, _, _) = claim_parts(g.text(pivot)).unwrap();
@@ -169,7 +174,12 @@ fn scraping_the_pivot_changes_the_world_and_loses_nothing() {
         }
         // Scraping again finds nothing fresh; the stack is unchanged.
         g.scrape(thing);
-        assert_eq!(g.state.scraped.len(), scraped_before.len() + 1);
+        assert_eq!(
+            g.state.scraped.len(),
+            scraped_before.len() + 1,
+            "seed {seed}: {}",
+            out.text
+        );
     }
 }
 

@@ -258,3 +258,50 @@ mod tests {
         assert_eq!(edit_distance(&[1, 2, 3], &[3, 2, 1]), 2);
     }
 }
+
+#[cfg(test)]
+mod derivation_tests {
+    use crate::concepts;
+    use crate::morphology::{AffixPosition, DERIVATION_GLOSSES};
+    use crate::Language;
+
+    /// Derived words are their base plus the same affix in every era, and
+    /// compounds the two roots in the language's order (D07).
+    #[test]
+    fn derivations_and_compounds_are_regular_in_every_era() {
+        for seed in [1u64, 7, 42] {
+            for lang in Language::generate(seed).eras() {
+                let m = &lang.morphology;
+                assert_eq!(m.derivations.len(), DERIVATION_GLOSSES.len());
+                let mut seen = 0;
+                for c in concepts::all()
+                    .iter()
+                    .filter(|c| c.is_built() && lang.lexicon.has(&c.id))
+                {
+                    let got = lang.lexicon.root(&c.id);
+                    if let Some((base, d)) = c.id.split_once('+') {
+                        let affix = &m
+                            .derivations
+                            .iter()
+                            .find(|a| a.gloss == d.to_uppercase())
+                            .unwrap()
+                            .form;
+                        let b = lang.lexicon.root(base);
+                        let want: Vec<u8> = match m.noun_position {
+                            AffixPosition::Suffix => b.iter().chain(affix).copied().collect(),
+                            AffixPosition::Prefix => affix.iter().chain(&b).copied().collect(),
+                        };
+                        assert_eq!(got, want, "seed {seed} era {}: {}", lang.era, c.id);
+                    } else if let Some((a, h)) = c.id.split_once('~') {
+                        assert_eq!(
+                            got,
+                            m.compound(&lang.lexicon.root(a), &lang.lexicon.root(h))
+                        );
+                    }
+                    seen += 1;
+                }
+                assert!(seen > 500, "seed {seed}: {seen} built words");
+            }
+        }
+    }
+}
