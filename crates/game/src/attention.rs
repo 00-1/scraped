@@ -726,6 +726,7 @@ impl Game {
         self.creature_facts(&mut out);
         self.life_facts(response, &mut out);
         self.weather_facts(response, &mut out);
+        self.wonder_facts(&mut out);
         // An eclipse is noticed without looking up.
         let mut sky = Vec::new();
         self.sky_facts(&mut sky);

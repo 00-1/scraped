@@ -575,7 +575,11 @@ impl Game {
         self.sky_facts(&mut facts);
         let mut coming = Vec::new();
         self.weather_facts(Response::Around, &mut coming);
-        facts.extend(coming.into_iter().filter(|f| f.slot == "weather.coming"));
+        // The aurora and other wonders of the sky.
+        self.wonder_facts(&mut coming);
+        facts.extend(coming.into_iter().filter(|f| {
+            f.slot == "weather.coming" || f.vars.get("kind").is_some_and(|k| k.text() == "aurora")
+        }));
         let parts = self.attend(facts, Response::Closer);
         self.output(vec![parts.join(" ")], None)
     }

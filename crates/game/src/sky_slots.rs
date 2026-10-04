@@ -114,8 +114,39 @@ fn s_none(_: u64) -> Vec<Context> {
     vec![ctx(&[])]
 }
 
+fn s_wonder(_: u64) -> Vec<Context> {
+    scraped_world::phenomena::KINDS
+        .iter()
+        .enumerate()
+        .map(|(i, k)| {
+            ctx(&[
+                ("kind", Value::from(*k)),
+                ("bearing", Value::from(BEARINGS_HERE[i % 9])),
+                (
+                    "distance",
+                    Value::from(["near", "short", "middle", "far"][i % 4]),
+                ),
+                (
+                    "heard",
+                    Value::Bool(matches!(
+                        *k,
+                        "booming dunes" | "tidal bore" | "echoing gorge" | "singing arch"
+                    )),
+                ),
+            ])
+        })
+        .collect()
+}
+
 pub fn slots() -> Vec<SlotDef> {
     vec![
+        SlotDef::new("wonder.noticed", "A natural wonder showing now: marsh lights over a bog at night, dunes booming in the wind, a tidal bore roaring up a river mouth, steam from vents, a gorge throwing back every sound, a mirage of water over hot ground, aurora over the cold north, a shore glowing at night, a fogbow, an arch singing in the wind. Natural, but strange: say what is sensed, never the explanation.")
+            .var("kind", e(scraped_world::phenomena::KINDS), "Which wonder.")
+            .var("bearing", e(BEARINGS_HERE), "Where (here: close by).")
+            .var("distance", e(&["near", "short", "middle", "far", "horizon"]), "How far.")
+            .var("heard", VarType::Bool, "Heard rather than seen.")
+            .max_len(160)
+            .sampler(s_wonder),
         SlotDef::new("sky.eclipse", "An eclipse: the sun darkens at midday (noticed outdoors without looking up), or the full moon goes dark red near midnight. They come round on a cycle a patient watcher can learn.")
             .var("body", e(&["sun", "moon"]), "Which is eclipsed.")
             .max_len(160)

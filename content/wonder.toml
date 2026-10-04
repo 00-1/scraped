@@ -1,0 +1,6 @@
+notes = "Natural wonders: strange, but not writing."
+
+[[variant]]
+slot = "wonder.noticed"
+text = "[if heard]A strange sound[else]Something strange[end] ({kind})[if bearing != 'here'] to the {bearing}[end]."
+example = true

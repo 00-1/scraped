@@ -276,3 +276,73 @@ impl Game {
             )
     }
 }
+
+/// Whether a natural wonder shows now, and how far off it can be noticed:
+/// (metres, heard rather than seen).
+fn showing(
+    kind: &str,
+    time: &str,
+    season: usize,
+    weather: &str,
+    windy: bool,
+    minutes: u32,
+) -> Option<(f64, bool)> {
+    let night = matches!(time, "night" | "evening");
+    match kind {
+        "marsh lights" if night && season <= 2 => Some((2000.0, false)),
+        "booming dunes" if windy || time == "afternoon" => Some((3000.0, true)),
+        // The bore runs up the river twice a day with the tide.
+        "tidal bore" if minutes % 745 < 40 => Some((1500.0, true)),
+        "steam vents" => Some((800.0, false)),
+        "echoing gorge" => Some((400.0, true)),
+        "mirage" if time == "afternoon" && weather == "clear" && season <= 1 => {
+            Some((5000.0, false))
+        }
+        "aurora" if night && weather == "clear" && season >= 2 => Some((25000.0, false)),
+        "glowing shore" if night && (1..=2).contains(&season) => Some((600.0, false)),
+        "fogbow" if matches!(time, "dawn" | "morning") && weather == "fog" => Some((2000.0, false)),
+        "singing arch" if windy => Some((1500.0, true)),
+        _ => None,
+    }
+}
+
+impl Game {
+    /// Natural wonders showing near the player now.
+    pub(crate) fn wonder_facts(&mut self, out: &mut Vec<Fact>) {
+        if self.state.place != Place::Outside {
+            return;
+        }
+        let now = self.state.minutes;
+        let pos = self.state.pos;
+        let time = crate::site::time_of_day(now);
+        let season = scraped_sim::region::season(now);
+        let (weather, _, _) = self.conditions();
+        let spot = self.spot();
+        let windy = self.env().local(spot, now, self.carried_light()).air == "windy";
+        for p in &self.site.world.phenomena {
+            let at = Pos::of_cell(p.cell.ux(), p.cell.uy());
+            let d = pos.dist(at);
+            let Some((reach, heard)) = showing(p.kind, time, season, weather, windy, now) else {
+                continue;
+            };
+            if d > reach {
+                continue;
+            }
+            let side = bearing(pos, at).filter(|_| d > 150.0);
+            out.push(Fact::new(
+                "wonder.noticed",
+                format!("wonder:{}", p.id),
+                if d < 500.0 { 46.0 } else { 34.0 },
+                ctx(&[
+                    ("kind", Value::from(p.kind)),
+                    ("bearing", Value::from(side.map_or("here", |b| BEARINGS[b]))),
+                    (
+                        "distance",
+                        Value::from(scraped_sim::outdoors::distance_band(d)),
+                    ),
+                    ("heard", Value::Bool(heard)),
+                ]),
+            ));
+        }
+    }
+}

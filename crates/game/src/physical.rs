@@ -1197,6 +1197,17 @@ impl Game {
         if let Some(t) = self.disturb_stone() {
             parts.push(t);
         }
+        // A gorge throws the shout back (D06).
+        let mut wonders = Vec::new();
+        self.wonder_facts(&mut wonders);
+        wonders.retain(|f| {
+            f.vars
+                .get("kind")
+                .is_some_and(|k| k.text() == "echoing gorge")
+        });
+        if !wonders.is_empty() {
+            parts.extend(self.attend(wonders, crate::attention::Response::Travel));
+        }
         self.state.noise = 0;
         self.output(parts, None)
     }

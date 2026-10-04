@@ -421,9 +421,14 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
         })
         .count();
     put("magic.places_with_writing_cause", strange as f64);
-    // Every strangeness has a writing cause so far: there are no natural
-    // oddities yet (D06).
-    put("magic.strange_without_writing_share", 0.0);
+    // D06: strange places are sites where something odd happens: each live
+    // spell, and each natural wonder. The share with no writing cause.
+    let wonders = w.phenomena.len();
+    put("magic.natural_wonders", wonders as f64);
+    put(
+        "magic.strange_without_writing_share",
+        wonders as f64 / (wonders + claims.len()).max(1) as f64,
+    );
 
     // ---------- play ----------
     let run = bots::play(pack, seed, "explorer", hours, 20_000);

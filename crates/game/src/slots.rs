@@ -2043,6 +2043,7 @@ pub const REVIEW: &[(&str, &str)] = &[
     ("snare", "early"),
     ("life", "early"),
     ("weather", "early"),
+    ("wonder", "early"),
     ("gather", "early"),
     ("fire", "early"),
     ("sleep", "early"),
