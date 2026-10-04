@@ -1,0 +1,685 @@
+# The cultural lexicon (D07): concepts beyond the starter list, by
+# semantic field. A language names every concept in the core fields, and
+# those of the fields its culture cares about (see `Culture`); species are
+# named only where they live.
+#
+# One concept per line:  id | pos | field | tags | extras
+#   pos      noun verb adj adv det particle
+#   field    the semantic field (core fields: body, kin, land, nature, sky,
+#            weather, time, act, quality, number-free)
+#   tags     nouns: semantic tags; verbs: tags an object must carry (empty:
+#            intransitive); adjectives: tags a noun must carry
+#   extras   kind=X (a kind of X), part=X (part of X), opp=X (opposite of
+#            X), pl=… past=… s=… (English forms where the rule fails)
+#
+# New words carry their own tags, not the starter list's text tags (good,
+# made, place, title, kin, deity), so older texts keep their words until
+# D08 writes the genres that use these.
+
+# --- body (core) -----------------------------------------------------------
+head|noun|body|body|part=body
+hand|noun|body|body|part=arm
+eye|noun|body|body|part=head
+foot|noun|body|body|part=leg pl=feet
+heart|noun|body|body|part=body
+mouth|noun|body|body|part=head
+blood|noun|body|body,liquid
+bone|noun|body|body|part=body
+skin|noun|body|body|part=body
+hair|noun|body|body|part=head
+ear|noun|body|body|part=head
+tooth|noun|body|body|part=mouth pl=teeth
+arm|noun|body|body|part=body
+leg|noun|body|body|part=body
+face|noun|body|body|part=head
+tongue|noun|body|body|part=mouth
+breath|noun|body|body
+body|noun|body|body
+belly|noun|body|body|part=body
+back|noun|body|body|part=body
+
+# --- kin and people (core) -------------------------------------------------
+grandfather|noun|kin|person,family|kind=father
+grandmother|noun|kin|person,family|kind=mother
+ancestor|noun|kin|person,family
+clan|noun|kin|group
+family|noun|kin|group|pl=families
+friend|noun|kin|person|opp=enemy
+enemy|noun|kin|person|opp=friend pl=enemies
+guest|noun|kin|person
+elder|noun|kin|person|opp=youth
+youth|noun|kin|person|opp=elder
+stranger|noun|kin|person
+heir|noun|kin|person,family
+widow|noun|kin|person,family
+orphan|noun|kin|person,family
+people|noun|kin|group|pl=peoples
+lord|noun|kin|person,rank
+lady|noun|kin|person,rank|pl=ladies
+chief|noun|kin|person,rank
+herald|noun|kin|person,rank
+healer|noun|kin|person,trade
+
+# --- the land (core) -------------------------------------------------------
+earth|noun|land|ground
+hill|noun|land|landform,high|opp=valley
+valley|noun|land|landform,low|opp=hill pl=valleys
+plain|noun|land|landform
+marsh|noun|land|landform,wet
+lake|noun|land|landform,water
+island|noun|land|landform
+shore|noun|land|landform,edge
+cliff|noun|land|landform,high
+cave|noun|land|landform,hollow
+spring|noun|land|landform,water
+forest|noun|land|landform,wood
+desert|noun|land|landform,dry
+pass|noun|land|landform,high|pl=passes
+peak|noun|land|landform,high|part=mountain
+ford|noun|land|landform,crossing|part=river
+bridge|noun|land|building,crossing
+crossroads|noun|land|landform|pl=crossroads
+village|noun|land|settlement|kind=city
+town|noun|land|settlement|kind=city
+ruin|noun|land|building
+farm|noun|land|settlement
+garden|noun|land|building
+palace|noun|land|building
+fortress|noun|land|building|pl=fortresses
+hall|noun|land|building
+street|noun|land|way|part=city
+square|noun|land|way|part=city
+stair|noun|land|way|part=house
+room|noun|land|hollow|part=house
+roof|noun|land|thing|part=house
+floor|noun|land|thing|part=house
+pillar|noun|land|thing|part=temple
+grave|noun|land|hollow|kind=tomb
+boundary|noun|land|edge|pl=boundaries
+milestone|noun|land|thing
+north|noun|land|direction|opp=south
+south|noun|land|direction|opp=north
+east|noun|land|direction|opp=west
+west|noun|land|direction|opp=east
+
+# --- nature (core) ---------------------------------------------------------
+sand|noun|nature|ground
+dust|noun|nature|ground
+mud|noun|nature|ground,wet
+ice|noun|nature|water,cold
+light|noun|nature|light|opp=darkness
+darkness|noun|nature|light|opp=light
+shadow|noun|nature|light
+smoke|noun|nature|air
+ash|noun|nature|ground|pl=ashes
+salt|noun|nature|ground,food
+leaf|noun|nature|plantpart|part=tree pl=leaves
+root|noun|nature|plantpart|part=tree
+seed|noun|nature|plantpart,food
+flower|noun|nature|plantpart|part=plant
+fruit|noun|nature|plantpart,food
+branch|noun|nature|plantpart|part=tree pl=branches
+grass|noun|nature|plant|pl=grasses
+plant|noun|nature|plant
+animal|noun|nature|animal
+bird|noun|nature|animal|kind=animal
+beast|noun|nature|animal|kind=animal
+egg|noun|nature|food
+nest|noun|nature|home
+den|noun|nature|home
+track|noun|nature|sign
+horn|noun|nature|animalpart|part=beast
+feather|noun|nature|animalpart|part=bird
+wing|noun|nature|animalpart|part=bird
+hide|noun|nature|animalpart|part=beast
+
+# --- the sky (core) --------------------------------------------------------
+sky|noun|sky|heaven|pl=skies
+star|noun|sky|heaven
+planet|noun|sky|heaven|kind=star
+comet|noun|sky|heaven
+eclipse|noun|sky|event
+heaven|noun|sky|heaven|opp=underworld
+dawn|noun|sky|time|opp=dusk
+dusk|noun|sky|time|opp=dawn
+figure|noun|sky|heaven
+wanderer|noun|sky|heaven|kind=star
+
+# --- weather (core) --------------------------------------------------------
+wind|noun|weather|air
+cloud|noun|weather|air
+storm|noun|weather|air,event
+thunder|noun|weather|sound
+lightning|noun|weather|light
+fog|noun|weather|air
+frost|noun|weather|cold
+snow|noun|weather|cold,water
+flood|noun|weather|water,event
+drought|noun|weather|event
+rainbow|noun|weather|light
+
+# --- time and the calendar (core) ------------------------------------------
+day|noun|time|time|opp=night pl=days
+night|noun|time|time|opp=day
+year|noun|time|time
+month|noun|time|time|part=year
+season|noun|time|time|part=year
+summer|noun|time|time|kind=season opp=winter
+winter|noun|time|time|kind=season opp=summer
+springtide|noun|time|time|kind=season
+autumn|noun|time|time|kind=season
+morning|noun|time|time|part=day opp=evening
+evening|noun|time|time|part=day opp=morning
+festival|noun|time|time,event
+reign|noun|time|time
+age|noun|time|time
+first|adj|time|time,thing,person|opp=last
+last|adj|time|time,thing,person|opp=first
+now|adv|time||
+then|adv|time||
+always|adv|time||
+never|adv|time||
+again|adv|time||
+there|adv|time||
+
+# --- doing (core verbs) ----------------------------------------------------
+go|verb|act||past=went s=goes
+come|verb|act||past=came
+see|verb|act|person,thing,building,landform,heaven,animal|past=saw
+hear|verb|act|person,sound|past=heard
+know|verb|act|person,thing,landform|past=knew
+live|verb|act||
+die|verb|act||past=died
+build|verb|act|building,thing|past=built
+dig|verb|act|hollow,ground|past=dug
+carry|verb|act|thing,food|past=carried s=carries
+hold|verb|act|thing,building|past=held
+keep|verb|act|thing,food,building|past=kept
+find|verb|act|thing,person,animal|past=found
+lose|verb|act|thing,person|past=lost
+call|verb|act|person,animal|
+name|verb|act|person,building,landform,settlement|past=named
+count|verb|act|thing,food,animal|
+sell|verb|act|thing,food,animal|past=sold
+buy|verb|act|thing,food,animal|past=bought
+pay|verb|act|thing,food|past=paid
+swear|verb|act|oath|past=swore
+judge|verb|act|person|past=judged
+rule|verb|act|settlement,group|past=ruled
+serve|verb|act|person,rank|past=served
+pray|verb|act||
+sing|verb|act|song|past=sang
+weep|verb|act||past=wept
+sleep|verb|act||past=slept
+wake|verb|act||past=woke
+fight|verb|act|person,group|past=fought
+flee|verb|act||past=fled s=flees
+hunt|verb|act|animal|
+reap|verb|act|plant,plantpart|
+cook|verb|act|food|
+weave|verb|act|cloth|past=wove
+forge|verb|act|tool,metal|past=forged
+carve|verb|act|thing,material|past=carved
+fill|verb|act|vessel,hollow|
+pour|verb|act|liquid|
+wash|verb|act|thing,person|s=washes
+close|verb|act|openable,building|past=closed
+bless|verb|act|person,building,settlement|s=blesses
+curse|verb|act|person,building,settlement|past=cursed
+remember|verb|act|person,event|
+forget|verb|act|person,event|past=forgot
+wait|verb|act||
+return|verb|act||
+send|verb|act|thing,person|past=sent
+receive|verb|act|thing|past=received
+steal|verb|act|thing,food,animal|past=stole
+grow|verb|act||past=grew
+fall|verb|act||past=fell
+rise|verb|act||past=rose
+flow|verb|act||
+shine|verb|act||past=shone
+freeze|verb|act||past=froze
+guard|verb|act|building,thing,settlement|
+teach|verb|act|person|past=taught s=teaches
+learn|verb|act||
+marry|verb|act|person|past=married s=marries
+bury|verb|act|person|past=buried s=buries
+mourn|verb|act|person|
+feast|verb|act||
+measure|verb|act|thing,food,ground|past=measured
+weigh|verb|act|thing,food|
+lend|verb|act|thing,food|past=lent
+help|verb|act|person|
+leave|verb|act|building,settlement,person|past=left
+cut|verb|act|thing,plant|past=cut
+throw|verb|act|thing|past=threw
+kindle|verb|act|flammable,thing|past=kindled
+want|verb|act|thing,food,person|
+love|verb|act|person,building,settlement|past=loved
+hate|verb|act|person|past=hated
+
+# --- qualities (core adjectives) -------------------------------------------
+long|adj|quality|thing,way,time,body|opp=short
+short|adj|quality|thing,way,time,body|opp=long
+wide|adj|quality|thing,landform,way,water|opp=narrow
+narrow|adj|quality|thing,landform,way,water|opp=wide
+high|adj|quality|building,landform,thing|opp=low
+low|adj|quality|building,landform,thing|opp=high
+heavy|adj|quality|thing,material,metal|
+bright|adj|quality|light,heaven,thing|opp=dim
+dim|adj|quality|light,heaven|opp=bright
+hot|adj|quality|thing,water,ground
+warm|adj|quality|thing,water,ground,time|
+wet|adj|quality|ground,landform,thing|opp=dry
+dry|adj|quality|ground,landform,thing,time|opp=wet
+hard|adj|quality|thing,material,metal,ground|opp=soft
+soft|adj|quality|thing,ground,cloth|opp=hard
+strong|adj|quality|person,building,animal|opp=weak
+weak|adj|quality|person,animal|opp=strong
+rich|adj|quality|person,settlement,group|opp=poor
+poor|adj|quality|person,settlement,group|opp=rich
+true|adj|quality|oath,word,person|opp=false
+false|adj|quality|oath,word,person|opp=true
+sweet|adj|quality|food,water,liquid|opp=bitter
+bitter|adj|quality|food,water,liquid|opp=sweet
+whole|adj|quality|thing,building,vessel|opp=broken
+broken|adj|quality|thing,building,vessel|opp=whole
+far|adj|quality|landform,settlement,building|opp=near
+near|adj|quality|landform,settlement,building|opp=far
+green|adj|quality|plant,plantpart,landform,thing|
+black|adj|quality|thing,animal,material,light|
+yellow|adj|quality|thing,plant,plantpart|
+blue|adj|quality|thing,heaven,water|
+golden|adj|quality|thing,metal,light|
+quiet|adj|quality|person,landform,building|opp=loud
+loud|adj|quality|sound,person,animal|opp=quiet
+wise|adj|quality|person|
+young|adj|quality|person,animal|
+beautiful|adj|quality|person,building,thing,landform|
+terrible|adj|quality|event,animal,person|
+empty|adj|quality|vessel,building,hollow|opp=full
+full|adj|quality|vessel,building,hollow|opp=empty
+
+# --- crafts (culture field) ------------------------------------------------
+potter|noun|crafts|person,trade
+weaver|noun|crafts|person,trade
+mason|noun|crafts|person,trade
+carpenter|noun|crafts|person,trade
+kiln|noun|crafts|thing,tool
+loom|noun|crafts|thing,tool
+anvil|noun|crafts|thing,tool
+hammer|noun|crafts|thing,tool
+chisel|noun|crafts|thing,tool
+needle|noun|crafts|thing,tool
+thread|noun|crafts|thing
+rope|noun|crafts|thing
+clay|noun|crafts|material
+bronze|noun|crafts|material,metal
+iron|noun|crafts|material,metal
+copper|noun|crafts|material,metal
+gold|noun|crafts|material,metal
+silver|noun|crafts|material,metal
+timber|noun|crafts|material,wood
+brick|noun|crafts|material,thing
+dye|noun|crafts|material
+wool|noun|crafts|material,cloth
+linen|noun|crafts|material,cloth
+leather|noun|crafts|material
+workshop|noun|crafts|building
+basket|noun|crafts|thing,vessel
+crock|noun|crafts|thing,vessel|kind=jar
+cup|noun|crafts|thing,vessel|kind=bowl
+
+# --- trade (culture field) -------------------------------------------------
+merchant|noun|trade|person,trade
+coin|noun|trade|thing,money
+price|noun|trade|money
+debt|noun|trade|money
+weight|noun|trade|thing,measure
+balance|noun|trade|thing,tool
+market|noun|trade|building,settlement
+caravan|noun|trade|group
+cargo|noun|trade|thing|pl=cargoes
+warehouse|noun|trade|building
+tax|noun|trade|money|pl=taxes
+tribute|noun|trade|money
+contract|noun|trade|word
+gift|noun|trade|thing
+payment|noun|trade|money
+bargain|noun|trade|word
+inn|noun|trade|building
+toll|noun|trade|money
+profit|noun|trade|money|opp=loss
+loss|noun|trade|money|opp=profit pl=losses
+
+# --- law and rule (culture field) ------------------------------------------
+law|noun|law|word
+oath|noun|law|oath,word
+witness|noun|law|person|pl=witnesses
+crime|noun|law|event
+thief|noun|law|person|pl=thieves
+punishment|noun|law|event
+fine|noun|law|money
+court|noun|law|building,group
+decree|noun|law|word
+deed|noun|law|word,event
+inheritance|noun|law|thing
+prison|noun|law|building
+guilt|noun|law|state|opp=innocence
+innocence|noun|law|state|opp=guilt
+peace|noun|law|state|opp=war
+treaty|noun|law|word|pl=treaties
+council|noun|law|group
+magistrate|noun|law|person,rank
+signet|noun|law|thing
+just|adj|law|person,word,oath|opp=unjust
+unjust|adj|law|person,word,oath|opp=just
+
+# --- worship (culture field) -----------------------------------------------
+spirit|noun|religion|being
+ghost|noun|religion|being
+underworld|noun|religion|heaven|opp=heaven
+offering|noun|religion|thing
+sacrifice|noun|religion|event
+prayer|noun|religion|word
+oracle|noun|religion|person,building
+omen|noun|religion|sign
+priestess|noun|religion|person,rank|kind=priest pl=priestesses
+hymn|noun|religion|song,word
+incense|noun|religion|thing,flammable
+idol|noun|religion|thing
+blessing|noun|religion|word|opp=malediction
+malediction|noun|religion|word|opp=blessing
+soul|noun|religion|being
+rite|noun|religion|event
+pilgrim|noun|religion|person
+sanctuary|noun|religion|building|pl=sanctuaries
+feastday|noun|religion|time,event
+song|noun|religion|song,word
+
+# --- the sea (culture field) -----------------------------------------------
+wave|noun|sea|water
+tide|noun|sea|water
+current|noun|sea|water
+anchor|noun|sea|thing,tool
+net|noun|sea|thing,tool
+harbour|noun|sea|building,water
+sailor|noun|sea|person,trade
+fisher|noun|sea|person,trade
+reef|noun|sea|landform
+shell|noun|sea|thing
+voyage|noun|sea|event
+ship|noun|sea|thing,vessel
+boat|noun|sea|thing,vessel
+sail|noun|sea|thing|part=ship
+oar|noun|sea|thing,tool|part=boat
+embark|verb|sea||
+row|verb|sea|vessel|
+angle|verb|sea|animal|
+calm|adj|sea|water,air,time|opp=rough
+rough|adj|sea|water,air,time|opp=calm
+
+# --- herding (culture field) -----------------------------------------------
+herd|noun|herding|group,animal
+flock|noun|herding|group,animal
+shepherd|noun|herding|person,trade
+pasture|noun|herding|landform
+fold|noun|herding|building
+milk|noun|herding|liquid,food
+cheese|noun|herding|food
+calf|noun|herding|animal|pl=calves
+lamb|noun|herding|animal
+foal|noun|herding|animal
+horse|noun|herding|animal
+dog|noun|herding|animal
+tend|verb|herding|animal,group|
+graze|verb|herding|plant,landform|
+shear|verb|herding|animal|past=sheared
+
+# --- farming (culture field) -----------------------------------------------
+plough|noun|farming|thing,tool
+furrow|noun|farming|ground
+harvest|noun|farming|event,food
+granary|noun|farming|building|pl=granaries
+barley|noun|farming|food,plant
+wheat|noun|farming|food,plant
+sickle|noun|farming|thing,tool
+orchard|noun|farming|landform
+vineyard|noun|farming|landform
+terrace|noun|farming|landform
+ditch|noun|farming|hollow|pl=ditches
+canal|noun|farming|water,way
+farmer|noun|farming|person,trade
+bread|noun|farming|food
+honey|noun|farming|food,liquid
+sow|verb|farming|plantpart|past=sowed
+irrigate|verb|farming|plant,landform|past=irrigated
+ripe|adj|farming|plant,plantpart,food|
+
+# --- war (culture field) ---------------------------------------------------
+soldier|noun|war|person,trade
+army|noun|war|group|pl=armies
+spear|noun|war|thing,weapon
+sword|noun|war|thing,weapon
+shield|noun|war|thing
+bow|noun|war|thing,weapon
+arrow|noun|war|thing,weapon
+siege|noun|war|event
+victory|noun|war|event|opp=defeat pl=victories
+defeat|noun|war|event|opp=victory
+captive|noun|war|person
+banner|noun|war|thing
+general|noun|war|person,rank
+war|noun|war|state|opp=peace
+battle|noun|war|event
+conquer|verb|war|settlement,group|
+defend|verb|war|settlement,building,person|
+brave|adj|war|person,group|
+
+# --- learning (culture field) ----------------------------------------------
+word|noun|learning|word
+sign|noun|learning|sign
+ink|noun|learning|liquid,material
+scroll|noun|learning|thing,writing_thing
+page|noun|learning|thing,writing_thing
+teacher|noun|learning|person,trade
+student|noun|learning|person
+library|noun|learning|building|pl=libraries
+story|noun|learning|word|pl=stories
+memory|noun|learning|state|pl=memories
+counting|noun|learning|word
+map|noun|learning|thing,writing_thing
+learned|adj|learning|person|
+
+# --- animals (named where they live) ---------------------------------------
+deer|noun|fauna|animal,grazer|kind=beast pl=deer
+wild_cattle|noun|fauna|animal,grazer|kind=beast pl=wild_cattle
+wild_horse|noun|fauna|animal,grazer|kind=beast
+wild_sheep|noun|fauna|animal,grazer|kind=beast pl=wild_sheep
+musk_ox|noun|fauna|animal,grazer|kind=beast pl=musk_oxen
+reindeer|noun|fauna|animal,grazer|kind=beast pl=reindeer
+antelope|noun|fauna|animal,grazer|kind=beast
+wild_ass|noun|fauna|animal,grazer|kind=beast pl=wild_asses
+buffalo|noun|fauna|animal,grazer|kind=beast pl=buffaloes
+elk|noun|fauna|animal,browser|kind=beast
+roe_deer|noun|fauna|animal,browser|kind=beast pl=roe_deer
+wild_goat|noun|fauna|animal,browser|kind=beast
+boar|noun|fauna|animal,browser|kind=beast
+hare|noun|fauna|animal,browser|kind=beast
+camel|noun|fauna|animal,browser|kind=beast
+porcupine|noun|fauna|animal,browser|kind=beast
+wolf|noun|fauna|animal,predator|kind=beast pl=wolves
+lynx|noun|fauna|animal,predator|kind=beast pl=lynxes
+bear|noun|fauna|animal,predator|kind=beast
+wildcat|noun|fauna|animal,predator|kind=beast
+big_cat|noun|fauna|animal,predator|kind=beast
+otter|noun|fauna|animal,predator|kind=beast
+snake|noun|fauna|animal,predator|kind=beast
+stoat|noun|fauna|animal,predator|kind=beast
+fox|noun|fauna|animal,scavenger|kind=beast pl=foxes
+jackal|noun|fauna|animal,scavenger|kind=beast
+hyena|noun|fauna|animal,scavenger|kind=beast
+wolverine|noun|fauna|animal,scavenger|kind=beast
+badger|noun|fauna|animal,scavenger|kind=beast
+raccoon_dog|noun|fauna|animal,scavenger|kind=beast
+rabbit|noun|fauna|animal,burrower|kind=beast
+marmot|noun|fauna|animal,burrower|kind=beast
+mole|noun|fauna|animal,burrower|kind=beast
+vole|noun|fauna|animal,burrower|kind=beast
+gerbil|noun|fauna|animal,burrower|kind=beast
+ground_squirrel|noun|fauna|animal,burrower|kind=beast
+lemming|noun|fauna|animal,burrower|kind=beast
+crow|noun|fauna|animal,bird|kind=bird
+owl|noun|fauna|animal,bird|kind=bird
+woodpecker|noun|fauna|animal,bird|kind=bird
+grouse|noun|fauna|animal,bird|kind=bird pl=grouse
+partridge|noun|fauna|animal,bird|kind=bird
+heron|noun|fauna|animal,bird|kind=bird
+gull|noun|fauna|animal,bird|kind=bird
+hawk|noun|fauna|animal,bird|kind=bird
+wren|noun|fauna|animal,bird|kind=bird
+raven|noun|fauna|animal,bird|kind=bird
+jay|noun|fauna|animal,bird|kind=bird
+sandgrouse|noun|fauna|animal,bird|kind=bird pl=sandgrouse
+ptarmigan|noun|fauna|animal,bird|kind=bird
+pigeon|noun|fauna|animal,bird|kind=bird
+finch|noun|fauna|animal,bird|kind=bird pl=finches
+lark|noun|fauna|animal,bird|kind=bird
+swallow|noun|fauna|animal,bird|kind=bird
+cuckoo|noun|fauna|animal,bird|kind=bird
+crane|noun|fauna|animal,bird|kind=bird
+goose|noun|fauna|animal,bird|kind=bird pl=geese
+swift|noun|fauna|animal,bird|kind=bird
+bee_eater|noun|fauna|animal,bird|kind=bird
+plover|noun|fauna|animal,bird|kind=bird
+stork|noun|fauna|animal,bird|kind=bird
+warbler|noun|fauna|animal,bird|kind=bird
+bee|noun|fauna|animal,insect|kind=animal
+cricket|noun|fauna|animal,insect|kind=animal
+dragonfly|noun|fauna|animal,insect|kind=animal pl=dragonflies
+beetle|noun|fauna|animal,insect|kind=animal
+moth|noun|fauna|animal,insect|kind=animal
+midge|noun|fauna|animal,insect|kind=animal
+ant|noun|fauna|animal,insect|kind=animal
+locust|noun|fauna|animal,insect|kind=animal
+butterfly|noun|fauna|animal,insect|kind=animal pl=butterflies
+cicada|noun|fauna|animal,insect|kind=animal
+wasp|noun|fauna|animal,insect|kind=animal
+frog|noun|fauna|animal,small|kind=animal
+toad|noun|fauna|animal,small|kind=animal
+newt|noun|fauna|animal,small|kind=animal
+lizard|noun|fauna|animal,small|kind=animal
+tortoise|noun|fauna|animal,small|kind=animal
+salamander|noun|fauna|animal,small|kind=animal
+shrew|noun|fauna|animal,small|kind=animal
+trout|noun|fauna|animal,fishkind|kind=fish pl=trout
+pike|noun|fauna|animal,fishkind|kind=fish pl=pike
+carp|noun|fauna|animal,fishkind|kind=fish pl=carp
+eel|noun|fauna|animal,fishkind|kind=fish
+perch|noun|fauna|animal,fishkind|kind=fish pl=perch
+catfish|noun|fauna|animal,fishkind|kind=fish pl=catfish
+salmon|noun|fauna|animal,fishkind|kind=fish pl=salmon
+herring|noun|fauna|animal,fishkind|kind=fish pl=herring
+cod|noun|fauna|animal,fishkind|kind=fish pl=cod
+flatfish|noun|fauna|animal,fishkind|kind=fish pl=flatfish
+mullet|noun|fauna|animal,fishkind|kind=fish pl=mullet
+mackerel|noun|fauna|animal,fishkind|kind=fish pl=mackerel
+pale_crawler|noun|fauna|animal,deep|kind=beast
+
+# --- plants (named where they grow) ----------------------------------------
+oak|noun|flora|plant,tree|kind=tree
+beech|noun|flora|plant,tree|kind=tree pl=beeches
+ash_tree|noun|flora|plant,tree|kind=tree
+lime|noun|flora|plant,tree|kind=tree
+birch|noun|flora|plant,tree|kind=tree pl=birches
+alder|noun|flora|plant,tree|kind=tree
+willow|noun|flora|plant,tree|kind=tree
+pine|noun|flora|plant,tree|kind=tree
+spruce|noun|flora|plant,tree|kind=tree
+fir|noun|flora|plant,tree|kind=tree
+larch|noun|flora|plant,tree|kind=tree pl=larches
+yew|noun|flora|plant,tree|kind=tree
+olive|noun|flora|plant,tree|kind=tree
+fig|noun|flora|plant,tree|kind=tree
+palm|noun|flora|plant,tree|kind=tree
+acacia|noun|flora|plant,tree|kind=tree
+cedar|noun|flora|plant,tree|kind=tree
+tamarisk|noun|flora|plant,tree|kind=tree
+rowan|noun|flora|plant,tree|kind=tree
+hazel|noun|flora|plant,shrub|kind=plant
+bramble|noun|flora|plant,shrub|kind=plant
+gorse|noun|flora|plant,shrub|kind=plant pl=gorse
+heather|noun|flora|plant,shrub|kind=plant
+juniper|noun|flora|plant,shrub|kind=plant
+blackthorn|noun|flora|plant,shrub|kind=plant
+elderberry|noun|flora|plant,shrub|kind=plant pl=elderberries
+bilberry|noun|flora|plant,shrub|kind=plant pl=bilberries
+crowberry|noun|flora|plant,shrub|kind=plant pl=crowberries
+myrtle|noun|flora|plant,shrub|kind=plant
+saltbush|noun|flora|plant,shrub|kind=plant pl=saltbushes
+sea_buckthorn|noun|flora|plant,shrub|kind=plant
+broom|noun|flora|plant,shrub|kind=plant
+dwarf_willow|noun|flora|plant,shrub|kind=plant
+wild_rose|noun|flora|plant,shrub|kind=plant
+oleander|noun|flora|plant,shrub|kind=plant
+thornbush|noun|flora|plant,shrub|kind=plant pl=thornbushes
+tussock_grass|noun|flora|plant,grassy|kind=grass pl=tussock_grass
+feather_grass|noun|flora|plant,grassy|kind=grass pl=feather_grass
+reed|noun|flora|plant,grassy|kind=grass
+sedge|noun|flora|plant,grassy|kind=grass
+rush|noun|flora|plant,grassy|kind=grass pl=rushes
+bent_grass|noun|flora|plant,grassy|kind=grass pl=bent_grass
+cotton_grass|noun|flora|plant,grassy|kind=grass pl=cotton_grass
+marram|noun|flora|plant,grassy|kind=grass pl=marram
+millet_grass|noun|flora|plant,grassy|kind=grass pl=millet_grass
+poppy|noun|flora|plant,flowering|kind=flower pl=poppies
+cowslip|noun|flora|plant,flowering|kind=flower
+harebell|noun|flora|plant,flowering|kind=flower
+orchid|noun|flora|plant,flowering|kind=flower
+thistle|noun|flora|plant,flowering|kind=flower
+foxglove|noun|flora|plant,flowering|kind=flower
+bluebell|noun|flora|plant,flowering|kind=flower
+saxifrage|noun|flora|plant,flowering|kind=flower
+gentian|noun|flora|plant,flowering|kind=flower
+iris|noun|flora|plant,flowering|kind=flower pl=irises
+marigold|noun|flora|plant,flowering|kind=flower
+lily|noun|flora|plant,flowering|kind=flower pl=lilies
+sea_pink|noun|flora|plant,flowering|kind=flower
+lavender|noun|flora|plant,flowering|kind=flower
+asphodel|noun|flora|plant,flowering|kind=flower
+anemone|noun|flora|plant,flowering|kind=flower
+crocus|noun|flora|plant,flowering|kind=flower pl=crocuses
+campion|noun|flora|plant,flowering|kind=flower
+meadowsweet|noun|flora|plant,flowering|kind=flower
+mallow|noun|flora|plant,flowering|kind=flower
+mountain_avens|noun|flora|plant,flowering|kind=flower pl=mountain_avens
+bracken|noun|flora|plant,fern|kind=plant pl=bracken
+tongue_fern|noun|flora|plant,fern|kind=plant
+royal_fern|noun|flora|plant,fern|kind=plant
+horsetail|noun|flora|plant,fern|kind=plant
+bracket_fungus|noun|flora|plant,fungus|kind=plant pl=bracket_fungi
+puffball|noun|flora|plant,fungus|kind=plant
+toadstool|noun|flora|plant,fungus|kind=plant
+morel|noun|flora|plant,fungus|kind=plant
+chanterelle|noun|flora|plant,fungus|kind=plant
+ink_cap|noun|flora|plant,fungus|kind=plant
+earthstar|noun|flora|plant,fungus|kind=plant
+ivy|noun|flora|plant,climber|kind=plant pl=ivy
+honeysuckle|noun|flora|plant,climber|kind=plant
+wild_vine|noun|flora|plant,climber|kind=plant
+hop|noun|flora|plant,climber|kind=plant
+clematis|noun|flora|plant,climber|kind=plant pl=clematis
+bindweed|noun|flora|plant,climber|kind=plant
+bog_moss|noun|flora|plant,moss|kind=plant pl=bog_moss
+reindeer_lichen|noun|flora|plant,moss|kind=plant pl=reindeer_lichen
+map_lichen|noun|flora|plant,moss|kind=plant pl=map_lichen
+feather_moss|noun|flora|plant,moss|kind=plant pl=feather_moss
+crust_lichen|noun|flora|plant,moss|kind=plant pl=crust_lichen
+water_lily|noun|flora|plant,waterplant|kind=plant pl=water_lilies
+pondweed|noun|flora|plant,waterplant|kind=plant
+duckweed|noun|flora|plant,waterplant|kind=plant pl=duckweed
+water_crowfoot|noun|flora|plant,waterplant|kind=plant pl=water_crowfoot
+wrack|noun|flora|plant,waterplant|kind=plant pl=wrack
+kelp|noun|flora|plant,waterplant|kind=plant pl=kelp
+eelgrass|noun|flora|plant,waterplant|kind=plant pl=eelgrass
+sea_lettuce|noun|flora|plant,waterplant|kind=plant pl=sea_lettuce

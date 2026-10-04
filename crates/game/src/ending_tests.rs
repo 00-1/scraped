@@ -31,6 +31,9 @@ fn self_claim(negative: bool) -> Sentence {
             np: NounPhrase::concept("self"),
         }],
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     })
 }
 

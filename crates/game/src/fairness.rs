@@ -12,7 +12,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::Serialize;
 
 use scraped_lang::corpus::Kind;
-use scraped_lang::meaning::{Head, Mood, NounPhrase, Sentence};
+use scraped_lang::meaning::{Head, Sentence};
 use scraped_sim::fixtures::Spot;
 use scraped_sim::outdoors::{hash, Pos};
 
@@ -151,28 +151,15 @@ impl Reach<'_> {
 }
 
 pub(crate) fn names(s: &Sentence, out: &mut Vec<usize>) {
-    fn np(n: &NounPhrase, out: &mut Vec<usize>) {
+    for n in s.noun_phrases() {
         if let Head::Name(i) = n.head {
             out.push(i);
         }
-        if let Some(p) = &n.possessor {
-            np(p, out);
-        }
-        n.apposition.iter().for_each(|a| np(a, out));
-    }
-    match s {
-        Sentence::Clause(c) => c.args.iter().for_each(|a| np(&a.np, out)),
-        Sentence::List(items) => items.iter().for_each(|n| np(n, out)),
-        Sentence::Text(parts) => parts.iter().for_each(|p| names(p, out)),
     }
 }
 
 fn potent(s: &Sentence) -> bool {
-    match s {
-        Sentence::Clause(c) => c.mood == Mood::Potent,
-        Sentence::Text(parts) => parts.iter().any(potent),
-        Sentence::List(_) => false,
-    }
+    s.is_potent()
 }
 
 /// Checks a site's world for fairness.
@@ -340,7 +327,7 @@ pub fn check(site: &Site, preset: &str) -> Report {
         .iter()
         .filter(|c| lang.lexicon.has(&c.id))
         .map(|c| {
-            let ipa = lang.phonology.to_ipa(lang.lexicon.root(&c.id));
+            let ipa = lang.phonology.to_ipa(&lang.lexicon.root(&c.id));
             lang.script
                 .spell(&ipa)
                 .iter()

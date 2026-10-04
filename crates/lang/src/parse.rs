@@ -15,8 +15,11 @@ use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 use crate::concepts::{self, Pos};
-use crate::meaning::{Argument, Clause, Head, Mood, NounPhrase, Role, Sentence};
-use crate::morphology::{Case, Number, Polarity, Tense};
+use crate::meaning::{
+    Argument, Clause, Compare, Complement, Conj, Degree, Head, Link, Mood, NounPhrase, Relative,
+    Role, Sentence, Subordinate,
+};
+use crate::morphology::{Case, Number, VerbForm};
 use crate::render::{Renderer, Word};
 use crate::script::GlyphKey;
 use crate::syntax::{Side, WordOrder};
@@ -39,6 +42,13 @@ pub enum Mode {
 
 /// How deep possessors may nest ("the son of the king of the city").
 const DEPTH: usize = 3;
+/// How deep clauses may nest inside clauses (D07): relative clauses,
+/// adverbial clauses and reported speech belong to main clauses only, so
+/// the surface never leaves it open which clause one belongs to.
+// DESIGN-Q: one level of embedding. Deeper embedding makes attachment
+// ambiguous in many word orders (a second "when…" could belong to the
+// first), and long texts can chain sentences instead.
+const CLAUSE_DEPTH: usize = 1;
 
 pub struct Parser<'a> {
     r: &'a Renderer<'a>,
@@ -47,23 +57,39 @@ pub struct Parser<'a> {
     plain: BTreeMap<Vec<String>, String>,
     /// Numeral word groups by value, as each word's symbols.
     numerals: Vec<(u16, Vec<Vec<String>>)>,
-    /// Head forms with particles, per case.
-    heads: Vec<(Case, Vec<Form<HeadKey>>)>,
-    /// Verb groups: (verb, tense, polarity, potent) → words' symbols.
+    /// Head forms with particles, per case, and by first symbol.
+    heads: Vec<(Case, Vec<Form<HeadKey>>, Index)>,
+    /// Verb groups: (verb, form, potent) → words' symbols, and by first
+    /// symbol.
     verbs: Vec<Form<VerbKey>>,
+    verb_index: Index,
+    /// The relative word in each role.
+    relatives: Vec<(Role, Vec<Vec<String>>)>,
     /// Noun phrases already parsed at a position.
     memo: RefCell<BTreeMap<MemoKey, Alt<NounPhrase>>>,
 }
 
 /// Something, and the symbols of each of its words.
 type Form<T> = (T, Vec<Vec<String>>);
-type VerbKey = (String, Tense, Polarity, bool);
+type VerbKey = (String, VerbForm, bool);
 type HeadKey = (Head, Number);
-/// (position, case, depth, appositions allowed).
-type MemoKey = (usize, Case, usize, bool);
+/// Forms by the first symbol of their first word.
+type Index = BTreeMap<String, Vec<usize>>;
+/// (position, case, depth, appositions allowed, clause depth).
+type MemoKey = (usize, Case, usize, bool, usize);
 
 /// A partial parse: something, and where the input continues.
 type Alt<T> = Vec<(T, usize)>;
+
+fn index<T>(forms: &[Form<T>]) -> Index {
+    let mut out: Index = BTreeMap::new();
+    for (i, (_, words)) in forms.iter().enumerate() {
+        if let Some(first) = words.first().and_then(|w| w.first()) {
+            out.entry(first.clone()).or_default().push(i);
+        }
+    }
+    out
+}
 
 impl<'a> Parser<'a> {
     pub fn new(r: &'a Renderer<'a>, mode: Mode) -> Self {
@@ -84,6 +110,8 @@ impl<'a> Parser<'a> {
             numerals: Vec::new(),
             heads: Vec::new(),
             verbs: Vec::new(),
+            verb_index: BTreeMap::new(),
+            relatives: Vec::new(),
             memo: RefCell::new(BTreeMap::new()),
         };
         for c in concepts::all() {
@@ -105,7 +133,7 @@ impl<'a> Parser<'a> {
             p.numerals.push((n, words));
         }
         let mut heads: Vec<Head> = concepts::with_pos(Pos::Noun)
-            .filter(|c| r.lang.lexicon.has(&c.id))
+            .filter(|c| c.domain != concepts::Domain::Grammar && r.lang.lexicon.has(&c.id))
             .map(|c| Head::Concept(c.id.clone()))
             .collect();
         if names {
@@ -123,24 +151,34 @@ impl<'a> Parser<'a> {
                     forms.push(((h.clone(), number), words));
                 }
             }
-            p.heads.push((case, forms));
+            let idx = index(&forms);
+            p.heads.push((case, forms, idx));
         }
+        let verb_forms = r.lang.morphology.verb_forms();
         for v in concepts::with_pos(Pos::Verb) {
             if !r.lang.lexicon.has(&v.id) {
                 continue;
             }
-            for tense in [Tense::NonPast, Tense::Past] {
-                for polarity in [Polarity::Positive, Polarity::Negative] {
-                    for potent in [false, true] {
-                        let words: Vec<Vec<String>> = r
-                            .verb_group(&v.id, tense, polarity, potent)
-                            .iter()
-                            .map(|w| p.word_syms(w))
-                            .collect();
-                        p.verbs
-                            .push(((v.id.clone(), tense, polarity, potent), words));
-                    }
+            for &form in &verb_forms {
+                for potent in [false, true] {
+                    let words: Vec<Vec<String>> = r
+                        .verb_group_form(&v.id, form, potent)
+                        .iter()
+                        .map(|w| p.word_syms(w))
+                        .collect();
+                    p.verbs.push(((v.id.clone(), form, potent), words));
                 }
+            }
+        }
+        p.verb_index = index(&p.verbs);
+        if r.lang.lexicon.has("rel") {
+            for role in [Role::Subject, Role::Object, Role::Recipient] {
+                let words = r
+                    .relative_word(role)
+                    .iter()
+                    .map(|w| p.word_syms(w))
+                    .collect();
+                p.relatives.push((role, words));
             }
         }
         p
@@ -186,6 +224,14 @@ impl<'a> Parser<'a> {
         out
     }
 
+    /// The first symbol at or after `at`, skipping gaps.
+    fn next_sym<'b>(&self, input: &'b [Tok], at: usize) -> Option<&'b String> {
+        input[at.min(input.len())..].iter().find_map(|t| match t {
+            Tok::Sym(s) => Some(s),
+            Tok::Gap => None,
+        })
+    }
+
     /// Matches one word's symbols at `at`, skipping gaps before it. The word
     /// must end at a gap or the end of input (unless words run together).
     fn word(&self, input: &[Tok], at: usize, syms: &[String]) -> Option<usize> {
@@ -219,10 +265,19 @@ impl<'a> Parser<'a> {
         Some(i)
     }
 
+    /// A particular function word.
+    fn fixed(&self, input: &[Tok], at: usize, concept: &str) -> Option<usize> {
+        if !self.r.lang.lexicon.has(concept) {
+            return None;
+        }
+        self.word(input, at, &self.word_syms(&self.r.plain(concept)))
+    }
+
     fn plain_word(&self, input: &[Tok], at: usize, pos: &[Pos]) -> Alt<String> {
         let mut out = Vec::new();
         for (syms, id) in &self.plain {
-            if !pos.contains(&concepts::get(id).pos) {
+            let c = concepts::get(id);
+            if !pos.contains(&c.pos) || c.domain == concepts::Domain::Grammar {
                 continue;
             }
             if let Some(end) = self.word(input, at, syms) {
@@ -245,13 +300,16 @@ impl<'a> Parser<'a> {
     /// Heads with their particles: every noun and name, in both numbers.
     fn head(&self, input: &[Tok], at: usize, case: Case) -> Alt<(Head, Number)> {
         let mut out = Vec::new();
-        let forms = &self
+        let (_, forms, idx) = self
             .heads
             .iter()
-            .find(|(c, _)| *c == case)
-            .expect("every case")
-            .1;
-        for (h, words) in forms {
+            .find(|(c, _, _)| *c == case)
+            .expect("every case");
+        let Some(first) = self.next_sym(input, at) else {
+            return out;
+        };
+        for &i in idx.get(first).map(Vec::as_slice).unwrap_or(&[]) {
+            let (h, words) = &forms[i];
             if let Some(end) = self.sym_words(input, at, words) {
                 out.push((h.clone(), end));
             }
@@ -259,37 +317,131 @@ impl<'a> Parser<'a> {
         out
     }
 
-    /// Adjectives, numeral, determiner and head, in the language's order.
-    fn core(&self, input: &[Tok], at: usize, case: Case) -> Alt<NounPhrase> {
+    /// A compared adjective: the degree word and the adjective, in the
+    /// language's order (D07).
+    fn degree(&self, input: &[Tok], at: usize) -> Alt<(Compare, String)> {
         let mut out = Vec::new();
+        for compare in [Compare::More, Compare::Most, Compare::As] {
+            let marker = match compare {
+                Compare::More => "cmp.more",
+                Compare::Most => "cmp.most",
+                Compare::As => "cmp.as",
+            };
+            match self.r.lang.syntax.degree {
+                Side::Before => {
+                    if let Some(a) = self.fixed(input, at, marker) {
+                        for (adj, b) in self.plain_word(input, a, &[Pos::Adj]) {
+                            out.push(((compare, adj), b));
+                        }
+                    }
+                }
+                Side::After => {
+                    for (adj, a) in self.plain_word(input, at, &[Pos::Adj]) {
+                        if let Some(b) = self.fixed(input, a, marker) {
+                            out.push(((compare, adj), b));
+                        }
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// What a compared adjective is measured against, with its linking word.
+    fn standard(
+        &self,
+        input: &[Tok],
+        at: usize,
+        compare: Compare,
+        depth: usize,
+        cd: usize,
+    ) -> Alt<NounPhrase> {
+        let marker = if compare == Compare::As {
+            "cmp.like"
+        } else {
+            "cmp.than"
+        };
+        let mut out = Vec::new();
+        if depth >= DEPTH {
+            return out;
+        }
+        match self.r.lang.syntax.modifiers {
+            Side::After => {
+                if let Some(a) = self.fixed(input, at, marker) {
+                    out.extend(self.noun_phrase(input, a, Case::Subject, depth + 1, false, cd));
+                }
+            }
+            Side::Before => {
+                for (n, a) in self.noun_phrase(input, at, Case::Subject, depth + 1, false, cd) {
+                    if let Some(b) = self.fixed(input, a, marker) {
+                        out.push((n, b));
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// Adjectives, compared adjective, numeral, determiner and head, in the
+    /// language's order, with what a compared adjective is measured against.
+    fn core(
+        &self,
+        input: &[Tok],
+        at: usize,
+        case: Case,
+        depth: usize,
+        cd: usize,
+    ) -> Alt<NounPhrase> {
+        let mut out = Vec::new();
+        let degrees =
+            |at: usize| -> Alt<Option<(Compare, String)>> { self.opt(self.degree(input, at), at) };
+        let with_degree =
+            |mut n: NounPhrase, d: Option<(Compare, String)>, st: Option<NounPhrase>| {
+                n.degree = d.map(|(compare, adjective)| {
+                    Box::new(Degree {
+                        compare,
+                        adjective,
+                        standard: st,
+                    })
+                });
+                n
+            };
         match self.r.lang.syntax.modifiers {
             Side::Before => {
-                // [det] [numeral] [adj_n … adj_1] head
+                // [det] [numeral] [degree] [adj_n … adj_1] head
                 for (det, a) in self.opt(self.plain_word(input, at, &[Pos::Det]), at) {
                     for (qty, b) in self.opt(self.numeral(input, a), a) {
-                        for (adjs, c) in self.many(input, b, &[Pos::Adj]) {
-                            for ((head, number), d) in self.head(input, c, case) {
-                                let mut adjectives = adjs.clone();
-                                adjectives.reverse();
-                                out.push((np(head, number, qty, det.clone(), adjectives), d));
+                        for (deg, b2) in degrees(b) {
+                            for (adjs, c) in self.many(input, b2, &[Pos::Adj]) {
+                                for ((head, number), d) in self.head(input, c, case) {
+                                    let mut adjectives = adjs.clone();
+                                    adjectives.reverse();
+                                    let n = np(head, number, qty, det.clone(), adjectives);
+                                    out.push((with_degree(n, deg.clone(), None), d));
+                                }
                             }
                         }
                     }
                 }
             }
             Side::After => {
-                // head [adj_1 … adj_n] [numeral] [det]
+                // head [adj_1 … adj_n] [degree] [numeral] [det]
                 for ((head, number), a) in self.head(input, at, case) {
                     for (adjs, b) in self.many(input, a, &[Pos::Adj]) {
-                        for (qty, c) in self.opt(self.numeral(input, b), b) {
-                            for (det, d) in self.opt(self.plain_word(input, c, &[Pos::Det]), c) {
-                                out.push((np(head.clone(), number, qty, det, adjs.clone()), d));
+                        for (deg, b2) in degrees(b) {
+                            for (qty, c) in self.opt(self.numeral(input, b2), b2) {
+                                for (det, d) in self.opt(self.plain_word(input, c, &[Pos::Det]), c)
+                                {
+                                    let n = np(head.clone(), number, qty, det, adjs.clone());
+                                    out.push((with_degree(n, deg.clone(), None), d));
+                                }
                             }
                         }
                     }
                 }
             }
         }
+        let _ = (depth, cd);
         out
     }
 
@@ -312,7 +464,8 @@ impl<'a> Parser<'a> {
         out
     }
 
-    /// A noun phrase in a case: possessor, core, and appositions.
+    /// A noun phrase in a case: possessor, core, relative clause and
+    /// appositions. `cd` is the clause depth it stands at.
     fn noun_phrase(
         &self,
         input: &[Tok],
@@ -320,12 +473,13 @@ impl<'a> Parser<'a> {
         case: Case,
         depth: usize,
         appositions: bool,
+        cd: usize,
     ) -> Alt<NounPhrase> {
-        let key = (at, case, depth, appositions);
+        let key = (at, case, depth, appositions, cd);
         if let Some(found) = self.memo.borrow().get(&key) {
             return found.clone();
         }
-        let out = self.noun_phrase_uncached(input, at, case, depth, appositions);
+        let out = self.noun_phrase_uncached(input, at, case, depth, appositions, cd);
         self.memo.borrow_mut().insert(key, out.clone());
         out
     }
@@ -337,6 +491,7 @@ impl<'a> Parser<'a> {
         case: Case,
         depth: usize,
         appositions: bool,
+        cd: usize,
     ) -> Alt<NounPhrase> {
         let mut out = Vec::new();
         let possessed =
@@ -345,35 +500,127 @@ impl<'a> Parser<'a> {
                 n.possessor = poss.map(Box::new);
                 out.push((n, end));
             };
-        let mut cores: Alt<NounPhrase> = Vec::new();
-        match self.r.lang.syntax.genitive {
-            Side::Before => {
-                let mut poss: Alt<Option<NounPhrase>> = vec![(None, at)];
-                if depth < DEPTH {
-                    for (p, e) in self.noun_phrase(input, at, Case::Genitive, depth + 1, true) {
-                        poss.push((Some(p), e));
+        // Possessor and core, from a start.
+        let cores_at = |start: usize| -> Alt<NounPhrase> {
+            let mut cores: Alt<NounPhrase> = Vec::new();
+            match self.r.lang.syntax.genitive {
+                Side::Before => {
+                    let mut poss: Alt<Option<NounPhrase>> = vec![(None, start)];
+                    if depth < DEPTH {
+                        for (p, e) in
+                            self.noun_phrase(input, start, Case::Genitive, depth + 1, true, cd)
+                        {
+                            poss.push((Some(p), e));
+                        }
+                    }
+                    for (p, e) in poss {
+                        for (c, e2) in self.core(input, e, case, depth, cd) {
+                            possessed(&mut cores, c, p.clone(), e2);
+                        }
                     }
                 }
-                for (p, e) in poss {
-                    for (c, e2) in self.core(input, e, case) {
-                        possessed(&mut cores, c, p.clone(), e2);
+                Side::After => {
+                    for (c, e) in self.core(input, start, case, depth, cd) {
+                        possessed(&mut cores, c.clone(), None, e);
+                        if depth < DEPTH {
+                            for (p, e2) in
+                                self.noun_phrase(input, e, Case::Genitive, depth + 1, true, cd)
+                            {
+                                possessed(&mut cores, c.clone(), Some(p), e2);
+                            }
+                        }
                     }
                 }
             }
+            cores
+        };
+        // What a compared adjective is measured against, outside the
+        // possessor on the adjectives' side.
+        let cores_at = |start: usize| -> Alt<NounPhrase> {
+            let set = |mut n: NounPhrase, st: NounPhrase| -> Option<NounPhrase> {
+                let d = n.degree.as_mut()?;
+                if d.compare == Compare::Most {
+                    return None;
+                }
+                d.standard = Some(st);
+                Some(n)
+            };
+            let mut v = Vec::new();
+            match self.r.lang.syntax.modifiers {
+                Side::Before => {
+                    v.extend(cores_at(start));
+                    for compare in [Compare::More, Compare::As] {
+                        for (st, e) in self.standard(input, start, compare, depth, cd) {
+                            for (n, e2) in cores_at(e) {
+                                if n.degree.as_ref().is_some_and(|d| d.compare == compare) {
+                                    v.extend(set(n, st.clone()).map(|n| (n, e2)));
+                                }
+                            }
+                        }
+                    }
+                }
+                Side::After => {
+                    for (n, e) in cores_at(start) {
+                        v.push((n.clone(), e));
+                        if let Some(compare) = n.degree.as_ref().map(|d| d.compare) {
+                            if compare != Compare::Most {
+                                for (st, e2) in self.standard(input, e, compare, depth, cd) {
+                                    v.extend(set(n.clone(), st).map(|n| (n, e2)));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            v
+        };
+        // A relative clause (D07), its relative word next to the noun.
+        let mut phrases: Alt<NounPhrase> = Vec::new();
+        let relatives_ok = cd < CLAUSE_DEPTH && depth == 0 && !self.relatives.is_empty();
+        match self.r.lang.syntax.relative {
             Side::After => {
-                for (c, e) in self.core(input, at, case) {
-                    possessed(&mut cores, c.clone(), None, e);
-                    if depth < DEPTH {
-                        for (p, e2) in self.noun_phrase(input, e, Case::Genitive, depth + 1, true) {
-                            possessed(&mut cores, c.clone(), Some(p), e2);
+                for (n, e) in cores_at(at) {
+                    phrases.push((n.clone(), e));
+                    if !relatives_ok {
+                        continue;
+                    }
+                    for (role, words) in &self.relatives {
+                        for (c, e2) in self.clause_core(input, e, false, Some(*role), cd + 1) {
+                            if let Some(e3) = self.sym_words(input, e2, words) {
+                                let mut n2 = n.clone();
+                                n2.relative = Some(Box::new(Relative {
+                                    gap: *role,
+                                    clause: c,
+                                }));
+                                phrases.push((n2, e3));
+                            }
+                        }
+                    }
+                }
+            }
+            Side::Before => {
+                phrases.extend(cores_at(at));
+                if relatives_ok {
+                    for (role, words) in &self.relatives {
+                        if let Some(e) = self.sym_words(input, at, words) {
+                            for (c, e2) in self.clause_core(input, e, false, Some(*role), cd + 1) {
+                                for (n, e3) in cores_at(e2) {
+                                    let mut n2 = n;
+                                    n2.relative = Some(Box::new(Relative {
+                                        gap: *role,
+                                        clause: c.clone(),
+                                    }));
+                                    phrases.push((n2, e3));
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-        for (n, e) in cores {
+        for (n, e) in phrases {
             if appositions {
-                for (apps, e2) in self.appositions(input, e, case, depth) {
+                for (apps, e2) in self.appositions(input, e, case, depth, cd) {
                     let mut n2 = n.clone();
                     n2.apposition = apps;
                     out.push((n2, e2));
@@ -391,11 +638,12 @@ impl<'a> Parser<'a> {
         at: usize,
         case: Case,
         depth: usize,
+        cd: usize,
     ) -> Alt<Vec<NounPhrase>> {
         let mut out = Vec::new();
         if depth < DEPTH + 2 {
-            for (a, e) in self.noun_phrase(input, at, case, depth + 1, false) {
-                for (mut rest, e2) in self.appositions(input, e, case, depth + 1) {
+            for (a, e) in self.noun_phrase(input, at, case, depth + 1, false, cd) {
+                for (mut rest, e2) in self.appositions(input, e, case, depth + 1, cd) {
                     rest.insert(0, a.clone());
                     out.push((rest, e2));
                 }
@@ -405,38 +653,108 @@ impl<'a> Parser<'a> {
         out
     }
 
-    fn verb_group(&self, input: &[Tok], at: usize, potent: bool) -> Alt<(String, Tense, Polarity)> {
+    fn verb_group(&self, input: &[Tok], at: usize, potent: bool) -> Alt<(String, VerbForm)> {
         let mut out = Vec::new();
-        for ((v, tense, polarity, p), words) in &self.verbs {
+        let Some(first) = self.next_sym(input, at) else {
+            return out;
+        };
+        for &i in self.verb_index.get(first).map(Vec::as_slice).unwrap_or(&[]) {
+            let ((v, form, p), words) = &self.verbs[i];
             if *p != potent {
                 continue;
             }
             if let Some(end) = self.sym_words(input, at, words) {
-                out.push(((v.clone(), *tense, *polarity), end));
+                out.push(((v.clone(), *form), end));
             }
         }
         out
     }
 
-    fn np_opt(&self, input: &[Tok], at: usize, case: Case) -> Alt<Option<NounPhrase>> {
-        self.opt(self.noun_phrase(input, at, case, 0, true), at)
+    fn np_opt(
+        &self,
+        input: &[Tok],
+        at: usize,
+        case: Case,
+        skip: bool,
+        cd: usize,
+    ) -> Alt<Option<NounPhrase>> {
+        if skip {
+            return vec![(None, at)];
+        }
+        self.opt(self.noun_phrase(input, at, case, 0, true, cd), at)
     }
 
-    /// A clause in the language's word order.
-    fn clause(&self, input: &[Tok], at: usize) -> Alt<Clause> {
+    /// What a speech verb reports, where the object goes (D07).
+    fn complement(&self, input: &[Tok], at: usize, cd: usize) -> Alt<Complement> {
+        let mut out = Vec::new();
+        if cd >= CLAUSE_DEPTH {
+            return out;
+        }
+        // A quotation: opening word, any sentence, closing word.
+        if let Some(a) = self.fixed(input, at, "quote.open") {
+            for (content, b) in self.units(input, a, cd + 1, true) {
+                if let Some(c) = self.fixed(input, b, "quote.close") {
+                    out.push((
+                        Complement {
+                            direct: true,
+                            content,
+                        },
+                        c,
+                    ));
+                }
+            }
+        }
+        // Reported speech: "that" and one clause.
+        let reported = |start: usize| -> Alt<Sentence> {
+            self.clause(input, start, cd + 1, false)
+                .into_iter()
+                .map(|(c, e)| (Sentence::Clause(c), e))
+                .collect()
+        };
+        match self.r.lang.syntax.linker {
+            Side::Before => {
+                if let Some(a) = self.fixed(input, at, "comp.that") {
+                    for (content, b) in reported(a) {
+                        out.push((
+                            Complement {
+                                direct: false,
+                                content,
+                            },
+                            b,
+                        ));
+                    }
+                }
+            }
+            Side::After => {
+                for (content, a) in reported(at) {
+                    if let Some(b) = self.fixed(input, a, "comp.that") {
+                        out.push((
+                            Complement {
+                                direct: false,
+                                content,
+                            },
+                            b,
+                        ));
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// A clause in the language's word order, with its adverbial clauses
+    /// and the potent frame.
+    fn clause(&self, input: &[Tok], at: usize, cd: usize, commands: bool) -> Alt<Clause> {
         let mut out = Vec::new();
         // The potent frame: pot.open … pot.close, with "pot" before the verb.
-        let open = self.word(input, at, &self.word_syms(&self.r.plain("pot.open")));
-        let starts: Vec<(bool, usize)> = match open {
+        let starts: Vec<(bool, usize)> = match self.fixed(input, at, "pot.open") {
             Some(e) => vec![(true, e), (false, at)],
             None => vec![(false, at)],
         };
         for (potent, start) in starts {
-            for (c, end) in self.bare_clause(input, start, potent) {
+            for (c, end) in self.with_adverbials(input, start, potent, cd, commands) {
                 if potent {
-                    if let Some(e) =
-                        self.word(input, end, &self.word_syms(&self.r.plain("pot.close")))
-                    {
+                    if let Some(e) = self.fixed(input, end, "pot.close") {
                         out.push((c, e));
                     }
                 } else {
@@ -447,17 +765,137 @@ impl<'a> Parser<'a> {
         out
     }
 
-    fn bare_clause(&self, input: &[Tok], at: usize, potent: bool) -> Alt<Clause> {
+    /// One adverbial clause with its linking word.
+    fn adverbial(&self, input: &[Tok], at: usize, cd: usize) -> Alt<Subordinate> {
+        let mut out = Vec::new();
+        if cd >= CLAUSE_DEPTH {
+            return out;
+        }
+        for link in Link::ALL {
+            match self.r.lang.syntax.adverbial {
+                Side::After => {
+                    if let Some(a) = self.fixed(input, at, link.concept()) {
+                        for (c, b) in self.clause(input, a, cd + 1, false) {
+                            out.push((Subordinate { link, clause: c }, b));
+                        }
+                    }
+                }
+                Side::Before => {
+                    for (c, a) in self.clause(input, at, cd + 1, false) {
+                        if let Some(b) = self.fixed(input, a, link.concept()) {
+                            out.push((Subordinate { link, clause: c }, b));
+                        }
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// Zero or more adverbial clauses in a row.
+    fn adverbials(
+        &self,
+        input: &[Tok],
+        at: usize,
+        cd: usize,
+        left: usize,
+    ) -> Alt<Vec<Subordinate>> {
+        let mut out = Vec::new();
+        if left > 0 {
+            for (s, e) in self.adverbial(input, at, cd) {
+                if e == at {
+                    continue;
+                }
+                for (mut rest, e2) in self.adverbials(input, e, cd, left - 1) {
+                    rest.insert(0, s.clone());
+                    out.push((rest, e2));
+                }
+            }
+        }
+        out.push((Vec::new(), at));
+        out
+    }
+
+    fn with_adverbials(
+        &self,
+        input: &[Tok],
+        at: usize,
+        potent: bool,
+        cd: usize,
+        commands: bool,
+    ) -> Alt<Clause> {
+        let mut out = Vec::new();
+        match self.r.lang.syntax.adverbial {
+            Side::Before => {
+                for (subs, a) in self.adverbials(input, at, cd, 2) {
+                    for (mut c, b) in self.clause_core_mood(input, a, potent, None, cd, commands) {
+                        c.subordinate = subs.clone();
+                        out.push((c, b));
+                    }
+                }
+            }
+            Side::After => {
+                for (c, a) in self.clause_core_mood(input, at, potent, None, cd, commands) {
+                    for (subs, b) in self.adverbials(input, a, cd, 2) {
+                        let mut c2 = c.clone();
+                        c2.subordinate = subs;
+                        out.push((c2, b));
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// A clause core with a missing argument, for relative clauses.
+    fn clause_core(
+        &self,
+        input: &[Tok],
+        at: usize,
+        potent: bool,
+        gap: Option<Role>,
+        cd: usize,
+    ) -> Alt<Clause> {
+        self.clause_core_mood(input, at, potent, gap, cd, false)
+    }
+
+    /// The arguments and verb in the language's order. `commands`: a clause
+    /// with no subject may be a command (only where commands can stand).
+    fn clause_core_mood(
+        &self,
+        input: &[Tok],
+        at: usize,
+        potent: bool,
+        gap: Option<Role>,
+        cd: usize,
+        commands: bool,
+    ) -> Alt<Clause> {
         let mut out = Vec::new();
         let finish = |subject: Option<NounPhrase>,
                       object: Option<NounPhrase>,
+                      complement: Option<Complement>,
                       recipient: Option<NounPhrase>,
                       adverbs: Vec<String>,
-                      verb: (String, Tense, Polarity)|
-         -> Clause {
+                      verb: (String, VerbForm)|
+         -> Option<Clause> {
+            let (predicate, form) = verb;
+            if complement.is_some() && predicate != "say" {
+                return None;
+            }
             let mood = if potent {
+                if form.mood.is_some() {
+                    return None;
+                }
                 Mood::Potent
-            } else if subject.is_none() {
+            } else if let Some(m) = form.mood {
+                if subject.is_none() && gap != Some(Role::Subject) {
+                    return None;
+                }
+                m
+            } else if subject.is_none() && gap != Some(Role::Subject) {
+                if !commands {
+                    return None;
+                }
                 Mood::Imperative
             } else {
                 Mood::Declarative
@@ -481,26 +919,50 @@ impl<'a> Parser<'a> {
                     np: r,
                 });
             }
-            Clause {
-                predicate: verb.0,
+            Some(Clause {
+                predicate,
                 mood,
-                tense: verb.1,
-                polarity: verb.2,
+                tense: form.tense,
+                polarity: form.polarity,
                 args,
                 adverbs,
-            }
+                aspect: form.aspect,
+                subordinate: Vec::new(),
+                complement: complement.map(Box::new),
+            })
+        };
+        let gs = gap == Some(Role::Subject);
+        let go = gap == Some(Role::Object);
+        let gr = gap == Some(Role::Recipient);
+        // Reported speech, if any (only after "say").
+        let reported = |start: usize| -> Alt<Option<Complement>> {
+            let mut v: Alt<Option<Complement>> = vec![(None, start)];
+            v.extend(
+                self.complement(input, start, cd)
+                    .into_iter()
+                    .map(|(c, e)| (Some(c), e)),
+            );
+            v
         };
         match self.r.lang.syntax.word_order {
             WordOrder::Sov => {
-                for (s, a) in self.np_opt(input, at, Case::Subject) {
-                    for (rc, b) in self.np_opt(input, a, Case::Dative) {
-                        for (o, c) in self.np_opt(input, b, Case::Object) {
-                            for (adv, d) in self.many(input, c, &[Pos::Adv]) {
-                                for (v, e) in self.verb_group(input, d, potent) {
-                                    out.push((
-                                        finish(s.clone(), o.clone(), rc.clone(), adv.clone(), v),
-                                        e,
-                                    ));
+                for (s, a) in self.np_opt(input, at, Case::Subject, gs, cd) {
+                    for (rc, b) in self.np_opt(input, a, Case::Dative, gr, cd) {
+                        for (o, c) in self.np_opt(input, b, Case::Object, go, cd) {
+                            for (comp, c2) in reported(c) {
+                                for (adv, d) in self.many(input, c2, &[Pos::Adv]) {
+                                    for (v, e) in self.verb_group(input, d, potent) {
+                                        if let Some(cl) = finish(
+                                            s.clone(),
+                                            o.clone(),
+                                            comp.clone(),
+                                            rc.clone(),
+                                            adv.clone(),
+                                            v,
+                                        ) {
+                                            out.push((cl, e));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -508,15 +970,23 @@ impl<'a> Parser<'a> {
                 }
             }
             WordOrder::Svo => {
-                for (s, a) in self.np_opt(input, at, Case::Subject) {
+                for (s, a) in self.np_opt(input, at, Case::Subject, gs, cd) {
                     for (v, b) in self.verb_group(input, a, potent) {
-                        for (o, c) in self.np_opt(input, b, Case::Object) {
-                            for (rc, d) in self.np_opt(input, c, Case::Dative) {
+                        for (o, c) in self.np_opt(input, b, Case::Object, go, cd) {
+                            for (rc, d) in self.np_opt(input, c, Case::Dative, gr, cd) {
                                 for (adv, e) in self.many(input, d, &[Pos::Adv]) {
-                                    out.push((
-                                        finish(s.clone(), o.clone(), rc.clone(), adv, v.clone()),
-                                        e,
-                                    ));
+                                    for (comp, e2) in reported(e) {
+                                        if let Some(cl) = finish(
+                                            s.clone(),
+                                            o.clone(),
+                                            comp,
+                                            rc.clone(),
+                                            adv.clone(),
+                                            v.clone(),
+                                        ) {
+                                            out.push((cl, e2));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -525,14 +995,22 @@ impl<'a> Parser<'a> {
             }
             WordOrder::Vso => {
                 for (v, a) in self.verb_group(input, at, potent) {
-                    for (s, b) in self.np_opt(input, a, Case::Subject) {
-                        for (o, c) in self.np_opt(input, b, Case::Object) {
-                            for (rc, d) in self.np_opt(input, c, Case::Dative) {
+                    for (s, b) in self.np_opt(input, a, Case::Subject, gs, cd) {
+                        for (o, c) in self.np_opt(input, b, Case::Object, go, cd) {
+                            for (rc, d) in self.np_opt(input, c, Case::Dative, gr, cd) {
                                 for (adv, e) in self.many(input, d, &[Pos::Adv]) {
-                                    out.push((
-                                        finish(s.clone(), o.clone(), rc.clone(), adv, v.clone()),
-                                        e,
-                                    ));
+                                    for (comp, e2) in reported(e) {
+                                        if let Some(cl) = finish(
+                                            s.clone(),
+                                            o.clone(),
+                                            comp,
+                                            rc.clone(),
+                                            adv.clone(),
+                                            v.clone(),
+                                        ) {
+                                            out.push((cl, e2));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -543,8 +1021,59 @@ impl<'a> Parser<'a> {
         out
     }
 
-    /// Parses a whole inscription. Prefers one clause, then several in a row
-    /// (a letter), then a verbless list.
+    /// One clause, or clauses joined by a conjunction (D07).
+    fn unit(&self, input: &[Tok], at: usize, cd: usize, commands: bool) -> Alt<Sentence> {
+        let mut out = Vec::new();
+        for (c, e) in self.clause(input, at, cd, commands) {
+            out.push((Sentence::Clause(c.clone()), e));
+            for conj in Conj::ALL {
+                let mut parts = vec![c.clone()];
+                let mut end = e;
+                loop {
+                    let Some(a) = self.fixed(input, end, conj.concept()) else {
+                        break;
+                    };
+                    // The longest next clause that leaves a parse.
+                    let next = self
+                        .clause(input, a, cd, commands)
+                        .into_iter()
+                        .max_by_key(|(_, e)| *e);
+                    let Some((c2, e2)) = next else { break };
+                    parts.push(c2);
+                    end = e2;
+                    out.push((Sentence::Joined(conj, parts.clone()), end));
+                }
+            }
+        }
+        out
+    }
+
+    /// Several units in a row (a letter, a quotation), or one.
+    fn units(&self, input: &[Tok], at: usize, cd: usize, commands: bool) -> Alt<Sentence> {
+        let mut out = self.unit(input, at, cd, commands);
+        let mut seqs: Alt<Vec<Sentence>> = out.iter().map(|(s, e)| (vec![s.clone()], *e)).collect();
+        for _ in 0..6 {
+            let mut next = Vec::new();
+            for (seq, e) in &seqs {
+                for (s, e2) in self.unit(input, *e, cd, commands) {
+                    if e2 > *e {
+                        let mut v = seq.clone();
+                        v.push(s);
+                        next.push((v, e2));
+                    }
+                }
+            }
+            if next.is_empty() {
+                break;
+            }
+            out.extend(next.iter().map(|(v, e)| (Sentence::Text(v.clone()), *e)));
+            seqs = next;
+        }
+        out
+    }
+
+    /// Parses a whole inscription. Prefers one clause, then joined clauses,
+    /// then several in a row (a letter), then a verbless list.
     pub fn sentence(&self, input: &[Tok]) -> Option<Sentence> {
         self.memo.borrow_mut().clear();
         let end = trim_end(input);
@@ -553,9 +1082,15 @@ impl<'a> Parser<'a> {
             .iter()
             .position(|t| *t != Tok::Gap)
             .unwrap_or(input.len());
-        for (c, e) in self.clause(input, start) {
-            if e == input.len() {
-                return Some(Sentence::Clause(c));
+        let units = self.unit(input, start, 0, true);
+        for (s, e) in &units {
+            if *e == input.len() && matches!(s, Sentence::Clause(_)) {
+                return Some(s.clone());
+            }
+        }
+        for (s, e) in &units {
+            if *e == input.len() {
+                return Some(s.clone());
             }
         }
         if let Some(parts) = self.clauses(input, start, 0) {
@@ -573,12 +1108,15 @@ impl<'a> Parser<'a> {
         if depth > 6 {
             return None;
         }
-        for (c, e) in self.clause(input, at) {
+        let mut units = self.unit(input, at, 0, true);
+        // Longest first, so a joined sentence is not split.
+        units.sort_by_key(|(_, e)| std::cmp::Reverse(*e));
+        for (u, e) in units {
             if e == at {
                 continue;
             }
             if let Some(mut rest) = self.clauses(input, e, depth + 1) {
-                rest.insert(0, Sentence::Clause(c));
+                rest.insert(0, u);
                 return Some(rest);
             }
         }
@@ -589,7 +1127,7 @@ impl<'a> Parser<'a> {
         if at >= input.len() {
             return Some(Vec::new());
         }
-        for (n, e) in self.noun_phrase(input, at, Case::Subject, 0, false) {
+        for (n, e) in self.noun_phrase(input, at, Case::Subject, 0, false, CLAUSE_DEPTH) {
             if e == at {
                 continue;
             }
@@ -625,6 +1163,8 @@ fn np(
         adjectives,
         possessor: None,
         apposition: Vec::new(),
+        degree: None,
+        relative: None,
     }
 }
 
@@ -637,7 +1177,39 @@ pub fn glyph_sym(k: &GlyphKey) -> String {
 mod tests {
     use super::*;
     use crate::corpus::Corpus;
+    use crate::rng::{Rng, Stream};
     use crate::Language;
+
+    /// Random meanings using every construction (D07), in every era of
+    /// several seeds, parse back to themselves.
+    #[test]
+    fn every_construction_round_trips() {
+        for seed in [1u64, 2, 3, 42, 9001] {
+            for lang in Language::generate(seed).eras() {
+                let corpus = Corpus::generate(&lang, 4);
+                let r = corpus.renderer();
+                let p = Parser::new(&r, Mode::Phonemes);
+                let g = Parser::new(&r, Mode::Glyphs);
+                let mut rng = Rng::new(seed, Stream::Inscription(777));
+                for i in 0..120 {
+                    let m = crate::sample::sentence(&lang, &mut rng, r.names.len());
+                    let words = r.render(&m).words;
+                    let back = p.sentence(&p.tokens(&words));
+                    assert_eq!(
+                        back.as_ref(),
+                        Some(&m),
+                        "seed {seed} era {} #{i}: {}",
+                        lang.era,
+                        crate::english::translate(&m, &|n| r.name(n))
+                    );
+                    if i % 4 == 0 {
+                        let gb = g.sentence(&g.tokens(&words)).expect("glyph parse");
+                        assert_eq!(g.tokens(&r.render(&gb).words), g.tokens(&words));
+                    }
+                }
+            }
+        }
+    }
 
     /// Every sentence of the corpus, in every era of three seeds, parses
     /// back to its meaning.

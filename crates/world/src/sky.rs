@@ -130,9 +130,9 @@ impl Sky {
             let Some(lang) = oldest else {
                 return String::new();
             };
-            let noun = lang.romanise(lang.lexicon.root(concept));
+            let noun = lang.romanise(&lang.lexicon.root(concept));
             match quality {
-                Some(q) => format!("{noun} {}", lang.romanise(lang.lexicon.root(q))),
+                Some(q) => format!("{noun} {}", lang.romanise(&lang.lexicon.root(q))),
                 None => noun,
             }
         };

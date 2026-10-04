@@ -36,6 +36,42 @@ pub struct NounPhrase {
     /// Phrases renaming the head: titles, "child of X".
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub apposition: Vec<NounPhrase>,
+    /// A comparison on one adjective: "greater (than the tower)" (D07).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub degree: Option<Box<Degree>>,
+    /// "the man who built the gate": a clause with one argument left out,
+    /// filled by this noun (D07).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub relative: Option<Box<Relative>>,
+}
+
+/// How an adjective compares.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Compare {
+    /// greater (than X)
+    More,
+    /// the greatest
+    Most,
+    /// as great (as X)
+    As,
+}
+
+/// An adjective with a degree, and what it is measured against.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Degree {
+    pub compare: Compare,
+    pub adjective: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub standard: Option<NounPhrase>,
+}
+
+/// A relative clause: `clause` lacks the argument in role `gap`, which the
+/// noun it modifies fills.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Relative {
+    pub gap: Role,
+    pub clause: Clause,
 }
 
 impl NounPhrase {
@@ -58,6 +94,8 @@ impl NounPhrase {
             adjectives: Vec::new(),
             possessor: None,
             apposition: Vec::new(),
+            degree: None,
+            relative: None,
         }
     }
 
@@ -94,8 +132,8 @@ pub struct Argument {
     pub np: NounPhrase,
 }
 
-/// Statement or command.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+/// Statement, command, wish, condition or question.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Mood {
     Declarative,
@@ -104,6 +142,117 @@ pub enum Mood {
     /// A claim in the potent register: framed by fixed formulae and marked
     /// with a particle. What it does is decided in M08.
     Potent,
+    /// "May it…" (D07).
+    Optative,
+    /// "It would…" (D07).
+    Conditional,
+    /// A question (D07).
+    Interrogative,
+}
+
+impl Mood {
+    /// Moods marked on the verb by their own affix (D07).
+    pub const MARKED: [Mood; 3] = [Mood::Optative, Mood::Conditional, Mood::Interrogative];
+}
+
+/// Aspect, beyond tense (D07). Each language marks at most one of the
+/// three; `Simple` is unmarked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Aspect {
+    #[default]
+    Simple,
+    /// The whole event, done.
+    Perfective,
+    /// Ongoing.
+    Imperfective,
+    /// Usual, repeated.
+    Habitual,
+}
+
+impl Aspect {
+    pub fn is_simple(&self) -> bool {
+        *self == Aspect::Simple
+    }
+}
+
+/// How a subordinate clause links to its main clause (D07).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Link {
+    When,
+    Because,
+    If,
+    Until,
+    Before,
+    After,
+    SoThat,
+    Although,
+}
+
+impl Link {
+    pub const ALL: [Link; 8] = [
+        Link::When,
+        Link::Because,
+        Link::If,
+        Link::Until,
+        Link::Before,
+        Link::After,
+        Link::SoThat,
+        Link::Although,
+    ];
+
+    /// The function word's concept id.
+    pub fn concept(self) -> &'static str {
+        match self {
+            Link::When => "sub.when",
+            Link::Because => "sub.because",
+            Link::If => "sub.if",
+            Link::Until => "sub.until",
+            Link::Before => "sub.before",
+            Link::After => "sub.after",
+            Link::SoThat => "sub.sothat",
+            Link::Although => "sub.although",
+        }
+    }
+}
+
+/// How clauses of equal standing join (D07).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Conj {
+    And,
+    But,
+    Or,
+    Then,
+}
+
+impl Conj {
+    pub const ALL: [Conj; 4] = [Conj::And, Conj::But, Conj::Or, Conj::Then];
+
+    pub fn concept(self) -> &'static str {
+        match self {
+            Conj::And => "conj.and",
+            Conj::But => "conj.but",
+            Conj::Or => "conj.or",
+            Conj::Then => "conj.then",
+        }
+    }
+}
+
+/// A clause subordinate to another: "when the king died, …".
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Subordinate {
+    pub link: Link,
+    pub clause: Clause,
+}
+
+/// What a speech verb reports: "said that…" or a quotation (D07).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Complement {
+    /// A direct quotation rather than reported speech.
+    pub direct: bool,
+    pub content: Sentence,
 }
 
 /// A clause: one predicate and its arguments.
@@ -116,6 +265,14 @@ pub struct Clause {
     pub args: Vec<Argument>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub adverbs: Vec<String>,
+    #[serde(default, skip_serializing_if = "Aspect::is_simple")]
+    pub aspect: Aspect,
+    /// Adverbial clauses: when, because, if… (D07).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub subordinate: Vec<Subordinate>,
+    /// What a speech verb reports (D07).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub complement: Option<Box<Complement>>,
 }
 
 impl Clause {
@@ -133,4 +290,143 @@ pub enum Sentence {
     List(Vec<NounPhrase>),
     /// Several sentences in a row, as in a letter.
     Text(Vec<Sentence>),
+    /// Clauses joined by a conjunction: "…and…", "…but…" (D07).
+    Joined(Conj, Vec<Clause>),
+}
+
+impl Sentence {
+    /// Every clause in it, nested ones included (joined parts, adverbial
+    /// clauses, reported speech, relative clauses), outermost first.
+    pub fn clauses(&self) -> Vec<&Clause> {
+        let mut out = Vec::new();
+        match self {
+            Sentence::Clause(c) => c.walk(&mut out),
+            Sentence::List(items) => items.iter().for_each(|n| n.walk(&mut out)),
+            Sentence::Text(parts) => parts.iter().for_each(|p| out.extend(p.clauses())),
+            Sentence::Joined(_, parts) => parts.iter().for_each(|c| c.walk(&mut out)),
+        }
+        out
+    }
+
+    /// Every noun phrase in it, at any depth.
+    pub fn noun_phrases(&self) -> Vec<&NounPhrase> {
+        let mut out = Vec::new();
+        if let Sentence::List(items) = self {
+            items.iter().for_each(|n| n.collect(&mut out));
+        }
+        for c in self.clauses() {
+            for a in &c.args {
+                a.np.collect(&mut out);
+            }
+        }
+        out
+    }
+
+    /// The function words its structure uses (D07): conjunctions, linking
+    /// words, quotation frames, relative and degree words.
+    pub fn function_words(&self) -> Vec<&'static str> {
+        let mut out = Vec::new();
+        if let Sentence::Joined(conj, _) = self {
+            out.push(conj.concept());
+        }
+        if let Sentence::Text(parts) = self {
+            for p in parts {
+                if let Sentence::Joined(conj, _) = p {
+                    out.push(conj.concept());
+                }
+            }
+        }
+        for c in self.clauses() {
+            for s in &c.subordinate {
+                out.push(s.link.concept());
+            }
+            if let Some(comp) = &c.complement {
+                if comp.direct {
+                    out.extend(["quote.open", "quote.close"]);
+                } else {
+                    out.push("comp.that");
+                }
+                if let Sentence::Joined(conj, _) = &comp.content {
+                    out.push(conj.concept());
+                }
+            }
+            for a in &c.args {
+                let mut nps = Vec::new();
+                a.np.collect(&mut nps);
+                for n in nps {
+                    if n.relative.is_some() {
+                        out.push("rel");
+                    }
+                    if let Some(d) = &n.degree {
+                        out.push(match d.compare {
+                            Compare::More => "cmp.more",
+                            Compare::Most => "cmp.most",
+                            Compare::As => "cmp.as",
+                        });
+                        if d.standard.is_some() {
+                            out.push(if d.compare == Compare::As {
+                                "cmp.like"
+                            } else {
+                                "cmp.than"
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        out
+    }
+
+    /// Whether any clause in it is in the potent register.
+    pub fn is_potent(&self) -> bool {
+        self.clauses().iter().any(|c| c.mood == Mood::Potent)
+    }
+}
+
+impl Clause {
+    fn walk<'a>(&'a self, out: &mut Vec<&'a Clause>) {
+        out.push(self);
+        for a in &self.args {
+            a.np.walk(out);
+        }
+        for s in &self.subordinate {
+            s.clause.walk(out);
+        }
+        if let Some(comp) = &self.complement {
+            out.extend(comp.content.clauses());
+        }
+    }
+}
+
+impl NounPhrase {
+    /// Clauses inside this phrase (relative clauses, at any depth).
+    fn walk<'a>(&'a self, out: &mut Vec<&'a Clause>) {
+        if let Some(p) = &self.possessor {
+            p.walk(out);
+        }
+        for a in &self.apposition {
+            a.walk(out);
+        }
+        if let Some(st) = self.degree.as_ref().and_then(|d| d.standard.as_ref()) {
+            st.walk(out);
+        }
+        if let Some(r) = &self.relative {
+            r.clause.walk(out);
+        }
+    }
+
+    /// This phrase and every phrase inside it (not inside its relative
+    /// clause, which `Sentence::clauses` reaches).
+    fn collect<'a>(&'a self, out: &mut Vec<&'a NounPhrase>) {
+        out.push(self);
+        if let Some(p) = &self.possessor {
+            p.collect(out);
+        }
+        for a in &self.apposition {
+            a.collect(out);
+        }
+        if let Some(st) = self.degree.as_ref().and_then(|d| d.standard.as_ref()) {
+            st.collect(out);
+        }
+    }
 }

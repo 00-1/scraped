@@ -209,7 +209,7 @@ fn eras(lang: &Language, as_json: bool) -> String {
         .map(|c| {
             let forms = eras
                 .iter()
-                .map(|l| l.romanise(l.lexicon.root(&c.id)))
+                .map(|l| l.romanise(&l.lexicon.root(&c.id)))
                 .collect();
             let replaced = eras
                 .iter()

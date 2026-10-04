@@ -197,6 +197,9 @@ fn potent(verb: &str, subject: &str, negative: bool) -> Sentence {
             np: NounPhrase::concept(subject),
         }],
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     })
 }
 
@@ -229,6 +232,9 @@ fn statement(
         },
         args,
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     })
 }
 

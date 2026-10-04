@@ -739,3 +739,145 @@ domain = "actions"
 pos = "verb"
 objects = []
 en_past = "departed"
+
+# --- joining clauses (D07) -------------------------------------------------
+# Function words for longer texts. They are appended after the older
+# concepts so older roots keep their forms.
+
+[[concept]]
+id = "sub.when"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "sub.because"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "sub.if"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "sub.until"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "sub.before"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "sub.after"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "sub.sothat"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "sub.although"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "conj.and"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "conj.but"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "conj.or"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "conj.then"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "comp.that"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "quote.open"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "quote.close"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "cmp.more"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "cmp.most"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "cmp.as"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "cmp.than"
+domain = "grammar"
+pos = "particle"
+
+[[concept]]
+id = "cmp.like"
+domain = "grammar"
+pos = "particle"
+
+# The relative word: inflected for the case of the part a relative clause
+# leaves out.
+[[concept]]
+id = "rel"
+domain = "grammar"
+pos = "noun"
+tags = ["grammar"]
+
+[[concept]]
+id = "all"
+domain = "deixis"
+pos = "det"
+
+[[concept]]
+id = "some"
+domain = "deixis"
+pos = "det"
+
+[[concept]]
+id = "no"
+domain = "deixis"
+pos = "det"
+
+[[concept]]
+id = "each"
+domain = "deixis"
+pos = "det"
+
+[[concept]]
+id = "many"
+domain = "deixis"
+pos = "det"
+
+[[concept]]
+id = "few"
+domain = "deixis"
+pos = "det"

@@ -486,28 +486,20 @@ pub fn concepts_of(
             np(a, out, numerals);
         }
     }
-    match s {
-        Sentence::Clause(c) => {
-            out.insert(c.predicate.clone());
-            for a in &c.args {
-                np(&a.np, out, numerals);
-            }
-            out.extend(c.adverbs.iter().cloned());
-            if c.mood == Mood::Potent {
-                out.extend(["pot", "pot.open", "pot.close"].map(str::to_string));
-            }
-        }
-        Sentence::List(items) => {
-            for i in items {
-                np(i, out, numerals);
-            }
-        }
-        Sentence::Text(parts) => {
-            for p in parts {
-                concepts_of(p, out, numerals);
-            }
+    for c in s.clauses() {
+        out.insert(c.predicate.clone());
+        out.extend(c.adverbs.iter().cloned());
+        if c.mood == Mood::Potent {
+            out.extend(["pot", "pot.open", "pot.close"].map(str::to_string));
         }
     }
+    for n in s.noun_phrases() {
+        np(n, out, numerals);
+        if let Some(d) = &n.degree {
+            out.insert(d.adjective.clone());
+        }
+    }
+    out.extend(s.function_words().into_iter().map(str::to_string));
 }
 
 /// The agreement rule: new writing over a trace must keep its register and

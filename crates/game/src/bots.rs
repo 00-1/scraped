@@ -1837,6 +1837,9 @@ fn claim_glyphs(g: &Game, verb: &str, subject: &str) -> String {
             np: NounPhrase::concept(subject),
         }],
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     });
     g.sound_words(&m)
 }

@@ -284,6 +284,9 @@ pub struct History {
 
 struct Builder<'a> {
     rng: Rng,
+    /// Names come from their own stream (D07), so the history's choices do
+    /// not shift when the language changes.
+    names: Rng,
     t: &'a Terrain,
     w: &'a Water,
     h: History,
@@ -400,7 +403,7 @@ impl Builder<'_> {
         capital: bool,
     ) -> usize {
         let id = self.h.settlements.len();
-        let name = maker.make(&mut self.rng, 2, Pos::Noun);
+        let name = maker.make(&mut self.names, 2, Pos::Noun);
         let size = if capital {
             4
         } else {
@@ -440,7 +443,7 @@ impl Builder<'_> {
     ) -> usize {
         let id = self.h.people.len();
         let syllables = self.rng.weighted(&[(2, 60), (3, 40)]);
-        let name = maker.make(&mut self.rng, syllables, Pos::Noun);
+        let name = maker.make(&mut self.names, syllables, Pos::Noun);
         let faction = self.h.settlements[settlement].faction;
         let life = 35 + self.rng.below(40) as i32;
         self.h.people.push(Person {
@@ -490,6 +493,7 @@ impl History {
         ]);
         let mut b = Builder {
             rng,
+            names: Rng::new(seed, Stream::World(20)),
             t,
             w,
             h: History {
@@ -545,7 +549,7 @@ fn simulate_era(b: &mut Builder, e: u32, maker: &mut scraped_lang::lexicon::Word
     if e == 0 {
         // The first people arrive and found their capital and first towns.
         let faction = b.h.factions.len();
-        let name = maker.make(&mut b.rng, 2, Pos::Noun);
+        let name = maker.make(&mut b.names, 2, Pos::Noun);
         b.h.factions.push(Faction {
             id: faction,
             name,
@@ -778,7 +782,7 @@ fn simulate_era(b: &mut Builder, e: u32, maker: &mut scraped_lang::lexicon::Word
                 // A schism: a town and its neighbours break away.
                 let old = b.h.settlements[s].faction;
                 let new = b.h.factions.len();
-                let name = maker.make(&mut b.rng, 2, Pos::Noun);
+                let name = maker.make(&mut b.names, 2, Pos::Noun);
                 b.h.factions.push(Faction {
                     id: new,
                     name,

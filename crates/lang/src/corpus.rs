@@ -327,6 +327,9 @@ fn statement(predicate: &str, tense: Tense, args: Vec<(Role, NounPhrase)>) -> Cl
             .map(|(role, np)| Argument { role, np })
             .collect(),
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     }
 }
 
@@ -499,6 +502,9 @@ fn potent(rng: &mut Rng) -> Sentence {
             np: subject,
         }],
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     })
 }
 
@@ -557,6 +563,9 @@ fn warning(rng: &mut Rng, cast: &Cast) -> Sentence {
             np: object,
         }],
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     })
 }
 

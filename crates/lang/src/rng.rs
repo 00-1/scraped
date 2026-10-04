@@ -35,6 +35,12 @@ pub enum Stream {
     Evolution(u32),
     /// World generation stages, numbered by the world crate.
     World(u32),
+    /// Aspect and mood affixes, and clause-joining order (D07).
+    Grammar,
+    /// Derivational affixes and compounds (D07).
+    Derivation,
+    /// What a people have words for (D07).
+    Culture,
 }
 
 impl Stream {
@@ -53,6 +59,9 @@ impl Stream {
             Stream::SoundChange(e) => 100 + u64::from(e),
             Stream::Evolution(e) => 200 + u64::from(e),
             Stream::World(n) => 500 + u64::from(n),
+            Stream::Grammar => 11,
+            Stream::Derivation => 12,
+            Stream::Culture => 13,
         }
     }
 }

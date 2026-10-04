@@ -273,6 +273,9 @@ fn inscription_meaning(seed: u64, s: &Storylet, register: &str, about: &str) -> 
                 np: NounPhrase::concept(noun),
             }],
             adverbs: Vec::new(),
+            aspect: Default::default(),
+            subordinate: Vec::new(),
+            complement: None,
         })
     } else {
         let n = concepts::get(noun);
@@ -293,6 +296,9 @@ fn inscription_meaning(seed: u64, s: &Storylet, register: &str, about: &str) -> 
                 np: NounPhrase::concept(noun),
             }],
             adverbs: Vec::new(),
+            aspect: Default::default(),
+            subordinate: Vec::new(),
+            complement: None,
         })
     }
 }

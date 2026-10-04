@@ -4,8 +4,8 @@ use serde::Serialize;
 
 use crate::concepts;
 use crate::difficulty::{NameMarking, Separation};
-use crate::meaning::{Clause, Head, Mood, NounPhrase, Role, Sentence};
-use crate::morphology::{AffixPosition, Case, Morph};
+use crate::meaning::{Clause, Compare, Head, Mood, NounPhrase, Role, Sentence};
+use crate::morphology::{AffixPosition, Case, Morph, VerbForm};
 use crate::phonology::Phonemes;
 use crate::script::GlyphKey;
 use crate::syntax::{Side, WordOrder};
@@ -91,6 +91,24 @@ impl Renderer<'_> {
                 .flat_map(|np| self.noun_phrase(np, Case::Subject))
                 .collect(),
             Sentence::Text(parts) => parts.iter().flat_map(|p| self.sentence(p)).collect(),
+            Sentence::Joined(conj, parts) => {
+                let mut out = Vec::new();
+                for (i, c) in parts.iter().enumerate() {
+                    if i > 0 {
+                        out.push(self.plain(conj.concept()));
+                    }
+                    out.extend(self.clause(c));
+                }
+                out
+            }
+        }
+    }
+
+    /// A linking word and what it introduces, on the language's side.
+    fn linked(&self, word: Word, inner: Vec<Word>) -> Vec<Word> {
+        match self.lang.syntax.linker {
+            Side::Before => std::iter::once(word).chain(inner).collect(),
+            Side::After => inner.into_iter().chain(std::iter::once(word)).collect(),
         }
     }
 
@@ -168,8 +186,16 @@ impl Renderer<'_> {
     }
 
     fn clause(&self, c: &Clause) -> Vec<Word> {
+        self.clause_without(c, None)
+    }
+
+    /// A clause, leaving out the argument in `gap` (for relative clauses).
+    pub(crate) fn clause_without(&self, c: &Clause, gap: Option<Role>) -> Vec<Word> {
         let verb = self.verb(c);
         let np = |role, case| {
+            if gap == Some(role) {
+                return Vec::new();
+            }
             c.arg(role)
                 .map(|np| self.noun_phrase(np, case))
                 .unwrap_or_default()
@@ -181,6 +207,21 @@ impl Renderer<'_> {
             np(Role::Subject, Case::Subject)
         };
         let object = np(Role::Object, Case::Object);
+        // What a speech verb reports: after the object in verb-final
+        // languages, at the end of the clause otherwise (D07).
+        let mut reported = Vec::new();
+        if let Some(comp) = &c.complement {
+            let inner = self.sentence(&comp.content);
+            let words = if comp.direct {
+                let mut v = vec![self.plain("quote.open")];
+                v.extend(inner);
+                v.push(self.plain("quote.close"));
+                v
+            } else {
+                self.linked(self.plain("comp.that"), inner)
+            };
+            reported = words;
+        }
         let recipient = np(Role::Recipient, Case::Dative);
         let adverbs: Vec<Word> = c.adverbs.iter().map(|a| self.plain(a)).collect();
 
@@ -190,6 +231,7 @@ impl Renderer<'_> {
                 out.extend(subject);
                 out.extend(recipient);
                 out.extend(object);
+                out.extend(reported);
                 out.extend(adverbs);
                 out.extend(verb);
             }
@@ -199,6 +241,7 @@ impl Renderer<'_> {
                 out.extend(object);
                 out.extend(recipient);
                 out.extend(adverbs);
+                out.extend(reported);
             }
             WordOrder::Vso => {
                 out.extend(verb);
@@ -206,7 +249,29 @@ impl Renderer<'_> {
                 out.extend(object);
                 out.extend(recipient);
                 out.extend(adverbs);
+                out.extend(reported);
             }
+        }
+        // Adverbial clauses, each with its linking word (D07).
+        if !c.subordinate.is_empty() {
+            let subs: Vec<Word> = c
+                .subordinate
+                .iter()
+                .flat_map(|sub| {
+                    let word = self.plain(sub.link.concept());
+                    let inner = self.clause(&sub.clause);
+                    // The linking word stands between the clause and the
+                    // main clause.
+                    match self.lang.syntax.adverbial {
+                        Side::Before => inner.into_iter().chain(std::iter::once(word)).collect(),
+                        Side::After => std::iter::once(word).chain(inner).collect::<Vec<_>>(),
+                    }
+                })
+                .collect();
+            out = match self.lang.syntax.adverbial {
+                Side::Before => subs.into_iter().chain(out).collect(),
+                Side::After => out.into_iter().chain(subs).collect(),
+            };
         }
         if c.mood == Mood::Potent {
             out.insert(0, self.plain("pot.open"));
@@ -219,7 +284,14 @@ impl Renderer<'_> {
     // DESIGN-Q: the potent particle always comes directly before the verb
     // group, whatever the word order.
     fn verb(&self, c: &Clause) -> Vec<Word> {
-        self.verb_group(&c.predicate, c.tense, c.polarity, c.mood == Mood::Potent)
+        let mood = Mood::MARKED.contains(&c.mood).then_some(c.mood);
+        let form = VerbForm {
+            aspect: c.aspect,
+            tense: c.tense,
+            mood,
+            polarity: c.polarity,
+        };
+        self.verb_group_form(&c.predicate, form, c.mood == Mood::Potent)
     }
 
     /// Places particle words next to their host: after it in suffixing
@@ -267,7 +339,7 @@ impl Renderer<'_> {
     ) -> Vec<Word> {
         let m = &self.lang.morphology;
         let word = match head {
-            Head::Concept(id) => Word::plain(m.noun(self.lang.lexicon.root(id), id, number, case)),
+            Head::Concept(id) => Word::plain(m.noun(&self.lang.lexicon.root(id), id, number, case)),
             Head::Name(p) => Word {
                 morphs: m.noun(&self.names[*p], &self.name(*p), number, case),
                 name: true,
@@ -276,31 +348,69 @@ impl Renderer<'_> {
         self.with_particles(word, m.noun_particles(number, case), m.noun_position)
     }
 
-    /// The verb group: the verb with its particles (and the potent particle).
-    pub(crate) fn verb_group(
+    /// The verb group in any form (D07).
+    pub(crate) fn verb_group_form(
         &self,
         predicate: &str,
-        tense: crate::morphology::Tense,
-        polarity: crate::morphology::Polarity,
+        form: VerbForm,
         potent: bool,
     ) -> Vec<Word> {
         let m = &self.lang.morphology;
         let root = self.lang.lexicon.root(predicate);
-        let word = Word::plain(m.verb(root, predicate, tense, polarity));
-        let mut out = self.with_particles(word, m.verb_particles(tense, polarity), m.verb_position);
+        let word = Word::plain(m.verb_form(&root, predicate, form));
+        let mut out = self.with_particles(word, m.verb_particles(form), m.verb_position);
         if potent {
             out.insert(0, self.plain("pot"));
         }
         out
     }
 
+    /// The relative word: the root `rel` in the case of the missing part.
+    pub(crate) fn relative_word(&self, gap: Role) -> Vec<Word> {
+        let case = match gap {
+            Role::Subject => Case::Subject,
+            Role::Object => Case::Object,
+            Role::Recipient => Case::Dative,
+        };
+        let m = &self.lang.morphology;
+        let word = Word::plain(m.noun(
+            &self.lang.lexicon.root("rel"),
+            "REL",
+            crate::morphology::Number::Singular,
+            case,
+        ));
+        self.with_particles(
+            word,
+            m.noun_particles(crate::morphology::Number::Singular, case),
+            m.noun_position,
+        )
+    }
+
+    /// An adjective with its degree word (D07).
+    pub(crate) fn degree_words(&self, compare: Compare, adjective: &str) -> Vec<Word> {
+        let marker = self.plain(match compare {
+            Compare::More => "cmp.more",
+            Compare::Most => "cmp.most",
+            Compare::As => "cmp.as",
+        });
+        let adj = self.plain(adjective);
+        match self.lang.syntax.degree {
+            Side::Before => vec![marker, adj],
+            Side::After => vec![adj, marker],
+        }
+    }
+
     pub(crate) fn noun_phrase(&self, np: &NounPhrase, case: Case) -> Vec<Word> {
         let head = self.head(&np.head, np.number, case);
 
-        // Modifiers inside out: adjectives nearest the noun, then the
-        // numeral, then the demonstrative. Mirrored when they follow.
+        // Modifiers inside out: adjectives nearest the noun, then a compared
+        // adjective, the numeral, then the determiner. Mirrored when they
+        // follow.
         let mut inner: Vec<Vec<Word>> = Vec::new();
         inner.extend(np.adjectives.iter().map(|a| vec![self.plain(a)]));
+        if let Some(d) = &np.degree {
+            inner.push(self.degree_words(d.compare, &d.adjective));
+        }
         if let Some(n) = np.quantity {
             inner.push(
                 self.lang
@@ -314,6 +424,28 @@ impl Renderer<'_> {
         if let Some(d) = &np.determiner {
             inner.push(vec![self.plain(d)]);
         }
+        // What it is compared with, with "than" or "like" (D07).
+        let standard: Vec<Word> = np
+            .degree
+            .as_ref()
+            .and_then(|d| {
+                d.standard.as_ref().map(|st| {
+                    let marker = if d.compare == Compare::As {
+                        "cmp.like"
+                    } else {
+                        "cmp.than"
+                    };
+                    let inner = self.noun_phrase(st, Case::Subject);
+                    let word = self.plain(marker);
+                    // "than" stands between the noun and what it is
+                    // compared with.
+                    match self.lang.syntax.modifiers {
+                        Side::Before => inner.into_iter().chain(std::iter::once(word)).collect(),
+                        Side::After => std::iter::once(word).chain(inner).collect::<Vec<_>>(),
+                    }
+                })
+            })
+            .unwrap_or_default();
         let mut core = Vec::new();
         match self.lang.syntax.modifiers {
             Side::Before => {
@@ -341,6 +473,21 @@ impl Renderer<'_> {
                 out.extend(core);
                 out.extend(possessor);
             }
+        }
+        // What it is compared with stands outside the possessor, on the
+        // adjectives' side.
+        out = match self.lang.syntax.modifiers {
+            Side::Before => standard.into_iter().chain(out).collect(),
+            Side::After => out.into_iter().chain(standard).collect(),
+        };
+        // A relative clause, its relative word next to the noun (D07).
+        if let Some(rel) = &np.relative {
+            let clause = self.clause_without(&rel.clause, Some(rel.gap));
+            let word = self.relative_word(rel.gap);
+            out = match self.lang.syntax.relative {
+                Side::After => out.into_iter().chain(clause).chain(word).collect(),
+                Side::Before => word.into_iter().chain(clause).chain(out).collect(),
+            };
         }
         // DESIGN-Q: appositions always follow their head, in every language.
         // Head-final languages could plausibly put titles first instead.

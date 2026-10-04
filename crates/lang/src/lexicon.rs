@@ -17,23 +17,102 @@ use crate::rng::Rng;
 /// Minimum phoneme edit distance between any two roots or names.
 pub const MIN_ROOT_DISTANCE: usize = 2;
 
-/// Concept id → root.
-#[derive(Debug, Clone, Serialize)]
+/// Concept id → root, and how derived words and compounds are built from
+/// roots (D07).
+#[derive(Debug, Clone, Serialize, Default)]
 pub struct Lexicon {
     pub roots: BTreeMap<String, Phonemes>,
+    /// Derivational affix forms by gloss, and whether they are suffixes.
+    #[serde(skip)]
+    pub derivations: BTreeMap<String, Phonemes>,
+    #[serde(skip)]
+    pub suffixing: bool,
+    #[serde(skip)]
+    pub head_last: bool,
+    /// Compounds whose form would collide with another word: left unused.
+    #[serde(skip)]
+    pub blocked: BTreeSet<String>,
 }
 
 impl Lexicon {
+    /// A lexicon of roots, deriving and compounding as `m` does.
+    pub fn new(roots: BTreeMap<String, Phonemes>, m: &Morphology) -> Self {
+        let mut lex = Lexicon {
+            roots,
+            derivations: m
+                .derivations
+                .iter()
+                .map(|a| (a.gloss.to_string(), a.form.clone()))
+                .collect(),
+            suffixing: m.noun_position == crate::morphology::AffixPosition::Suffix,
+            head_last: m.compound_head_last,
+            blocked: BTreeSet::new(),
+        };
+        lex.block_colliding(m);
+        lex
+    }
+
+    /// Leaves out compounds that would read as another word.
+    fn block_colliding(&mut self, m: &Morphology) {
+        let mut taken: BTreeSet<Phonemes> = BTreeSet::new();
+        for (id, root) in &self.roots {
+            taken.extend(m.all_forms(root, concepts::get(id).pos));
+        }
+        for c in concepts::all() {
+            let Some((a, b)) = c.id.split_once('~') else {
+                continue;
+            };
+            if !self.roots.contains_key(a) || !self.roots.contains_key(b) {
+                continue;
+            }
+            let forms = m.all_forms(&self.root(&c.id), Pos::Noun);
+            if forms.iter().any(|f| taken.contains(f)) {
+                self.blocked.insert(c.id.clone());
+            } else {
+                taken.extend(forms);
+            }
+        }
+    }
+
     /// Whether the language has a word for this concept (number words
-    /// depend on the numeral base).
+    /// depend on the numeral base; derived words and compounds need their
+    /// roots).
     pub fn has(&self, concept: &str) -> bool {
+        if let Some((base, d)) = concept.split_once('+') {
+            return self.roots.contains_key(base)
+                && self.derivations.contains_key(&d.to_uppercase());
+        }
+        if let Some((a, b)) = concept.split_once('~') {
+            return self.roots.contains_key(a)
+                && self.roots.contains_key(b)
+                && !self.blocked.contains(concept);
+        }
         self.roots.contains_key(concept)
     }
 
-    /// Root for a concept. Panics if the concept is unknown.
-    pub fn root(&self, concept: &str) -> &Phonemes {
+    /// Root for a concept, derived words and compounds built from their
+    /// parts. Panics if the concept is unknown.
+    pub fn root(&self, concept: &str) -> Phonemes {
+        if let Some((base, d)) = concept.split_once('+') {
+            let root = self.root(base);
+            let affix = &self.derivations[&d.to_uppercase()];
+            return if self.suffixing {
+                root.iter().chain(affix).copied().collect()
+            } else {
+                affix.iter().chain(&root).copied().collect()
+            };
+        }
+        if let Some((a, b)) = concept.split_once('~') {
+            let (m, h) = (self.root(a), self.root(b));
+            return if self.head_last {
+                m.iter().chain(&h).copied().collect()
+            } else {
+                h.iter().chain(&m).copied().collect()
+            };
+        }
         self.roots
             .get(concept)
+            .cloned()
             .unwrap_or_else(|| panic!("no root for {concept:?}"))
     }
 }
@@ -141,12 +220,15 @@ pub fn generate(
     include: &dyn Fn(&concepts::Concept) -> bool,
 ) -> Lexicon {
     let mut roots = BTreeMap::new();
-    for concept in concepts::all().iter().filter(|c| include(c)) {
+    for concept in concepts::all()
+        .iter()
+        .filter(|c| !c.is_built() && include(c))
+    {
         let syllables = syllables_for(rng, concept.pos);
         let root = maker.make(rng, syllables, concept.pos);
         roots.insert(concept.id.clone(), root);
     }
-    Lexicon { roots }
+    Lexicon::new(roots, maker.morphology)
 }
 
 /// Levenshtein distance over phonemes.

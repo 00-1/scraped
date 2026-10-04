@@ -223,7 +223,7 @@ const ANIMALS: &[Form] = &[
 const PLANTS: &[Form] = &[
     f("tree", "oak", F | O, T),
     f("tree", "beech", F, T),
-    f("tree", "ash", F | O, T),
+    f("tree", "ash tree", F | O, T),
     f("tree", "lime", F, T),
     f("tree", "birch", F | P | K | O, C | T),
     f("tree", "alder", M | F, C | T),
@@ -246,7 +246,7 @@ const PLANTS: &[Form] = &[
     f("shrub", "heather", O | K | P, C | T),
     f("shrub", "juniper", K | P | D | O, ALL),
     f("shrub", "blackthorn", O | F, T),
-    f("shrub", "elder", F | O, T),
+    f("shrub", "elderberry", F | O, T),
     f("shrub", "bilberry", P | K, C | T),
     f("shrub", "crowberry", K, C),
     f("shrub", "myrtle", M | D, W | T),
@@ -1102,6 +1102,22 @@ impl Life {
     }
 }
 
+/// The language's concept id for a body plan (D07): spaces and hyphens
+/// become underscores.
+pub fn concept_id(form: &str) -> String {
+    form.replace([' ', '-'], "_")
+}
+
+impl Life {
+    /// The concept ids of this world's species, for its language (D07).
+    pub fn concepts(&self) -> Vec<String> {
+        let mut v: Vec<String> = self.species.iter().map(|s| concept_id(s.form)).collect();
+        v.sort();
+        v.dedup();
+        v
+    }
+}
+
 // ---------- vocabulary, for content ----------
 
 /// Every animal and plant role.
@@ -1326,6 +1342,17 @@ mod tests {
         for h in &life.homes {
             let s = &life.species[h.species];
             assert_eq!(Habitat::of(&t, &w, h.cell.ux(), h.cell.uy()), s.habitat);
+        }
+    }
+
+    #[test]
+    fn every_body_plan_has_a_word() {
+        for f in ANIMALS.iter().chain(PLANTS) {
+            let id = concept_id(f.form);
+            assert!(
+                scraped_lang::concepts::all().iter().any(|c| c.id == id),
+                "no concept for {id}"
+            );
         }
     }
 

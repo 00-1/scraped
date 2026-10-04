@@ -46,6 +46,15 @@ pub struct Syntax {
     pub modifiers: Side,
     /// The possessor relative to the possessed noun.
     pub genitive: Side,
+    /// "that" before or after the reported clause (D07): after in
+    /// verb-final languages, before otherwise.
+    pub linker: Side,
+    /// Adverbial clauses before or after the main clause (D07).
+    pub adverbial: Side,
+    /// Relative clauses before or after their noun (D07).
+    pub relative: Side,
+    /// The degree word (more, most, as) before or after its adjective (D07).
+    pub degree: Side,
 }
 
 impl Syntax {
@@ -63,10 +72,31 @@ impl Syntax {
         } else {
             rng.weighted(&[(Side::Before, 30), (Side::After, 70)])
         };
+        // D07: drawn after the older choices, so they stay as they were.
+        // Real languages tend to put linkers and relative clauses on the
+        // side head direction suggests: after in verb-final languages.
+        // DESIGN-Q: these correlations, and adverbial clauses mostly first.
+        let ov = word_order.verb_final();
+        // Every embedded clause has both edges marked, so it can always be
+        // told where one ends: "that" faces the verb, linking words face the
+        // main clause, the relative word closes its clause on the far side
+        // from the noun, "than" faces the noun.
+        let linker = if ov { Side::After } else { Side::Before };
+        let adverbial = rng.weighted(&[(Side::Before, 65), (Side::After, 35)]);
+        let relative = if ov {
+            rng.weighted(&[(Side::Before, 70), (Side::After, 30)])
+        } else {
+            rng.weighted(&[(Side::After, 85), (Side::Before, 15)])
+        };
+        let degree = rng.weighted(&[(Side::Before, 50), (Side::After, 50)]);
         Syntax {
             word_order,
             modifiers,
             genitive,
+            linker,
+            adverbial,
+            relative,
+            degree,
         }
     }
 
@@ -105,6 +135,13 @@ impl Syntax {
             },
             side(self.genitive, "possessor", "possessed noun"),
             "appositions (titles, 'child of X') follow the name".to_string(),
+            side(self.linker, "'that'", "the reported clause"),
+            side(self.adverbial, "adverbial clauses (when…, because…)", "the main clause; the linking word stands between them"),
+            side(self.relative, "relative clauses", "their noun; the relative word, in the case of the missing part, closes the clause on the far side"),
+            side(self.degree, "more / most / as", "their adjective"),
+            "the compared-with phrase stands outside the adjectives, on the side the adjectives are, with 'than' or 'like' between".to_string(),
+            "clauses of equal standing: and, but, or, then between them".to_string(),
+            "reported speech: that-clause where the object goes; quotations framed by opening and closing words".to_string(),
         ]
     }
 }

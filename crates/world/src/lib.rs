@@ -88,9 +88,13 @@ impl World {
 
     /// A world whose language follows the given difficulty dials.
     pub fn generate_with(seed: u64, difficulty: scraped_lang::difficulty::Difficulty) -> Self {
-        let languages = Language::generate_with(seed, difficulty).eras();
         let mut terrain = Terrain::generate(seed);
         let water = Water::generate(&mut terrain);
+        // The land and its life come first, so the language can have words
+        // for what its people lived among (D07).
+        let life = life::Life::generate(seed, &terrain, &water);
+        let culture = culture(seed, &terrain, &water, &life);
+        let languages = Language::generate_for(seed, difficulty, culture).eras();
         let history = History::generate(seed, &terrain, &water, &languages);
         let geology = geology::Geology::generate(seed, &terrain, &water);
         let towns = towns::plan(seed, &terrain, &water, &geology, &history);
@@ -121,7 +125,6 @@ impl World {
         );
         let mut objects = objects::place(seed, &history, &structures);
         let locks = objects::hide_and_lock(seed, &history, &structures, &features, &mut objects);
-        let life = life::Life::generate(seed, &terrain, &water);
         let sky = sky::Sky::generate(seed, languages.first());
         let phenomena = phenomena::place(seed, &terrain, &water, &geology, &features);
         let names = history.people.iter().map(|p| p.name.clone()).collect();
@@ -168,4 +171,40 @@ impl World {
         let r = self.renderer(text.era);
         r.surface(&r.render(&text.meaning))
     }
+}
+
+/// What a world's people had words for (D07): the sea where the coast is
+/// long, herding on open grassland, farming by rivers and in forests, the
+/// rest left to chance; and the animals and plants of the land.
+fn culture(
+    seed: u64,
+    t: &terrain::Terrain,
+    w: &water::Water,
+    life: &life::Life,
+) -> scraped_lang::Culture {
+    use terrain::{Biome, SIZE};
+    let (mut land, mut coast, mut open, mut river) = (0u32, 0u32, 0u32, 0u32);
+    for y in 0..SIZE {
+        for x in 0..SIZE {
+            if !t.is_land(x, y) {
+                continue;
+            }
+            land += 1;
+            match t.biome.get(x, y) {
+                Biome::Shore | Biome::Marsh => coast += 1,
+                Biome::Grassland | Biome::Scrub => open += 1,
+                _ => {}
+            }
+            if w.is_river(t, x, y) {
+                river += 1;
+            }
+        }
+    }
+    let share = |n: u32| n * 100 / land.max(1);
+    let weights = [
+        ("sea", share(coast) * 3),
+        ("herding", share(open)),
+        ("farming", share(river) * 4),
+    ];
+    scraped_lang::Culture::with_weights(seed, &weights, life.concepts())
 }

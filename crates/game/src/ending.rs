@@ -601,6 +601,9 @@ fn clause(verb: &str, tense: Tense, negative: bool, args: Vec<(Role, NounPhrase)
             .map(|(role, np)| Argument { role, np })
             .collect(),
         adverbs: Vec::new(),
+        aspect: Default::default(),
+        subordinate: Vec::new(),
+        complement: None,
     })
 }
 

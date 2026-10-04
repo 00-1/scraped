@@ -147,7 +147,7 @@ fn sound_change_derives_every_word_exactly() {
                     continue;
                 }
                 let expected = step.apply(&old.phonology.to_ipa(root));
-                let actual = new.phonology.to_ipa(new.lexicon.root(id));
+                let actual = new.phonology.to_ipa(&new.lexicon.root(id));
                 assert_eq!(actual, expected, "seed {seed} era {}: {id}", new.era);
             }
             for (a, b) in old
@@ -190,8 +190,8 @@ fn eras_actually_change_words() {
             .iter()
             .filter(|c| eras[0].lexicon.has(&c.id))
             .filter(|c| {
-                eras[0].romanise(eras[0].lexicon.root(&c.id))
-                    != eras[2].romanise(eras[2].lexicon.root(&c.id))
+                eras[0].romanise(&eras[0].lexicon.root(&c.id))
+                    != eras[2].romanise(&eras[2].lexicon.root(&c.id))
             })
             .count();
         assert!(
@@ -336,6 +336,14 @@ impl Expect<'_> {
             Sentence::Clause(c) => self.clause(c),
             Sentence::List(items) => items.iter().for_each(|np| self.np(np, "")),
             Sentence::Text(parts) => parts.iter().for_each(|p| self.sentence(p)),
+            Sentence::Joined(conj, parts) => {
+                for (i, c) in parts.iter().enumerate() {
+                    if i > 0 {
+                        self.plain(conj.concept());
+                    }
+                    self.clause(c);
+                }
+            }
         }
     }
 }
@@ -595,7 +603,7 @@ fn nouns_inflect_regularly() {
     let m = &lang.morphology;
     for c in concepts::with_pos(Pos::Noun) {
         let root = lang.lexicon.root(&c.id);
-        for f in m.all_forms(root, Pos::Noun) {
+        for f in m.all_forms(&root, Pos::Noun) {
             let extra = f.len() - root.len();
             match m.noun_position {
                 AffixPosition::Suffix => assert_eq!(&f[..root.len()], &root[..]),

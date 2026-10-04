@@ -489,7 +489,7 @@ mod tests {
         let h = LangHooks { lang: &lang };
         assert_eq!(
             h.call("lang.word", &[Value::from("gate")]),
-            Some(lang.romanise(lang.lexicon.root("gate")))
+            Some(lang.romanise(&lang.lexicon.root("gate")))
         );
         assert!(h.call("lang.word", &[Value::from("nonsense")]).is_none());
         assert!(h

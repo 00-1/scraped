@@ -103,7 +103,7 @@ impl GrammarSheet {
             .map(|c| LexiconEntry {
                 concept: c.id.clone(),
                 domain: c.domain,
-                root: lang.romanise(lang.lexicon.root(&c.id)),
+                root: lang.romanise(&lang.lexicon.root(&c.id)),
             })
             .collect();
         // Stable sort keeps file order within each domain.
@@ -114,7 +114,23 @@ impl GrammarSheet {
         };
         let mut morphology_notes = vec![
             format!("nouns: {}", order(m.noun_position, "NUMBER", "CASE")),
-            format!("verbs: {}", order(m.verb_position, "TENSE", "NEG")),
+            format!(
+                "verbs: {}",
+                match m.verb_position {
+                    AffixPosition::Suffix => "root-ASPECT-TENSE-MOOD-NEG",
+                    AffixPosition::Prefix => "NEG-MOOD-TENSE-ASPECT-root",
+                }
+            ),
+            format!(
+                "aspect marked: {}",
+                match m.aspect {
+                    crate::meaning::Aspect::Simple => "none (tense only)",
+                    crate::meaning::Aspect::Perfective => "perfective (a whole, finished event)",
+                    crate::meaning::Aspect::Imperfective => "imperfective (ongoing)",
+                    crate::meaning::Aspect::Habitual => "habitual (usual, repeated)",
+                }
+            ),
+            "moods marked on the verb: optative (may…), conditional (would…), question; commands have no subject".to_string(),
             "unmarked: singular, subject case, non-past, positive".to_string(),
             "adjectives, numerals, 'this' and 'here' never inflect".to_string(),
             "a counted noun is plural when the number is above one".to_string(),
@@ -158,14 +174,18 @@ impl GrammarSheet {
                 .iter()
                 .map(|&c| sound(c).roman)
                 .collect(),
-            affixes: vec![
-                affix(&m.plural, "noun", m.noun_position),
-                affix(&m.object, "noun", m.noun_position),
-                affix(&m.genitive, "noun", m.noun_position),
-                affix(&m.dative, "noun", m.noun_position),
-                affix(&m.past, "verb", m.verb_position),
-                affix(&m.negative, "verb", m.verb_position),
-            ],
+            affixes: m
+                .affix_list()
+                .into_iter()
+                .enumerate()
+                .map(|(i, a)| {
+                    if i < 4 {
+                        affix(a, "noun", m.noun_position)
+                    } else {
+                        affix(a, "verb", m.verb_position)
+                    }
+                })
+                .collect(),
             fusions: m
                 .fusions
                 .iter()
