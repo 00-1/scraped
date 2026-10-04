@@ -1282,6 +1282,17 @@ pub struct MagicCounts {
     pub qualities: usize,
 }
 
+/// How many regions hold a large spell (D09): one reaching a kilometre
+/// and a half or more, written within the region. Of how many regions.
+pub fn regions_with_large(regions: &crate::region::Regions, claims: &[Claim]) -> (usize, usize) {
+    let with: BTreeSet<usize> = claims
+        .iter()
+        .filter(|c| c.range >= 1500.0)
+        .filter_map(|c| regions.at(c.pos))
+        .collect();
+    (with.len(), regions.regions.len())
+}
+
 pub fn magic_counts(w: &World, land: &Land, claims: &[Claim]) -> MagicCounts {
     let kinds: BTreeSet<(Class, Property, bool)> = claims.iter().map(Claim::kind).collect();
     let qualities: BTreeSet<Property> = claims.iter().map(|c| c.property).collect();
@@ -1328,6 +1339,18 @@ pub fn debug(w: &World, land: &Land, writing: &Writing, scraped: &BTreeSet<usize
         m.settlements_without,
         m.concepts_with_powers,
         m.qualities
+    );
+    let mut genres: BTreeMap<String, usize> = BTreeMap::new();
+    for t in &w.texts {
+        *genres.entry(format!("{:?}", t.genre)).or_default() += 1;
+    }
+    let top = genres.iter().max_by_key(|(_, &n)| n);
+    let _ = writeln!(
+        out,
+        "TEXTS  {}, largest genre {:?} at {:.0}%", // DEBUG-TEXT
+        w.texts.len(),
+        top.map(|t| t.0),
+        top.map_or(0.0, |t| *t.1 as f64 * 100.0 / w.texts.len().max(1) as f64)
     );
     let _ = writeln!(out, "LIVE CLAIMS ({})", claims.len()); // DEBUG-TEXT
     for c in &claims {

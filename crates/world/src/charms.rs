@@ -731,6 +731,46 @@ impl K {
     }
 }
 
+/// The genre of a spell, by what it acts on.
+fn genre(c: &Clause) -> Genre {
+    let target = if scraped_lang::powers::carrier(&c.predicate).is_none() {
+        c.arg(scraped_lang::meaning::Role::Object)
+            .or(c.arg(scraped_lang::meaning::Role::Subject))
+    } else {
+        c.arg(scraped_lang::meaning::Role::Subject)
+    };
+    let id = match target.map(|n| &n.head) {
+        Some(scraped_lang::meaning::Head::Concept(id)) => id.as_str(),
+        _ => return Genre::Charm,
+    };
+    if matches!(id, "door" | "gate" | "tomb" | "man" | "temple" | "road")
+        && matches!(
+            c.predicate.as_str(),
+            "open" | "close" | "hold" | "lose" | "find" | "break" | "enter"
+        )
+    {
+        return Genre::Ward;
+    }
+    let concept = concepts::find(id);
+    let outdoor = matches!(
+        id,
+        "field" | "road" | "river" | "sky" | "sea" | "water" | "well" | "hill"
+    ) || concept.is_some_and(|k| {
+        [
+            "landform", "water", "liquid", "heaven", "air", "plant", "animal", "bird", "insect",
+        ]
+        .iter()
+        .any(|t| k.has_tag(t))
+    });
+    if outdoor {
+        Genre::Invocation
+    } else if matches!(id, "door" | "gate" | "tomb") {
+        Genre::Ward
+    } else {
+        Genre::Charm
+    }
+}
+
 /// What a later hand did to a spell.
 #[derive(Clone, Copy)]
 enum After {
@@ -828,7 +868,7 @@ pub fn write(
         let mut options = own;
         let mut lesser = lesser;
         let more = if st.kind.outdoors_work() { 2 } else { 1 };
-        for _ in 0..more + rng.below(2) {
+        for _ in 0..more {
             if lesser.is_empty() {
                 break;
             }
@@ -848,12 +888,34 @@ pub fn write(
         }
         // DESIGN-Q: one to three everyday spells a building, by size of
         // the place: a house one or two, a hall or temple up to three.
-        let n =
-            (more as usize + 1 + rng.below(if st.settlement.is_some() { 2 } else { 1 }) as usize)
-                .min(options.len());
+        // DESIGN-Q: a building carries one everyday spell (two if its
+        // work lies out of doors), and another half the time.
+        let n = (more as usize + rng.below(2) as usize).min(options.len());
         let start = rng.index(options.len());
         for k in 0..n {
             let recipe = &options[(start + k) % options.len()];
+            // DESIGN-Q: out in the open land, away from towns, a building's
+            // first spell was written to reach widely: the large spells
+            // that make a whole stretch of country strange.
+            let wide;
+            let recipe = if k == 0 && structures[sid].settlement.is_none() {
+                let mut c = recipe.clause.clone();
+                c.adverbs.retain(|a| a != "here");
+                if !c.adverbs.iter().any(|a| a == "widely") {
+                    c.adverbs.push("widely".into());
+                }
+                wide = Recipe {
+                    clause: c,
+                    features: recipe.features,
+                };
+                if sayable(lang, &wide.clause) {
+                    &wide
+                } else {
+                    recipe
+                }
+            } else {
+                recipe
+            };
             let at = surface(&mut rng, &structures[sid], recipe.features);
             let year = structures[sid].built + rng.below(20) as i32;
             put(
@@ -863,7 +925,7 @@ pub fn write(
                 Written {
                     era,
                     year,
-                    genre: Genre::Potent,
+                    genre: genre(&recipe.clause),
                     meaning: Sentence::Clause(recipe.clause.clone()),
                     author: None,
                     event: None,
@@ -921,7 +983,7 @@ pub fn write(
                 Written {
                     era: later_era,
                     year: later_year,
-                    genre: Genre::Potent,
+                    genre: genre(&clause),
                     meaning: Sentence::Clause(clause),
                     author: None,
                     event: None,

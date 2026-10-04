@@ -456,6 +456,11 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
     put("magic.properties", scraped_lang::powers::qualities() as f64);
     put("magic.live_properties", counts.qualities as f64);
     put("magic.conditional_spells", counts.conditional as f64);
+    let (large, regions) = scraped_sim::writing::regions_with_large(&site.regions, &claims);
+    put(
+        "magic.regions_with_large_spell_share",
+        large as f64 / regions.max(1) as f64,
+    );
     put(
         "magic.settlements_without_spell",
         counts.settlements_without as f64,

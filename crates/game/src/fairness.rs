@@ -28,6 +28,7 @@ pub const GOALS: &[&str] = &[
     "scraper",
     "first_release",
     "first_write",
+    "powers",
     "great",
     "deepest",
     "leaving",
@@ -281,6 +282,22 @@ pub fn check(site: &Site, preset: &str) -> Report {
         .flatten()
         .collect(),
     );
+    // Powers (D09): every quality a great inscription pushes is also seen
+    // pushed somewhere a player can reach, by another live spell, so its
+    // effect can be met and its words learnt before the great one matters.
+    let live = writing.live_claims(w, &site.land, &writing.scraped);
+    let unattested: Vec<String> = site
+        .greats
+        .iter()
+        .filter_map(|g| live.iter().find(|c| c.text == g.text))
+        .filter(|g| {
+            !live.iter().any(|c| {
+                c.text != g.text && c.property == g.property && reach.structure(c.structure)
+            })
+        })
+        .map(|g| format!("{} pushed only by a great inscription", g.property.name()))
+        .collect();
+    goal("powers", unattested);
     // A great inscription, and the first scraper.
     let great = site.greats.iter().any(|g| reach.text(g.text));
     goal(

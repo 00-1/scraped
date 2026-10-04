@@ -656,6 +656,16 @@ impl Fixtures {
                 st.settlement != Some(start)
                     && matches!(st.kind, StructureKind::Archive | StructureKind::Temple)
                     && st.condition != Condition::Buried
+                    // Not where writing keeps the rooms dark (D09): a tool
+                    // there could not be found, nor writing read.
+                    && !w.texts.iter().any(|t| {
+                        t.structure == st.id
+                            && crate::writing::claim_of(w, land, t, t.id).is_some_and(|c| {
+                                c.property == crate::writing::Property::Light
+                                    && c.amount < 0
+                                    && c.class.indoors()
+                            })
+                    })
             })
             .map(|st| st.id)
             .filter(|&sid| !self.reachable_rooms(w, sid).is_empty())

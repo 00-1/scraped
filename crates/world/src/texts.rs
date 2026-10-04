@@ -60,6 +60,12 @@ pub enum Genre {
     Blessing,
     /// Festivals, and the moon's days.
     Calendar,
+    /// An everyday spell on a house, a store or a thing (D09).
+    Charm,
+    /// A spell on a door, a tomb or who may pass (D09).
+    Ward,
+    /// A spell on the land, water, sky, plants or beasts (D09).
+    Invocation,
 }
 
 impl Genre {
@@ -88,7 +94,7 @@ impl Genre {
             }
             Genre::Label | Genre::Milestone | Genre::Graffito | Genre::WordList => Kind::Label,
             Genre::Letter => Kind::Letter,
-            Genre::Potent => Kind::Potent,
+            Genre::Potent | Genre::Charm | Genre::Ward | Genre::Invocation => Kind::Potent,
             Genre::Annal
             | Genre::KingList
             | Genre::Court

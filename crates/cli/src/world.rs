@@ -80,12 +80,19 @@ pub fn run(args: &[String]) -> Result<String, String> {
         }
         Some("writing") => {
             let site = scraped_game::site::Site::new(seed);
-            Ok(scraped_sim::writing::debug(
+            let claims = site
+                .writing
+                .live_claims(&site.world, &site.land, &site.writing.scraped);
+            let (large, regions) = scraped_sim::writing::regions_with_large(&site.regions, &claims);
+            Ok(
+                format!("REGIONS WITH A LARGE SPELL {large} of {regions}\n") // DEBUG-TEXT
+                + &scraped_sim::writing::debug(
                 &site.world,
                 &site.land,
                 &site.writing,
                 &site.writing.scraped,
-            ))
+            ),
+            )
         }
         Some("regions") => {
             let g = scraped_game::Game::new(seed, scraped_content::Pack::default());

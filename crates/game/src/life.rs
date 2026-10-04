@@ -107,6 +107,27 @@ impl Game {
         self.state.minutes / 1440 / SEASON_DAYS
     }
 
+    /// What writing does to a species at a point (D09): +1 drawn here or
+    /// thriving, -1 kept off or withering, 0 nothing.
+    fn spelled_for(&self, s: &scraped_world::life::Species, at: scraped_sim::outdoors::Pos) -> i32 {
+        use scraped_sim::writing::{resolve, Class, Property};
+        let id = scraped_world::life::concept_id(s.form);
+        let (class, q) = match s.kingdom {
+            scraped_world::life::Kingdom::Animal => (Class::Animal, Property::Lure),
+            _ => (Class::Plant, Property::Growth),
+        };
+        let env = self.env();
+        let on: Vec<&scraped_sim::writing::Claim> = self
+            .claims
+            .iter()
+            .filter(|c| c.class == class && c.property == q && c.subject == id && c.acts(&env.when))
+            .collect();
+        if on.is_empty() {
+            return 0;
+        }
+        resolve(&on, at).map_or(0, i32::signum)
+    }
+
     /// The living things here now: in these habitats, here this season,
     /// not gone from this region, and found in this patch of it.
     pub(crate) fn life_here(&self) -> Vec<Living> {
@@ -130,15 +151,22 @@ impl Game {
                 if !s.here_in(season) || life_ratio < s.tolerance {
                     continue;
                 }
+                // Writing may draw a kind of beast or make a plant thrive
+                // here, or keep it off and wither it (D09).
+                let spelled = self.spelled_for(s, pos);
+                if spelled < 0 {
+                    continue;
+                }
                 // Patches of about a kilometre: the commoner a species,
                 // the more patches hold it.
                 let patch = hash(&[seed, 0x11fe, s.id as u64, (x / 3) as u64, (y / 3) as u64]) % 10;
-                if patch > u64::from(s.abundance) {
+                if patch > u64::from(s.abundance) && spelled == 0 {
                     continue;
                 }
                 let plenty = (s.abundance as f64 / 10.0)
                     * cycle.factor(s.role).clamp(0.1, 2.0)
-                    * capacity.min(1.5);
+                    * capacity.min(1.5)
+                    * if spelled > 0 { 1.5 } else { 1.0 };
                 out.push(Living {
                     species: s.id,
                     plenty,
