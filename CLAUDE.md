@@ -10,6 +10,8 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 **D10 — The slow realisation** (`docs/milestones/D10-slow-realisation.md`) in the depth roadmap in `docs/DEPTH.md`. D01–D09, S01, S02 and C01 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms, a living world, a language for long texts, sign impressions as whole shapes, history and what the writing says, shared play and versions, the magic deepened). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
+**First, S03 — Before Jb plays** (`docs/milestones/S03-before-jb-plays.md`): tag v0.1.0 so Jb has a build to play, and fix a few wording bugs. Small; finish any D10 step in hand, do S03, then carry on with D10.
+
 Since C01, saves are snapshots and releases follow `docs/VERSIONING.md`: run `scraped-lang saves check` after a change to rules or generation, and prefer changes that need only a minor bump.
 
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
