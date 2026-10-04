@@ -10,6 +10,8 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 **D07 — A language for long texts** (`docs/milestones/D07-language.md`), the seventh milestone of the depth roadmap in `docs/DEPTH.md`. D01–D06 and S01 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms, a living world). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
+**After D07, before D08:** the small steer **S02 — Sign impressions as whole shapes** (`docs/milestones/S02-sign-impressions.md`). Keep it to its scope and one focused session.
+
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
 
 - Work through milestones in order, each within its own spec. Jb has asked for unattended work: when a milestone is complete, carry straight on to the next one rather than stopping to report. Only stop to ask when a decision genuinely blocks progress.
