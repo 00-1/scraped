@@ -408,7 +408,9 @@ pub struct Game {
     pub forced: Option<(&'static str, &'static str)>,
     glyph_cache: BTreeMap<(u32, usize), String>,
     /// Every sign's impression, per era, as rendered (S01).
-    impression_cache: BTreeMap<u32, Vec<String>>,
+    /// Each era's sign impressions, and how many of its signs were heard
+    /// when they were made (a related sign names a heard base by sound).
+    impression_cache: BTreeMap<u32, (usize, Vec<String>)>,
     /// Whether the last command was reading, so `look closer` reads on.
     reading_now: bool,
     /// Facts already said in this response before the description (a move
@@ -1639,7 +1641,9 @@ impl Game {
                     return self.output(vec![t], None);
                 }
                 if !self.thing(i).portable {
-                    let t = self.say("say.take_fixed", named);
+                    let mut c = named.clone();
+                    c.insert("cause".into(), Value::from(""));
+                    let t = self.say("say.take_fixed", c);
                     return self.output(vec![t], None);
                 }
                 if let Some(how) = self.held_by_writing(i) {

@@ -147,6 +147,20 @@ pub fn bots(args: &[String]) -> Result<String, String> {
 /// The seeds sample transcripts are written for.
 pub const SAMPLE_SEEDS: [u64; 3] = [1, 42, 9001];
 
+/// A response as a fenced block that always closes (S03): the fence is
+/// longer than any run of backticks inside, and an empty reply is marked.
+fn block(text: &str) -> String {
+    let text = text.trim_end();
+    let longest = text.split(|c| c != '`').map(str::len).max().unwrap_or(0);
+    let fence = "`".repeat(longest.max(2) + 1);
+    let body = if text.trim().is_empty() {
+        "(no reply)" // DEBUG-TEXT
+    } else {
+        text
+    };
+    format!("{fence}\n{body}\n{fence}\n")
+}
+
 /// `scraped-lang samples`: spoiler-free explorer transcripts, for Jb to
 /// read what play feels like now.
 pub fn samples(args: &[String]) -> Result<String, String> {
@@ -170,9 +184,9 @@ pub fn samples(args: &[String]) -> Result<String, String> {
             r.commands.len(),
             r.hours
         );
-        md.push_str(&format!("```\n{}\n```\n", r.texts[0].trim_end()));
+        md.push_str(&block(&r.texts[0]));
         for (c, t) in r.commands.iter().zip(r.texts.iter().skip(1)) {
-            md.push_str(&format!("\n**> {c}**\n\n```\n{}\n```\n", t.trim_end()));
+            md.push_str(&format!("\n**> {c}**\n\n{}", block(t)));
         }
         let path = dir.join(format!("seed-{seed}.md"));
         std::fs::write(&path, md).map_err(|e| format!("cannot write {}: {e}", path.display()))?;

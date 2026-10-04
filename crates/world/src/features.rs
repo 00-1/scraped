@@ -108,6 +108,15 @@ pub struct Inside {
     pub contents: Vec<&'static str>,
 }
 
+/// Whether a feature kind's name is plural ("field walls", "rapids"): it
+/// takes no article (S03).
+pub fn plural_name(kind: &str) -> bool {
+    matches!(
+        kind,
+        "rapids" | "tidal flats" | "standing stones" | "terraces" | "field walls"
+    )
+}
+
 /// One feature on the land.
 #[derive(Debug, Clone, Serialize)]
 pub struct Feature {

@@ -69,6 +69,10 @@ fn s_feature(_: u64) -> Vec<Context> {
         .map(|(i, k)| {
             ctx(&[
                 ("kind", Value::from(k.id)),
+                (
+                    "plural",
+                    Value::Bool(scraped_world::features::plural_name(k.id)),
+                ),
                 ("group", Value::from(scraped_sim::outdoors::label(&k.group))),
                 (
                     "bearing",
@@ -95,6 +99,10 @@ fn s_feature_closer(_: u64) -> Vec<Context> {
         .map(|(i, k)| {
             ctx(&[
                 ("kind", Value::from(k.id)),
+                (
+                    "plural",
+                    Value::Bool(scraped_world::features::plural_name(k.id)),
+                ),
                 ("group", Value::from(scraped_sim::outdoors::label(&k.group))),
                 ("rock", Value::from(Rock::ALL[i % 6].id())),
                 (
@@ -194,6 +202,7 @@ pub fn slots() -> Vec<SlotDef> {
         // ---------- natural features ----------
         SlotDef::new("land.feature", "A natural feature or old mark on the land close by or in view, as one fact ('A spring wells up at the foot of the slope.', 'Off to the west, a cairn on the ridge.'). Said when the player comes near it; 'look closer' digs in. Never say why it is there: the player works that out.")
             .var("kind", e(&features()), "What it is.")
+            .var("plural", VarType::Bool, "Whether its name is plural ('field walls', 'rapids'): then it takes no article.")
             .var("group", e(FEATURE_GROUPS), "What sort of thing: water, rock, life, or old marks people left on the land.")
             .var("bearing", e(&[&["here"][..], &BEARINGS].concat()), "Which way it lies, or here when the player stands at it.")
             .var("distance", e(&DISTANCES), "How far by eye (near when here).")
@@ -206,6 +215,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_feature_name),
         SlotDef::new("feature.closer", "What looking closer at a natural feature or old mark finds: the second layer of detail, from what it is and the rock it is in. A cave or sea cave has an inside, which the player cannot yet enter. Never explain its cause outright.")
             .var("kind", e(&features()), "What it is.")
+            .var("plural", VarType::Bool, "Whether its name is plural ('field walls'): then it takes no article.")
             .var("group", e(FEATURE_GROUPS), "Water, rock, life or old marks.")
             .var("rock", e(&rocks()), "The rock there: granite, slate, limestone, sandstone, basalt or clay.")
             .var("inside", VarType::Bool, "Whether it opens into a space beyond (a cave).")

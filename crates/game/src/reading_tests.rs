@@ -187,7 +187,7 @@ fn impressions_never_name_strokes() {
             for lang in Language::generate_with(seed, difficulty).eras() {
                 let hooks = LangHooks { lang: &lang };
                 let mut r = Renderer::new(&registry, &pack, seed, &hooks);
-                for text in impression_texts(&mut r, &lang.script, false) {
+                for text in impression_texts(&mut r, &lang.script, false, &|_| None) {
                     let words = text
                         .split(|c: char| !c.is_alphabetic() && c != '-' && c != '\'')
                         .map(str::to_lowercase);
@@ -199,6 +199,39 @@ fn impressions_never_name_strokes() {
                         );
                     }
                 }
+            }
+        }
+    }
+}
+
+/// S03: a related sign names its base so that it can be found: by a
+/// resemblance no other sign shares, or by a look no other sign has.
+#[test]
+fn related_signs_name_a_findable_base() {
+    use scraped_content::Renderer;
+    use scraped_lang::impression::impressions;
+    use scraped_lang::slots::{impression_texts, LangHooks};
+    use scraped_lang::Language;
+    let pack = crate::composing_tests::pack();
+    let registry = crate::slots::registry_for(&pack);
+    for seed in [1u64, 42, 9001] {
+        for lang in Language::generate(seed).eras() {
+            let hooks = LangHooks { lang: &lang };
+            let mut r = Renderer::new(&registry, &pack, seed, &hooks);
+            let texts = impression_texts(&mut r, &lang.script, false, &|_| None);
+            let imps = impressions(&lang.script, false);
+            for (i, imp) in imps.iter().enumerate() {
+                let Some(j) = imp.told.like else { continue };
+                let res = imps[j].told.resembles;
+                let unique_res =
+                    !res.is_empty() && imps.iter().filter(|x| x.told.resembles == res).count() == 1;
+                let unique_look = texts.iter().filter(|t| **t == texts[j]).count() == 1;
+                assert!(
+                    unique_res || unique_look,
+                    "seed {seed} era {}: sign {i}'s base can't be told: {}",
+                    lang.era,
+                    texts[i]
+                );
             }
         }
     }

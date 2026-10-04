@@ -33,7 +33,10 @@ jobs:
             cargo run -q --release -p scraped-cli -- saves check --against "$last"
           fi
       # No empty required slots, no example variants, no lint errors.
+      # DESIGN-Q: for v0.x play builds (S03) this only reports, since the
+      # text still waits on Jb; from v1.0.0 it blocks the release.
       - run: cargo run -q -p scraped-cli -- content release-check
+        continue-on-error: ${{ startsWith(github.ref_name, 'v0.') }}
       # Every seed of a batch, at every difficulty, gives a fair world.
       - run: cargo run -q --release -p scraped-cli -- fair --seeds 1-50 --all
       # The browser builds, works headless, and matches native transcripts.

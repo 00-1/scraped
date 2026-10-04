@@ -60,7 +60,13 @@ impl Game {
     /// A sign as it looks at a glance, through `glyph.impression`. Stable:
     /// the same sign always gives the same impression.
     pub(crate) fn sign_impression(&mut self, era: u32, index: usize) -> String {
-        if let Some(t) = self.impression_cache.get(&era).and_then(|v| v.get(index)) {
+        let heard_here = self.state.heard.iter().filter(|h| h.0 == era).count();
+        if let Some(t) = self
+            .impression_cache
+            .get(&era)
+            .filter(|(n, _)| *n == heard_here)
+            .and_then(|(_, v)| v.get(index))
+        {
             return t.clone();
         }
         let confusable = self.preset == "archaeologist";
@@ -68,7 +74,14 @@ impl Game {
         let hooks = LangHooks { lang };
         let seed = self.seed() ^ (u64::from(era) << 40 | 0x1e55);
         let mut r = Renderer::new(&self.registry, &self.pack, seed, &hooks);
-        let texts = impression_texts(&mut r, &lang.script, confusable);
+        let heard = |j: usize| {
+            self.state
+                .heard
+                .contains(&(era, j))
+                .then(|| self.sign_sound(era, j))
+                .flatten()
+        };
+        let texts = impression_texts(&mut r, &lang.script, confusable, &heard);
         let traces = std::mem::take(&mut r.trace);
         drop(r);
         let minutes = self.state.minutes;
@@ -80,7 +93,7 @@ impl Game {
                 seed,
             }));
         let t = texts.get(index).cloned().unwrap_or_default();
-        self.impression_cache.insert(era, texts);
+        self.impression_cache.insert(era, (heard_here, texts));
         t
     }
 
@@ -211,10 +224,19 @@ impl Game {
         }
         if let Some(&(_, true)) = seen.first() {
             let lost = signs.iter().filter(|s| s.2).count();
+            // S03: an impression, not a count ('read closely' shows each
+            // lost sign).
+            let share = lost * 100 / signs.len().max(1);
+            let amount = match share {
+                0..=15 => "a few",
+                16..=40 => "some",
+                41..=60 => "about half",
+                61..=85 => "most",
+                _ => "nearly all",
+            };
             let c = ctx(&[
                 ("material", Value::from(label(&self.thing(thing).material))),
-                ("lost", Value::Number(lost as i64)),
-                ("glyphs", Value::Number(signs.len() as i64)),
+                ("lost", Value::from(amount)),
             ]);
             parts.push(self.say("read.scraped", c));
         }

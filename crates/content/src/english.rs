@@ -22,12 +22,44 @@ pub fn capitalise(s: &str) -> String {
     }
 }
 
-/// Regular English plural, applied unless `n` is 1.
+#[derive(serde::Deserialize)]
+struct Plurals {
+    unchanging: Vec<String>,
+    irregular: std::collections::BTreeMap<String, String>,
+}
+
+fn plurals() -> &'static Plurals {
+    static P: std::sync::OnceLock<Plurals> = std::sync::OnceLock::new();
+    P.get_or_init(|| {
+        toml::from_str(include_str!("../data/plurals.toml")).expect("data/plurals.toml is valid")
+    })
+}
+
+/// Whether a name is the same in the plural ("deer", "provisions").
+pub fn unchanging(word: &str) -> bool {
+    let last = word.rsplit([' ', '-', '_']).next().unwrap_or(word);
+    plurals().unchanging.iter().any(|u| u == last)
+}
+
+/// English plural, applied unless `n` is 1 (S03: irregular and unchanging
+/// names listed in data; a name of several words takes it on its last).
 pub fn plural_if(word: &str, n: i64) -> String {
     if n == 1 {
         return word.to_string();
     }
-    let w = word;
+    let split = word.rfind([' ', '-', '_']).map_or(0, |i| i + 1);
+    let (head, w) = word.split_at(split);
+    let p = plurals();
+    if p.unchanging.iter().any(|u| u == w) {
+        return word.to_string();
+    }
+    if let Some(irr) = p.irregular.get(w) {
+        return format!("{head}{irr}");
+    }
+    format!("{head}{}", regular_plural(w))
+}
+
+fn regular_plural(w: &str) -> String {
     if w.ends_with('s') || w.ends_with('x') || w.ends_with("ch") || w.ends_with("sh") {
         format!("{w}es")
     } else if w.ends_with('y') && !w.ends_with("ay") && !w.ends_with("ey") && !w.ends_with("oy") {

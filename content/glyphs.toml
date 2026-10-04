@@ -17,5 +17,5 @@ example = true
 
 [[variant]]
 slot = "glyph.impression"
-text = "[if like]like {like}, with {list added}[else]{a proportion}, {curve} sign[if resembles] like {a resembles}[end][if parts], with {list parts}[end][if pieces], pieces: {pieces}[end][if holes], closed spaces: {holes}[end][if symmetry], even {symmetry}[end][if busy], {busy}[end][if leans], leaning {leans}[end][if weight], {weight}[end][if sits], sitting {sits}[end][if runs], running {runs}[end][end]"
+text = "[if like]like [if like_sound]the «{like_sound}» sign[else][if like_resembles]the {like_resembles} sign[else]{like}[end][end], with {list added}[else]{a proportion}, {curve} sign[if resembles] like {a resembles}[end][if parts], with {list parts}[end][if pieces], pieces: {pieces}[end][if holes], closed spaces: {holes}[end][if symmetry], even {symmetry}[end][if busy], {busy}[end][if leans], leaning {leans}[end][if weight], {weight}[end][if sits], sitting {sits}[end][if runs], running {runs}[end][end]"
 example = true

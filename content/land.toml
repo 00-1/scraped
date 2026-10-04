@@ -37,7 +37,7 @@ example = true
 
 [[variant]]
 slot = "land.feature"
-text = "[if bearing == 'here']{cap a kind} here[else]{cap a kind} to the {bearing}[end]"
+text = "[if plural]{cap kind}[else]{cap a kind}[end][if bearing == 'here'] here[else] to the {bearing}[end]"
 example = true
 
 [[variant]]

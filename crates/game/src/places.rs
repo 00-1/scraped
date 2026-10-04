@@ -184,6 +184,10 @@ impl Game {
                 sal,
                 ctx(&[
                     ("kind", Value::from(feat.kind)),
+                    (
+                        "plural",
+                        Value::Bool(scraped_world::features::plural_name(feat.kind)),
+                    ),
                     ("group", Value::from(label(&k.group))),
                     ("bearing", Value::from(b.map_or("here", |b| BEARINGS[b]))),
                     ("distance", Value::from(distance_band(d))),
@@ -304,6 +308,10 @@ impl Game {
         let last = self.site.world.history.eras.len() as u32;
         let c = ctx(&[
             ("kind", Value::from(feat.kind)),
+            (
+                "plural",
+                Value::Bool(scraped_world::features::plural_name(feat.kind)),
+            ),
             ("group", Value::from(label(&k.group))),
             ("rock", Value::from(feat.rock.id())),
             ("inside", Value::Bool(feat.inside.is_some())),

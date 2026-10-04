@@ -1,0 +1,45 @@
+# English plurals the rule can't make (S03). Everything else is regular:
+# -s, -es after s/x/ch/sh, -ies after a consonant and y.
+#
+# `irregular`: singular → plural. `unchanging`: the same in both (mass
+# nouns, names already plural, and beasts said the same: "two deer").
+
+unchanging = [
+    "provisions", "berries", "nuts", "fungi", "greens", "game", "fish", "deer", "sheep",
+    "moose", "elk", "bison", "swine", "salmon", "trout", "cod", "carp", "pike", "grouse",
+    "wood", "oil", "grain", "wheat", "barley", "rice", "flax", "hemp", "moss", "grass",
+    "water", "wine", "ale", "honey", "salt", "clay", "sand", "ash", "dust", "cloth",
+    "bread", "cheese", "wool", "linen", "leather", "iron", "bronze", "copper", "gold", "silver",
+    "tin", "lead", "bones", "remains", "stairs", "scissors", "tongs", "shears", "bellows",
+    "cattle", "dice", "kelp", "wrack", "eelgrass", "seaweed",
+]
+
+[irregular]
+man = "men"
+woman = "women"
+child = "children"
+ox = "oxen"
+mouse = "mice"
+louse = "lice"
+goose = "geese"
+foot = "feet"
+tooth = "teeth"
+wolf = "wolves"
+calf = "calves"
+half = "halves"
+knife = "knives"
+penknife = "penknives"
+leaf = "leaves"
+loaf = "loaves"
+shelf = "shelves"
+wife = "wives"
+thief = "thieves"
+sheaf = "sheaves"
+hoof = "hooves"
+scarf = "scarves"
+elf = "elves"
+self = "selves"
+cactus = "cacti"
+fungus = "fungi"
+crisis = "crises"
+octopus = "octopuses"

@@ -645,6 +645,18 @@ fn s_rim(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_take_fixed(_: u64) -> Vec<Context> {
+    ["", "rubble", "locked"]
+        .iter()
+        .map(|c| {
+            ctx(&[
+                ("thing", Value::from("the altar")),
+                ("cause", Value::from(*c)),
+            ])
+        })
+        .collect()
+}
+
 fn s_fast(_: u64) -> Vec<Context> {
     ["bound", "heavy"]
         .iter()
@@ -1320,19 +1332,14 @@ fn s_glyph_number(_: u64) -> Vec<Context> {
     vec![ctx(&[("number", Value::Number(4))])]
 }
 
+/// How much of a scraped layer is lost, as `read.scraped` says it (S03).
+const LOST: &[&str] = &["a few", "some", "about half", "most", "nearly all"];
+
 fn s_scraped(_: u64) -> Vec<Context> {
-    vec![
-        ctx(&[
-            ("material", Value::from("stone")),
-            ("lost", Value::Number(7)),
-            ("glyphs", Value::Number(18)),
-        ]),
-        ctx(&[
-            ("material", Value::from("plaster")),
-            ("lost", Value::Number(12)),
-            ("glyphs", Value::Number(20)),
-        ]),
-    ]
+    LOST.iter()
+        .zip(["stone", "plaster", "clay", "wood", "metal"])
+        .map(|(l, m)| ctx(&[("material", Value::from(m)), ("lost", Value::from(*l))]))
+        .collect()
 }
 
 fn s_ghosts(_: u64) -> Vec<Context> {
@@ -1494,7 +1501,8 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.take", "The player picks something up.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("say.take_fixed", "The player tries to pick up something that cannot be carried (an altar, a wall).")
             .var("thing", VarType::Text, thing)
-            .sampler(s_named),
+            .var("cause", e(&["", "rubble", "fallen", "locked", "works", "calendar"]), "Why it won't come (S03): '' for a fixed thing; for a way that is stuck, rubble in it, fallen stone, a lock, a works gate with no handle this side, or a calendar door on the wrong day.")
+            .sampler(s_take_fixed),
         SlotDef::new("say.take_held", "The player tries to pick up something already carried.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("say.drop", "The player puts something down.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("say.drop_unheld", "The player tries to drop something not carried.").var("thing", VarType::Text, thing).sampler(s_named),
@@ -1892,8 +1900,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_glyph_number),
         SlotDef::new("read.scraped", "Before a scraped layer's glyphs: this writing was scraped, and only part of it survives ('Beneath the scouring, a few strokes survive:').")
             .var("material", e(materials()), "The surface.")
-            .var("lost", VarType::Number, "How many glyphs are lost to the eye (more survive in better light).")
-            .var("glyphs", VarType::Number, "How many glyphs there were.")
+            .var("lost", e(LOST), "How much is lost to the eye, roughly (more survives in better light); never an exact count: 'read closely' shows each worn sign.")
             .max_len(200)
             .sampler(s_scraped),
         SlotDef::new("read.ghosts", "Fainter marks lie beneath what can be read: older layers, too faint to make out yet.")

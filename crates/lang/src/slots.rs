@@ -166,6 +166,18 @@ pub fn slots() -> Vec<SlotDef> {
              otherwise).",
         )
         .var(
+            "like_sound",
+            VarType::Text,
+            "S03: the sound of the 'like' sign, romanised, once the player has heard it \
+             ('' otherwise): say the base by its sound, the way the player knows it.",
+        )
+        .var(
+            "like_resembles",
+            VarType::Text,
+            "S03: what the 'like' sign resembles, when no other sign of the script \
+             resembles it ('' otherwise): the base said so it can be found.",
+        )
+        .var(
             "added",
             VarType::List,
             "What this sign adds to the 'like' sign, each from glyph.part.",
@@ -224,10 +236,17 @@ fn impression_samples(seed: u64) -> Vec<Context> {
         .take(30)
         .map(|imp| {
             let t = &imp.told;
-            let like = t
-                .like
-                .map(|j| format!("a {} sign", imps[j].told.proportion))
-                .unwrap_or_default();
+            let like = Base {
+                look: t
+                    .like
+                    .map(|j| format!("a {} sign", imps[j].told.proportion))
+                    .unwrap_or_default(),
+                sound: String::new(),
+                resembles: t
+                    .like
+                    .map(|j| imps[j].told.resembles.to_string())
+                    .unwrap_or_default(),
+            };
             impression_context(
                 t,
                 t.parts.iter().map(plain).collect(),
@@ -238,7 +257,15 @@ fn impression_samples(seed: u64) -> Vec<Context> {
         .collect()
 }
 
-fn impression_context(t: &Told, parts: Vec<Value>, like: String, added: Vec<Value>) -> Context {
+/// What a related sign's base is called (S03): its sound if heard, else
+/// its resemblance if no other sign shares it, else its whole look.
+pub struct Base {
+    pub look: String,
+    pub sound: String,
+    pub resembles: String,
+}
+
+fn impression_context(t: &Told, parts: Vec<Value>, like: Base, added: Vec<Value>) -> Context {
     [
         ("proportion", Value::from(t.proportion)),
         ("curve", Value::from(t.curve)),
@@ -252,7 +279,9 @@ fn impression_context(t: &Told, parts: Vec<Value>, like: String, added: Vec<Valu
         ("weight", Value::from(t.weight)),
         ("sits", Value::from(t.sits)),
         ("runs", Value::from(t.runs)),
-        ("like", Value::from(like)),
+        ("like", Value::from(like.look)),
+        ("like_sound", Value::from(like.sound)),
+        ("like_resembles", Value::from(like.resembles)),
         ("added", Value::List(added)),
     ]
     .into_iter()
@@ -268,8 +297,14 @@ pub fn part_phrase(r: &mut Renderer, p: &Part) -> String {
 /// Every sign of a script as it is seen at a glance, through Jb's
 /// templates (`glyph.impression`, with parts from `glyph.part`), in
 /// table order. `confusable` leaves a few alike (archaeologist).
-pub fn impression_texts(r: &mut Renderer, script: &Script, confusable: bool) -> Vec<String> {
+pub fn impression_texts(
+    r: &mut Renderer,
+    script: &Script,
+    confusable: bool,
+    heard: &dyn Fn(usize) -> Option<String>,
+) -> Vec<String> {
     let imps = impressions(script, confusable);
+    let shared = |res: &str| imps.iter().filter(|i| i.told.resembles == res).count() > 1;
     let mut texts: Vec<Option<String>> = vec![None; imps.len()];
     // Signs told by their own look first: related signs use them.
     for pass in 0..2 {
@@ -288,7 +323,16 @@ pub fn impression_texts(r: &mut Renderer, script: &Script, confusable: bool) -> 
                 .iter()
                 .map(|p| Value::from(part_phrase(r, p)))
                 .collect();
-            let like = t.like.and_then(|j| texts[j].clone()).unwrap_or_default();
+            let like = Base {
+                look: t.like.and_then(|j| texts[j].clone()).unwrap_or_default(),
+                sound: t.like.and_then(heard).unwrap_or_default(),
+                resembles: t
+                    .like
+                    .map(|j| imps[j].told.resembles)
+                    .filter(|r| !r.is_empty() && !shared(r))
+                    .unwrap_or_default()
+                    .to_string(),
+            };
             let c = impression_context(t, parts, like, added);
             texts[i] = Some(r.render("glyph.impression", &c));
         }

@@ -42,7 +42,7 @@ example = true
 
 [[variant]]
 slot = "read.scraped"
-text = "This writing was scraped; {lost} of {glyphs} glyphs are lost."
+text = "This writing was scraped; {lost} of its signs are lost."
 example = true
 
 [[variant]]

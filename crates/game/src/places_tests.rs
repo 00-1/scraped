@@ -244,3 +244,59 @@ fn arriving_somewhere_describes_it_first() {
     }
     assert!(arrived >= 6, "too few arrivals to judge: {arrived}");
 }
+
+/// S03: every creature, plant, thing and object name has a plural that
+/// differs from it (unless listed as unchanging), and none doubles its
+/// ending.
+#[test]
+fn every_name_has_a_plural() {
+    use scraped_content::english::{plural_if, unchanging};
+    for seed in [1u64, 42, 9001] {
+        let g = crate::Game::new(seed, scraped_content::Pack::default());
+        let mut names: Vec<String> = g
+            .site
+            .world
+            .life
+            .species
+            .iter()
+            .map(|s| s.form.to_string())
+            .collect();
+        names.extend(g.site.things.iter().map(|t| t.kind.to_string()));
+        names.extend(g.site.world.objects.iter().map(|o| o.kind.to_string()));
+        names.extend(scraped_sim::items::ids().iter().map(|s| s.to_string()));
+        names.sort();
+        names.dedup();
+        for n in names {
+            let n = n.replace('_', " ");
+            let p = plural_if(&n, 2);
+            assert!(!p.ends_with("seses"), "{n} → {p}");
+            assert!(p != n || unchanging(&n), "{n} has no plural");
+        }
+    }
+}
+
+/// S03: a feature whose name is plural takes no article.
+#[test]
+fn plural_features_take_no_article() {
+    let mut g = crate::Game::new(1, crate::composing_tests::pack());
+    for k in scraped_world::features::KINDS {
+        let c = crate::site::ctx(&[
+            ("kind", scraped_content::Value::from(k.id)),
+            (
+                "plural",
+                scraped_content::Value::Bool(scraped_world::features::plural_name(k.id)),
+            ),
+            (
+                "group",
+                scraped_content::Value::from(scraped_sim::outdoors::label(&k.group)),
+            ),
+            ("bearing", scraped_content::Value::from("west")),
+            ("distance", scraped_content::Value::from("near")),
+            ("rock", scraped_content::Value::from("granite")),
+        ]);
+        let t = g.say("land.feature", c);
+        if scraped_world::features::plural_name(k.id) {
+            assert!(!t.starts_with("A ") && !t.starts_with("An "), "{t}");
+        }
+    }
+}

@@ -17,5 +17,5 @@ example = true
 
 [[variant]]
 slot = "life.seen"
-text = "{cap count} {colour} {form} to the {bearing}, {doing}."
+text = "{cap count} {colour} [if count == 'one']{form}[else]{plural form 2}[end] to the {bearing}, {doing}."
 example = true
