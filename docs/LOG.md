@@ -686,3 +686,7 @@ Review of D04–D06: targets met except those already reported (features visited
 **New content slots:** `glyph.part` (part, place, facing). Changed: `glyph.impression` (proportion, curve, resembles, parts, pieces, holes, symmetry, busy, leans, weight, sits, runs, like, added; no strokes), `glyph.closer` (proportion, curve, busy, symmetry, pieces, holes, resembles, distinctive from glyph.part; no main stroke or count).
 
 **Next:** D08.
+
+## 2026-10-04 — C01 added (shared play and versions)
+
+Jb's decisions: trust the AI but make the engine hard to see inside (a stripped player build with spoilers compiled out, text embedded, opaque saves, no undo); the player build is public on GitHub Pages and worlds sync to a private location; a short fair-play note is shown to agents; versioning by major/minor, preferring minor. Because saves replay commands today, minor updates would change old worlds, so C01 also moves saves to snapshots. Added `docs/milestones/C01-shared-play-and-versions.md`, to do after D08.
