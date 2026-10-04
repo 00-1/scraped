@@ -668,6 +668,15 @@ impl History {
         build_roads(&mut b);
         crate::society::deepen(seed, &mut b.h, t, w, langs);
         let mut h = b.h;
+        // DESIGN-Q: half the common folk lie in unmarked graves (D08: tombs
+        // had been most of what was written).
+        for e in &mut h.events {
+            if let EventKind::Death { person, .. } = e.kind {
+                if h.people[person].role == Role::Commoner && person % 2 == 0 {
+                    e.evidence.retain(|x| *x != Evidence::Tomb);
+                }
+            }
+        }
         h.events.sort_by_key(|e| (e.year, e.id));
         // Keep ids equal to positions after sorting, remapping references.
         let remap: Vec<usize> = {

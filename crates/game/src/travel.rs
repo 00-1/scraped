@@ -546,6 +546,11 @@ impl Game {
                 bx = f64::from(pos.x);
                 by = f64::from(pos.y);
             }
+            // Reaching the goal comes before anything newly in sight: the
+            // arrival says where the player is (D08: busier lands).
+            if matches!(&goal, Goal::To(g) if pos.dist(*g) <= ARRIVE) {
+                break;
+            }
             if let Some(t) = self.site.land.town(&self.site.world, pos) {
                 if let Some(i) = self
                     .site
@@ -818,8 +823,32 @@ mod tests {
 
     #[test]
     fn drift_needs_blindness_and_is_reproducible() {
+        // A start in open country: woods hide the sun, and drift there is
+        // right (the walk is seed 42's unless its walk runs into woods).
+        let open = |seed| {
+            let mut g = game(seed, CLEAR);
+            g.spoil = true;
+            [
+                "head north",
+                "head east",
+                "head south",
+                "head west",
+                "head north",
+            ]
+            .iter()
+            .all(|d| {
+                let o = g.step(d);
+                o.truth
+                    .as_ref()
+                    .is_some_and(|t| t["blind_steps"].as_i64() == Some(0))
+            })
+        };
+        let seed = [42u64, 1, 7, 3, 9001, 5]
+            .into_iter()
+            .find(|&s| open(s))
+            .expect("a start in open country");
         let run = |forced| {
-            let mut g = game(42, forced);
+            let mut g = game(seed, forced);
             g.spoil = true;
             let mut worst = 0i64;
             for d in [

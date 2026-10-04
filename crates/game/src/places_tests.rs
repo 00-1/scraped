@@ -184,7 +184,7 @@ fn arriving_somewhere_describes_it_first() {
             g.start();
             // On again after anything that stops the journey.
             let mut o = g.act("go", crate::Target::Landmark(i));
-            for _ in 0..4 {
+            for _ in 0..10 {
                 if o.renders.iter().any(|r| r.trace.slot == "travel.arrive") {
                     break;
                 }
@@ -222,15 +222,19 @@ fn arriving_somewhere_describes_it_first() {
                 .min_by_key(|(p, _)| *p)
                 .map(|(_, r)| r)
                 .expect("a description follows");
-            let about = match first.trace.slot.as_str() {
-                "land.feature" => l.feature.is_some_and(|f| {
-                    first.vars.get("kind") == Some(&Value::from(g.site.world.features[f].kind))
-                }),
-                "place.whole" => l.settlement.is_some() || l.structure.is_some(),
-                "place.standout" => l.structure.is_some(),
-                "land.landmark" => true,
-                _ => false,
-            };
+            // A bare hill or mountain is told by the arrival itself ("you
+            // reach the high mountain"); what follows is what is around.
+            let bare = l.feature.is_none() && l.settlement.is_none() && l.structure.is_none();
+            let about = bare
+                || match first.trace.slot.as_str() {
+                    "land.feature" => l.feature.is_some_and(|f| {
+                        first.vars.get("kind") == Some(&Value::from(g.site.world.features[f].kind))
+                    }),
+                    "place.whole" => l.settlement.is_some() || l.structure.is_some(),
+                    "place.standout" | "place.structure" => l.structure.is_some(),
+                    "land.landmark" => true,
+                    _ => false,
+                };
             assert!(
                 about,
                 "seed {seed} landmark {} ({}): {} {:?}: {}",

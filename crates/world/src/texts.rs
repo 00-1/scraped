@@ -444,11 +444,6 @@ pub fn place(seed: u64, h: &History, structures: &mut [Structure]) -> Vec<Text> 
                         _ => people.first().copied(),
                     };
                     let Some(person) = person else { continue };
-                    // DESIGN-Q: half the common folk lie in unmarked graves
-                    // (D08: tombs were most of what was written).
-                    if h.people[person].role == Role::Commoner && person % 2 == 0 {
-                        continue;
-                    }
                     // A ruler's own tomb, else the town cemetery.
                     let at = structures
                         .iter()

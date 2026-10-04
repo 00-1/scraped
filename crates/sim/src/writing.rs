@@ -372,11 +372,22 @@ impl Writing {
             if let Some((r, f)) = spot {
                 // Visible, safe and unambiguous: a shut door nearby swings
                 // open, or else the rooms grow warm.
-                let door = st
-                    .interior
-                    .links
-                    .iter()
-                    .any(|l| l.passage == Passage::Door && l.state == PassageState::Closed);
+                // Not where older writing already holds the doors: opening
+                // them would change nothing to see.
+                let held = w.history.events.iter().any(|e| match &e.kind {
+                    scraped_world::history::EventKind::Writing { effect, .. } => {
+                        effect.property == scraped_world::history::Property::Openness
+                            && effect.cell.dist2(st.cell)
+                                <= i64::from(effect.radius) * i64::from(effect.radius)
+                    }
+                    _ => false,
+                });
+                let door = !held
+                    && st
+                        .interior
+                        .links
+                        .iter()
+                        .any(|l| l.passage == Passage::Door && l.state == PassageState::Closed);
                 let (verb, subject) = if door {
                     ("open", "door")
                 } else {

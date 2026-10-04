@@ -71,6 +71,17 @@ fn stock_up(g: &mut Game) {
             };
             g.pass(2);
             for t in g.here() {
+                // Two torches are plenty: a load of them leaves no room for
+                // a firesteel.
+                let torches = g
+                    .state
+                    .carried
+                    .iter()
+                    .filter(|&&c| g.thing(c).kind == "torch")
+                    .count();
+                if g.thing(t).kind == "torch" && torches >= 2 {
+                    continue;
+                }
                 if USEFUL.contains(&g.thing(t).kind) && !g.overloaded_by(t) {
                     g.act("take", Target::Thing(t));
                 }

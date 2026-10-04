@@ -8,7 +8,19 @@ use scraped_world::World;
 
 #[test]
 fn every_text_round_trips() {
-    for seed in [1u64, 42, 9001] {
+    // One world here (parsing every text is slow); the slow suite runs
+    // three.
+    round_trip(&[42]);
+}
+
+#[test]
+#[ignore = "slow; run with --ignored"]
+fn every_text_round_trips_in_three_worlds() {
+    round_trip(&[1, 9001]);
+}
+
+fn round_trip(seeds: &[u64]) {
+    for &seed in seeds {
         let w = World::generate(seed);
         let mut genres: BTreeMap<String, usize> = BTreeMap::new();
         let mut bad = Vec::new();

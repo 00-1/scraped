@@ -117,13 +117,9 @@ fn texts_are_in_their_eras_language() {
         for t in &w.texts {
             let lang = &w.languages[t.era as usize];
             let rendered = w.render(t);
-            let names: Vec<_> = w
-                .history
-                .people
-                .iter()
-                .filter(|p| p.era == t.era)
-                .map(|p| p.name.clone())
-                .collect();
+            // Every name as that era says it (D08: texts name people and
+            // towns of earlier eras too).
+            let names: Vec<_> = w.names[t.era as usize].clone();
             let analyses = lang.analyses(&names);
             for word in &rendered.words {
                 let ph = word.phonemes();
