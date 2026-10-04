@@ -530,6 +530,57 @@ pub fn place(seed: u64, h: &History, structures: &[Structure]) -> Vec<Object> {
             }
         }
     }
+    // D08: a merchant's seal lies where he traded, marked with his
+    // family's emblem, for the letters that tell of the journey.
+    for arc in &h.arcs {
+        let Some(&first) = arc.events.first() else {
+            continue;
+        };
+        let crate::history::EventKind::Venture { merchant, to, .. } = h.events[first].kind else {
+            continue;
+        };
+        let store = structures
+            .iter()
+            .filter(|st| st.settlement == Some(to) && st.condition != Condition::Buried)
+            .find(|st| {
+                matches!(
+                    st.kind,
+                    StructureKind::Warehouse
+                        | StructureKind::MarketHall
+                        | StructureKind::Storehouse
+                )
+            })
+            .or_else(|| structures.iter().find(|st| st.settlement == Some(to)));
+        let Some(st) = store else { continue };
+        let Some(room) = st
+            .interior
+            .rooms
+            .iter()
+            .position(|r| !r.collapsed && !r.hidden)
+        else {
+            continue;
+        };
+        out.push(Object {
+            id: out.len(),
+            kind: "seal",
+            family: Family::Seal,
+            stuff: "bronze",
+            structure: st.id,
+            room,
+            owner: Owner::Family(eldest(h, merchant)),
+            marked: true,
+            maker: None,
+            era: h.people[merchant].era,
+            condition: "worn",
+            event: Some(first),
+            inside: None,
+            key: None,
+            opens: None,
+            cache: "",
+            feature: None,
+            map: None,
+        });
+    }
     out
 }
 

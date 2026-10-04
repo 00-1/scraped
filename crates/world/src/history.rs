@@ -668,6 +668,18 @@ impl History {
         build_roads(&mut b);
         crate::society::deepen(seed, &mut b.h, t, w, langs);
         let mut h = b.h;
+        // Kinship that cannot be: a parent born after the child, or kin
+        // born after one died (the older passes paired family at random).
+        for i in 0..h.people.len() {
+            let Some((kin, of)) = h.people[i].relation.clone() else {
+                continue;
+            };
+            let (p, q) = (&h.people[i], &h.people[of]);
+            let parent = matches!(kin.as_str(), "son" | "daughter" | "child");
+            if (parent && q.born >= p.born - 15) || q.born > p.died || p.born > q.died {
+                h.people[i].relation = None;
+            }
+        }
         // DESIGN-Q: half the common folk lie in unmarked graves (D08: tombs
         // had been most of what was written).
         for e in &mut h.events {

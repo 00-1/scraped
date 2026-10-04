@@ -33,6 +33,10 @@ fn s_whole(_: u64) -> Vec<Context> {
                 ("direction", Value::from(WRITING[i % WRITING.len()])),
                 ("recurring", Value::Bool(glyphs >= 30)),
                 ("scraped", Value::Bool(i == 4)),
+                (
+                    "form",
+                    Value::from(crate::reading::FORMS[i % crate::reading::FORMS.len()]),
+                ),
             ])
         })
         .collect()
@@ -169,6 +173,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("direction", e(WRITING), "Which way the writing runs (a reader may not know yet).")
             .var("recurring", VarType::Bool, "Whether a few shapes keep coming back (a long text where one sign is common).")
             .var("scraped", VarType::Bool, "Whether the writing seen was scraped (only part of it survives; read.scraped follows).")
+            .var("form", e(&crate::reading::FORMS), "How it is laid out, as the eye sees before reading (D08): numbers in columns (a ledger), entries one under another (an annal, a list of judgements), a seal pressed at the foot (a letter, a contract, a decree), a bare list, short verses (a hymn, a curse), or running lines.")
             .max_len(220)
             .sampler(s_whole),
         SlotDef::new("glyph.closer", "The player examines one sign of a text closely: a fuller impression than a close reading gives (its proportions, its most distinctive part, what it resembles, how it is cut), still how it looks, never how it is built stroke by stroke (tracing gives that). If its sound has been heard, it can say so.")

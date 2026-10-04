@@ -306,7 +306,13 @@ fn era(s: &mut Society, e: u32, lang: &Language, maker: &mut scraped_lang::lexic
     let era = s.h.eras[e as usize].clone();
     let len = (era.end - era.start).max(60);
     let mid = era.start + len / 2;
-    let towns: Vec<usize> = s.h.standing(mid).iter().map(|t| t.id).collect();
+    // Towns standing through the era's stories: founded before they begin.
+    let towns: Vec<usize> =
+        s.h.standing(mid)
+            .iter()
+            .filter(|t| t.founded <= era.start + 20)
+            .map(|t| t.id)
+            .collect();
     if towns.is_empty() {
         return;
     }

@@ -64,6 +64,7 @@ pub fn run(args: &[String]) -> Result<String, String> {
             None => Ok(debug::ascii_map(&w, 2)),
         },
         Some("history") => Ok(debug::timeline(&w)),
+        Some("stories") => Ok(debug::stories(&w)),
         Some("site") => {
             let s: usize = rest
                 .get(1)

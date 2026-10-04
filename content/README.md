@@ -88,6 +88,8 @@ effects = ["flag shrine_seen"]  # give <item>, flag <name>, unflag <name>, open
 
 [storylet.place]          # where it may be placed (structure / outdoors)
 structure = ["temple"]    # kinds of building
+story = ["feud"]          # only where writing tells part of such a story:
+                          # life feud trial project disaster venture omen letters
 biome = ["grassland"]     # kinds of land
 era = "old"               # old | middle | new
 near_water = true

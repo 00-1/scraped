@@ -55,6 +55,8 @@ pub const SCENE_CAUSES: &[&str] = &[
     "death",
     "road",
     "old town's dead",
+    "fire",
+    "earthquake",
 ];
 
 /// The groups of feature, for content.

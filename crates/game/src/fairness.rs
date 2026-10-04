@@ -24,6 +24,7 @@ pub use scraped_lang::difficulty::PRESETS;
 /// The goals a world must make reachable, in the order a player meets
 /// them.
 pub const GOALS: &[&str] = &[
+    "constructions",
     "scraper",
     "first_release",
     "first_write",
@@ -180,6 +181,7 @@ pub fn check(site: &Site, preset: &str) -> Report {
     let mut anchors = 0;
     let mut name_uses: BTreeMap<usize, usize> = BTreeMap::new();
     let mut newest_potent = false;
+    let mut seen_built: BTreeMap<&'static str, BTreeSet<usize>> = BTreeMap::new();
     for id in 0..writing.count(w) {
         if writing.deep.contains(&id) || Some(id) == writing.legacy {
             continue;
@@ -211,7 +213,24 @@ pub fn check(site: &Site, preset: &str) -> Report {
         for i in n {
             *name_uses.entry(i).or_default() += 1;
         }
+        for f in t.meaning.function_words() {
+            seen_built.entry(f).or_default().insert(id);
+        }
     }
+    // D08: every construction the stories use is met in enough readable
+    // texts to be learnt.
+    let mut story_words: BTreeSet<&'static str> = BTreeSet::new();
+    for id in 0..writing.count(w) {
+        let t = writing.text(w, id);
+        if t.arc.is_some() {
+            story_words.extend(t.meaning.function_words());
+        }
+    }
+    let unlearnt: Vec<String> = story_words
+        .iter()
+        .filter(|f| seen_built.get(*f).map_or(0, |s| s.len()) < THRESHOLD)
+        .map(|f| format!("construction {f} met too seldom"))
+        .collect();
     anchors += name_uses.values().filter(|&&n| n > 1).count();
     let known = |c: &str| contexts.get(c).map_or(0, |s| s.len()) >= THRESHOLD;
     let mut goals = Vec::new();
@@ -223,6 +242,7 @@ pub fn check(site: &Site, preset: &str) -> Report {
         })
     };
     let need = |ok: bool, what: &str| (!ok).then(|| what.to_string());
+    goal("constructions", unlearnt);
     // The scraper, and the pivot inscription beside it.
     goal(
         "scraper",

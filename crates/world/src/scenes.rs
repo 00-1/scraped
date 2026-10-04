@@ -30,6 +30,8 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("packed bundle", &["bundle", "cloak"]),
     ("hurried burial", &["shallow graves", "markers"]),
     ("flood line", &["flood line", "silt"]),
+    ("burnt house", &["scorch marks", "ash", "fallen beams"]),
+    ("cracked walls", &["cracked walls", "fallen stones"]),
     ("shrine still kept", &["offerings", "swept floor"]),
     ("funeral offerings", &["offering bowls", "beads"]),
     ("lost traveller", &["bones", "pack", "staff"]),
@@ -205,6 +207,35 @@ pub fn place(
                         continue;
                     }
                 }
+                // D08: what flood, fire and earthquake left, for the
+                // stories that tell of them.
+                EventKind::Flood { settlement } if settlement == s.id => {
+                    let at = house(2 + e.id)
+                        .map(|st| SceneAt::Room {
+                            structure: st.id,
+                            room: room_in(st, &["hall", "storeroom"]),
+                        })
+                        .or(Some(outside(s.cell)));
+                    ("flood line", "flood", at)
+                }
+                EventKind::Fire { settlement } if settlement == s.id => {
+                    let at = house(3 + e.id)
+                        .map(|st| SceneAt::Room {
+                            structure: st.id,
+                            room: room_in(st, &["hall", "kitchen"]),
+                        })
+                        .or(Some(outside(s.cell)));
+                    ("burnt house", "fire", at)
+                }
+                EventKind::Earthquake { settlement } if settlement == s.id => {
+                    let at = house(4 + e.id)
+                        .map(|st| SceneAt::Room {
+                            structure: st.id,
+                            room: room_in(st, &["hall", "sleeping"]),
+                        })
+                        .or(Some(outside(s.cell)));
+                    ("cracked walls", "earthquake", at)
+                }
                 EventKind::Migration { from, .. } if from == s.id => {
                     let at = house(1 + e.id).map(|st| SceneAt::Room {
                         structure: st.id,
@@ -214,13 +245,24 @@ pub fn place(
                 }
                 _ => continue,
             };
-            // A town shows a handful of its events, not all of them.
-            if count >= 3 + usize::from(s.size) {
-                break;
+            // A town shows a handful of its events, not all of them; but
+            // the disasters its stories tell of always leave a mark (D08).
+            let disaster = matches!(
+                e.kind,
+                EventKind::Flood { .. } | EventKind::Fire { .. } | EventKind::Earthquake { .. }
+            );
+            if count >= 3 + usize::from(s.size) && !disaster {
+                continue;
             }
             if let Some(at) = at {
                 if add(kind, at, Some(s.id), Some(e.id), cause) {
                     count += 1;
+                } else if disaster {
+                    // Its spot taken: the marks lie out in the street.
+                    let c = Cell::new(s.cell.ux() + 1 + e.id % 3, s.cell.uy() + 1);
+                    if add(kind, outside(c), Some(s.id), Some(e.id), cause) {
+                        count += 1;
+                    }
                 }
             }
         }

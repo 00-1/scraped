@@ -62,7 +62,7 @@ example = true
 
 [[variant]]
 slot = "read.whole"
-text = "On {thing}, {count glyphs sign} in {count words group}, about {count lines line}, in a {hand} hand.[if recurring] A few shapes keep coming back.[end]"
+text = "On {thing}, {count glyphs sign} in {count words group}, about {count lines line}, in a {hand} hand.[if form == 'sealed'] A seal is pressed at the foot.[end][if form == 'columns'] The signs stand in columns.[end][if recurring] A few shapes keep coming back.[end]"
 example = true
 
 [[variant]]

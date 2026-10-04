@@ -588,3 +588,47 @@ pub fn floor_plan(
     s.push_str("</svg>");
     s
 }
+
+/// The stories of a world (D08), each with its texts: where each lies,
+/// its genre and era, and what it says (all spoilers).
+pub fn stories(w: &World) -> String {
+    let h = &w.history;
+    let mut out = format!("STORIES — seed {} · {} arcs\n", w.seed, h.arcs.len());
+    for a in &h.arcs {
+        let texts: Vec<&crate::texts::Text> =
+            w.texts.iter().filter(|t| t.arc == Some(a.id)).collect();
+        let places: std::collections::BTreeSet<usize> = texts.iter().map(|t| t.structure).collect();
+        let who: Vec<String> = a
+            .people
+            .iter()
+            .map(|&p| w.renderer(h.people[p].era).name(p))
+            .collect();
+        out.push_str(&format!(
+            "\nARC {} {:?} — {} — {} texts in {} places\n",
+            a.id,
+            a.kind,
+            who.join(", "),
+            texts.len(),
+            places.len()
+        ));
+        for t in texts {
+            let st = &w.structures[t.structure];
+            let town = st
+                .settlement
+                .map(|s| w.renderer(t.era).name(h.people.len() + s))
+                .unwrap_or_else(|| "the wilds".to_string());
+            let r = w.renderer(t.era);
+            out.push_str(&format!(
+                "  [{} {:?}, era {}, year {}] in {} ({:?})\n    {}\n",
+                t.id,
+                t.genre,
+                t.era,
+                t.year,
+                town,
+                st.kind,
+                scraped_lang::english::translate(&t.meaning, &|n| r.name(n))
+            ));
+        }
+    }
+    out
+}

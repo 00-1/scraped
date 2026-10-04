@@ -88,6 +88,10 @@ pub struct Placement {
     /// and the storylet happens in the scene's room.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub scene: Vec<String>,
+    /// Kinds of story (D08), e.g. "feud": only buildings holding writing
+    /// that tells part of such a story, so a set piece can join it.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub story: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub biome: Vec<String>,
     /// "old", "middle" or "new": when the building was raised.

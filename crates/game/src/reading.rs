@@ -203,6 +203,7 @@ impl Game {
             ),
             ("recurring", Value::Bool(recurring)),
             ("scraped", Value::Bool(seen.first().is_some_and(|l| l.1))),
+            ("form", Value::from(form(self.text(top).genre))),
         ]);
         let mut parts = vec![self.say("read.whole", c)];
         if let Some(&(_, true)) = seen.first() {
@@ -661,3 +662,21 @@ pub fn measures(pack: &scraped_content::Pack, seed: u64) -> Vec<(String, f64)> {
     ));
     out
 }
+
+/// How a text is laid out on its surface, as the eye takes it in before
+/// reading a sign (D08): numbers in columns, entries one under another, a
+/// seal at the foot, a list, short verses, or running lines.
+pub(crate) fn form(g: scraped_world::texts::Genre) -> &'static str {
+    use scraped_world::texts::Genre as G;
+    match g {
+        G::Ledger | G::Inventory | G::Receipt => "columns",
+        G::Annal | G::KingList | G::Court | G::Calendar | G::Lesson => "entries",
+        G::Letter | G::Contract | G::Decree => "sealed",
+        G::WordList | G::Label | G::Milestone => "list",
+        G::Hymn | G::Prayer | G::Blessing | G::Curse => "verses",
+        _ => "running",
+    }
+}
+
+/// Every layout `form` gives.
+pub(crate) const FORMS: [&str; 6] = ["columns", "entries", "sealed", "list", "verses", "running"];

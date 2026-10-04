@@ -396,12 +396,14 @@ pub fn place(seed: u64, h: &History, structures: &mut [Structure]) -> Vec<Text> 
         let Some(s) = settlement else { continue };
         // People of the place, or of the era when the place is too new to
         // have any (a letter about a migration comes from the old town).
+        // Only those born by then (D08: a text names no one unborn).
         let mut people = era_people(ev.era, s);
+        people.retain(|&p| h.people[p].born <= ev.year);
         if people.len() < 2 {
             people.extend(
                 h.people
                     .iter()
-                    .filter(|p| p.era == ev.era && p.settlement != s)
+                    .filter(|p| p.era == ev.era && p.settlement != s && p.born <= ev.year)
                     .map(|p| p.id)
                     .take(2),
             );
@@ -610,7 +612,10 @@ pub fn place(seed: u64, h: &History, structures: &mut [Structure]) -> Vec<Text> 
         match st.kind {
             StructureKind::Storehouse => {
                 let s = st.settlement.unwrap_or(0);
-                if let Some(owner) = era_people(era, s).first().copied() {
+                if let Some(owner) = era_people(era, s)
+                    .into_iter()
+                    .find(|&p| h.people[p].born <= year)
+                {
                     let mut jar = NounPhrase::concept("jar");
                     jar = jar.with_possessor(NounPhrase::name(owner));
                     let at = spot(structures, s, &[StructureKind::Storehouse], &["jar"])

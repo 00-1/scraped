@@ -215,6 +215,7 @@ pub fn candidates(w: &World, start: usize, s: &Storylet) -> Vec<usize> {
         .filter(|st| !p.near_water || near_water(w, (st.cell.ux(), st.cell.uy())))
         .filter(|st| s.at != "structure" || !st.interior.rooms.is_empty())
         .filter(|st| p.scene.is_empty() || scene_room(w, st.id, &p.scene).is_some())
+        .filter(|st| p.story.is_empty() || story_here(w, st.id, &p.story))
         .map(|st| st.id)
         .collect();
     let key =
@@ -222,6 +223,25 @@ pub fn candidates(w: &World, start: usize, s: &Storylet) -> Vec<usize> {
             .fold(0u64, |h, b| h.wrapping_mul(31).wrapping_add(u64::from(b)));
     out.sort_by_key(|&id| (hash(&[w.seed, 0x5701, key, id as u64]), id));
     out
+}
+
+/// Kinds of story a storylet can join (D08).
+pub fn story_kinds() -> Vec<&'static str> {
+    vec![
+        "life", "feud", "trial", "project", "disaster", "venture", "omen", "letters",
+    ]
+}
+
+/// Whether a building holds writing that tells part of a story of one of
+/// these kinds (D08).
+pub fn story_here(w: &World, structure: usize, kinds: &[String]) -> bool {
+    w.texts.iter().any(|t| {
+        t.structure == structure
+            && t.arc.is_some_and(|a| {
+                let k = serde_json::to_value(w.history.arcs[a].kind).unwrap_or_default();
+                kinds.iter().any(|x| Some(x.as_str()) == k.as_str())
+            })
+    })
 }
 
 /// The room of a building holding a scene of one of these kinds (D03).
@@ -681,6 +701,7 @@ pub fn schema() -> serde_json::Value {
         "hooks": HOOKS,
         "structures": STRUCTURES,
         "scenes": scene_kinds(),
+        "stories": story_kinds(),
         "biomes": BIOMES,
         "eras": ERAS,
         "effects": EFFECTS,
@@ -776,6 +797,18 @@ pub fn lint(pack: &Pack) -> Vec<Issue> {
                         format!(
                             "there are no scenes of kind '{k}'; the kinds are {}",
                             scene_kinds().join(", ")
+                        ),
+                    );
+                }
+            }
+            for k in &s.place.story {
+                if !story_kinds().contains(&k.as_str()) {
+                    issue(
+                        Error,
+                        "storylet-place",
+                        format!(
+                            "there are no stories of kind '{k}'; the kinds are {}",
+                            story_kinds().join(", ")
                         ),
                     );
                 }

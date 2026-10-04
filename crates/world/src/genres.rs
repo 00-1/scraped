@@ -685,6 +685,11 @@ impl Pen<'_> {
         } else {
             (era, year)
         };
+        // A text of one sentence is that sentence.
+        let meaning = match meaning {
+            Sentence::Text(mut parts) if parts.len() == 1 => parts.remove(0),
+            m => m,
+        };
         // Each text in its own words: the same event, the same words.
         let key = event.map_or(self.texts.len() as u64 + 1_000_000, |e| e as u64);
         let lang = &self.langs[(era as usize).min(self.langs.len() - 1)];
@@ -1009,7 +1014,7 @@ fn tell<'a>(
                     .to(np("god"))
                     .sub(
                         Link::After,
-                        clause("love", Some(s.name(*x)), Some(s.name(*y))).adv("again"),
+                        clause("love", Some(s.name(*x)), Some(s.name(*y))),
                     ))]);
                     wrote(pen, Genre::Dedication, home_town, gift, Some(*x), end);
                 }
@@ -1190,12 +1195,18 @@ fn tell<'a>(
                     .find(|p| {
                         p.settlement == *from
                             && p.relation.as_ref().is_some_and(|r| r.1 == *merchant)
+                            && p.born + 10 <= ev0.year
                     })
                     .map(|p| p.id)
                     .or_else(|| {
                         h.people
                             .iter()
-                            .find(|p| p.settlement == *from && p.id != *merchant && p.era == era)
+                            .find(|p| {
+                                p.settlement == *from
+                                    && p.id != *merchant
+                                    && p.born + 16 <= ev0.year
+                                    && ev0.year < p.died
+                            })
                             .map(|p| p.id)
                     });
                 if let Some(kin) = kin {
@@ -1427,7 +1438,7 @@ fn annals<'a>(h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, pen: &mut Pen) {
     for &(ruler, faction, start, end) in scribe(0).reigns {
         let era = h.people[ruler].era;
         let s = scribe(era);
-        let doings: Vec<Sentence> = h
+        let doings: Vec<(i32, Sentence)> = h
             .events
             .iter()
             .filter(|e| e.year >= start && e.year < end)
@@ -1443,18 +1454,24 @@ fn annals<'a>(h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, pen: &mut Pen) {
                     EventKind::Birth { .. } | EventKind::Appointment { .. }
                 )
             })
-            .filter_map(|e| s.about(e).map(|c| one(c.when(s.year(faction, e.year)))))
+            .filter_map(|e| {
+                s.about(e)
+                    .map(|c| (e.year, one(c.when(s.year(faction, e.year)))))
+            })
             .take(8)
             .collect();
         if doings.len() < 2 {
             continue;
         }
+        // Written up after its last entry.
+        let last = doings.iter().map(|d| d.0).max().unwrap_or(start);
+        let doings: Vec<Sentence> = doings.into_iter().map(|d| d.1).collect();
         let seat = h.people[ruler].settlement;
         if let Some(at) = pen.find(Genre::Annal, seat) {
             pen.write(
                 at,
                 era,
-                end.min(h.eras[era as usize].end - 1),
+                last,
                 Genre::Annal,
                 Sentence::Text(doings),
                 None,
@@ -1528,7 +1545,7 @@ fn everyday<'a>(rng: &mut Rng, h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, 
         let people: Vec<usize> = h
             .people
             .iter()
-            .filter(|p| p.settlement == town && p.era == era)
+            .filter(|p| p.settlement == town && p.era == era && p.born <= year)
             .map(|p| p.id)
             .collect();
         let someone = |rng: &mut Rng| (!people.is_empty()).then(|| *rng.pick(&people));
@@ -1744,7 +1761,7 @@ fn everyday<'a>(rng: &mut Rng, h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, 
                         let news = h
                             .events
                             .iter()
-                            .filter(|e| e.era == era && e.actors.contains(&a))
+                            .filter(|e| e.era == era && e.year <= year && e.actors.contains(&a))
                             .find_map(|e| s.about(e).map(flat));
                         if let (true, Some(news)) = (a != b, news) {
                             let mut body = vec![
