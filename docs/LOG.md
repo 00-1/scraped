@@ -690,3 +690,14 @@ Review of D04–D06: targets met except those already reported (features visited
 ## 2026-10-04 — C01 added (shared play and versions)
 
 Jb's decisions: trust the AI but make the engine hard to see inside (a stripped player build with spoilers compiled out, text embedded, opaque saves, no undo); the player build is public on GitHub Pages and worlds sync to a private location; a short fair-play note is shown to agents; versioning by major/minor, preferring minor. Because saves replay commands today, minor updates would change old worlds, so C01 also moves saves to snapshots. Added `docs/milestones/C01-shared-play-and-versions.md`, to do after D08.
+
+## 2026-10-04 — D08 done
+
+**History and what the writing says:** a second history pass on streams of its own (`crates/world/src/society.rs`): people's lives and marriages, temples, councils, guilds, courts and a school, gods and festivals, merchants' journeys, loans, shortages and gluts, works begun and finished or given up, floods, fires and earthquakes, decrees, thefts, disputes, judgements, feuds and reconciliations, gathered into stories (arcs). 27 genres built as meaning and placed where they would be kept (`crates/world/src/genres.rs`): annals, king lists, decrees copied to every town of a realm, court records quoting both sides, contracts, receipts, inventories, prayers, hymns, myths, oracles, instructions beside the kiln or loom, lessons, word lists, boundary stones, milestones, building inscriptions, graffiti, curses, blessings, calendars, and epitaphs that tell a life. Disasters leave scenes and journeys a merchant's seal. Names are said in each era; storylets can join a kind of story (`story = [...]`); `read.whole` knows a text's layout; `scraped-lang world --seed N --spoil stories` lists every story's texts. Targets met except sentence shapes on one small world (585 of 600); the scholar now reads the deepest text on 4 of 10 (was 6): it reads everything, and there is twice as much. Fixed along the way: names that sounded alike across eras, a seven-sentence limit in the parser, impossible kin ties and unborn people in old texts, arrival losing to a sighting on the same step, the pivot over held doors.
+
+**Open questions:** "History and texts (D08)" in DECISIONS: how many stories an era holds, who judges, where genres are kept, half the common graves unmarked, how each event is worded, letters not yet pointing to hidden caches, reading order not modelled in fairness, word lists without old-and-new pairs. The scholar's pacing with so much to read.
+
+**New content slots:** none. Changed: `read.whole` gains `form` (columns, entries, sealed, list, verses, running); `place.scene` gains scene kinds `burnt house`, `cracked walls` and causes `fire`, `earthquake`. Storylets gain `place.story`.
+
+**Next:** C01, then D09.
+

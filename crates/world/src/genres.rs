@@ -1796,7 +1796,7 @@ fn everyday<'a>(rng: &mut Rng, h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, 
                             body.push(one(clause(
                                 "send",
                                 None,
-                                Some(np(*rng.pick(&["oil", "grain", "cloth"]))),
+                                Some(np(rng.pick(&["oil", "grain", "cloth"]))),
                             )
                             .mood(Mood::Imperative)
                             .to(s.name(a))
