@@ -326,7 +326,7 @@ pub struct Sighting {
 }
 
 /// A journey as the player perceived it (drift included).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Travelled {
     /// Compass point of the whole journey, or empty if back where it began.
     pub bearing: String,
@@ -348,8 +348,13 @@ pub struct Output {
     pub renders: Vec<Rendered>,
 }
 
-/// A saved game: everything needed to replay it.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub mod saves;
+pub mod shared;
+
+/// A saved game: the world's seed and settings, the moves played, and
+/// (C01) a snapshot of play to load from, the builds it was played on, a
+/// turn counter and a chain over the moves.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Save {
     pub seed: u64,
     pub pack_version: String,
@@ -360,6 +365,22 @@ pub struct Save {
     /// The difficulty preset.
     #[serde(default = "standard")]
     pub difficulty: String,
+    /// The engine that made the world, and the one that last wrote it.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub created: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub engine: String,
+    /// Moves played, and the chain over them (C01: no going back).
+    #[serde(default)]
+    pub turn: usize,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub chain: String,
+    /// The builds each stretch of play ran on.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub history: Vec<saves::Stretch>,
+    /// Play as it stands, loaded instead of replaying the moves.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub snapshot: Option<Box<saves::Snapshot>>,
 }
 
 fn standard() -> String {
@@ -449,6 +470,10 @@ pub struct Game {
     last_link: Option<usize>,
     /// A light that never fails, for bots that measure places (D04).
     pub forced_light: bool,
+    /// The builds this world was played on before this one, and the engine
+    /// that made it (C01).
+    history: Vec<saves::Stretch>,
+    created: String,
 }
 
 /// A slot rendered during play, with the variables it was given: what the
@@ -596,6 +621,8 @@ impl Game {
             sustain: false,
             last_link: None,
             forced_light: false,
+            history: Vec::new(),
+            created: String::new(),
         };
         g.storylets = g.pack.storylets().cloned().collect();
         g.recompute_drivers();
@@ -639,26 +666,52 @@ impl Game {
         seedcode::encode(self.seed(), &self.preset, &self.pack.version())
     }
 
-    /// Saves the game as its seed, pack version and commands.
+    /// Saves the game: its seed, settings and moves, a snapshot of play,
+    /// and the builds it has been played on (C01).
     pub fn save(&self) -> Save {
+        let mut history = self.history.clone();
+        saves::extend(
+            &mut history,
+            saves::ENGINE,
+            &self.pack.version(),
+            self.log.len(),
+        );
         Save {
             seed: self.seed(),
             pack_version: self.pack.version(),
             commands: self.log.clone(),
             legacy: self.legacy.clone(),
             difficulty: self.preset.clone(),
+            created: if self.created.is_empty() {
+                saves::ENGINE.to_string()
+            } else {
+                self.created.clone()
+            },
+            engine: saves::ENGINE.to_string(),
+            turn: self.log.len(),
+            chain: saves::chain(&self.log),
+            history,
+            snapshot: Some(Box::new(self.snapshot())),
         }
     }
 
-    /// Loads a save by replaying it. Also returns whether the content pack
-    /// differs from the one the save was made with.
+    /// Loads a save: from its snapshot where it has one, else by replaying
+    /// its moves. Also returns whether the content pack differs from the
+    /// one the save was made with.
     pub fn load(save: &Save, pack: Pack) -> (Self, bool) {
         let changed = save.pack_version != pack.version();
         let mut g = Game::create(save.seed, pack, &save.difficulty, save.legacy.clone());
-        g.start();
-        for c in &save.commands {
-            g.step(c);
+        match &save.snapshot {
+            Some(snap) => g.restore(snap, &save.commands),
+            None => {
+                g.start();
+                for c in &save.commands {
+                    g.step(c);
+                }
+            }
         }
+        g.history = save.history.clone();
+        g.created = save.created.clone();
         (g, changed)
     }
 
