@@ -771,6 +771,18 @@ fn genre(c: &Clause) -> Genre {
     }
 }
 
+/// Whether a spell works through warmth or cold.
+fn heat_words(c: &Clause) -> bool {
+    const HEAT: &[&str] = &[
+        "fire", "ice", "frost", "snow", "burn", "freeze", "kindle", "kiln", "sun",
+    ];
+    HEAT.contains(&c.predicate.as_str())
+        || Sentence::Clause(c.clone())
+            .noun_phrases()
+            .iter()
+            .any(|n| matches!(&n.head, scraped_lang::meaning::Head::Concept(id) if HEAT.contains(&id.as_str())))
+}
+
 /// What a later hand did to a spell.
 #[derive(Clone, Copy)]
 enum After {
@@ -959,6 +971,10 @@ pub fn write(
                         c.with_adverb("slightly")
                     }
                 }
+                // DESIGN-Q: warmth and cold are never undone by denial (a
+                // denied hearth would chill a house past bearing); such a
+                // spell is left as it was.
+                After::Undone if heat_words(&recipe.clause) => continue,
                 After::Undone => {
                     let mut c = recipe.clause.clone();
                     c.polarity = match c.polarity {

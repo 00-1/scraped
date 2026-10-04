@@ -70,14 +70,14 @@ Cues for each new property's effects (as variables on shared families), dormant 
 
 ## Checklist
 
-- [ ] Concept-to-power table, generated per culture from principles
-- [ ] New properties in the simulation
-- [ ] Spell structure: targets, modifiers, duration, conditions, exceptions
-- [ ] Misfires for new constructions
-- [ ] Everyday writing-technology from history, live, broken and half-working
-- [ ] Saturation, deep layering and interactions
-- [ ] Effects through places, objects, ecology, weather, sky and regions
-- [ ] Slots and cues
-- [ ] Targets met; samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Concept-to-power table, generated per culture from principles
+- [x] New properties in the simulation (fifteen qualities; light, wetness, flow (mills), binding and weight (things), lure and growth (what lives where) act; the rest show as evidence)
+- [x] Spell structure: targets, modifiers, duration, conditions, exceptions
+- [x] Misfires for new constructions
+- [x] Everyday writing-technology from history, live, broken and half-working
+- [x] Saturation, deep layering and interactions (interactions shown as one sight of two qualities; weather and sky only as evidence)
+- [x] Effects through places, objects, ecology, weather, sky and regions (regions: water and life only)
+- [x] Slots and cues
+- [ ] Targets met; samples committed with a note (samples and note committed; claim types 56.4 of 60, large spells in about a tenth of regions, live spells 135 on the smallest world: see docs/DEPTH.md)
+- [x] Tests listed above
+- [x] LOG.md entry

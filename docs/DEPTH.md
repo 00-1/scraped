@@ -54,6 +54,8 @@ Measured by `scraped-lang depth --seeds A-B [--hours H] [--json]` (and the web c
 | `magic.live_spells`, `magic.claim_types` | Live (released) spells at the start, and distinct kinds of claim among them |
 | `magic.places_with_writing_cause` | Buildings within reach of a live spell |
 | `magic.strange_without_writing_share` | Share of strange places with no writing cause (natural oddities) |
+| `magic.concepts_with_powers`, `magic.properties`, `magic.live_properties` | Concepts a world's languages name that have a power; qualities the power table can push; qualities live spells push (D09) |
+| `magic.conditional_spells`, `magic.settlements_without_spell`, `magic.regions_with_large_spell_share` | Live spells with a condition; settlements no live spell reaches; share of regions holding a spell reaching 1.5 km or more (D09) |
 | `variety.combinations` | Distinct (slot, variable combination) pairs the explorer met; per slot family in the JSON |
 | `brevity.<kind>.words_*`, `brevity.<kind>.facts_*` | Median and 95th percentile of words, and of facts, per response, for `look`, `arrival` (into a new place), `travel` and `other`. A fact is a rendered slot, outside the parser's replies, whose text was in the response; a list ("Ways out: …") is one fact, and names said inside another fact are part of it (since D04) |
 | `depth_on_demand.per_place` | At each arrival somewhere (D02 on): how many facts digging there could turn up (median): what `look closer` and `look around` would weigh, sounds and smells, the ground, and writing to read. Until D02 it counted things to examine in each room, plus one for each with writing |
@@ -200,17 +202,35 @@ Fairness attestation per construction in readable texts waits for D08's texts.
 
 About 650 texts a world. Sentence shapes fall short on the smallest worlds; two attempts at more varied wording raised the mean from 619 to 668. New metrics: `story.arcs`, `story.arcs_in_3_places`, `history.people_in_3_places`; `writing.sentence_shapes` now counts each sentence of a text.
 
+### After D09 (seeds 1–10)
+
+| Metric | Before | D09 (mean; worst seed) | Target |
+|---|---|---|---|
+| Concepts with powers | 3 verbs | 280.8; 269 | at least 120 |
+| Properties spells can change | 3 | 15 (14 live in a typical world) | at least 15 |
+| Live spells per world | 9.5 | 226; 135 | at least 150 (not met on the smallest world) |
+| Distinct claim types per world | 5.4 | 56.4; 46 | at least 60 (not met) |
+| Conditional (dormant) spells per world | 0 | 55.9; 23 | at least 20 |
+| Settlements with no live spell | most | 0; 0 | none |
+| Regions holding a large spell (1.5 km or more) | — | 11%; 6% | each region has one (not met) |
+| Largest genre's share (D08) | 17% | 18%; 21% | at most 20% |
+| Mean words per text (D08) | 17.9 | 13.3 | at least 15 (no longer met) |
+
+Kinds stay short of 60 after three attempts at more varied everyday spells: a world's buildings and the culture's choice of powers (where "keep" binds rather than keeps, say) bound the combinations, and doubling the spells to reach more kinds pushed spells past half of all writing. Most regions have no building to carry a large spell. Spells are short (a clause), so words per text fell. Arrivals and looks stay as brief as before (arrival median 19.3 words, 3 facts). New metrics: `magic.concepts_with_powers`, `magic.properties`, `magic.live_properties`, `magic.conditional_spells`, `magic.settlements_without_spell`, `magic.regions_with_large_spell_share`.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
 
-- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 after D07 (worlds changed with the new lexicon; 9 after D06, 8 after D03, S01 and D05; 16 of 1–20 before D03). Since D07 it goes out by day to gather wood when cold under a roof with no fire. Since D06 it fishes when hungry by water (warm, by day), won't forage while shivering, waits outdoors now and then, and looks up once a night. Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
+- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 7 of seeds 1–10 after D09 (on seeds 1, 3 and 4 it shelters in houses an old cast keeps cold and goes in and out of them until the cold takes it; two attempts to have it give up on a cold shelter made things worse), 8 after D07 (worlds changed with the new lexicon; 9 after D06, 8 after D03, S01 and D05; 16 of 1–20 before D03). Since D07 it goes out by day to gather wood when cold under a roof with no fire. Since D06 it fishes when hungry by water (warm, by day), won't forage while shivering, waits outdoors now and then, and looks up once a night. Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
 - **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 4 of seeds 1–10 after D08 (6 after D07, 5 after D06): there is twice as much to read and it reads it all, skimming only past the third page, so it finds the lens later and a great inscription on 9 (6). The spec asks for 8. What stops it is in the game, not the bot:
   - **Held doors.** Old writing holds whole towns' doors shut. The only counter is to write "open" with a passage word (door, gate, tomb, box), and those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets the scholar write them.
   - **Scarce light.** Torches burn an hour, lamps four. Deep rooms are often dark, and the scholar must come back later with fuel.
   - **Distance.** The first lens is placed in roughly the 90th-percentile building by distance from the start, so reaching it means exploring most of the world.
 
-  D07 (a larger lexicon) and D09 (the magic, deepened) should lift this; the test holds at 5 of 10 until then.
+  D07 (a larger lexicon) and D09 (the magic, deepened) should lift this; the test holds at 4 of 10.
+
+  After D09 it reads the deepest text on 5 of 10. Spells now hold doors, darken rooms and leave stacks of layers everywhere: the writing tools no longer lie where writing keeps rooms dark or doors shut, and with a stronger lens the scholar goes back first to the deepest stack it has seen.
 
 ## Milestones
 

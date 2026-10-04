@@ -39,7 +39,7 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   await page.click('[data-site="0"]');
   const site = await page.textContent('#worldText');
   await page.click('#writingView');
-  await page.waitForFunction(() => document.querySelector('#worldText').textContent.startsWith('LIVE CLAIMS'));
+  await page.waitForFunction(() => document.querySelector('#worldText').textContent.includes('LIVE CLAIMS'));
   await page.click('#regionsView');
   await page.waitForFunction(() => document.querySelector('#worldText').textContent.startsWith('TRAJECTORY'), null, { timeout: 30000 });
   // D03: the places view: roles, districts, scenes and features.

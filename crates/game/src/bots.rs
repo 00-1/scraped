@@ -124,6 +124,8 @@ struct Room {
     dark: bool,
     /// Writing here showed fainter layers to this lens.
     ghosts: Option<u8>,
+    /// The most layers seen beneath one text here.
+    layers: u32,
     /// Old writing holds a way shut here: the way, and claims cast.
     held: Option<(String, u8)>,
     /// A hearth to make a fire in.
@@ -520,12 +522,18 @@ impl DepthBot {
             }
             // Fainter layers beneath what was read.
             if cmd.starts_with("read ") || cmd == "more" {
-                let ghosts = g.renders[self.renders.min(g.renders.len())..]
+                let count = g.renders[self.renders.min(g.renders.len())..]
                     .iter()
-                    .any(|r| r.trace.slot == "read.ghosts");
-                if ghosts && here != "outside" {
+                    .filter(|r| r.trace.slot == "read.ghosts")
+                    .filter_map(|r| match r.vars.get("count") {
+                        Some(scraped_content::Value::Number(n)) => Some(*n),
+                        _ => None,
+                    })
+                    .max();
+                if let (Some(count), true) = (count, here != "outside") {
                     let lens = self.lens;
                     let r = self.rooms.entry(here.clone()).or_default();
+                    r.layers = r.layers.max(count as u32);
                     if r.ghosts.is_none() {
                         self.notes.push(format!(
                             "step {}: fainter layers at {here}, lens {lens}",
@@ -1531,6 +1539,19 @@ impl DepthBot {
         let write = ["stylus", "scraper"]
             .iter()
             .all(|t| s.carried.iter().any(|c| c.contains(t)));
+        // With a stronger lens, the deepest stack seen first (D09: shallow
+        // stacks of everyday spells are everywhere).
+        let deepest = self
+            .rooms
+            .iter()
+            .filter(|(p, _)| !self.abandoned.contains(*p))
+            .filter(|(_, r)| r.ghosts.is_some_and(|l| l < self.lens))
+            .max_by_key(|(_, r)| r.layers)
+            .filter(|(_, r)| r.layers >= 3)
+            .map(|(p, _)| p.clone());
+        if deepest.is_some() {
+            return deepest;
+        }
         self.rooms
             .iter()
             .filter(|(p, _)| !self.abandoned.contains(*p))

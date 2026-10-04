@@ -713,3 +713,15 @@ Jb's decisions: trust the AI but make the engine hard to see inside (a stripped 
 **New content slots:** `say.upgraded` (from, to). New `app.label` ids: shared, share_world, moved_last, talk, talk_hint, talk_none, worlds_repo, worlds_repo_hint, worlds_repo_name, worlds_token, worlds_token_set, worlds_you, worlds_save, sync_now, syncing, synced, world_split, world_refused.
 
 **Next:** D09.
+
+## 2026-10-04 — D09 done (targets partly met)
+
+**The magic, deepened:** every concept with a meaning that suggests one has a power, by principles in `crates/lang/data/powers.toml`: a verb does what it says, a noun is what a spell gives or takes away, an animal is drawn, a plant made to grow. Fifteen qualities, and each world's culture holds to one of a concept's fitting powers. Spells take their shape from their words (`crates/sim/src/writing.rs`): a target (and "this", "no", a named town), what is given or taken, degree, extent, and conditions and exceptions (when, if, until, unless: night, day, rain, winter, summer, someone entering, someone carrying the seal). Ten classes of target, each taking only the qualities that make sense for it. The old civilisation wrote its technology into its buildings (`crates/world/src/charms.rs`): larders kept cold, lamps lit at night, mills turning, wells, fields, doors that open only for the household, wards on tombs, written when each building was new and since renewed, weakened or undone by later hands, as charms, wards and invocations. Light and wetness change rooms and land, mills turn, things won't lift, beasts and plants come and go, and everything else shows as evidence (`spell.cue`). Misfired potent writing acts without the one word that doesn't fit. The scholar now reads the deepest text on 5 of 10; the writing tools never lie where writing keeps rooms dark or doors shut.
+
+**Not met:** claim types 56.4 of 60 (three attempts); a large spell in about a tenth of regions, as most regions have no building to carry one; live spells 135 on the smallest world. The explorer survives three days on 7 of 10 (was 8): it shelters in houses an old cast keeps cold. D08's words per text fell to 13.3 (spells are one clause). Numbers in `docs/DEPTH.md`.
+
+**Open questions:** "The magic, deepened (D09)" in DECISIONS: how a culture picks powers, what a spell acts on, degree and extent, which conditions the world can judge, misfires, how many everyday spells and what later hands did to them, household doors, large spells, spell genres, which qualities act and which only show. Also: the save corpus for 0.1.0 was regenerated, since 0.1.0 was never released and D09 changes generation (a major change). Should the first player release be tagged now, so later milestones are held to the versioning policy?
+
+**New content slots:** `spell.cue` (quality, rising, class, thing, strength, with, with_rising, indoors), `effect.fast` (thing, how). Changed: `effect.change` takes all fifteen qualities and ten classes. New words in every language: greatly, slightly, widely, and "unless".
+
+**Next:** D10.
