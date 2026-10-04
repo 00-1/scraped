@@ -33,6 +33,8 @@ impl Game {
             forced: self.forced,
             claims: &self.claims,
             regional: Some((&self.site.regions, &self.state.regions)),
+            now: self.state.minutes,
+            recent: std::cell::OnceCell::new(),
         }
     }
 
@@ -175,7 +177,7 @@ impl Game {
                 clothing: self.clothing(),
                 fire: local.fire,
                 sheltered: local.sheltered,
-                raining: outdoors && local.weather == "rain",
+                raining: outdoors && matches!(local.weather, "rain" | "storm"),
                 windy: local.air == "windy",
                 in_water: local.wetness == "flooded",
                 activity,
@@ -688,7 +690,10 @@ impl Game {
             return self.fire_fail("no_fuel");
         };
         let local = self.env().local(spot, self.state.minutes, false);
-        if matches!(spot, Spot::Out { .. }) && local.weather == "rain" && !local.sheltered {
+        if matches!(spot, Spot::Out { .. })
+            && matches!(local.weather, "rain" | "storm")
+            && !local.sheltered
+        {
             self.advance(5, Activity::Resting);
             return self.fire_fail("rain");
         }

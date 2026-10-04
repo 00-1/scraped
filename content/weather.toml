@@ -1,0 +1,11 @@
+notes = "What the weather has done, and what is coming."
+
+[[variant]]
+slot = "weather.mark"
+text = "[if mark == 'flooded ford']The ford runs deep and brown[else]{cap mark}[end][if bearing != 'here'] to the {bearing}[end]."
+example = true
+
+[[variant]]
+slot = "weather.coming"
+text = "[if dark]Lightning[else]{cap kind} coming[end] from the {bearing}[if soon], close[end]."
+example = true

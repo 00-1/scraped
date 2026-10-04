@@ -106,7 +106,19 @@ impl Game {
                 call: None,
             });
         }
-        if local.weather == "rain"
+        let storm = local.weather == "storm"
+            || self.env().weather(self.state.pos, self.state.minutes) == "storm";
+        if storm {
+            out.push(Source {
+                what: "thunder",
+                name: String::new(),
+                strength: if indoors { 0.5 } else { 0.8 },
+                from: None,
+                call: None,
+            });
+        }
+        if storm
+            || local.weather == "rain"
             || self.env().weather(self.state.pos, self.state.minutes) == "rain"
         {
             out.push(Source {
@@ -272,7 +284,7 @@ impl Game {
                 }),
                 _ => {}
             }
-            if local.weather == "rain" {
+            if matches!(local.weather, "rain" | "storm") {
                 out.push(Source {
                     what: "earth",
                     name: String::new(),
@@ -545,7 +557,7 @@ impl Game {
         let sky = match (weather, light, time) {
             (_, "dark", _) if weather == "clear" => "stars",
             (_, "dark", _) => "overcast night",
-            ("rain" | "fog", _, _) => "grey",
+            ("rain" | "fog" | "storm" | "snow", _, _) => "grey",
             (_, _, "dawn" | "morning") => "sun low in the east",
             (_, _, "evening") => "sun low in the west",
             _ => "sun high",

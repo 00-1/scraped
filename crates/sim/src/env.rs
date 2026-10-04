@@ -69,6 +69,10 @@ pub struct Env<'a> {
     pub claims: &'a [Claim],
     /// The regions and their state, when the regional simulation runs.
     pub regional: Option<(&'a Regions, &'a RegionState)>,
+    /// The minute now, for what the weather has done (D06).
+    pub now: u32,
+    /// The fronts of the last weeks, gathered on first need.
+    pub recent: std::cell::OnceCell<Vec<crate::weather::Front>>,
 }
 
 /// What a spot is like, in coarse terms for descriptions and the body.
@@ -112,9 +116,14 @@ impl<'a> Env<'a> {
         let spell = (hash(&[self.world.seed, 0x7e3d, day]) % 7) as f64 - 3.0;
         let pos = Pos::of_cell(x, y);
         let wet = match self.weather(pos, minutes) {
-            "rain" => -2.0,
+            "rain" | "storm" => -2.0,
+            "snow" => -3.0,
             "fog" => -1.0,
             _ => 0.0,
+        };
+        let heat = match self.forced {
+            Some(_) => 0.0,
+            None => crate::weather::heat(self.world, pos, minutes),
         };
         let swing = match self.forced {
             Some(_) => 0.0,
@@ -130,6 +139,7 @@ impl<'a> Env<'a> {
         mean + swing
             + spell
             + wet
+            + heat
             + seasonal
             + regional
             + f64::from(
@@ -291,13 +301,29 @@ impl<'a> Env<'a> {
         if self.world.terrain.biome.get(x, y).is_water() {
             return false;
         }
-        !(self.is_river(x, y) && !*self.world.water.ford.get(x, y))
+        !(self.is_river(x, y) && !*self.world.water.ford.get(x, y)) && self.closed(x, y).is_none()
     }
 
-    /// What bars a cell: "sea", "lake", "river", "bridge" (raised), or None.
+    /// What the weather has closed at a cell (D06): "flood", "snow",
+    /// "fallen trees". Never with forced weather (tests and debug).
+    pub fn closed(&self, x: usize, y: usize) -> Option<&'static str> {
+        if self.forced.is_some() {
+            return None;
+        }
+        let fs = self
+            .recent
+            .get_or_init(|| crate::weather::recent(self.world, self.now));
+        crate::weather::closed_in(fs, self.world, x, y, self.now)
+    }
+
+    /// What bars a cell: "sea", "lake", "river", "bridge" (raised),
+    /// "flood", "snow", "fallen trees", or None.
     pub fn obstacle(&self, x: usize, y: usize) -> Option<&'static str> {
         if self.passable(x, y) {
             return None;
+        }
+        if let Some(c) = self.closed(x, y) {
+            return Some(c);
         }
         Some(match self.world.terrain.biome.get(x, y) {
             Biome::Sea => "sea",
@@ -409,9 +435,9 @@ impl<'a> Env<'a> {
                     .fixtures
                     .channel_water(cx, cy, &|i| self.sluice_open(i))
                     > 0;
-                let wetness = if channel || (weather == "rain" && !sheltered) {
+                let wetness = if channel || (matches!(weather, "rain" | "storm") && !sheltered) {
                     "wet"
-                } else if matches!(biome, Biome::Marsh) || weather == "fog" {
+                } else if matches!(biome, Biome::Marsh) || matches!(weather, "fog" | "snow") {
                     "damp"
                 } else {
                     "dry"
@@ -478,7 +504,7 @@ impl<'a> Env<'a> {
                     "flooded"
                 } else if flood > 0 {
                     "wet"
-                } else if r.level < 0 || (weather == "rain" && open >= 0.8) {
+                } else if r.level < 0 || (matches!(weather, "rain" | "storm") && open >= 0.8) {
                     "damp"
                 } else {
                     "dry"

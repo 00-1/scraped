@@ -51,6 +51,8 @@ mod reading_tests;
 pub mod seedcode;
 mod senses;
 pub mod site;
+mod skies;
+mod sky_slots;
 pub mod slots;
 #[cfg(test)]
 mod storylet_tests;

@@ -259,7 +259,7 @@ fn s_unseen(_: u64) -> Vec<Context> {
 
 fn s_weather(_: u64) -> Vec<Context> {
     let mut out = Vec::new();
-    for (i, w) in ["clear", "rain", "fog"].iter().enumerate() {
+    for (i, w) in crate::slots::WEATHERS.iter().enumerate() {
         for (j, l) in LIGHTS.iter().enumerate() {
             out.push(ctx(&[
                 ("weather", Value::from(*w)),
@@ -523,7 +523,7 @@ fn s_sky(_: u64) -> Vec<Context> {
         .map(|(i, s)| {
             ctx(&[
                 ("sky", Value::from(*s)),
-                ("weather", Value::from(["clear", "rain", "fog"][i % 3])),
+                ("weather", Value::from(crate::slots::WEATHERS[i % 5])),
                 ("time", Value::from(TIMES[i % TIMES.len()])),
                 ("birds", Value::Bool(i % 2 == 0)),
             ])
@@ -654,12 +654,12 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(140)
             .sampler(s_ground),
         SlotDef::new("land.unseen", "Little can be seen further off: fog or darkness closes the view.")
-            .var("weather", e(&["clear", "rain", "fog"]), "The weather.")
+            .var("weather", e(crate::slots::WEATHERS), "The weather.")
             .var("light", e(LIGHTS), "The light.")
             .max_len(140)
             .sampler(s_unseen),
         SlotDef::new("sky.weather", "The weather and the light, said only when it changes or matters ('Rain sets in.', 'The light is going.').")
-            .var("weather", e(&["clear", "rain", "fog"]), "The weather.")
+            .var("weather", e(crate::slots::WEATHERS), "The weather.")
             .var("light", e(LIGHTS), "The light.")
             .var("time", e(TIMES), "Time of day.")
             .max_len(140)
@@ -773,7 +773,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("sense.taste", "Tasting ('taste the water'): use sparingly.").var("taste", e(TASTES), "What the tongue says.").max_len(120).sampler(s_taste),
         SlotDef::new("sense.sky", "Looking up ('look up'): the sky, the sun's height or the stars, clouds, birds. Shows the time of day without saying the hour.")
             .var("sky", e(SKIES), "How the sun or night sky stands: sun_low_east, sun_high, sun_low_west, stars, overcast_night, grey.")
-            .var("weather", e(&["clear", "rain", "fog"]), "The weather.")
+            .var("weather", e(crate::slots::WEATHERS), "The weather.")
             .var("time", e(TIMES), "Time of day.")
             .var("birds", VarType::Bool, "Birds are in the sky.")
             .max_len(180)

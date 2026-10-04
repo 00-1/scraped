@@ -725,6 +725,7 @@ impl Game {
         self.outdoor_evidence(&mut out);
         self.creature_facts(&mut out);
         self.life_facts(response, &mut out);
+        self.weather_facts(response, &mut out);
         out
     }
 

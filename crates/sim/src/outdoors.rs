@@ -216,7 +216,7 @@ pub fn rough_minutes(m: u32) -> i64 {
 
 // ---------- weather and light ----------
 
-pub const WEATHERS: [&str; 3] = ["clear", "rain", "fog"];
+pub const WEATHERS: [&str; 5] = ["clear", "rain", "fog", "storm", "snow"];
 
 fn mix(mut h: u64) -> u64 {
     h ^= h >> 31;
@@ -242,42 +242,21 @@ pub fn outdoor_light(minutes: u32) -> &'static str {
     }
 }
 
-/// Weather at a place and time, from the climate there. Weather holds for
-/// three-hour spells.
-// DESIGN-Q: weather is three-hour spells drawn from moisture, with fog
-// likelier at dawn and night and near water; no seasons or day-length
-// changes yet (days run 05:00–21:00 all year).
+/// Weather at a place and time: moving fronts (D06) over the place's own
+/// dawn mists.
 pub fn weather(w: &World, pos: Pos, minutes: u32) -> &'static str {
-    let (x, y) = pos.cell();
-    let mut m = *w.terrain.moisture.get(x, y);
-    if matches!(
-        w.terrain.biome.get(x, y),
-        Biome::Marsh | Biome::Shore | Biome::Lake
-    ) {
-        m += 0.2;
-    }
-    let r = (hash(&[w.seed, 0x5745_4154, u64::from(minutes / 180)]) % 1000) as f64 / 1000.0;
-    let fog_bias = match time_of_day(minutes) {
-        "dawn" | "night" => 1.0,
-        _ => 0.25,
-    };
-    let fog = m * 0.3 * fog_bias;
-    if r < fog {
-        "fog"
-    } else if r < fog + m * 0.3 {
-        "rain"
-    } else {
-        "clear"
-    }
+    crate::weather::weather(w, pos, minutes)
 }
 
 /// How far the eye reaches, in metres.
-// DESIGN-Q: clear daylight 20 km, rain 3 km, fog 200 m; dawn and dusk
+// DESIGN-Q: clear daylight 20 km, rain 3 km, storm and snow 1 km, fog
+// 200 m; dawn and dusk
 // cut range to 40%, night to 500 m at most (starlight on skylines).
 pub fn sight_range(weather: &str, light: &str) -> f64 {
     let base = match weather {
         "fog" => 200.0,
         "rain" => 3000.0,
+        "storm" | "snow" => 1000.0,
         _ => 20000.0,
     };
     match light {

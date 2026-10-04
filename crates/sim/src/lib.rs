@@ -14,4 +14,5 @@ pub mod outdoors;
 pub mod region;
 pub mod rules;
 pub mod traits;
+pub mod weather;
 pub mod writing;

@@ -340,6 +340,13 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
             .count() as f64,
     );
 
+    // D06: weather that changes routes or places, per 30-day month over a
+    // year.
+    let episodes: usize = (0..12)
+        .map(|m| scraped_sim::weather::episodes(w, m).len())
+        .sum();
+    put("weather.consequences_per_month", episodes as f64 / 12.0);
+
     // ---------- history ----------
     let mut events: BTreeMap<String, usize> = BTreeMap::new();
     for e in &w.history.events {

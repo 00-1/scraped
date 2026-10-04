@@ -938,11 +938,17 @@ impl DepthBot {
             if self.worth(g, s, "eat") {
                 return Some("eat".into());
             }
-            let water = outside && g.water_near(1).iter().any(|(_, d, _)| *d <= 300.0);
+            // Fishing means sitting still for an hour and a half: only
+            // when warm, and in daylight.
+            let warm = need("warmth") == "warm";
+            let day = (7..18).contains(&((s.minutes / 60) % 24));
+            let water =
+                outside && warm && day && g.water_near(1).iter().any(|(_, d, _)| *d <= 300.0);
             if water && self.worth(g, s, "fish") {
                 return Some("fish".into());
             }
-            if outside && self.worth(g, s, "forage") {
+            let shivering = matches!(need("warmth").as_str(), "shivering" | "hypothermic");
+            if outside && !shivering && self.worth(g, s, "forage") {
                 return Some("forage".into());
             }
         }

@@ -352,8 +352,25 @@ pub const SIDES: &[&str] = &[
     "northwest",
 ];
 pub const MODES: &[&str] = &["walk", "head", "follow", "back"];
-pub const OBSTACLES: &[&str] = &["sea", "lake", "river"];
-pub const EDGE_ENDS: &[&str] = &["end", "sea", "lake", "river"];
+pub const OBSTACLES: &[&str] = &[
+    "sea",
+    "lake",
+    "river",
+    "bridge",
+    "flood",
+    "snow",
+    "fallen trees",
+];
+pub const EDGE_ENDS: &[&str] = &[
+    "end",
+    "sea",
+    "lake",
+    "river",
+    "bridge",
+    "flood",
+    "snow",
+    "fallen trees",
+];
 pub const SHAPES: &[&str] = &["island", "basin"];
 pub const PASSAGES: &[&str] = &[
     "door", "arch", "stair", "opening", "ramp", "ladder", "shaft", "crawlway", "window", "hole",
@@ -361,7 +378,7 @@ pub const PASSAGES: &[&str] = &[
 ];
 pub const STATES: &[&str] = &["open", "closed", "blocked", "collapsed", "barred"];
 pub const LIGHTS: &[&str] = &["daylight", "dim", "dark"];
-pub const WEATHERS: &[&str] = &["clear", "rain", "fog"];
+pub const WEATHERS: &[&str] = &["clear", "rain", "fog", "storm", "snow"];
 pub const TIMES: &[&str] = &["dawn", "morning", "afternoon", "evening", "night"];
 pub const WRITING: &[&str] = &["left_to_right", "right_to_left", "boustrophedon"];
 
@@ -1512,7 +1529,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("distance", e(&DISTANCES), "How far by eye.")
             .max_len(200)
             .sampler(s_interrupt),
-        SlotDef::new("travel.blocked", "Water bars the way: sea, a lake, or a river too deep to wade, with no ford or bridge here.")
+        SlotDef::new("travel.blocked", "Something bars the way: sea, a lake, a river too deep to wade with no ford or bridge here, a raised bridge, or what the weather has done (D06): a ford in flood, deep snow on high ground, storm-felled trees.")
             .var("by", e(OBSTACLES), "What blocks the way.")
             .var("bearing", e(&BEARINGS), "Which way the player was going.")
             .max_len(200)
@@ -1881,6 +1898,7 @@ pub fn registry() -> Registry {
     all.extend(crate::reading_slots::slots());
     all.extend(crate::object_slots::slots());
     all.extend(crate::life_slots::slots());
+    all.extend(crate::sky_slots::slots());
     Registry::new(all)
 }
 
@@ -2024,6 +2042,7 @@ pub const REVIEW: &[(&str, &str)] = &[
     ("fish", "early"),
     ("snare", "early"),
     ("life", "early"),
+    ("weather", "early"),
     ("gather", "early"),
     ("fire", "early"),
     ("sleep", "early"),
@@ -2059,6 +2078,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(crate::reading_slots::slots());
     all.extend(crate::object_slots::slots());
     all.extend(crate::life_slots::slots());
+    all.extend(crate::sky_slots::slots());
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {
