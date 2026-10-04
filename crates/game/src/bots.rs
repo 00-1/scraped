@@ -743,6 +743,16 @@ impl DepthBot {
                     .fold(0u32, |a, b| a.wrapping_mul(31).wrapping_add(u32::from(b))),
             ),
         ]);
+        // Out under the night sky, a look up once a night (D06).
+        let hour = (s.minutes / 60) % 24;
+        if outside
+            && !(5..21).contains(&hour)
+            && self
+                .dug
+                .insert((format!("night {}", (s.minutes + 600) / 1440), "look up"))
+        {
+            return Some("look up".into());
+        }
         // Follow what the last response turned up, once the buildings here
         // have had their turn.
         let fresh: Vec<&Rendered> = g.renders[self.fresh.min(g.renders.len())..]
@@ -825,12 +835,12 @@ impl DepthBot {
         // Dig in, once per place, a few senses each time.
         const OUT: &[(&str, u64)] = &[
             ("look around", 80),
-            ("listen", 50),
-            ("smell", 40),
-            ("look down", 25),
-            ("look up", 20),
-            ("look closer", 35),
-            ("wait", 15),
+            ("listen", 60),
+            ("smell", 30),
+            ("look down", 40),
+            ("look up", 30),
+            ("look closer", 45),
+            ("wait", 20),
         ];
         const IN: &[(&str, u64)] = &[
             ("look closer", 60),
@@ -966,6 +976,18 @@ impl DepthBot {
             self.cloak_on = true;
             return Some("wear cloak".into());
         }
+        // Once a night, while warm, a look at the sky (D06): stepping out
+        // of a shelter for it if need be.
+        let dark = !(5..21).contains(&hour);
+        let tonight = (format!("night {}", (s.minutes + 600) / 1440), "look up");
+        if dark && !cold && self.kind == "explorer" {
+            if outside && self.dug.insert(tonight.clone()) {
+                return Some("look up".into());
+            }
+            if !outside && !self.dug.contains(&tonight) && self.worth(g, s, "out") {
+                return Some("out".into());
+            }
+        }
         if outside && (night || cold) {
             // A fire, if there's wood to burn and the means to light it.
             if !has("wood") && self.worth(g, s, "gather") {
@@ -982,6 +1004,14 @@ impl DepthBot {
             }
             if !has("wood") && self.worth(g, s, "gather") {
                 return Some("gather".into());
+            }
+            // By the fire after dark, a look at the sky before sleeping (D06).
+            if !(5..21).contains(&hour)
+                && self
+                    .dug
+                    .insert((format!("night {}", (s.minutes + 600) / 1440), "look up"))
+            {
+                return Some("look up".into());
             }
             if self.worth(g, s, "sleep") {
                 return Some("sleep".into());

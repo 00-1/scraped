@@ -1,6 +1,6 @@
 # D06: the curious explorer, seed 1
 
-164 commands, 13.4 hours of game time. Example text only; spoiler-free.
+175 commands, 21.7 hours of game time. Example text only; spoiler-free.
 
 ```
 You wake in a grassland, with no memory of arriving.
@@ -23,13 +23,13 @@ A holy city by an open plain, clustered. Parts: temple quarter, sacred way, scho
 **> listen**
 
 ```
-Rain. River from the northeast. Faintly, a bellow from the east.
+River from the northeast. Faintly, a bellow from the east. Faintly, lake from the north.
 ```
 
 **> look closer**
 
 ```
-A few houses, mostly intact. The damaged school stands alone of its kind here. The well stands here. The worn processional way stands alone of its kind here. Purple anemone, in flower. Reddish bindweed, in flower.
+A few houses, mostly intact. The damaged school stands alone of its kind here. The well stands here. The worn processional way stands alone of its kind here. A nest in the ground, fresh. Small fry in the shallows, fresh.
 ```
 
 **> operate well**
@@ -240,7 +240,7 @@ A stone altar stands here. A clay wall stands here.
 **> listen**
 
 ```
-Rain.
+You hear nothing but your own breath.
 ```
 
 **> south**
@@ -393,8 +393,6 @@ You hear nothing but your own breath.
 
 ```
 A clay jar. Marks are cut into it: writing. You could read it.
-
-You shiver.
 ```
 
 **> read clay jar**
@@ -494,6 +492,8 @@ On a clay tablet, one hundred and twelve signs (page 1 of 7):
 16. a wide sign, a bar turned right
 
 (Read on for more.)
+
+You shiver.
 ```
 
 **> examine oil**
@@ -1112,8 +1112,6 @@ You travel south, about 4000 metres, in about 60 minutes.
 You reach the grassy town.
 
 An intact holy city of a few houses. Your breath smokes in the bitter air.
-
-You shiver.
 ```
 
 **> gather**
@@ -1122,10 +1120,70 @@ You shiver.
 There is no wood here.
 ```
 
+**> fill waterskin**
+
+```
+You fill a waterskin.
+```
+
+**> wait 1 hour**
+
+```
+You wait about an hour. One speckled trout to the southwest, rising.
+
+You shiver.
+```
+
 **> go 1 intact house**
 
 ```
 A hall, dim and close. Ways out: a door north, a stair up and the way out. The air is cold.
+```
+
+**> sleep**
+
+```
+You sleep for 4 hours.
+```
+
+**> sleep**
+
+```
+You sleep for 1 hours.
+
+You shiver.
+
+Your mouth is dry.
+```
+
+**> drink from waterskin**
+
+```
+You drink.
+```
+
+**> wait 1 hour**
+
+```
+You wait about an hour.
+
+Your thirst eases.
+
+Your stomach aches with hunger.
+```
+
+**> eat**
+
+```
+You eat a provisions.
+```
+
+**> sleep**
+
+```
+You sleep for 1 hours.
+
+Your hunger fades.
 ```
 
 **> wait 1 hour**
@@ -1137,5 +1195,35 @@ You wait about an hour.
 **> sleep**
 
 ```
-You sleep for 4 hours.
+You sleep for 1 hours.
+```
+
+**> wait 1 hour**
+
+```
+You wait about an hour.
+```
+
+**> sleep**
+
+```
+You sleep for 1 hours.
+```
+
+**> wait 1 hour**
+
+```
+You wait about an hour.
+
+You die (cold).
+
+So it ended.
+
+Your time here is over, after 2 days. You entered 10 buildings, read 13 texts, wrote 0 and scraped 0.
+
+In one region (west), life: low then, very low now.
+
+Later hands wrote of you, in 6 words:
+
+···· / ······ / ······ / ···· / ···· / ····
 ```

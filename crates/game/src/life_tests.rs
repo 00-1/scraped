@@ -45,7 +45,10 @@ fn signs_only_appear_where_the_species_lives() {
         g.life_facts(Response::Closer, &mut facts);
         for f in facts.iter().filter(|f| f.slot == "life.sign") {
             let sp: usize = f.key.split(':').nth(1).unwrap().parse().unwrap();
-            assert!(living.contains(&sp), "sign of {sp} at {p:?}");
+            assert!(
+                habitats.contains(&g.site.world.life.species[sp].habitat),
+                "sign of {sp} at {p:?}"
+            );
             signs += 1;
         }
     }

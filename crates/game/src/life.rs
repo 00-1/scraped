@@ -50,14 +50,14 @@ fn about(active: &str, time: &str) -> bool {
 // hunters almost never do; large grazers now and then, at a distance.
 fn boldness(role: &str) -> u64 {
     match role {
-        "bird" | "migrant" => 450,
-        "insect" => 350,
-        "grazer" => 220,
-        "small" | "fish" => 160,
-        "burrower" => 120,
-        "browser" => 90,
-        "scavenger" => 60,
-        "predator" => 20,
+        "bird" | "migrant" => 300,
+        "insect" => 250,
+        "grazer" => 120,
+        "small" | "fish" => 80,
+        "burrower" => 60,
+        "browser" => 45,
+        "scavenger" => 30,
+        "predator" => 10,
         _ => 0,
     }
 }
@@ -236,7 +236,7 @@ impl Game {
                 let lasting = sign.starts_with("an old")
                     || matches!(sign, "burrows" | "galls" | "a scratched tree");
                 let fresh = !lasting && (about(s.active, time) || (h >> 20).is_multiple_of(3));
-                let sal = 14.0 + l.plenty * 6.0 + if at_home { 14.0 } else { 0.0 };
+                let sal = 20.0 + l.plenty * 8.0 + if at_home { 14.0 } else { 0.0 };
                 signs.push((
                     h,
                     Fact::new(
@@ -255,7 +255,44 @@ impl Game {
                 ));
             }
             signs.sort_by_key(|(h, _)| *h);
-            out.extend(signs.into_iter().take(3).map(|(_, f)| f));
+            out.extend(signs.into_iter().take(4).map(|(_, f)| f));
+        }
+        // The animals actually roaming near leave fresh signs: a warning
+        // before they are seen, noticed in passing where the ground holds
+        // tracks, and always by looking closer.
+        let p = self.state.pos;
+        for i in 0..self.state.creatures.len() {
+            let home = &self.site.fixtures.creatures[i];
+            let Some(sp) = home.species else { continue };
+            if !matches!(home.home, scraped_sim::fixtures::Spot::Out { .. }) {
+                continue;
+            }
+            // Its range: about 1.5 km round where it lives and where it is.
+            let d = p.dist(self.state.creatures[i].pos).min(p.dist(home.pos));
+            if d > 1500.0 || (!closer && ground.is_empty()) {
+                continue;
+            }
+            let s = &self.site.world.life.species[sp];
+            // Only where the species lives.
+            if !living.iter().any(|l| l.species == sp) && !self.habitats_here().contains(&s.habitat)
+            {
+                continue;
+            }
+            let tracks = !ground.is_empty() && s.foot != "none";
+            let sign = if tracks { "tracks" } else { s.signs[0] };
+            out.push(Fact::new(
+                "life.sign",
+                format!("life-sign:{sp}:{sign}"),
+                if closer { 34.0 } else { 24.0 },
+                ctx(&[
+                    ("sign", Value::from(sign)),
+                    ("foot", Value::from(s.foot)),
+                    ("size", Value::from(s.size)),
+                    ("ground", Value::from(if tracks { ground } else { "" })),
+                    ("fresh", Value::Bool(true)),
+                    ("role", Value::from(s.role)),
+                ]),
+            ));
         }
         // A home close by.
         if let Some((sp, d, at)) = home {
@@ -335,10 +372,9 @@ impl Game {
         }
         // Animals glimpsed: only by someone looking about, and more by one
         // who has stood still.
-        if matches!(
-            response,
-            Response::Around | Response::Closer | Response::Look
-        ) {
+        if matches!(response, Response::Around | Response::Closer)
+            || (response == Response::Look && self.attentive)
+        {
             let still = if self.attentive { 2 } else { 1 };
             let mut seen: Vec<(u64, Fact)> = Vec::new();
             for l in &living {

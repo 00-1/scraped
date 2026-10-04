@@ -432,19 +432,25 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
 
     // ---------- play ----------
     let run = bots::play(pack, seed, "explorer", hours, 20_000);
-    // D06: of the animals the explorer met at all, the share met first
-    // by a sign (a track, a call, a home) rather than in sight.
-    let met = run.life.len().max(1);
-    let by_signs = run
+    // D06: of the animals the explorer met at all (insects aside: they are
+    // seen at the flowers), the share met first by a sign (a track, a call,
+    // a home) rather than in sight.
+    let animals: Vec<&[Option<u32>; 2]> = run
         .life
-        .values()
+        .iter()
+        .filter(|(sp, _)| w.life.species[**sp].role != "insect")
+        .map(|(_, v)| v)
+        .collect();
+    let met = animals.len().max(1);
+    let by_signs = animals
+        .iter()
         .filter(|[sign, seen]| match (sign, seen) {
             (Some(a), Some(b)) => a < b,
             (Some(_), None) => true,
             _ => false,
         })
         .count();
-    put("life.met", run.life.len() as f64);
+    put("life.met", animals.len() as f64);
     put("life.known_by_signs_first", by_signs as f64 / met as f64);
     let mut variety: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
     for r in &run.renders {

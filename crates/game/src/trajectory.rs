@@ -150,6 +150,7 @@ impl Game {
             self.attentive = true;
             let mut facts = Vec::new();
             self.life_facts(crate::attention::Response::Look, &mut facts);
+            self.attentive = false;
             facts.retain(|f| f.slot == "life.seen");
             if !facts.is_empty() {
                 let parts = self.attend(facts, crate::attention::Response::Travel);
