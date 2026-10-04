@@ -23,6 +23,7 @@ pub mod impression;
 pub mod lexicon;
 pub mod meaning;
 pub mod morphology;
+pub mod names;
 pub mod numerals;
 pub mod parse;
 pub mod phonology;
@@ -404,6 +405,13 @@ impl Language {
         let mut maker = WordMaker::new(&self.phonology, &self.morphology);
         for (id, root) in &self.lexicon.roots {
             maker.reserve(root, concepts::get(id).pos);
+        }
+        // Compounds are words too: names must not read as one (D07).
+        for c in concepts::all()
+            .iter()
+            .filter(|c| c.id.contains('~') && self.lexicon.has(&c.id))
+        {
+            maker.reserve_forms(&self.lexicon.root(&c.id), Pos::Noun);
         }
         maker
     }

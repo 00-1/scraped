@@ -28,7 +28,12 @@ impl<'a> Words<'a> {
     fn new(lang: &'a Language, names: usize) -> Self {
         let has = |c: &&'static Concept| lang.lexicon.has(&c.id) && c.domain != Domain::Grammar;
         Words {
-            nouns: concepts::any_with_pos(Pos::Noun).filter(has).collect(),
+            // Titles and kin words follow names as appositions; left out
+            // here so a random noun after a name is never one.
+            nouns: concepts::any_with_pos(Pos::Noun)
+                .filter(has)
+                .filter(|c| !c.has_tag("title") && !c.has_tag("kin"))
+                .collect(),
             verbs: concepts::any_with_pos(Pos::Verb).filter(has).collect(),
             adjectives: concepts::any_with_pos(Pos::Adj).filter(has).collect(),
             determiners: concepts::any_with_pos(Pos::Det).filter(has).collect(),
@@ -115,6 +120,12 @@ fn clause(w: &Words, rng: &mut Rng, cd: usize, top: bool, gap: Option<Role>) -> 
             np: noun_phrase(w, rng, 0, cd),
         });
     }
+    if rng.chance(15) {
+        args.push(Argument {
+            role: Role::Time,
+            np: noun_phrase(w, rng, 1, cd),
+        });
+    }
     let adverbs = if rng.chance(15) && !w.adverbs.is_empty() {
         vec![rng.pick(&w.adverbs).id.clone()]
     } else {
@@ -180,6 +191,7 @@ fn noun_phrase(w: &Words, rng: &mut Rng, depth: usize, cd: usize) -> NounPhrase 
             Number::Singular
         },
         quantity: None,
+        ordinal: None,
         determiner: None,
         adjectives: Vec::new(),
         possessor: None,
@@ -189,6 +201,8 @@ fn noun_phrase(w: &Words, rng: &mut Rng, depth: usize, cd: usize) -> NounPhrase 
     };
     if rng.chance(15) {
         n = n.counted(2 + rng.below(18) as u16);
+    } else if rng.chance(10) {
+        n.ordinal = Some(1 + rng.below(30) as u16);
     }
     if rng.chance(25) && !w.determiners.is_empty() {
         n.determiner = Some(rng.pick(&w.determiners).id.clone());

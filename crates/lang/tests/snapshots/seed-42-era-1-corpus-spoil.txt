@@ -1,37 +1,37 @@
-bitoh ngepel'oni hed kop pod
-    #1 tomb · Bitoh, son of Ngepel'o, lies here.
-    bitoh  ngepel'o-ni   hed  kop   pod
-    Bitoh  Ngepel'o-GEN  son  here  lie
+lïhtimid lïkluxni tok kop pod
+    #1 tomb · Lïhtimid, wife of Lïklux, lies here.
+    lïhtimid  lïklux-ni   tok   kop   pod
+    Lïhtimid  Lïklux-GEN  wife  here  lie
 
 tsir honob dik tong bïl
     #2 potent · [potent] let the grain burn.
     tsir      honob  dik  tong  bïl
     POT.OPEN  grain  POT  burn  POT.CLOSE
 
-tsenimu 'ingini lïp kop pod
-    #3 tomb · Tsenimu, child of 'Ingi, lies here.
-    tsenimu  'ingi-ni   lïp    kop   pod
-    Tsenimu  'Ingi-GEN  child  here  lie
+kïnhïp tuboynotsni nod kop pod
+    #3 tomb · Kïnhïp, brother of Tuboynots, lies here.
+    kïnhïp  tuboynots-ni   nod      kop   pod
+    Kïnhïp  Tuboynots-GEN  brother  here  lie
 
 dongku lut
     #4 warning · Eat the fish.
     dong-ku   lut
     fish-ACC  eat
 
-bitoh xungeyi xiru' tuf dinïh dongngoku fol ximux
-    #5 letter · Bitoh said to Xunge: Dinïh brought nine fish.
-    bitoh  xunge-yi   xi-ru'   tuf       dinïh  dong-ngo-ku  fol   xi-mux
-    Bitoh  Xunge-DAT  PST-say  SENT.END  Dinïh  fish-PL-ACC  nine  PST-bring
+lïhtimid yipibepyi xiru' tuf pïthïp dongngoku fol ximux
+    #5 letter · Lïhtimid said to Yipibep: Pïthïp brought nine fish.
+    lïhtimid  yipibep-yi   xi-ru'   tuf       pïthïp  dong-ngo-ku  fol   xi-mux
+    Lïhtimid  Yipibep-DAT  PST-say  SENT.END  Pïthïp  fish-PL-ACC  nine  PST-bring
 
-ngipmi ngu'ïyi xiru' tuf fetngoku roping bilut
-    #6 letter · Ngipmi said to Ngu'ï: Do not eat the red loaves.
-    ngipmi  ngu'ï-yi   xi-ru'   tuf       fet-ngo-ku   roping  bi-lut
-    Ngipmi  Ngu'ï-DAT  PST-say  SENT.END  loaf-PL-ACC  red     NEG-eat
+konlux kerdipyi xiru' tuf fetngoku roping bilut
+    #6 letter · Konlux said to Kerdip: Do not eat the red loaves.
+    konlux  kerdip-yi   xi-ru'   tuf       fet-ngo-ku   roping  bi-lut
+    Konlux  Kerdip-DAT  PST-say  SENT.END  loaf-PL-ACC  red     NEG-eat
 
-lebnï tenini lïp kop pod
-    #7 tomb · Lebnï, child of Teni, lies here.
-    lebnï  teni-ni   lïp    kop   pod
-    Lebnï  Teni-GEN  child  here  lie
+ximnots yemxopikni nuy kop pod
+    #7 tomb · Ximnots, husband of Yemxopik, lies here.
+    ximnots  yemxopik-ni   nuy      kop   pod
+    Ximnots  Yemxopik-GEN  husband  here  lie
 
 lonku mep
     #8 warning · Break the statue.
@@ -43,55 +43,55 @@ momku bingir
     mom-ku    bi-ngir
     seal-ACC  NEG-scrape
 
-beritom 'ingiyi lidku teb mong xi'ulot
-    #10 dedication · Beritom made this small altar for 'Ingi.
-    beritom  'ingi-yi   lid-ku     teb    mong  xi-'ulot
-    Beritom  'Ingi-DAT  altar-ACC  small  this  PST-make
+tïplol bik konxopikyi lidku teb mong xi'ulot
+    #10 dedication · Tïplol, scribe, made this small altar for Konxopik.
+    tïplol  bik     konxopik-yi   lid-ku     teb    mong  xi-'ulot
+    Tïplol  scribe  Konxopik-DAT  altar-ACC  small  this  PST-make
 
-rede xopini nod kop pod
-    #11 tomb · Rede, brother of Xopi, lies here.
-    rede  xopi-ni   nod      kop   pod
-    Rede  Xopi-GEN  brother  here  lie
+kïnpït konxopikni mïr kop pod
+    #11 tomb · Kïnpït, daughter of Konxopik, lies here.
+    kïnpït  konxopik-ni   mïr       kop   pod
+    Kïnpït  Konxopik-GEN  daughter  here  lie
 
-bilkupi pedmiyi kon hutku mong xi'ulot
-    #12 dedication · Bilkupi made this knife for the new temple.
-    bilkupi  pedmi-yi    kon  hut-ku     mong  xi-'ulot
-    Bilkupi  temple-DAT  new  knife-ACC  this  PST-make
+yipirots pedmiyi kon hutku mong xi'ulot
+    #12 dedication · Yipirots made this knife for the new temple.
+    yipirots  pedmi-yi    kon  hut-ku     mong  xi-'ulot
+    Yipirots  temple-DAT  new  knife-ACC  this  PST-make
 
-kokepi pimyi ye' morokku mong xi'ulot
-    #13 dedication · Kokepi made this lamp for the dark shrine.
-    kokepi  pim-yi      ye'   morok-ku  mong  xi-'ulot
-    Kokepi  shrine-DAT  dark  lamp-ACC  this  PST-make
+ngoko'rots rin ngoy pimyi ye' morokku mong xi'ulot
+    #13 dedication · Ngoko'rots, old king, made this lamp for the dark shrine.
+    ngoko'rots  rin   ngoy  pim-yi      ye'   morok-ku  mong  xi-'ulot
+    Ngoko'rots  king  old   shrine-DAT  dark  lamp-ACC  this  PST-make
 
-'ingi redeyi xiru' tuf tupku ye' bingeloh
-    #14 letter · 'Ingi said to Rede: Do not touch the dark tomb.
-    'ingi  rede-yi   xi-ru'   tuf       tup-ku    ye'   bi-ngeloh
-    'Ingi  Rede-DAT  PST-say  SENT.END  tomb-ACC  dark  NEG-touch
+konxopik kïnpïtyi xiru' tuf kontimid morokngoku mif ngïm xor pup xipitsor
+    #14 letter · Konxopik said to Kïnpït: Kontimid gave 58 lamps.
+    konxopik  kïnpït-yi   xi-ru'   tuf       kontimid  morok-ngo-ku  mif    ngïm  xor   pup  xi-pitsor
+    Konxopik  Kïnpït-DAT  PST-say  SENT.END  Kontimid  lamp-PL-ACC   eight  AND   five  ten  PST-give
 
-'ingi teniyi xiru' tuf ngepel'o hutngoku kip pup ximux
-    #15 letter · 'Ingi said to Teni: Ngepel'o brought ten knives.
-    'ingi  teni-yi   xi-ru'   tuf       ngepel'o  hut-ngo-ku    kip  pup  xi-mux
-    'Ingi  Teni-DAT  PST-say  SENT.END  Ngepel'o  knife-PL-ACC  one  ten  PST-bring
+konxopik pinpïtyi xiru' tuf timiddip hutngoku kip pup ximux
+    #15 letter · Konxopik said to Pinpït: Timiddip brought ten knives.
+    konxopik  pinpït-yi   xi-ru'   tuf       timiddip  hut-ngo-ku    kip  pup  xi-mux
+    Konxopik  Pinpït-DAT  PST-say  SENT.END  Timiddip  knife-PL-ACC  one  ten  PST-bring
 
-pimpuybi ngepel'oni ngom kop pod
-    #16 tomb · Pimpuybi, mother of Ngepel'o, lies here.
-    pimpuybi  ngepel'o-ni   ngom    kop   pod
-    Pimpuybi  Ngepel'o-GEN  mother  here  lie
+yemxopik timiddipni koy kop pod
+    #16 tomb · Yemxopik, sister of Timiddip, lies here.
+    yemxopik  timiddip-ni   koy     kop   pod
+    Yemxopik  Timiddip-GEN  sister  here  lie
 
-teni tso'enni nod kop pod
-    #17 tomb · Teni, brother of Tso'en, lies here.
-    teni  tso'en-ni   nod      kop   pod
-    Teni  Tso'en-GEN  brother  here  lie
+pinpït kerdipni koy kop pod
+    #17 tomb · Pinpït, sister of Kerdip, lies here.
+    pinpït  kerdip-ni   koy     kop   pod
+    Pinpït  Kerdip-GEN  sister  here  lie
 
 hodngo kip ngïm mif pup ngïm kip fub
     #18 ledger · 181 sheep.
     hod-ngo   kip  ngïm  mif    pup  ngïm  kip  fub
     sheep-PL  one  AND   eight  ten  AND   one  hundred
 
-hiyi'ni memku nel
-    #19 warning · Enter the city of Hiyi'.
-    hiyi'-ni   mem-ku    nel
-    Hiyi'-GEN  city-ACC  enter
+yempïtni memku nel
+    #19 warning · Enter the city of Yempït.
+    yempït-ni   mem-ku    nel
+    Yempït-GEN  city-ACC  enter
 
 kenngoku dom
     #20 warning · Open the doors.
@@ -103,98 +103,98 @@ polni 'ofku roping hum
     pol-ni     'of-ku    roping  hum
     queen-GEN  bowl-ACC  red     take
 
-toktïy pimyi rolngoku mif ximux
-    #22 ledger · Toktïy brought eight cloths for the shrine.
-    toktïy  pim-yi      rol-ngo-ku    mif    xi-mux
-    Toktïy  shrine-DAT  cloth-PL-ACC  eight  PST-bring
+lopetbonok xukyi fetngoku nim ngïm nim pup ximux
+    #22 ledger · Lopetbonok brought 77 loaves for the god.
+    lopetbonok  xuk-yi   fet-ngo-ku   nim    ngïm  nim    pup  xi-mux
+    Lopetbonok  god-DAT  loaf-PL-ACC  seven  AND   seven  ten  PST-bring
 
 ngomku dop
     #23 warning · Honour the mother.
     ngom-ku     dop
     mother-ACC  honour
 
-tso'en morokngoku xor ximux
-    #24 ledger · Tso'en brought five lamps.
-    tso'en  morok-ngo-ku  xor   xi-mux
-    Tso'en  lamp-PL-ACC   five  PST-bring
+ngoybotil borngoku kip pup ximux
+    #24 ledger · Ngoybotil brought ten jars.
+    ngoybotil  bor-ngo-ku  kip  pup  xi-mux
+    Ngoybotil  jar-PL-ACC  one  ten  PST-bring
 
-kokepi 'ingini nong kop pod
-    #25 tomb · Kokepi, father of 'Ingi, lies here.
-    kokepi  'ingi-ni   nong    kop   pod
-    Kokepi  'Ingi-GEN  father  here  lie
+ngoko'rots kerdipni nong kop pod
+    #25 tomb · Ngoko'rots, father of Kerdip, lies here.
+    ngoko'rots  kerdip-ni   nong    kop   pod
+    Ngoko'rots  Kerdip-GEN  father  here  lie
 
-tsenimu biri'oyi xiru' tuf tupku bingeloh
-    #26 letter · Tsenimu said to Biri'o: Do not touch the tomb.
-    tsenimu  biri'o-yi   xi-ru'   tuf       tup-ku    bi-ngeloh
-    Tsenimu  Biri'o-DAT  PST-say  SENT.END  tomb-ACC  NEG-touch
+kïnhïp tuboynotsyi xiru' tuf tupku bingeloh
+    #26 letter · Kïnhïp said to Tuboynots: Do not touch the tomb.
+    kïnhïp  tuboynots-yi   xi-ru'   tuf       tup-ku    bi-ngeloh
+    Kïnhïp  Tuboynots-DAT  PST-say  SENT.END  tomb-ACC  NEG-touch
 
-tsenimu kukiyho'yi xiru' tuf litsehku dore
-    #27 letter · Tsenimu said to Kukiyho': Drink the wine.
-    tsenimu  kukiyho'-yi   xi-ru'   tuf       litseh-ku  dore
-    Tsenimu  Kukiyho'-DAT  PST-say  SENT.END  wine-ACC   drink
+kïnhïp lïkluxyi xiru' tuf litsehku dore
+    #27 letter · Kïnhïp said to Lïklux: Drink the wine.
+    kïnhïp  lïklux-yi   xi-ru'   tuf       litseh-ku  dore
+    Kïnhïp  Lïklux-DAT  PST-say  SENT.END  wine-ACC   drink
 
-xunge 'ingini koy kop pod
-    #28 tomb · Xunge, sister of 'Ingi, lies here.
-    xunge  'ingi-ni   koy     kop   pod
-    Xunge  'Ingi-GEN  sister  here  lie
+yipibep kïnhïpni koy kop pod
+    #28 tomb · Yipibep, sister of Kïnhïp, lies here.
+    yipibep  kïnhïp-ni   koy     kop   pod
+    Yipibep  Kïnhïp-GEN  sister  here  lie
 
-dinïh pimpuybini ngom kop pod
-    #29 tomb · Dinïh, mother of Pimpuybi, lies here.
-    dinïh  pimpuybi-ni   ngom    kop   pod
-    Dinïh  Pimpuybi-GEN  mother  here  lie
+pïthïp kïnhïpni ngom kop pod
+    #29 tomb · Pïthïp, mother of Kïnhïp, lies here.
+    pïthïp  kïnhïp-ni   ngom    kop   pod
+    Pïthïp  Kïnhïp-GEN  mother  here  lie
 
-bilkupi xukyi ngoko' 'ofku mong xi'ulot
-    #30 dedication · Bilkupi made this bowl for the great god.
-    bilkupi  xuk-yi   ngoko'  'of-ku    mong  xi-'ulot
-    Bilkupi  god-DAT  great   bowl-ACC  this  PST-make
+yipirots xukyi ngoko' 'ofku mong xi'ulot
+    #30 dedication · Yipirots made this bowl for the great god.
+    yipirots  xuk-yi   ngoko'  'of-ku    mong  xi-'ulot
+    Yipirots  god-DAT  great   bowl-ACC  this  PST-make
 
-toktïy hitngoku mif xipitsor
-    #31 ledger · Toktïy gave eight oxen.
-    toktïy  hit-ngo-ku  mif    xi-pitsor
-    Toktïy  ox-PL-ACC   eight  PST-give
+lopetbonok fetngoku lot xipitsor
+    #31 ledger · Lopetbonok gave two loaves.
+    lopetbonok  fet-ngo-ku   lot  xi-pitsor
+    Lopetbonok  loaf-PL-ACC  two  PST-give
 
 dukku lïh dom
     #32 warning · Open the white gate.
     duk-ku    lïh    dom
     gate-ACC  white  open
 
-teni tso'enni nod kop pod
-    #33 tomb · Teni, brother of Tso'en, lies here.
-    teni  tso'en-ni   nod      kop   pod
-    Teni  Tso'en-GEN  brother  here  lie
+pinpït kerdipni koy kop pod
+    #33 tomb · Pinpït, sister of Kerdip, lies here.
+    pinpït  kerdip-ni   koy     kop   pod
+    Pinpït  Kerdip-GEN  sister  here  lie
 
-hiyi' tenini lïp bik kop pod
-    #34 tomb · Hiyi', child of Teni, scribe, lies here.
-    hiyi'  teni-ni   lïp    bik     kop   pod
-    Hiyi'  Teni-GEN  child  scribe  here  lie
+yempït lïhtimidni nuy kop pod
+    #34 tomb · Yempït, husband of Lïhtimid, lies here.
+    yempït  lïhtimid-ni   nuy      kop   pod
+    Yempït  Lïhtimid-GEN  husband  here  lie
 
-bïteppubni pimku binel
-    #35 warning · Do not enter the shrine of Bïteppub.
-    bïteppub-ni   pim-ku      bi-nel
-    Bïteppub-GEN  shrine-ACC  NEG-enter
+bonokhitni pimku binel
+    #35 warning · Do not enter the shrine of Bonokhit.
+    bonokhit-ni   pim-ku      bi-nel
+    Bonokhit-GEN  shrine-ACC  NEG-enter
 
-loxume kukiyho'ni nod bik kop pod
-    #36 tomb · Loxume, brother of Kukiyho', scribe, lies here.
-    loxume  kukiyho'-ni   nod      bik     kop   pod
-    Loxume  Kukiyho'-GEN  brother  scribe  here  lie
+ximlol pïthïpni tok pol kop pod
+    #36 tomb · Ximlol, wife of Pïthïp, queen, lies here.
+    ximlol  pïthïp-ni   tok   pol    kop   pod
+    Ximlol  Pïthïp-GEN  wife  queen  here  lie
 
 tsir xong ngoy dik mep bïl
     #37 potent · [potent] let the old tablet break.
     tsir      xong    ngoy  dik  mep    bïl
     POT.OPEN  tablet  old   POT  break  POT.CLOSE
 
-dinïh pimpuybini ngom kop pod
-    #38 tomb · Dinïh, mother of Pimpuybi, lies here.
-    dinïh  pimpuybi-ni   ngom    kop   pod
-    Dinïh  Pimpuybi-GEN  mother  here  lie
+pïthïp kïnhïpni ngom kop pod
+    #38 tomb · Pïthïp, mother of Kïnhïp, lies here.
+    pïthïp  kïnhïp-ni   ngom    kop   pod
+    Pïthïp  Kïnhïp-GEN  mother  here  lie
 
-loxume pimyi hutku mong xi'ulot
-    #39 dedication · Loxume made this knife for the shrine.
-    loxume  pim-yi      hut-ku     mong  xi-'ulot
-    Loxume  shrine-DAT  knife-ACC  this  PST-make
+ximlol pimyi hutku mong xi'ulot
+    #39 dedication · Ximlol made this knife for the shrine.
+    ximlol  pim-yi      hut-ku     mong  xi-'ulot
+    Ximlol  shrine-DAT  knife-ACC  this  PST-make
 
-bilkupi xukyi morokngoku fol pup xipitsor
-    #40 ledger · Bilkupi gave 90 lamps for the god.
-    bilkupi  xuk-yi   morok-ngo-ku  fol   pup  xi-pitsor
-    Bilkupi  god-DAT  lamp-PL-ACC   nine  ten  PST-give
+yipirots xukyi morokngoku fol pup xipitsor
+    #40 ledger · Yipirots gave 90 lamps for the god.
+    yipirots  xuk-yi   morok-ngo-ku  fol   pup  xi-pitsor
+    Yipirots  god-DAT  lamp-PL-ACC   nine  ten  PST-give
 

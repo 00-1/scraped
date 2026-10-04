@@ -410,13 +410,14 @@ impl<'a> Parser<'a> {
             Side::Before => {
                 // [det] [numeral] [degree] [adj_n … adj_1] head
                 for (det, a) in self.opt(self.plain_word(input, at, &[Pos::Det]), at) {
-                    for (qty, b) in self.opt(self.numeral(input, a), a) {
+                    for ((qty, ord), b) in self.counts(input, a) {
                         for (deg, b2) in degrees(b) {
                             for (adjs, c) in self.many(input, b2, &[Pos::Adj]) {
                                 for ((head, number), d) in self.head(input, c, case) {
                                     let mut adjectives = adjs.clone();
                                     adjectives.reverse();
-                                    let n = np(head, number, qty, det.clone(), adjectives);
+                                    let mut n = np(head, number, qty, det.clone(), adjectives);
+                                    n.ordinal = ord;
                                     out.push((with_degree(n, deg.clone(), None), d));
                                 }
                             }
@@ -429,10 +430,11 @@ impl<'a> Parser<'a> {
                 for ((head, number), a) in self.head(input, at, case) {
                     for (adjs, b) in self.many(input, a, &[Pos::Adj]) {
                         for (deg, b2) in degrees(b) {
-                            for (qty, c) in self.opt(self.numeral(input, b2), b2) {
+                            for ((qty, ord), c) in self.counts(input, b2) {
                                 for (det, d) in self.opt(self.plain_word(input, c, &[Pos::Det]), c)
                                 {
-                                    let n = np(head.clone(), number, qty, det, adjs.clone());
+                                    let mut n = np(head.clone(), number, qty, det, adjs.clone());
+                                    n.ordinal = ord;
                                     out.push((with_degree(n, deg.clone(), None), d));
                                 }
                             }
@@ -442,6 +444,51 @@ impl<'a> Parser<'a> {
             }
         }
         let _ = (depth, cd);
+        out
+    }
+
+    /// A count or a rank (the numeral and the ordinal word), or neither.
+    fn counts(&self, input: &[Tok], at: usize) -> Alt<(Option<u16>, Option<u16>)> {
+        let mut out = vec![((None, None), at)];
+        for (n, e) in self.numeral(input, at) {
+            out.push(((Some(n), None), e));
+            if let Some(e2) = self.fixed(input, e, "ord") {
+                out.push(((None, Some(n)), e2));
+            }
+        }
+        out
+    }
+
+    /// A time phrase with its marker (D07), then adverbs.
+    fn when_and_adverbs(
+        &self,
+        input: &[Tok],
+        at: usize,
+        cd: usize,
+    ) -> Alt<(Option<NounPhrase>, Vec<String>)> {
+        let mut times: Alt<Option<NounPhrase>> = vec![(None, at)];
+        match self.r.lang.syntax.linker {
+            Side::Before => {
+                if let Some(a) = self.fixed(input, at, "time.at") {
+                    for (n, b) in self.noun_phrase(input, a, Case::Subject, 1, false, cd) {
+                        times.push((Some(n), b));
+                    }
+                }
+            }
+            Side::After => {
+                for (n, a) in self.noun_phrase(input, at, Case::Subject, 1, false, cd) {
+                    if let Some(b) = self.fixed(input, a, "time.at") {
+                        times.push((Some(n), b));
+                    }
+                }
+            }
+        }
+        let mut out = Vec::new();
+        for (t, e) in times {
+            for (adv, e2) in self.many(input, e, &[Pos::Adv]) {
+                out.push(((t.clone(), adv), e2));
+            }
+        }
         out
     }
 
@@ -643,7 +690,19 @@ impl<'a> Parser<'a> {
     ) -> Alt<Vec<NounPhrase>> {
         let mut out = Vec::new();
         if depth < DEPTH + 2 {
-            for (a, e) in self.noun_phrase(input, at, case, depth + 1, false, cd) {
+            // Titles and kin ("king", "child of X") only.
+            let fits = |n: &NounPhrase| match &n.head {
+                Head::Concept(id) => {
+                    let c = concepts::get(id);
+                    c.has_tag("title") || c.has_tag("kin")
+                }
+                Head::Name(_) => false,
+            };
+            for (a, e) in self
+                .noun_phrase(input, at, case, depth + 1, false, cd)
+                .into_iter()
+                .filter(|(n, _)| fits(n))
+            {
                 for (mut rest, e2) in self.appositions(input, e, case, depth + 1, cd) {
                     rest.insert(0, a.clone());
                     out.push((rest, e2));
@@ -876,7 +935,7 @@ impl<'a> Parser<'a> {
                       object: Option<NounPhrase>,
                       complement: Option<Complement>,
                       recipient: Option<NounPhrase>,
-                      adverbs: Vec<String>,
+                      when: (Option<NounPhrase>, Vec<String>),
                       verb: (String, VerbForm)|
          -> Option<Clause> {
             let (predicate, form) = verb;
@@ -921,6 +980,13 @@ impl<'a> Parser<'a> {
                     np: r,
                 });
             }
+            let (time, adverbs) = when;
+            if let Some(t) = time {
+                args.push(Argument {
+                    role: Role::Time,
+                    np: t,
+                });
+            }
             Some(Clause {
                 predicate,
                 mood,
@@ -952,7 +1018,7 @@ impl<'a> Parser<'a> {
                     for (rc, b) in self.np_opt(input, a, Case::Dative, gr, cd) {
                         for (o, c) in self.np_opt(input, b, Case::Object, go, cd) {
                             for (comp, c2) in reported(c) {
-                                for (adv, d) in self.many(input, c2, &[Pos::Adv]) {
+                                for (adv, d) in self.when_and_adverbs(input, c2, cd) {
                                     for (v, e) in self.verb_group(input, d, potent) {
                                         if let Some(cl) = finish(
                                             s.clone(),
@@ -976,7 +1042,7 @@ impl<'a> Parser<'a> {
                     for (v, b) in self.verb_group(input, a, potent) {
                         for (o, c) in self.np_opt(input, b, Case::Object, go, cd) {
                             for (rc, d) in self.np_opt(input, c, Case::Dative, gr, cd) {
-                                for (adv, e) in self.many(input, d, &[Pos::Adv]) {
+                                for (adv, e) in self.when_and_adverbs(input, d, cd) {
                                     for (comp, e2) in reported(e) {
                                         if let Some(cl) = finish(
                                             s.clone(),
@@ -1000,7 +1066,7 @@ impl<'a> Parser<'a> {
                     for (s, b) in self.np_opt(input, a, Case::Subject, gs, cd) {
                         for (o, c) in self.np_opt(input, b, Case::Object, go, cd) {
                             for (rc, d) in self.np_opt(input, c, Case::Dative, gr, cd) {
-                                for (adv, e) in self.many(input, d, &[Pos::Adv]) {
+                                for (adv, e) in self.when_and_adverbs(input, d, cd) {
                                     for (comp, e2) in reported(e) {
                                         if let Some(cl) = finish(
                                             s.clone(),
@@ -1171,6 +1237,7 @@ fn np(
         head,
         number,
         quantity,
+        ordinal: None,
         determiner,
         adjectives,
         possessor: None,

@@ -3,30 +3,30 @@ mochu mohiğotino
     mochu  mohiğo-ti-no
     enter  temple-PL-ACC
 
-yiŋopi noŋi bobuso povuno gifo tilisu
-    #2 dedication · Yiŋopi, servant, made this box for the god.
-    yiŋopi  noŋi     bobu-so   povu-no  gifo  tili-su
-    Yiŋopi  servant  make-PST  box-ACC  this  god-DAT
+niþolomovovu buwonu bobuso povuno gifo tilisu
+    #2 dedication · Niþolomovovu, priest, made this box for the god.
+    niþolomovovu  buwonu  bobu-so   povu-no  gifo  tili-su
+    Niþolomovovu  priest  make-PST  box-ACC  this  god-DAT
 
-yobimo mochoyupi chulu sohovi gomo nuso
-    #3 tomb · Yobimo, daughter of Mochoyu, king, lies here.
-    yobimo  mochoyu-pi   chulu     sohovi  gomo  nuso
-    Yobimo  Mochoyu-GEN  daughter  king    lie   here
+yo'ili'i yoholotunipi toŋu gomo nuso
+    #3 tomb · Yo'ili'i, child of Yoholotuni, lies here.
+    yo'ili'i  yoholotuni-pi   toŋu   gomo  nuso
+    Yo'ili'i  Yoholotuni-GEN  child  lie   here
 
-ŋohobi yobimopi figono
-    #4 warning · Do not break the gate of Yobimo.
-    ŋoho-bi    yobimo-pi   figo-no
-    break-NEG  Yobimo-GEN  gate-ACC
+ŋohobi yo'ili'ipi figono
+    #4 warning · Do not break the gate of Yo'ili'i.
+    ŋoho-bi    yo'ili'i-pi   figo-no
+    break-NEG  Yo'ili'i-GEN  gate-ACC
 
-dipo bobuso suvono gifo vumusu
-    #5 dedication · Dipo made this tablet for Vumu.
-    dipo  bobu-so   suvo-no     gifo  vumu-su
-    Dipo  make-PST  tablet-ACC  this  Vumu-DAT
+komomiwochido bobuso suvono gifo yoholotunisu
+    #5 dedication · Komomiwochido made this tablet for Yoholotuni.
+    komomiwochido  bobu-so   suvo-no     gifo  yoholotuni-su
+    Komomiwochido  make-PST  tablet-ACC  this  Yoholotuni-DAT
 
-tugoti vumupi pifohi gomo nuso
-    #6 tomb · Tugoti, son of Vumu, lies here.
-    tugoti  vumu-pi   pifohi  gomo  nuso
-    Tugoti  Vumu-GEN  son     lie   here
+siniwofigo huwuwokohi'upi yufiŋo yilu gomo nuso
+    #6 tomb · Siniwofigo, sister of Huwuwokohi'u, scribe, lies here.
+    siniwofigo  huwuwokohi'u-pi   yufiŋo  yilu    gomo  nuso
+    Siniwofigo  Huwuwokohi'u-GEN  sister  scribe  lie   here
 
 ninimoti tufu koğu
     #7 ledger · Eight knives.
@@ -38,163 +38,163 @@ lumiti tufu koğu
     lumi-ti  tufu  koğu
     fish-PL  five  three
 
-ğobi dobopi wusu gomo nuso
-    #9 tomb · Ğobi, brother of Dobo, lies here.
-    ğobi  dobo-pi   wusu     gomo  nuso
-    Ğobi  Dobo-GEN  brother  lie   here
+totinuþi powovulifupi wusu gomo nuso
+    #9 tomb · Totinuþi, brother of Powovulifu, lies here.
+    totinuþi  powovulifu-pi   wusu     gomo  nuso
+    Totinuþi  Powovulifu-GEN  brother  lie   here
 
-kuloti vodipi chulu gomo nuso
-    #10 tomb · Kuloti, daughter of Vodi, lies here.
-    kuloti  vodi-pi   chulu     gomo  nuso
-    Kuloti  Vodi-GEN  daughter  lie   here
+totiwochido huwuwokohi'upi sivisi gomo nuso
+    #10 tomb · Totiwochido, husband of Huwuwokohi'u, lies here.
+    totiwochido  huwuwokohi'u-pi   sivisi   gomo  nuso
+    Totiwochido  Huwuwokohi'u-GEN  husband  lie   here
 
-go'uchi pubogupi sivisi gomo nuso
-    #11 tomb · Go'uchi, husband of Pubogu, lies here.
-    go'uchi  pubogu-pi   sivisi   gomo  nuso
-    Go'uchi  Pubogu-GEN  husband  lie   here
+siniwolifu yoholotunipi ŋuyo gomo nuso
+    #11 tomb · Siniwolifu, mother of Yoholotuni, lies here.
+    siniwolifu  yoholotuni-pi   ŋuyo    gomo  nuso
+    Siniwolifu  Yoholotuni-GEN  mother  lie   here
 
-dipo kuhi luhoso fidusu muŋi pubu wiŋofuso li'itino koğu guto koğu chivo guto nimi buğu
-    #12 letter · Dipo, queen, said to Fidu: Pubu gave 233 sheep.
-    dipo  kuhi   luho-so  fidu-su   muŋi      pubu  wiŋofu-so  li'i-ti-no    koğu   guto  koğu   chivo  guto  nimi  buğu
-    Dipo  queen  say-PST  Fidu-DAT  SENT.END  Pubu  give-PST   sheep-PL-ACC  three  AND   three  ten    AND   two   hundred
+komomiwochido luhoso dopuliniğusu muŋi mochu loŋono
+    #12 letter · Komomiwochido said to Dopuliniğu: Enter the house.
+    komomiwochido  luho-so  dopuliniğu-su   muŋi      mochu  loŋo-no
+    Komomiwochido  say-PST  Dopuliniğu-DAT  SENT.END  enter  house-ACC
 
-dipo kuhi dopu bobuso povuno gifo tilipi mohiğosu husi
-    #13 dedication · Dipo, old queen, made this box for the dark temple of the god.
-    dipo  kuhi   dopu  bobu-so   povu-no  gifo  tili-pi  mohiğo-su   husi
-    Dipo  queen  old   make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+komomiwochido bobuso povuno gifo tilipi mohiğosu husi
+    #13 dedication · Komomiwochido made this box for the dark temple of the god.
+    komomiwochido  bobu-so   povu-no  gifo  tili-pi  mohiğo-su   husi
+    Komomiwochido  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
 
-pubu luhoso dobosu muŋi kuloti yiþiso suŋoŋitino tufu yotusu
-    #14 letter · Pubu said to Dobo: Kuloti brought five oxen for the shrine.
-    pubu  luho-so  dobo-su   muŋi      kuloti  yiþi-so    suŋoŋi-ti-no  tufu  yotu-su
-    Pubu  say-PST  Dobo-DAT  SENT.END  Kuloti  bring-PST  ox-PL-ACC     five  shrine-DAT
+huwuwokohi'u luhoso woliwochidosu muŋi kisoŋobi suyuvono
+    #14 letter · Huwuwokohi'u said to Woliwochido: Do not take the statue.
+    huwuwokohi'u  luho-so  woliwochido-su   muŋi      kisoŋo-bi  suyuvo-no
+    Huwuwokohi'u  say-PST  Woliwochido-DAT  SENT.END  take-NEG   statue-ACC
 
-tuso'o luhoso sisulusu muŋi sisulu wiŋofuso lifutino tufu kichi
-    #15 letter · Tuso'o said to Sisulu: Sisulu gave six goats.
-    tuso'o  luho-so  sisulu-su   muŋi      sisulu  wiŋofu-so  lifu-ti-no   tufu  kichi
-    Tuso'o  say-PST  Sisulu-DAT  SENT.END  Sisulu  give-PST   goat-PL-ACC  five  one
+hihutuni luhoso yiliwinuþisu muŋi yiliwinuþi wiŋofuso chuhitino homu
+    #15 letter · Hihutuni said to Yiliwinuþi: Yiliwinuþi gave four jars.
+    hihutuni  luho-so  yiliwinuþi-su   muŋi      yiliwinuþi  wiŋofu-so  chuhi-ti-no  homu
+    Hihutuni  say-PST  Yiliwinuþi-DAT  SENT.END  Yiliwinuþi  give-PST   jar-PL-ACC   four
 
-yobimo mochoyupi chulu sohovi gomo nuso
-    #16 tomb · Yobimo, daughter of Mochoyu, king, lies here.
-    yobimo  mochoyu-pi   chulu     sohovi  gomo  nuso
-    Yobimo  Mochoyu-GEN  daughter  king    lie   here
+yo'ili'i yoholotunipi toŋu gomo nuso
+    #16 tomb · Yo'ili'i, child of Yoholotuni, lies here.
+    yo'ili'i  yoholotuni-pi   toŋu   gomo  nuso
+    Yo'ili'i  Yoholotuni-GEN  child  lie   here
 
-dipo fidupi wusu gomo nuso
-    #17 tomb · Dipo, brother of Fidu, lies here.
-    dipo  fidu-pi   wusu     gomo  nuso
-    Dipo  Fidu-GEN  brother  lie   here
+komomiwochido niþolomuvosopi toŋu gomo nuso
+    #17 tomb · Komomiwochido, child of Niþolomuvoso, lies here.
+    komomiwochido  niþolomuvoso-pi   toŋu   gomo  nuso
+    Komomiwochido  Niþolomuvoso-GEN  child  lie   here
 
 buwonupi povu
     #18 label · The box of the priest.
     buwonu-pi   povu
     priest-GEN  box
 
-dobo luhoso kulotisu muŋi tinoki yiþiso lifutino kichi chivo
-    #19 letter · Dobo said to Kuloti: Tinoki brought ten goats.
-    dobo  luho-so  kuloti-su   muŋi      tinoki  yiþi-so    lifu-ti-no   kichi  chivo
-    Dobo  say-PST  Kuloti-DAT  SENT.END  Tinoki  bring-PST  goat-PL-ACC  one    ten
+woliwochido luhoso totiwochidosu muŋi komomiwochido wiŋofuso ŋositino homu guto tufu koğu chivo
+    #19 letter · Woliwochido said to Totiwochido: Komomiwochido gave 84 bowls.
+    woliwochido  luho-so  totiwochido-su   muŋi      komomiwochido  wiŋofu-so  ŋosi-ti-no   homu  guto  tufu  koğu   chivo
+    Woliwochido  say-PST  Totiwochido-DAT  SENT.END  Komomiwochido  give-PST   bowl-PL-ACC  four  AND   five  three  ten
 
-sisulu dipopi nosu kuhi gomo nuso
-    #20 tomb · Sisulu, wife of Dipo, queen, lies here.
-    sisulu  dipo-pi   nosu  kuhi   gomo  nuso
-    Sisulu  Dipo-GEN  wife  queen  lie   here
+yiliwinuþi husiwochidopi toŋu gomo nuso
+    #20 tomb · Yiliwinuþi, child of Husiwochido, lies here.
+    yiliwinuþi  husiwochido-pi   toŋu   gomo  nuso
+    Yiliwinuþi  Husiwochido-GEN  child  lie   here
 
 misi wuþo 'iğo ŋohobi suğo
     #21 potent · [potent] let the seal not break.
     misi      wuþo  'iğo  ŋoho-bi    suğo
     POT.OPEN  seal  POT   break-NEG  POT.CLOSE
 
-dinu vodipi yufiŋo hiho gomo nuso
-    #22 tomb · Dinu, sister of Vodi, smith, lies here.
-    dinu  vodi-pi   yufiŋo  hiho   gomo  nuso
-    Dinu  Vodi-GEN  sister  smith  lie   here
+kiŋuliniğu niþolomuvosopi ŋuyo gomo nuso
+    #22 tomb · Kiŋuliniğu, mother of Niþolomuvoso, lies here.
+    kiŋuliniğu  niþolomuvoso-pi   ŋuyo    gomo  nuso
+    Kiŋuliniğu  Niþolomuvoso-GEN  mother  lie   here
 
-sisulu dipopi nosu gomo nuso
-    #23 tomb · Sisulu, wife of Dipo, lies here.
-    sisulu  dipo-pi   nosu  gomo  nuso
-    Sisulu  Dipo-GEN  wife  lie   here
+yiliwinuþi husiwochidopi toŋu gomo nuso
+    #23 tomb · Yiliwinuþi, child of Husiwochido, lies here.
+    yiliwinuþi  husiwochido-pi   toŋu   gomo  nuso
+    Yiliwinuþi  Husiwochido-GEN  child  lie   here
 
-fidu bobuso toyichuno sido gifo vodisu kuhisu ŋino
-    #24 dedication · Fidu made this holy altar for Vodi, good queen.
-    fidu  bobu-so   toyichu-no  sido  gifo  vodi-su   kuhi-su    ŋino
-    Fidu  make-PST  altar-ACC   holy  this  Vodi-DAT  queen-DAT  good
+dopuliniğu bobuso toyichuno sido gifo bisoyoholosu
+    #24 dedication · Dopuliniğu made this holy altar for Bisoyoholo.
+    dopuliniğu  bobu-so   toyichu-no  sido  gifo  bisoyoholo-su
+    Dopuliniğu  make-PST  altar-ACC   holy  this  Bisoyoholo-DAT
 
-fidu bobuso suvono gifo bihusu
-    #25 dedication · Fidu made this tablet for the city.
-    fidu  bobu-so   suvo-no     gifo  bihu-su
-    Fidu  make-PST  tablet-ACC  this  city-DAT
+dopuliniğu bobuso suvono gifo bihusu
+    #25 dedication · Dopuliniğu made this tablet for the city.
+    dopuliniğu  bobu-so   suvo-no     gifo  bihu-su
+    Dopuliniğu  make-PST  tablet-ACC  this  city-DAT
 
 sohovipi ŋosi
     #26 label · The bowl of the king.
     sohovi-pi  ŋosi
     king-GEN   bowl
 
-tinoki bobuso ŋosino gifo yiponisu
-    #27 dedication · Tinoki made this bowl for Yiponi.
-    tinoki  bobu-so   ŋosi-no   gifo  yiponi-su
-    Tinoki  make-PST  bowl-ACC  this  Yiponi-DAT
+sidotochuso bobuso ŋosino gifo soloyonuþisu
+    #27 dedication · Sidotochuso made this bowl for Soloyonuþi.
+    sidotochuso  bobu-so   ŋosi-no   gifo  soloyonuþi-su
+    Sidotochuso  make-PST  bowl-ACC  this  Soloyonuþi-DAT
 
-yobimo mochoyupi chulu sohovi gomo nuso
-    #28 tomb · Yobimo, daughter of Mochoyu, king, lies here.
-    yobimo  mochoyu-pi   chulu     sohovi  gomo  nuso
-    Yobimo  Mochoyu-GEN  daughter  king    lie   here
+yo'ili'i yoholotunipi toŋu gomo nuso
+    #28 tomb · Yo'ili'i, child of Yoholotuni, lies here.
+    yo'ili'i  yoholotuni-pi   toŋu   gomo  nuso
+    Yo'ili'i  Yoholotuni-GEN  child  lie   here
 
-go'uchi luhoso vumusu muŋi kisoŋo luwuno
-    #29 letter · Go'uchi said to Vumu: Take the loaf.
-    go'uchi  luho-so  vumu-su   muŋi      kisoŋo  luwu-no
-    Go'uchi  say-PST  Vumu-DAT  SENT.END  take    loaf-ACC
+siniwolifu luhoso yoholotunisu muŋi 'ovo yo'ino
+    #29 letter · Siniwolifu said to Yoholotuni: Cross the sea.
+    siniwolifu  luho-so  yoholotuni-su   muŋi      'ovo   yo'i-no
+    Siniwolifu  say-PST  Yoholotuni-DAT  SENT.END  cross  sea-ACC
 
-mochoyu yiþiso luwutino koğu yotusu
-    #30 ledger · Mochoyu brought three loaves for the shrine.
-    mochoyu  yiþi-so    luwu-ti-no   koğu   yotu-su
-    Mochoyu  bring-PST  loaf-PL-ACC  three  shrine-DAT
+sohuholifu yiþiso luwutino koğu yotusu
+    #30 ledger · Sohuholifu brought three loaves for the shrine.
+    sohuholifu  yiþi-so    luwu-ti-no   koğu   yotu-su
+    Sohuholifu  bring-PST  loaf-PL-ACC  three  shrine-DAT
 
 wiyubi loþimono
     #31 warning · Do not burn the door.
     wiyu-bi   loþimo-no
     burn-NEG  door-ACC
 
-yobimo mochoyupi chulu gomo nuso
-    #32 tomb · Yobimo, daughter of Mochoyu, lies here.
-    yobimo  mochoyu-pi   chulu     gomo  nuso
-    Yobimo  Mochoyu-GEN  daughter  lie   here
+yo'ili'i yoholotunipi toŋu gomo nuso
+    #32 tomb · Yo'ili'i, child of Yoholotuni, lies here.
+    yo'ili'i  yoholotuni-pi   toŋu   gomo  nuso
+    Yo'ili'i  Yoholotuni-GEN  child  lie   here
 
 lumiti tufu nimi guto nimi chivo guto nimi buğu sofoti nimi chiŋiti nimi guto tufu kichi chivo guto kichi buğu yuhomo kichi guto tufu homu chivo guto koğu buğu
     #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
     lumi-ti  tufu  nimi  guto  nimi  chivo  guto  nimi  buğu     sofo-ti  nimi  chiŋi-ti  nimi  guto  tufu  kichi  chivo  guto  kichi  buğu     yuhomo  kichi  guto  tufu  homu  chivo  guto  koğu   buğu
     fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
 
-kuloti vodipi chulu gomo nuso
-    #34 tomb · Kuloti, daughter of Vodi, lies here.
-    kuloti  vodi-pi   chulu     gomo  nuso
-    Kuloti  Vodi-GEN  daughter  lie   here
+totiwochido huwuwokohi'upi sivisi gomo nuso
+    #34 tomb · Totiwochido, husband of Huwuwokohi'u, lies here.
+    totiwochido  huwuwokohi'u-pi   sivisi   gomo  nuso
+    Totiwochido  Huwuwokohi'u-GEN  husband  lie   here
 
-chudopi chuhi
-    #35 label · The jar of Chudo.
-    chudo-pi   chuhi
-    Chudo-GEN  jar
+husiwochidopi chuhi
+    #35 label · The jar of Husiwochido.
+    husiwochido-pi   chuhi
+    Husiwochido-GEN  jar
 
-go'uchi luhoso yoposu muŋi 'uno tinokipi miwono
-    #36 letter · Go'uchi said to Yopo: Drink the water of Tinoki.
-    go'uchi  luho-so  yopo-su   muŋi      'uno   tinoki-pi   miwo-no
-    Go'uchi  say-PST  Yopo-DAT  SENT.END  drink  Tinoki-GEN  water-ACC
+siniwolifu luhoso sidosuŋoŋisu muŋi 'uno sidotochusopi miwono
+    #36 letter · Siniwolifu said to Sidosuŋoŋi: Drink the water of Sidotochuso.
+    siniwolifu  luho-so  sidosuŋoŋi-su   muŋi      'uno   sidotochuso-pi   miwo-no
+    Siniwolifu  say-PST  Sidosuŋoŋi-DAT  SENT.END  drink  Sidotochuso-GEN  water-ACC
 
 lumiti koğu guto tufu chivo
     #37 ledger · 53 fish.
     lumi-ti  koğu   guto  tufu  chivo
     fish-PL  three  AND   five  ten
 
-yiponi luhoso sisulusu muŋi misu yo'itino
-    #38 letter · Yiponi said to Sisulu: Fear the seas.
-    yiponi  luho-so  sisulu-su   muŋi      misu  yo'i-ti-no
-    Yiponi  say-PST  Sisulu-DAT  SENT.END  fear  sea-PL-ACC
+soloyonuþi luhoso yiliwinuþisu muŋi yohololi'i yiþiso luwutino tufu homu
+    #38 letter · Soloyonuþi said to Yiliwinuþi: Yohololi'i brought nine loaves.
+    soloyonuþi  luho-so  yiliwinuþi-su   muŋi      yohololi'i  yiþi-so    luwu-ti-no   tufu  homu
+    Soloyonuþi  say-PST  Yiliwinuþi-DAT  SENT.END  Yohololi'i  bring-PST  loaf-PL-ACC  five  four
 
 misubi yo'ino
     #39 warning · Do not fear the sea.
     misu-bi   yo'i-no
     fear-NEG  sea-ACC
 
-mochoyu kulotipi pifohi gomo nuso
-    #40 tomb · Mochoyu, son of Kuloti, lies here.
-    mochoyu  kuloti-pi   pifohi  gomo  nuso
-    Mochoyu  Kuloti-GEN  son     lie   here
+sohuholifu sidosuŋoŋipi ŋuyo gomo nuso
+    #40 tomb · Sohuholifu, mother of Sidosuŋoŋi, lies here.
+    sohuholifu  sidosuŋoŋi-pi   ŋuyo    gomo  nuso
+    Sohuholifu  Sidosuŋoŋi-GEN  mother  lie   here
 

@@ -165,6 +165,12 @@ impl<'a> WordMaker<'a> {
         ok
     }
 
+    /// Registers a word's forms (not as a root: no distance kept from it),
+    /// so later words and names never equal any of them.
+    pub fn reserve_forms(&mut self, w: &Phonemes, pos: Pos) {
+        self.taken_forms.extend(self.morphology.all_forms(w, pos));
+    }
+
     /// Registers an existing root so later words avoid it.
     pub fn reserve(&mut self, root: &Phonemes, pos: Pos) {
         self.taken_forms

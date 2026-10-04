@@ -41,6 +41,8 @@ pub enum Stream {
     Derivation,
     /// What a people have words for (D07).
     Culture,
+    /// How a people build names (D07).
+    Names,
 }
 
 impl Stream {
@@ -62,6 +64,7 @@ impl Stream {
             Stream::Grammar => 11,
             Stream::Derivation => 12,
             Stream::Culture => 13,
+            Stream::Names => 14,
         }
     }
 }

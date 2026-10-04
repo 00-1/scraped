@@ -156,6 +156,9 @@ fn clause_without(c: &Clause, gap: Option<Role>, name: &dyn Fn(usize) -> String)
         let to = if c.predicate == "say" { "to" } else { "for" };
         parts.push(format!("{to} {}", noun_phrase(r, name)));
     }
+    if let Some(t) = c.arg(Role::Time) {
+        parts.push(format!("in {}", noun_phrase(t, name)));
+    }
     parts.extend(c.adverbs.iter().cloned());
     if let Some(comp) = &c.complement {
         let inner = translate(&comp.content, name);
@@ -215,6 +218,9 @@ fn noun_phrase(np: &NounPhrase, name: &dyn Fn(usize) -> String) -> String {
     }
     if let Some(n) = np.quantity {
         words.push(number(n));
+    }
+    if let Some(n) = np.ordinal {
+        words.push(format!("{n}th"));
     }
     if let Some(d) = &np.degree {
         words.push(match d.compare {

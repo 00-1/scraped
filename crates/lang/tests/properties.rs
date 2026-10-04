@@ -206,12 +206,21 @@ fn roots_and_affixes_never_collide() {
     for seed in SEEDS {
         let lang = Language::generate(seed);
         let corpus = Corpus::generate(&lang, 1);
-        let mut words: Vec<_> = lang.lexicon.roots.values().cloned().collect();
-        words.extend(corpus.names.iter().cloned());
+        let words: Vec<_> = lang.lexicon.roots.values().cloned().collect();
         for (i, a) in words.iter().enumerate() {
             for b in &words[i + 1..] {
                 assert!(edit_distance(a, b) >= MIN_ROOT_DISTANCE, "seed {seed}");
             }
+        }
+        // Names are built from words (D07), so they may sit close to the
+        // words they are made of, but never equal a word or each other.
+        let forms: std::collections::BTreeSet<_> = lang.analyses(&[]).into_keys().collect();
+        for (i, n) in corpus.names.iter().enumerate() {
+            assert!(!forms.contains(n), "seed {seed}: name equals a word");
+            assert!(
+                !corpus.names[i + 1..].contains(n),
+                "seed {seed}: names repeat"
+            );
         }
         assert!(lang.morphology.affixes_are_distinct());
     }
@@ -288,10 +297,13 @@ impl Expect<'_> {
         for a in &np.adjectives {
             self.plain(a);
         }
-        if let Some(n) = np.quantity {
+        if let Some(n) = np.quantity.or(np.ordinal) {
             for w in self.lang.numerals.words(n) {
                 self.plain(w);
             }
+        }
+        if np.ordinal.is_some() {
+            self.plain("ord");
         }
         if let Some(d) = &np.determiner {
             self.plain(d);
@@ -324,6 +336,10 @@ impl Expect<'_> {
                 Role::Subject => self.np(&a.np, ""),
                 Role::Object => self.np(&a.np, "ACC"),
                 Role::Recipient => self.np(&a.np, "DAT"),
+                Role::Time => {
+                    self.np(&a.np, "");
+                    self.plain("time.at");
+                }
             }
         }
         for a in &c.adverbs {

@@ -101,6 +101,9 @@ pub struct Person {
     pub id: usize,
     /// A word of their era's language.
     pub name: Phonemes,
+    /// The words the name is made of (D07); empty for a coined name.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub name_meaning: Vec<String>,
     pub era: u32,
     pub role: Role,
     pub faction: usize,
@@ -116,6 +119,10 @@ pub struct Person {
 pub struct Settlement {
     pub id: usize,
     pub name: Phonemes,
+    /// The words the name is made of (D07): a modifier and a head naming
+    /// what the place stands by ("red", "ford"); empty for a coined name.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub name_meaning: Vec<String>,
     pub cell: Cell,
     pub era: u32,
     pub founded: i32,
@@ -395,7 +402,7 @@ impl Builder<'_> {
 
     fn found(
         &mut self,
-        maker: &mut scraped_lang::lexicon::WordMaker,
+        maker: &mut Namer,
         era: u32,
         year: i32,
         cell: Cell,
@@ -403,7 +410,11 @@ impl Builder<'_> {
         capital: bool,
     ) -> usize {
         let id = self.h.settlements.len();
-        let name = maker.make(&mut self.names, 2, Pos::Noun);
+        let (heads, mods) = place_words(self.t, self.w, cell);
+        let n = maker
+            .lang
+            .place_name(&mut self.names, &mut maker.maker, &heads, &mods);
+        let (name, name_meaning) = (n.form, n.meaning);
         let size = if capital {
             4
         } else {
@@ -412,6 +423,7 @@ impl Builder<'_> {
         self.h.settlements.push(Settlement {
             id,
             name,
+            name_meaning,
             cell,
             era,
             founded: year,
@@ -434,7 +446,7 @@ impl Builder<'_> {
 
     fn person(
         &mut self,
-        maker: &mut scraped_lang::lexicon::WordMaker,
+        maker: &mut Namer,
         era: u32,
         born: i32,
         role: Role,
@@ -442,13 +454,16 @@ impl Builder<'_> {
         relation: Option<(String, usize)>,
     ) -> usize {
         let id = self.h.people.len();
-        let syllables = self.rng.weighted(&[(2, 60), (3, 40)]);
-        let name = maker.make(&mut self.names, syllables, Pos::Noun);
+        // The draw keeps the history's own stream as it was.
+        let _syllables = self.rng.weighted(&[(2, 60), (3, 40)]);
+        let n = maker.lang.person_name(&mut self.names, &mut maker.maker);
+        let (name, name_meaning) = (n.form, n.meaning);
         let faction = self.h.settlements[settlement].faction;
         let life = 35 + self.rng.below(40) as i32;
         self.h.people.push(Person {
             id,
             name,
+            name_meaning,
             era,
             role,
             faction,
@@ -514,7 +529,8 @@ impl History {
             for p in &b.h.people {
                 maker.reserve(&p.name, Pos::Noun);
             }
-            simulate_era(&mut b, e as u32, &mut maker);
+            let mut namer = Namer { lang, maker };
+            simulate_era(&mut b, e as u32, &mut namer);
         }
         build_roads(&mut b);
         let mut h = b.h;
@@ -544,12 +560,12 @@ impl History {
     }
 }
 
-fn simulate_era(b: &mut Builder, e: u32, maker: &mut scraped_lang::lexicon::WordMaker) {
+fn simulate_era(b: &mut Builder, e: u32, maker: &mut Namer) {
     let era = b.h.eras[e as usize].clone();
     if e == 0 {
         // The first people arrive and found their capital and first towns.
         let faction = b.h.factions.len();
-        let name = maker.make(&mut b.names, 2, Pos::Noun);
+        let name = maker.lang.person_name(&mut b.names, &mut maker.maker).form;
         b.h.factions.push(Faction {
             id: faction,
             name,
@@ -782,7 +798,7 @@ fn simulate_era(b: &mut Builder, e: u32, maker: &mut scraped_lang::lexicon::Word
                 // A schism: a town and its neighbours break away.
                 let old = b.h.settlements[s].faction;
                 let new = b.h.factions.len();
-                let name = maker.make(&mut b.names, 2, Pos::Noun);
+                let name = maker.lang.person_name(&mut b.names, &mut maker.maker).form;
                 b.h.factions.push(Faction {
                     id: new,
                     name,
@@ -1035,4 +1051,91 @@ pub fn route(t: &Terrain, w: &Water, from: Cell, to: Cell) -> Option<Vec<Cell>> 
         }
     }
     None
+}
+
+/// A language and the names taken so far, for naming people and places.
+pub(crate) struct Namer<'a> {
+    pub lang: &'a Language,
+    pub maker: scraped_lang::lexicon::WordMaker<'a>,
+}
+
+/// What a place may be named for: head words for what it stands by (best
+/// first), and modifiers for its look (D07).
+// DESIGN-Q: heads from the site (a ford on a river, a shore by the sea, a
+// hill on high ground…), modifiers from colours, age, size and holiness,
+// and a few things of the land.
+fn place_words(t: &Terrain, w: &Water, c: Cell) -> (Vec<&'static str>, Vec<&'static str>) {
+    use crate::terrain::Biome;
+    let (x, y) = (c.ux(), c.uy());
+    let near = |f: &dyn Fn(usize, usize) -> bool| t.height.neighbours(x, y).any(|(a, b)| f(a, b));
+    let mut heads = Vec::new();
+    if near(&|a, b| w.is_river(t, a, b)) {
+        heads.push("ford");
+    }
+    if near(&|a, b| *t.biome.get(a, b) == Biome::Sea) {
+        heads.push("shore");
+    }
+    if near(&|a, b| *t.biome.get(a, b) == Biome::Lake) {
+        heads.push("lake");
+    }
+    let h = *t.height.get(x, y);
+    if h > 600.0 {
+        heads.push("hill");
+    }
+    match t.biome.get(x, y) {
+        Biome::Marsh => heads.push("marsh"),
+        Biome::Forest | Biome::Pine => heads.push("forest"),
+        Biome::Desert => heads.push("desert"),
+        _ => {}
+    }
+    heads.extend(["plain", "town"]);
+    let mods = vec![
+        "red", "white", "old", "new", "great", "small", "holy", "dark", "cold", "deep", "high",
+        "green", "golden", "stone", "oak", "willow", "sun", "moon",
+    ];
+    (heads, mods)
+}
+
+#[cfg(test)]
+mod name_tests {
+    use super::*;
+
+    /// Place names mean something about the place (D07): their head names
+    /// what the place stands by, and they read off the language's words.
+    #[test]
+    fn place_names_match_their_sites() {
+        for seed in [1u64, 2, 3] {
+            let w = crate::World::generate(seed);
+            let mut meaningful = 0;
+            for st in &w.history.settlements {
+                if st.name_meaning.is_empty() {
+                    continue;
+                }
+                meaningful += 1;
+                let (heads, mods) = place_words(&w.terrain, &w.water, st.cell);
+                assert!(
+                    heads.contains(&st.name_meaning[1].as_str()),
+                    "{:?}",
+                    st.name_meaning
+                );
+                assert!(mods.contains(&st.name_meaning[0].as_str()));
+                let era = &w.languages[st.era as usize];
+                assert_eq!(era.say_name(&st.name_meaning), Some(st.name.clone()));
+            }
+            assert!(
+                meaningful * 10 >= w.history.settlements.len() * 9,
+                "seed {seed}"
+            );
+            let people = w
+                .history
+                .people
+                .iter()
+                .filter(|p| !p.name_meaning.is_empty())
+                .count();
+            assert!(
+                people * 10 >= w.history.people.len() * 9,
+                "seed {seed}: {people}"
+            );
+        }
+    }
 }

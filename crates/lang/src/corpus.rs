@@ -48,8 +48,8 @@ impl Cast {
         let titles = concepts::nouns_tagged("title");
         let people = (0..CAST_SIZE)
             .map(|i| {
-                let syllables = rng.weighted(&[(2, 60), (3, 40)]);
-                let name = maker.make(&mut rng, syllables, Pos::Noun);
+                let _syllables = rng.weighted(&[(2, 60), (3, 40)]);
+                let name = lang.person_name(&mut rng, &mut maker).form;
                 let relation = (i >= ANCESTORS).then(|| (rng.pick(&kin).id.clone(), rng.index(i)));
                 let title = rng.chance(40).then(|| rng.pick(&titles).id.clone());
                 Person {

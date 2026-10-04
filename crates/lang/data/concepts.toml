@@ -916,3 +916,16 @@ id = "sent.end"
 domain = "grammar"
 pos = "particle"
 field = "grammar"
+
+# Ranks and times (D07): "the third year", "in the third year".
+[[concept]]
+id = "ord"
+domain = "grammar"
+pos = "particle"
+field = "grammar"
+
+[[concept]]
+id = "time.at"
+domain = "grammar"
+pos = "particle"
+field = "grammar"

@@ -26,6 +26,10 @@ pub struct NounPhrase {
     /// A counted quantity (0–999), rendered as numeral words.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u16>,
+    /// A rank (D07): "the third year", and with "part" a fraction ("a
+    /// third part of the grain").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ordinal: Option<u16>,
     /// A determiner concept, e.g. "this".
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub determiner: Option<String>,
@@ -90,6 +94,7 @@ impl NounPhrase {
             head,
             number: Number::Singular,
             quantity: None,
+            ordinal: None,
             determiner: None,
             adjectives: Vec::new(),
             possessor: None,
@@ -124,6 +129,8 @@ pub enum Role {
     Object,
     /// The one something is done for.
     Recipient,
+    /// When (D07): "in the third year of the reign of X".
+    Time,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -351,9 +358,15 @@ impl Sentence {
                 }
             }
             for a in &c.args {
+                if a.role == Role::Time {
+                    out.push("time.at");
+                }
                 let mut nps = Vec::new();
                 a.np.collect(&mut nps);
                 for n in nps {
+                    if n.ordinal.is_some() {
+                        out.push("ord");
+                    }
                     if n.relative.is_some() {
                         out.push("rel");
                     }

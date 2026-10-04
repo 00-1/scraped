@@ -3,30 +3,30 @@ machu mahiğatina
     machu  mahiğa-ti-na
     enter  temple-PL-ACC
 
-kiyisa babusa pavuna gifa tilisu
-    #2 dedication · Kiyisa made this box for the god.
-    kiyisa  babu-sa   pavu-na  gifa  tili-su
-    Kiyisa  make-PST  box-ACC  this  god-DAT
+niþalamavavu buwanu babusa pavuna gifa tilisu
+    #2 dedication · Niþalamavavu, priest, made this box for the god.
+    niþalamavavu  buwanu  babu-sa   pavu-na  gifa  tili-su
+    Niþalamavavu  priest  make-PST  box-ACC  this  god-DAT
 
-ĥu'u vutipi yufiŋa gama nusa
-    #3 tomb · Ĥu'u, sister of Vuti, lies here.
-    ĥu'u  vuti-pi   yufiŋa  gama  nusa
-    Ĥu'u  Vuti-GEN  sister  lie   here
+ya'ili'i yaĥalatunipi taŋu gama nusa
+    #3 tomb · Ya'ili'i, child of Yaĥalatuni, lies here.
+    ya'ili'i  yaĥalatuni-pi   taŋu   gama  nusa
+    Ya'ili'i  Yaĥalatuni-GEN  child  lie   here
 
-ŋaĥabi ĥu'upi figana
-    #4 warning · Do not break the gate of Ĥu'u.
-    ŋaĥa-bi    ĥu'u-pi   figa-na
-    break-NEG  Ĥu'u-GEN  gate-ACC
+ŋaĥabi ya'ili'ipi figana
+    #4 warning · Do not break the gate of Ya'ili'i.
+    ŋaĥa-bi    ya'ili'i-pi   figa-na
+    break-NEG  Ya'ili'i-GEN  gate-ACC
 
-suyicha babusa suvana gifa yayunisu
-    #5 dedication · Suyicha made this tablet for Yayuni.
-    suyicha  babu-sa   suva-na     gifa  yayuni-su
-    Suyicha  make-PST  tablet-ACC  this  Yayuni-DAT
+kamamiwachita babusa suvana gifa yaĥalatunisu
+    #5 dedication · Kamamiwachita made this tablet for Yaĥalatuni.
+    kamamiwachita  babu-sa   suva-na     gifa  yaĥalatuni-su
+    Kamamiwachita  make-PST  tablet-ACC  this  Yaĥalatuni-DAT
 
-tichuyu ŋalamupi nasu gama nusa
-    #6 tomb · Tichuyu, wife of Ŋalamu, lies here.
-    tichuyu  ŋalamu-pi   nasu  gama  nusa
-    Tichuyu  Ŋalamu-GEN  wife  lie   here
+siniwafiga huwuwakaĥi'upi yufiŋa yilu gama nusa
+    #6 tomb · Siniwafiga, sister of Huwuwakaĥi'u, scribe, lies here.
+    siniwafiga  huwuwakaĥi'u-pi   yufiŋa  yilu    gama  nusa
+    Siniwafiga  Huwuwakaĥi'u-GEN  sister  scribe  lie   here
 
 ninimati tufu kağu
     #7 ledger · Eight knives.
@@ -38,163 +38,163 @@ lumiti tufu kağu
     lumi-ti  tufu  kağu
     fish-PL  five  three
 
-ğaku yayunipi wusu gama nusa
-    #9 tomb · Ğaku, brother of Yayuni, lies here.
-    ğaku  yayuni-pi   wusu     gama  nusa
-    Ğaku  Yayuni-GEN  brother  lie   here
+kasanuþi pawavulifupi wusu gama nusa
+    #9 tomb · Kasanuþi, brother of Pawavulifu, lies here.
+    kasanuþi  pawavulifu-pi   wusu     gama  nusa
+    Kasanuþi  Pawavulifu-GEN  brother  lie   here
 
-faba yibamapi chulu gama nusa
-    #10 tomb · Faba, daughter of Yibama, lies here.
-    faba  yibama-pi   chulu     gama  nusa
-    Faba  Yibama-GEN  daughter  lie   here
+kasawachita huwuwakaĥi'upi sivisi gama nusa
+    #10 tomb · Kasawachita, husband of Huwuwakaĥi'u, lies here.
+    kasawachita  huwuwakaĥi'u-pi   sivisi   gama  nusa
+    Kasawachita  Huwuwakaĥi'u-GEN  husband  lie   here
 
-'itu ĥikapi yufiŋa gama nusa
-    #11 tomb · 'Itu, sister of Ĥika, lies here.
-    'itu  ĥika-pi   yufiŋa  gama  nusa
-    'Itu  Ĥika-GEN  sister  lie   here
+siniwalifu yaĥalatunipi ŋuya gama nusa
+    #11 tomb · Siniwalifu, mother of Yaĥalatuni, lies here.
+    siniwalifu  yaĥalatuni-pi   ŋuya    gama  nusa
+    Siniwalifu  Yaĥalatuni-GEN  mother  lie   here
 
-suyicha saĥavi luhasa ŋalamusu muŋi ĥapa wiŋafusa li'itina kağu yawa kağu chiva yawa nimi buğu
-    #12 letter · Suyicha, king, said to Ŋalamu: Ĥapa gave 233 sheep.
-    suyicha  saĥavi  luha-sa  ŋalamu-su   muŋi      ĥapa  wiŋafu-sa  li'i-ti-na    kağu   yawa  kağu   chiva  yawa  nimi  buğu
-    Suyicha  king    say-PST  Ŋalamu-DAT  SENT.END  Ĥapa  give-PST   sheep-PL-ACC  three  AND   three  ten    AND   two   hundred
+kamamiwachita luhasa biviliniğusu muŋi machu laŋana
+    #12 letter · Kamamiwachita said to Biviliniğu: Enter the house.
+    kamamiwachita  luha-sa  biviliniğu-su   muŋi      machu  laŋa-na
+    Kamamiwachita  say-PST  Biviliniğu-DAT  SENT.END  enter  house-ACC
 
-suyicha saĥavi bivi babusa pavuna gifa tilipi mahiğasu husi
-    #13 dedication · Suyicha, old king, made this box for the dark temple of the god.
-    suyicha  saĥavi  bivi  babu-sa   pavu-na  gifa  tili-pi  mahiğa-su   husi
-    Suyicha  king    old   make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+kamamiwachita babusa pavuna gifa tilipi mahiğasu husi
+    #13 dedication · Kamamiwachita made this box for the dark temple of the god.
+    kamamiwachita  babu-sa   pavu-na  gifa  tili-pi  mahiğa-su   husi
+    Kamamiwachita  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
 
-ĥapa luhasa niĥinasu muŋi kisaŋabi suyuvana
-    #14 letter · Ĥapa said to Niĥina: Do not take the statue.
-    ĥapa  luha-sa  niĥina-su   muŋi      kisaŋa-bi  suyuva-na
-    Ĥapa  say-PST  Niĥina-DAT  SENT.END  take-NEG   statue-ACC
+huwuwakaĥi'u luhasa waliwachitasu muŋi kisaŋabi suyuvana
+    #14 letter · Huwuwakaĥi'u said to Waliwachita: Do not take the statue.
+    huwuwakaĥi'u  luha-sa  waliwachita-su   muŋi      kisaŋa-bi  suyuva-na
+    Huwuwakaĥi'u  say-PST  Waliwachita-DAT  SENT.END  take-NEG   statue-ACC
 
-yibama luhasa tuŋiwasu muŋi vapi wiŋafusa chuĥitina hamu
-    #15 letter · Yibama said to Tuŋiwa: Vapi gave four jars.
-    yibama  luha-sa  tuŋiwa-su   muŋi      vapi  wiŋafu-sa  chuĥi-ti-na  hamu
-    Yibama  say-PST  Tuŋiwa-DAT  SENT.END  Vapi  give-PST   jar-PL-ACC   four
+hihutuni luhasa hanaĥinuþisu muŋi hanaĥinuþi wiŋafusa chuĥitina hamu
+    #15 letter · Hihutuni said to Hanaĥinuþi: Hanaĥinuþi gave four jars.
+    hihutuni  luha-sa  hanaĥinuþi-su   muŋi      hanaĥinuþi  wiŋafu-sa  chuĥi-ti-na  hamu
+    Hihutuni  say-PST  Hanaĥinuþi-DAT  SENT.END  Hanaĥinuþi  give-PST   jar-PL-ACC   four
 
-ĥu'u vutipi yufiŋa gama nusa
-    #16 tomb · Ĥu'u, sister of Vuti, lies here.
-    ĥu'u  vuti-pi   yufiŋa  gama  nusa
-    Ĥu'u  Vuti-GEN  sister  lie   here
+ya'ili'i yaĥalatunipi taŋu gama nusa
+    #16 tomb · Ya'ili'i, child of Yaĥalatuni, lies here.
+    ya'ili'i  yaĥalatuni-pi   taŋu   gama  nusa
+    Ya'ili'i  Yaĥalatuni-GEN  child  lie   here
 
-suyicha fupupi pani gama nusa
-    #17 tomb · Suyicha, father of Fupu, lies here.
-    suyicha  fupu-pi   pani    gama  nusa
-    Suyicha  Fupu-GEN  father  lie   here
+kamamiwachita niþalamuvasapi taŋu gama nusa
+    #17 tomb · Kamamiwachita, child of Niþalamuvasa, lies here.
+    kamamiwachita  niþalamuvasa-pi   taŋu   gama  nusa
+    Kamamiwachita  Niþalamuvasa-GEN  child  lie   here
 
 buwanupi pavu
     #18 label · The box of the priest.
     buwanu-pi   pavu
     priest-GEN  box
 
-niĥina luhasa fabasu muŋi ĥika yiþisa lifutina kichi chiva
-    #19 letter · Niĥina said to Faba: Ĥika brought ten goats.
-    niĥina  luha-sa  faba-su   muŋi      ĥika  yiþi-sa    lifu-ti-na   kichi  chiva
-    Niĥina  say-PST  Faba-DAT  SENT.END  Ĥika  bring-PST  goat-PL-ACC  one    ten
+waliwachita luhasa kasawachitasu muŋi kamamiwachita wiŋafusa ŋasitina hamu yawa tufu kağu chiva
+    #19 letter · Waliwachita said to Kasawachita: Kamamiwachita gave 84 bowls.
+    waliwachita  luha-sa  kasawachita-su   muŋi      kamamiwachita  wiŋafu-sa  ŋasi-ti-na   hamu  yawa  tufu  kağu   chiva
+    Waliwachita  say-PST  Kasawachita-DAT  SENT.END  Kamamiwachita  give-PST   bowl-PL-ACC  four  AND   five  three  ten
 
-tuŋiwa ĥapapi ŋuya gama nusa
-    #20 tomb · Tuŋiwa, mother of Ĥapa, lies here.
-    tuŋiwa  ĥapa-pi   ŋuya    gama  nusa
-    Tuŋiwa  Ĥapa-GEN  mother  lie   here
+hanaĥinuþi husiwachitapi taŋu gama nusa
+    #20 tomb · Hanaĥinuþi, child of Husiwachita, lies here.
+    hanaĥinuþi  husiwachita-pi   taŋu   gama  nusa
+    Hanaĥinuþi  Husiwachita-GEN  child  lie   here
 
 misi wuþa 'iğa ŋaĥabi suğa
     #21 potent · [potent] let the seal not break.
     misi      wuþa  'iğa  ŋaĥa-bi    suğa
     POT.OPEN  seal  POT   break-NEG  POT.CLOSE
 
-sakita fupupi yufiŋa gama nusa
-    #22 tomb · Sakita, sister of Fupu, lies here.
-    sakita  fupu-pi   yufiŋa  gama  nusa
-    Sakita  Fupu-GEN  sister  lie   here
+kiŋuliniğu niþalamuvasapi ŋuya gama nusa
+    #22 tomb · Kiŋuliniğu, mother of Niþalamuvasa, lies here.
+    kiŋuliniğu  niþalamuvasa-pi   ŋuya    gama  nusa
+    Kiŋuliniğu  Niþalamuvasa-GEN  mother  lie   here
 
-tuŋiwa ĥapapi ŋuya gama nusa
-    #23 tomb · Tuŋiwa, mother of Ĥapa, lies here.
-    tuŋiwa  ĥapa-pi   ŋuya    gama  nusa
-    Tuŋiwa  Ĥapa-GEN  mother  lie   here
+hanaĥinuþi husiwachitapi taŋu gama nusa
+    #23 tomb · Hanaĥinuþi, child of Husiwachita, lies here.
+    hanaĥinuþi  husiwachita-pi   taŋu   gama  nusa
+    Hanaĥinuþi  Husiwachita-GEN  child  lie   here
 
-ŋalamu babusa tayichuna tima gifa fupusu yilusu ŋina
-    #24 dedication · Ŋalamu made this holy altar for Fupu, good scribe.
-    ŋalamu  babu-sa   tayichu-na  tima  gifa  fupu-su   yilu-su     ŋina
-    Ŋalamu  make-PST  altar-ACC   holy  this  Fupu-DAT  scribe-DAT  good
+biviliniğu babusa tayichuna tima gifa bisayaĥalasu
+    #24 dedication · Biviliniğu made this holy altar for Bisayaĥala.
+    biviliniğu  babu-sa   tayichu-na  tima  gifa  bisayaĥala-su
+    Biviliniğu  make-PST  altar-ACC   holy  this  Bisayaĥala-DAT
 
-ŋalamu babusa suvana gifa biĥusu
-    #25 dedication · Ŋalamu made this tablet for the city.
-    ŋalamu  babu-sa   suva-na     gifa  biĥu-su
-    Ŋalamu  make-PST  tablet-ACC  this  city-DAT
+biviliniğu babusa suvana gifa biĥusu
+    #25 dedication · Biviliniğu made this tablet for the city.
+    biviliniğu  babu-sa   suva-na     gifa  biĥu-su
+    Biviliniğu  make-PST  tablet-ACC  this  city-DAT
 
 saĥavipi ŋasi
     #26 label · The bowl of the king.
     saĥavi-pi  ŋasi
     king-GEN   bowl
 
-ĥika babusa ŋasina gifa vapisu naŋisu
-    #27 dedication · Ĥika made this bowl for Vapi, servant.
-    ĥika  babu-sa   ŋasi-na   gifa  vapi-su   naŋi-su
-    Ĥika  make-PST  bowl-ACC  this  Vapi-DAT  servant-DAT
+timatachusa babusa ŋasina gifa salayanuþisu
+    #27 dedication · Timatachusa made this bowl for Salayanuþi.
+    timatachusa  babu-sa   ŋasi-na   gifa  salayanuþi-su
+    Timatachusa  make-PST  bowl-ACC  this  Salayanuþi-DAT
 
-ĥu'u vutipi yufiŋa gama nusa
-    #28 tomb · Ĥu'u, sister of Vuti, lies here.
-    ĥu'u  vuti-pi   yufiŋa  gama  nusa
-    Ĥu'u  Vuti-GEN  sister  lie   here
+ya'ili'i yaĥalatunipi taŋu gama nusa
+    #28 tomb · Ya'ili'i, child of Yaĥalatuni, lies here.
+    ya'ili'i  yaĥalatuni-pi   taŋu   gama  nusa
+    Ya'ili'i  Yaĥalatuni-GEN  child  lie   here
 
-'itu luhasa yayunisu muŋi 'ava ya'ina
-    #29 letter · 'Itu said to Yayuni: Cross the sea.
-    'itu  luha-sa  yayuni-su   muŋi      'ava   ya'i-na
-    'Itu  say-PST  Yayuni-DAT  SENT.END  cross  sea-ACC
+siniwalifu luhasa yaĥalatunisu muŋi 'ava ya'ina
+    #29 letter · Siniwalifu said to Yaĥalatuni: Cross the sea.
+    siniwalifu  luha-sa  yaĥalatuni-su   muŋi      'ava   ya'i-na
+    Siniwalifu  say-PST  Yaĥalatuni-DAT  SENT.END  cross  sea-ACC
 
-giyabu yiþisa luwutina kağu tuĥasu
-    #30 ledger · Giyabu brought three loaves for the shrine.
-    giyabu  yiþi-sa    luwu-ti-na   kağu   tuĥa-su
-    Giyabu  bring-PST  loaf-PL-ACC  three  shrine-DAT
+sahuĥalifu yiþisa luwutina kağu tuĥasu
+    #30 ledger · Sahuĥalifu brought three loaves for the shrine.
+    sahuĥalifu  yiþi-sa    luwu-ti-na   kağu   tuĥa-su
+    Sahuĥalifu  bring-PST  loaf-PL-ACC  three  shrine-DAT
 
 winubi laþimana
     #31 warning · Do not burn the door.
     winu-bi   laþima-na
     burn-NEG  door-ACC
 
-ĥu'u vutipi yufiŋa gama nusa
-    #32 tomb · Ĥu'u, sister of Vuti, lies here.
-    ĥu'u  vuti-pi   yufiŋa  gama  nusa
-    Ĥu'u  Vuti-GEN  sister  lie   here
+ya'ili'i yaĥalatunipi taŋu gama nusa
+    #32 tomb · Ya'ili'i, child of Yaĥalatuni, lies here.
+    ya'ili'i  yaĥalatuni-pi   taŋu   gama  nusa
+    Ya'ili'i  Yaĥalatuni-GEN  child  lie   here
 
 lumiti tufu nimi yawa nimi chiva yawa nimi buğu safati nimi chiŋiti nimi yawa tufu kichi chiva yawa kichi buğu yuĥama kichi yawa tufu hamu chiva yawa kağu buğu
     #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
     lumi-ti  tufu  nimi  yawa  nimi  chiva  yawa  nimi  buğu     safa-ti  nimi  chiŋi-ti  nimi  yawa  tufu  kichi  chiva  yawa  kichi  buğu     yuĥama  kichi  yawa  tufu  hamu  chiva  yawa  kağu   buğu
     fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
 
-faba yibamapi chulu gama nusa
-    #34 tomb · Faba, daughter of Yibama, lies here.
-    faba  yibama-pi   chulu     gama  nusa
-    Faba  Yibama-GEN  daughter  lie   here
+kasawachita huwuwakaĥi'upi sivisi gama nusa
+    #34 tomb · Kasawachita, husband of Huwuwakaĥi'u, lies here.
+    kasawachita  huwuwakaĥi'u-pi   sivisi   gama  nusa
+    Kasawachita  Huwuwakaĥi'u-GEN  husband  lie   here
 
-yinalupi chuĥi
-    #35 label · The jar of Yinalu.
-    yinalu-pi   chuĥi
-    Yinalu-GEN  jar
+husiwachitapi chuĥi
+    #35 label · The jar of Husiwachita.
+    husiwachita-pi   chuĥi
+    Husiwachita-GEN  jar
 
-'itu luhasa sanabisu muŋi 'itu yiþisa luwutina tufu kichi yawa kichi chiva mahiğasu
-    #36 letter · 'Itu said to Sanabi: 'Itu brought 16 loaves for the temple.
-    'itu  luha-sa  sanabi-su   muŋi      'itu  yiþi-sa    luwu-ti-na   tufu  kichi  yawa  kichi  chiva  mahiğa-su
-    'Itu  say-PST  Sanabi-DAT  SENT.END  'Itu  bring-PST  loaf-PL-ACC  five  one    AND   one    ten    temple-DAT
+siniwalifu luhasa timasuŋaŋisu muŋi 'una timatachusapi miwana
+    #36 letter · Siniwalifu said to Timasuŋaŋi: Drink the water of Timatachusa.
+    siniwalifu  luha-sa  timasuŋaŋi-su   muŋi      'una   timatachusa-pi   miwa-na
+    Siniwalifu  say-PST  Timasuŋaŋi-DAT  SENT.END  drink  Timatachusa-GEN  water-ACC
 
 lumiti kağu yawa tufu chiva
     #37 ledger · 53 fish.
     lumi-ti  kağu   yawa  tufu  chiva
     fish-PL  three  AND   five  ten
 
-vapi luhasa tuŋiwasu muŋi misu ya'itina
-    #38 letter · Vapi said to Tuŋiwa: Fear the seas.
-    vapi  luha-sa  tuŋiwa-su   muŋi      misu  ya'i-ti-na
-    Vapi  say-PST  Tuŋiwa-DAT  SENT.END  fear  sea-PL-ACC
+salayanuþi luhasa hanaĥinuþisu muŋi yaĥalali'i yiþisa luwutina tufu hamu
+    #38 letter · Salayanuþi said to Hanaĥinuþi: Yaĥalali'i brought nine loaves.
+    salayanuþi  luha-sa  hanaĥinuþi-su   muŋi      yaĥalali'i  yiþi-sa    luwu-ti-na   tufu  hamu
+    Salayanuþi  say-PST  Hanaĥinuþi-DAT  SENT.END  Yaĥalali'i  bring-PST  loaf-PL-ACC  five  four
 
 misubi ya'ina
     #39 warning · Do not fear the sea.
     misu-bi   ya'i-na
     fear-NEG  sea-ACC
 
-giyabu fabapi taŋu gama nusa
-    #40 tomb · Giyabu, child of Faba, lies here.
-    giyabu  faba-pi   taŋu   gama  nusa
-    Giyabu  Faba-GEN  child  lie   here
+sahuĥalifu timasuŋaŋipi ŋuya gama nusa
+    #40 tomb · Sahuĥalifu, mother of Timasuŋaŋi, lies here.
+    sahuĥalifu  timasuŋaŋi-pi   ŋuya    gama  nusa
+    Sahuĥalifu  Timasuŋaŋi-GEN  mother  lie   here
 

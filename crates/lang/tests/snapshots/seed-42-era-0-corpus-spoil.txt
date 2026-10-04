@@ -1,37 +1,37 @@
-temïru mïpopeni lïpi kape podi
-    #1 tomb · Temïru, child of Mïpope, lies here.
-    temïru  mïpope-ni   lïpi   kape  podi
-    Temïru  Mïpope-GEN  child  here  lie
+lïhutimido lïkoluxuni tako kape podi
+    #1 tomb · Lïhutimido, wife of Lïkoluxu, lies here.
+    lïhutimido  lïkoluxu-ni   tako  kape  podi
+    Lïhutimido  Lïkoluxu-GEN  wife  here  lie
 
 tsiro hanabu dike tanga bïla
     #2 potent · [potent] let the grain burn.
     tsiro     hanabu  dike  tanga  bïla
     POT.OPEN  grain   POT   burn   POT.CLOSE
 
-nomiya tsipïni nuya kape podi
-    #3 tomb · Nomiya, husband of Tsipï, lies here.
-    nomiya  tsipï-ni   nuya     kape  podi
-    Nomiya  Tsipï-GEN  husband  here  lie
+kïnohïpa tubayonatsuni nado kape podi
+    #3 tomb · Kïnohïpa, brother of Tubayonatsu, lies here.
+    kïnohïpa  tubayonatsu-ni   nado     kape  podi
+    Kïnohïpa  Tubayonatsu-GEN  brother  here  lie
 
 donguku lutï
     #4 warning · Eat the fish.
     dongu-ku  lutï
     fish-ACC  eat
 
-temïru nahïyi xiru'a tufi rinini poluku bingelahi
-    #5 letter · Temïru said to Nahï: Do not touch the temple of the king.
-    temïru  nahï-yi   xi-ru'a  tufi      rini-ni   polu-ku     bi-ngelahi
-    Temïru  Nahï-DAT  PST-say  SENT.END  king-GEN  temple-ACC  NEG-touch
+lïhutimido ngïkebepayi xiru'a tufi pïtuhïpa dongungaku fole ximuxi
+    #5 letter · Lïhutimido said to Ngïkebepa: Pïtuhïpa brought nine fish.
+    lïhutimido  ngïkebepa-yi   xi-ru'a  tufi      pïtuhïpa  dongu-nga-ku  fole  xi-muxi
+    Lïhutimido  Ngïkebepa-DAT  PST-say  SENT.END  Pïtuhïpa  fish-PL-ACC   nine  PST-bring
 
-mïpope kakayuyi fatoyi xiru'a tufi bonakeku birapa
-    #6 letter · Mïpope said to Kakayu, smith,: Do not fear the fire.
-    mïpope  kakayu-yi   fato-yi    xi-ru'a  tufi      bonake-ku  bi-rapa
-    Mïpope  Kakayu-DAT  smith-DAT  PST-say  SENT.END  fire-ACC   NEG-fear
+konïluxu keridipuyi xiru'a tufi fetungaku rapinge bilutï
+    #6 letter · Konïluxu said to Keridipu: Do not eat the red loaves.
+    konïluxu  keridipu-yi   xi-ru'a  tufi      fetu-nga-ku  rapinge  bi-lutï
+    Konïluxu  Keridipu-DAT  PST-say  SENT.END  loaf-PL-ACC  red      NEG-eat
 
-haya haya'ini nonga kape podi
-    #7 tomb · Haya, father of Haya'i, lies here.
-    haya  haya'i-ni   nonga   kape  podi
-    Haya  Haya'i-GEN  father  here  lie
+ximonatsu yemïxapikuni nuya kape podi
+    #7 tomb · Ximonatsu, husband of Yemïxapiku, lies here.
+    ximonatsu  yemïxapiku-ni   nuya     kape  podi
+    Ximonatsu  Yemïxapiku-GEN  husband  here  lie
 
 laneku mepo
     #8 warning · Break the statue.
@@ -43,55 +43,55 @@ mamïku bingiru
     mamï-ku   bi-ngiru
     seal-ACC  NEG-scrape
 
-tukama fabeyi daheku tebo mangi xi'ulati
-    #10 dedication · Tukama made this small altar for Fabe.
-    tukama  fabe-yi   dahe-ku    tebo   mangi  xi-'ulati
-    Tukama  Fabe-DAT  altar-ACC  small  this   PST-make
+tïpulala biko konïxapikuyi daheku tebo mangi xi'ulati
+    #10 dedication · Tïpulala, scribe, made this small altar for Konïxapiku.
+    tïpulala  biko    konïxapiku-yi   dahe-ku    tebo   mangi  xi-'ulati
+    Tïpulala  scribe  Konïxapiku-DAT  altar-ACC  small  this   PST-make
 
-bitse kakayuni ngame kape podi
-    #11 tomb · Bitse, mother of Kakayu, lies here.
-    bitse  kakayu-ni   ngame   kape  podi
-    Bitse  Kakayu-GEN  mother  here  lie
+kïnopïtu konïxapikuni mïru kape podi
+    #11 tomb · Kïnopïtu, daughter of Konïxapiku, lies here.
+    kïnopïtu  konïxapiku-ni   mïru      kape  podi
+    Kïnopïtu  Konïxapiku-GEN  daughter  here  lie
 
-nupatu poluyi konï hutiku mangi xi'ulati
-    #12 dedication · Nupatu made this knife for the new temple.
-    nupatu  polu-yi     konï  huti-ku    mangi  xi-'ulati
-    Nupatu  temple-DAT  new   knife-ACC  this   PST-make
+ngïkeratse poluyi konï hutiku mangi xi'ulati
+    #12 dedication · Ngïkeratse made this knife for the new temple.
+    ngïkeratse  polu-yi     konï  huti-ku    mangi  xi-'ulati
+    Ngïkeratse  temple-DAT  new   knife-ACC  this   PST-make
 
-tsipï pimuyi ye'o marakeku mangi xi'ulati
-    #13 dedication · Tsipï made this lamp for the dark shrine.
-    tsipï  pimu-yi     ye'o  marake-ku  mangi  xi-'ulati
-    Tsipï  shrine-DAT  dark  lamp-ACC   this   PST-make
+ngaka'iratse rini ngayo pimuyi ye'o marakeku mangi xi'ulati
+    #13 dedication · Ngaka'iratse, old king, made this lamp for the dark shrine.
+    ngaka'iratse  rini  ngayo  pimu-yi     ye'o  marake-ku  mangi  xi-'ulati
+    Ngaka'iratse  king  old    shrine-DAT  dark  lamp-ACC   this   PST-make
 
-fabe bitseyi xiru'a tufi tupaku ye'o bingelahi
-    #14 letter · Fabe said to Bitse: Do not touch the dark tomb.
-    fabe  bitse-yi   xi-ru'a  tufi      tupa-ku   ye'o  bi-ngelahi
-    Fabe  Bitse-DAT  PST-say  SENT.END  tomb-ACC  dark  NEG-touch
+konïxapiku kïnopïtuyi xiru'a tufi konïtimido marakengaku mifi ngïma xari pupu xipitsaro
+    #14 letter · Konïxapiku said to Kïnopïtu: Konïtimido gave 58 lamps.
+    konïxapiku  kïnopïtu-yi   xi-ru'a  tufi      konïtimido  marake-nga-ku  mifi   ngïma  xari  pupu  xi-pitsaro
+    Konïxapiku  Kïnopïtu-DAT  PST-say  SENT.END  Konïtimido  lamp-PL-ACC    eight  AND    five  ten   PST-give
 
-fabe luyiyeyi xiru'a tufi lupobu marakengaku nïna ngïma muku pupu ximuxi
-    #15 letter · Fabe said to Luyiye: Lupobu brought 36 lamps.
-    fabe  luyiye-yi   xi-ru'a  tufi      lupobu  marake-nga-ku  nïna  ngïma  muku   pupu  xi-muxi
-    Fabe  Luyiye-DAT  PST-say  SENT.END  Lupobu  lamp-PL-ACC    six   AND    three  ten   PST-bring
+konïxapiku pinapïtuyi xiru'a tufi timidodipu hutingaku kipa pupu ximuxi
+    #15 letter · Konïxapiku said to Pinapïtu: Timidodipu brought ten knives.
+    konïxapiku  pinapïtu-yi   xi-ru'a  tufi      timidodipu  huti-nga-ku   kipa  pupu  xi-muxi
+    Konïxapiku  Pinapïtu-DAT  PST-say  SENT.END  Timidodipu  knife-PL-ACC  one   ten   PST-bring
 
-nefi tsipïni koyu kape podi
-    #16 tomb · Nefi, sister of Tsipï, lies here.
-    nefi  tsipï-ni   koyu    kape  podi
-    Nefi  Tsipï-GEN  sister  here  lie
+yemïxapiku timidodipuni koyu kape podi
+    #16 tomb · Yemïxapiku, sister of Timidodipu, lies here.
+    yemïxapiku  timidodipu-ni   koyu    kape  podi
+    Yemïxapiku  Timidodipu-GEN  sister  here  lie
 
-luyiye bitseni nado kape podi
-    #17 tomb · Luyiye, brother of Bitse, lies here.
-    luyiye  bitse-ni   nado     kape  podi
-    Luyiye  Bitse-GEN  brother  here  lie
+pinapïtu keridipuni koyu kape podi
+    #17 tomb · Pinapïtu, sister of Keridipu, lies here.
+    pinapïtu  keridipu-ni   koyu    kape  podi
+    Pinapïtu  Keridipu-GEN  sister  here  lie
 
 hadenga kipa ngïma mifi pupu ngïma kipa fubï
     #18 ledger · 181 sheep.
     hade-nga  kipa  ngïma  mifi   pupu  ngïma  kipa  fubï
     sheep-PL  one   AND    eight  ten   AND    one   hundred
 
-kokoni memaku nela
-    #19 warning · Enter the city of Koko.
-    koko-ni   mema-ku   nela
-    Koko-GEN  city-ACC  enter
+yemïpïtuni memaku nela
+    #19 warning · Enter the city of Yemïpïtu.
+    yemïpïtu-ni   mema-ku   nela
+    Yemïpïtu-GEN  city-ACC  enter
 
 kenangaku doma
     #20 warning · Open the doors.
@@ -103,98 +103,98 @@ paleni 'ofeku rapinge huma
     pale-ni    'ofe-ku   rapinge  huma
     queen-GEN  bowl-ACC  red      take
 
-malika pimuyi ralungaku mifi ximuxi
-    #22 ledger · Malika brought eight cloths for the shrine.
-    malika  pimu-yi     ralu-nga-ku   mifi   xi-muxi
-    Malika  shrine-DAT  cloth-PL-ACC  eight  PST-bring
+lapetabonake xukïyi fetungaku nimi ngïma nimi pupu ximuxi
+    #22 ledger · Lapetabonake brought 77 loaves for the god.
+    lapetabonake  xukï-yi  fetu-nga-ku  nimi   ngïma  nimi   pupu  xi-muxi
+    Lapetabonake  god-DAT  loaf-PL-ACC  seven  AND    seven  ten   PST-bring
 
 ngameku dope
     #23 warning · Honour the mother.
     ngame-ku    dope
     mother-ACC  honour
 
-haya'i marakengaku xari ximuxi
-    #24 ledger · Haya'i brought five lamps.
-    haya'i  marake-nga-ku  xari  xi-muxi
-    Haya'i  lamp-PL-ACC    five  PST-bring
+ngayobatila borongaku kipa pupu ximuxi
+    #24 ledger · Ngayobatila brought ten jars.
+    ngayobatila  boro-nga-ku  kipa  pupu  xi-muxi
+    Ngayobatila  jar-PL-ACC   one   ten   PST-bring
 
-tsipï mïpopeni nuya kape podi
-    #25 tomb · Tsipï, husband of Mïpope, lies here.
-    tsipï  mïpope-ni   nuya     kape  podi
-    Tsipï  Mïpope-GEN  husband  here  lie
+ngaka'iratse keridipuni nonga kape podi
+    #25 tomb · Ngaka'iratse, father of Keridipu, lies here.
+    ngaka'iratse  keridipu-ni   nonga   kape  podi
+    Ngaka'iratse  Keridipu-GEN  father  here  lie
 
-nomiya rini refaroyi paleyi ngaka'i xiru'a tufi haya'i pimuyi 'ofengaku mifi xipitsaro
-    #26 letter · Nomiya, king, said to Refaro, great queen,: Haya'i gave eight bowls for the shrine.
-    nomiya  rini  refaro-yi   pale-yi    ngaka'i  xi-ru'a  tufi      haya'i  pimu-yi     'ofe-nga-ku  mifi   xi-pitsaro
-    Nomiya  king  Refaro-DAT  queen-DAT  great    PST-say  SENT.END  Haya'i  shrine-DAT  bowl-PL-ACC  eight  PST-give
+kïnohïpa tubayonatsuyi xiru'a tufi tupaku bingelahi
+    #26 letter · Kïnohïpa said to Tubayonatsu: Do not touch the tomb.
+    kïnohïpa  tubayonatsu-yi   xi-ru'a  tufi      tupa-ku   bi-ngelahi
+    Kïnohïpa  Tubayonatsu-DAT  PST-say  SENT.END  tomb-ACC  NEG-touch
 
-nomiya mafitayi xiru'a tufi litseheku pihebï
-    #27 letter · Nomiya said to Mafita: Drink the wine.
-    nomiya  mafita-yi   xi-ru'a  tufi      litsehe-ku  pihebï
-    Nomiya  Mafita-DAT  PST-say  SENT.END  wine-ACC    drink
+kïnohïpa lïkoluxuyi xiru'a tufi litseheku pihebï
+    #27 letter · Kïnohïpa said to Lïkoluxu: Drink the wine.
+    kïnohïpa  lïkoluxu-yi   xi-ru'a  tufi      litsehe-ku  pihebï
+    Kïnohïpa  Lïkoluxu-DAT  PST-say  SENT.END  wine-ACC    drink
 
-nahï nefini mïru mafe kape podi
-    #28 tomb · Nahï, daughter of Nefi, priest, lies here.
-    nahï  nefi-ni   mïru      mafe    kape  podi
-    Nahï  Nefi-GEN  daughter  priest  here  lie
+ngïkebepa kïnohïpani koyu kape podi
+    #28 tomb · Ngïkebepa, sister of Kïnohïpa, lies here.
+    ngïkebepa  kïnohïpa-ni   koyu    kape  podi
+    Ngïkebepa  Kïnohïpa-GEN  sister  here  lie
 
-koto'u kakayuni mïru kape podi
-    #29 tomb · Koto'u, daughter of Kakayu, lies here.
-    koto'u  kakayu-ni   mïru      kape  podi
-    Koto'u  Kakayu-GEN  daughter  here  lie
+pïtuhïpa kïnohïpani ngame kape podi
+    #29 tomb · Pïtuhïpa, mother of Kïnohïpa, lies here.
+    pïtuhïpa  kïnohïpa-ni   ngame   kape  podi
+    Pïtuhïpa  Kïnohïpa-GEN  mother  here  lie
 
-nupatu xukïyi ngaka'i 'ofeku mangi xi'ulati
-    #30 dedication · Nupatu made this bowl for the great god.
-    nupatu  xukï-yi  ngaka'i  'ofe-ku   mangi  xi-'ulati
-    Nupatu  god-DAT  great    bowl-ACC  this   PST-make
+ngïkeratse xukïyi ngaka'i 'ofeku mangi xi'ulati
+    #30 dedication · Ngïkeratse made this bowl for the great god.
+    ngïkeratse  xukï-yi  ngaka'i  'ofe-ku   mangi  xi-'ulati
+    Ngïkeratse  god-DAT  great    bowl-ACC  this   PST-make
 
-malika hitïngaku mifi xipitsaro
-    #31 ledger · Malika gave eight oxen.
-    malika  hitï-nga-ku  mifi   xi-pitsaro
-    Malika  ox-PL-ACC    eight  PST-give
+lapetabonake fetungaku loto xipitsaro
+    #31 ledger · Lapetabonake gave two loaves.
+    lapetabonake  fetu-nga-ku  loto  xi-pitsaro
+    Lapetabonake  loaf-PL-ACC  two   PST-give
 
 dukoku lïhu doma
     #32 warning · Open the white gate.
     duko-ku   lïhu   doma
     gate-ACC  white  open
 
-luyiye bitseni nado kape podi
-    #33 tomb · Luyiye, brother of Bitse, lies here.
-    luyiye  bitse-ni   nado     kape  podi
-    Luyiye  Bitse-GEN  brother  here  lie
+pinapïtu keridipuni koyu kape podi
+    #33 tomb · Pinapïtu, sister of Keridipu, lies here.
+    pinapïtu  keridipu-ni   koyu    kape  podi
+    Pinapïtu  Keridipu-GEN  sister  here  lie
 
-koko kakayuni hedo kape podi
-    #34 tomb · Koko, son of Kakayu, lies here.
-    koko  kakayu-ni   hedo  kape  podi
-    Koko  Kakayu-GEN  son   here  lie
+yemïpïtu lïhutimidoni nuya kape podi
+    #34 tomb · Yemïpïtu, husband of Lïhutimido, lies here.
+    yemïpïtu  lïhutimido-ni   nuya     kape  podi
+    Yemïpïtu  Lïhutimido-GEN  husband  here  lie
 
-panakini pimuku binela
-    #35 warning · Do not enter the shrine of Panaki.
-    panaki-ni   pimu-ku     bi-nela
-    Panaki-GEN  shrine-ACC  NEG-enter
+bonakehitïni pimuku binela
+    #35 warning · Do not enter the shrine of Bonakehitï.
+    bonakehitï-ni   pimu-ku     bi-nela
+    Bonakehitï-GEN  shrine-ACC  NEG-enter
 
-lïpiho haya'ini koyu kape podi
-    #36 tomb · Lïpiho, sister of Haya'i, lies here.
-    lïpiho  haya'i-ni   koyu    kape  podi
-    Lïpiho  Haya'i-GEN  sister  here  lie
+ximolala pïtuhïpani tako pale kape podi
+    #36 tomb · Ximolala, wife of Pïtuhïpa, queen, lies here.
+    ximolala  pïtuhïpa-ni   tako  pale   kape  podi
+    Ximolala  Pïtuhïpa-GEN  wife  queen  here  lie
 
 tsiro xango ngayo dike mepo bïla
     #37 potent · [potent] let the old tablet break.
     tsiro     xango   ngayo  dike  mepo   bïla
     POT.OPEN  tablet  old    POT   break  POT.CLOSE
 
-koto'u kakayuni mïru kape podi
-    #38 tomb · Koto'u, daughter of Kakayu, lies here.
-    koto'u  kakayu-ni   mïru      kape  podi
-    Koto'u  Kakayu-GEN  daughter  here  lie
+pïtuhïpa kïnohïpani ngame kape podi
+    #38 tomb · Pïtuhïpa, mother of Kïnohïpa, lies here.
+    pïtuhïpa  kïnohïpa-ni   ngame   kape  podi
+    Pïtuhïpa  Kïnohïpa-GEN  mother  here  lie
 
-lïpiho pimuyi hutiku mangi xi'ulati
-    #39 dedication · Lïpiho made this knife for the shrine.
-    lïpiho  pimu-yi     huti-ku    mangi  xi-'ulati
-    Lïpiho  shrine-DAT  knife-ACC  this   PST-make
+ximolala pimuyi hutiku mangi xi'ulati
+    #39 dedication · Ximolala made this knife for the shrine.
+    ximolala  pimu-yi     huti-ku    mangi  xi-'ulati
+    Ximolala  shrine-DAT  knife-ACC  this   PST-make
 
-nupatu xukïyi marakengaku fole pupu xipitsaro
-    #40 ledger · Nupatu gave 90 lamps for the god.
-    nupatu  xukï-yi  marake-nga-ku  fole  pupu  xi-pitsaro
-    Nupatu  god-DAT  lamp-PL-ACC    nine  ten   PST-give
+ngïkeratse xukïyi marakengaku fole pupu xipitsaro
+    #40 ledger · Ngïkeratse gave 90 lamps for the god.
+    ngïkeratse  xukï-yi  marake-nga-ku  fole  pupu  xi-pitsaro
+    Ngïkeratse  god-DAT  lamp-PL-ACC    nine  ten   PST-give
 

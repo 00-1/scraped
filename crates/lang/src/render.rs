@@ -232,7 +232,12 @@ impl Renderer<'_> {
             reported = words;
         }
         let recipient = np(Role::Recipient, Case::Dative);
-        let adverbs: Vec<Word> = c.adverbs.iter().map(|a| self.plain(a)).collect();
+        // When: the time phrase with its marker, before the adverbs (D07).
+        let mut adverbs: Vec<Word> = c
+            .arg(Role::Time)
+            .map(|t| self.linked(self.plain("time.at"), self.noun_phrase(t, Case::Subject)))
+            .unwrap_or_default();
+        adverbs.extend(c.adverbs.iter().map(|a| self.plain(a)));
 
         let mut out = Vec::new();
         match self.lang.syntax.word_order {
@@ -377,7 +382,7 @@ impl Renderer<'_> {
     /// The relative word: the root `rel` in the case of the missing part.
     pub(crate) fn relative_word(&self, gap: Role) -> Vec<Word> {
         let case = match gap {
-            Role::Subject => Case::Subject,
+            Role::Subject | Role::Time => Case::Subject,
             Role::Object => Case::Object,
             Role::Recipient => Case::Dative,
         };
@@ -429,6 +434,18 @@ impl Renderer<'_> {
                     .map(|w| self.plain(w))
                     .collect(),
             );
+        }
+        // A rank: the numeral and the ordinal word after it (D07).
+        if let Some(n) = np.ordinal {
+            let mut v: Vec<Word> = self
+                .lang
+                .numerals
+                .words(n)
+                .iter()
+                .map(|w| self.plain(w))
+                .collect();
+            v.push(self.plain("ord"));
+            inner.push(v);
         }
         if let Some(d) = &np.determiner {
             inner.push(vec![self.plain(d)]);

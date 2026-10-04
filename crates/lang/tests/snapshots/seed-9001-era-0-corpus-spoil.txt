@@ -1,37 +1,37 @@
-molte nibine xasuli senyel kuyahan yoweki
-    #1 letter · Molte said to Nibi: Do not take the statue.
-    molte  nibi-ne   xa-suli  senyel    kuya-han    yo-weki
-    Molte  Nibi-DAT  PST-say  SENT.END  statue-ACC  NEG-take
+ñowa'ena sexun'usuhulne xasuli senyel kuyahan yoweki
+    #1 letter · Ñowa'ena said to Sexun'usuhul: Do not take the statue.
+    ñowa'ena  sexun'usuhul-ne   xa-suli  senyel    kuya-han    yo-weki
+    Ñowa'ena  Sexun'usuhul-DAT  PST-say  SENT.END  statue-ACC  NEG-take
 
 sokihan weki
     #2 warning · Take the ox.
     soki-han  weki
     ox-ACC    take
 
-wisipa topi
-    #3 label · The jar of Wisi.
-    wisi-pa   topi
-    Wisi-GEN  jar
+mowu'usuhulpa topi
+    #3 label · The jar of Mowu'usuhul.
+    mowu'usuhul-pa   topi
+    Mowu'usuhul-GEN  jar
 
 kuyahan yohumom
     #4 warning · Do not touch the statue.
     kuya-han    yo-humom
     statue-ACC  NEG-touch
 
-nembal sonlalyepa wal pibim meyan nebin
-    #5 tomb · Nembal, daughter of Sonlalye, servant, lies here.
-    nembal  sonlalye-pa   wal       pibim    meyan  nebin
-    Nembal  Sonlalye-GEN  daughter  servant  here   lie
+pamka'ena lunlilalpepa hesi meyan nebin
+    #5 tomb · Pamka'ena, sister of Lunlilalpe, lies here.
+    pamka'ena  lunlilalpe-pa   hesi    meyan  nebin
+    Pamka'ena  Lunlilalpe-GEN  sister  here   lie
 
-panwi sonlalyene winyanne xasuli senyel toye koxin'ohan bał xaselal
-    #6 letter · Panwi said to Sonlalye, queen,: Toye brought eight loaves.
-    panwi  sonlalye-ne   winyan-ne  xa-suli  senyel    toye  koxin-'o-han  bał    xa-selal
-    Panwi  Sonlalye-DAT  queen-DAT  PST-say  SENT.END  Toye  loaf-PL-ACC   eight  PST-bring
+suganwoyanye lomgine xasuli senyel powumlenhan sebom
+    #6 letter · Suganwoyanye said to Lomgi: Burn the cloth.
+    suganwoyanye  lomgi-ne   xa-suli  senyel    powumlen-han  sebom
+    Suganwoyanye  Lomgi-DAT  PST-say  SENT.END  cloth-ACC     burn
 
-'eltansa sonlalyepa wum meyan nebin
-    #7 tomb · 'Eltansa, child of Sonlalye, lies here.
-    'eltansa  sonlalye-pa   wum    meyan  nebin
-    'Eltansa  Sonlalye-GEN  child  here   lie
+buntiyanye lulkamginnanmapa penmin meyan nebin
+    #7 tomb · Buntiyanye, wife of Lulkamginnanma, lies here.
+    buntiyanye  lulkamginnanma-pa   penmin  meyan  nebin
+    Buntiyanye  Lulkamginnanma-GEN  wife    here   lie
 
 ganyil'o milpi
     #8 ledger · Nine fish.
@@ -43,130 +43,130 @@ topihan pokin
     topi-han  pokin
     jar-ACC   break
 
-wisi 'alyinpa pukayi meyan nebin
-    #10 tomb · Wisi, father of 'Alyin, lies here.
-    wisi  'alyin-pa   pukayi  meyan  nebin
-    Wisi  'Alyin-GEN  father  here   lie
+mowu'usuhul koltałpasonixinpa bunxiha meyan nebin
+    #10 tomb · Mowu'usuhul, husband of Koltałpasonixin, lies here.
+    mowu'usuhul  koltałpasonixin-pa   bunxiha  meyan  nebin
+    Mowu'usuhul  Koltałpasonixin-GEN  husband  here   lie
 
-nenmatupa kuya
-    #11 label · The statue of Nenmatu.
-    nenmatu-pa   kuya
-    Nenmatu-GEN  statue
+gimñunyenpa kuya
+    #11 label · The statue of Gimñunyen.
+    gimñunyen-pa   kuya
+    Gimñunyen-GEN  statue
 
-nembal pibim homsane topihan mipa xahinwu
-    #12 dedication · Nembal, servant, made this jar for Homsa.
-    nembal  pibim    homsa-ne   topi-han  mipa  xa-hinwu
-    Nembal  servant  Homsa-DAT  jar-ACC   this  PST-make
+pamka'ena lunlilalpene topihan mipa xahinwu
+    #12 dedication · Pamka'ena made this jar for Lunlilalpe.
+    pamka'ena  lunlilalpe-ne   topi-han  mipa  xa-hinwu
+    Pamka'ena  Lunlilalpe-DAT  jar-ACC   this  PST-make
 
-mumnał'en 'eltansapa mem meyan nebin
-    #13 tomb · Mumnał'en, mother of 'Eltansa, lies here.
-    mumnał'en  'eltansa-pa   mem     meyan  nebin
-    Mumnał'en  'Eltansa-GEN  mother  here   lie
+lenbenanma lulkamginnanmapa bunxiha meyan nebin
+    #13 tomb · Lenbenanma, husband of Lulkamginnanma, lies here.
+    lenbenanma  lulkamginnanma-pa   bunxiha  meyan  nebin
+    Lenbenanma  Lulkamginnanma-GEN  husband  here   lie
 
-nenmatu sonlalyene winyanne xasuli senyel nintom xunne yasa'ohan neñu nimsin solol ñalmal xaselal
-    #14 letter · Nenmatu said to Sonlalye, queen,: Nintom brought 191 sheep for the city.
-    nenmatu  sonlalye-ne   winyan-ne  xa-suli  senyel    nintom  xun-ne    yasa-'o-han   neñu   nimsin  solol  ñalmal  xa-selal
-    Nenmatu  Sonlalye-DAT  queen-DAT  PST-say  SENT.END  Nintom  city-DAT  sheep-PL-ACC  gross  three   dozen  eleven  PST-bring
+gimñunyen lomgine winyanne xasuli senyel walkaganyil xunne yasa'ohan neñu nimsin solol ñalmal xaselal
+    #14 letter · Gimñunyen said to Lomgi, queen,: Walkaganyil brought 191 sheep for the city.
+    gimñunyen  lomgi-ne   winyan-ne  xa-suli  senyel    walkaganyil  xun-ne    yasa-'o-han   neñu   nimsin  solol  ñalmal  xa-selal
+    Gimñunyen  Lomgi-DAT  queen-DAT  PST-say  SENT.END  Walkaganyil  city-DAT  sheep-PL-ACC  gross  three   dozen  eleven  PST-bring
 
-nintom xunne xakeyi'ohan wole xahika
-    #15 ledger · Nintom gave six bowls for the city.
-    nintom  xun-ne    xakeyi-'o-han  wole  xa-hika
-    Nintom  city-DAT  bowl-PL-ACC    six   PST-give
+walkaganyil xunne xakeyi'ohan wole xahika
+    #15 ledger · Walkaganyil gave six bowls for the city.
+    walkaganyil  xun-ne    xakeyi-'o-han  wole  xa-hika
+    Walkaganyil  city-DAT  bowl-PL-ACC    six   PST-give
 
 gihan yohoł
     #16 warning · Do not cross the river.
     gi-han     yo-hoł
     river-ACC  NEG-cross
 
-nintom tiwalpa wum meyan nebin
-    #17 tomb · Nintom, child of Tiwal, lies here.
-    nintom  tiwal-pa   wum    meyan  nebin
-    Nintom  Tiwal-GEN  child  here   lie
+walkaganyil sexunganyilpa kinlosam meyan nebin
+    #17 tomb · Walkaganyil, brother of Sexunganyil, lies here.
+    walkaganyil  sexunganyil-pa   kinlosam  meyan  nebin
+    Walkaganyil  Sexunganyil-GEN  brother   here   lie
 
 paxahan yosebom
     #18 warning · Do not burn the grain.
     paxa-han   yo-sebom
     grain-ACC  NEG-burn
 
-nembalpa mumtu
-    #19 label · The tablet of Nembal.
-    nembal-pa   mumtu
-    Nembal-GEN  tablet
+pamka'enapa mumtu
+    #19 label · The tablet of Pamka'ena.
+    pamka'ena-pa   mumtu
+    Pamka'ena-GEN  tablet
 
-toye wisine pagine temsa mumtuhan mipa xahinwu
-    #20 dedication · Toye made this tablet for Wisi, great priest.
-    toye  wisi-ne   pagi-ne     temsa  mumtu-han   mipa  xa-hinwu
-    Toye  Wisi-DAT  priest-DAT  great  tablet-ACC  this  PST-make
+wakemsoki mowu'usuhulne pulne temsa mumtuhan mipa xahinwu
+    #20 dedication · Wakemsoki made this tablet for Mowu'usuhul, great scribe.
+    wakemsoki  mowu'usuhul-ne   pul-ne      temsa  mumtu-han   mipa  xa-hinwu
+    Wakemsoki  Mowu'usuhul-DAT  scribe-DAT  great  tablet-ACC  this  PST-make
 
-sonlalye wisipa hesi meyan nebin
-    #21 tomb · Sonlalye, sister of Wisi, lies here.
-    sonlalye  wisi-pa   hesi    meyan  nebin
-    Sonlalye  Wisi-GEN  sister  here   lie
+lomgi koltałpasonixinpa kinlosam meyan nebin
+    #21 tomb · Lomgi, brother of Koltałpasonixin, lies here.
+    lomgi  koltałpasonixin-pa   kinlosam  meyan  nebin
+    Lomgi  Koltałpasonixin-GEN  brother   here   lie
 
 yalihan yohoł
     #22 warning · Do not cross the wall.
     yali-han  yo-hoł
     wall-ACC  NEG-cross
 
-wito somwełne xasuli senyel yalihan yopokin
-    #23 letter · Wito said to Somweł: Do not break the wall.
-    wito  somweł-ne   xa-suli  senyel    yali-han  yo-pokin
-    Wito  Somweł-DAT  PST-say  SENT.END  wall-ACC  NEG-break
+lommowu mayukamtayone xasuli senyel yalihan yopokin
+    #23 letter · Lommowu said to Mayukamtayo: Do not break the wall.
+    lommowu  mayukamtayo-ne   xa-suli  senyel    yali-han  yo-pokin
+    Lommowu  Mayukamtayo-DAT  PST-say  SENT.END  wall-ACC  NEG-break
 
 koxin'o gumka solol solu wamil'o gumka solol gumka ñegu neñu nimsin solol lahom
     #24 ledger · 94 loaves, 91 lamps, 185 in all.
     koxin-'o  gumka  solol  solu  wamil-'o  gumka  solol  gumka  ñegu   neñu   nimsin  solol  lahom
     loaf-PL   seven  dozen  ten   lamp-PL   seven  dozen  seven  total  gross  three   dozen  five
 
-wisipa yanñinło
-    #25 label · The knife of Wisi.
-    wisi-pa   yanñinło
-    Wisi-GEN  knife
+mowu'usuhulpa yanñinło
+    #25 label · The knife of Mowu'usuhul.
+    mowu'usuhul-pa   yanñinło
+    Mowu'usuhul-GEN  knife
 
-wisipa mowuhan yopokin
-    #26 warning · Do not break the stone of Wisi.
-    wisi-pa   mowu-han   yo-pokin
-    Wisi-GEN  stone-ACC  NEG-break
+mowu'usuhulpa mowuhan yopokin
+    #26 warning · Do not break the stone of Mowu'usuhul.
+    mowu'usuhul-pa   mowu-han   yo-pokin
+    Mowu'usuhul-GEN  stone-ACC  NEG-break
 
-nintompa kanlilni
-    #27 label · The seal of Nintom.
-    nintom-pa   kanlilni
-    Nintom-GEN  seal
+walkaganyilpa kanlilni
+    #27 label · The seal of Walkaganyil.
+    walkaganyil-pa   kanlilni
+    Walkaganyil-GEN  seal
 
-xawipapa sikohan yopokin
-    #28 warning · Do not break the box of Xawipa.
-    xawipa-pa   siko-han  yo-pokin
-    Xawipa-GEN  box-ACC   NEG-break
+lulkamginnanmapa sikohan yopokin
+    #28 warning · Do not break the box of Lulkamginnanma.
+    lulkamginnanma-pa   siko-han  yo-pokin
+    Lulkamginnanma-GEN  box-ACC   NEG-break
 
-wisi 'alyinpa pukayi meyan nebin
-    #29 tomb · Wisi, father of 'Alyin, lies here.
-    wisi  'alyin-pa   pukayi  meyan  nebin
-    Wisi  'Alyin-GEN  father  here   lie
+mowu'usuhul koltałpasonixinpa bunxiha meyan nebin
+    #29 tomb · Mowu'usuhul, husband of Koltałpasonixin, lies here.
+    mowu'usuhul  koltałpasonixin-pa   bunxiha  meyan  nebin
+    Mowu'usuhul  Koltałpasonixin-GEN  husband  here   lie
 
-'eltansa sonlalyepa wum meyan nebin
-    #30 tomb · 'Eltansa, child of Sonlalye, lies here.
-    'eltansa  sonlalye-pa   wum    meyan  nebin
-    'Eltansa  Sonlalye-GEN  child  here   lie
+buntiyanye lulkamginnanmapa penmin meyan nebin
+    #30 tomb · Buntiyanye, wife of Lulkamginnanma, lies here.
+    buntiyanye  lulkamginnanma-pa   penmin  meyan  nebin
+    Buntiyanye  Lulkamginnanma-GEN  wife    here   lie
 
-somweł gahune walka topihan mipa xahinwu
-    #31 dedication · Somweł made this jar for the holy god.
-    somweł  gahu-ne  walka  topi-han  mipa  xa-hinwu
-    Somweł  god-DAT  holy   jar-ACC   this  PST-make
+mayukamtayo gahune walka topihan mipa xahinwu
+    #31 dedication · Mayukamtayo made this jar for the holy god.
+    mayukamtayo  gahu-ne  walka  topi-han  mipa  xa-hinwu
+    Mayukamtayo  god-DAT  holy   jar-ACC   this  PST-make
 
-wisi pagi mumnał'enne kuyahan mipa xahinwu
-    #32 dedication · Wisi, priest, made this statue for Mumnał'en.
-    wisi  pagi    mumnał'en-ne   kuya-han    mipa  xa-hinwu
-    Wisi  priest  Mumnał'en-DAT  statue-ACC  this  PST-make
+mowu'usuhul lenbenanmane kelokine kuyahan mipa xahinwu
+    #32 dedication · Mowu'usuhul made this statue for Lenbenanma, smith.
+    mowu'usuhul  lenbenanma-ne   keloki-ne  kuya-han    mipa  xa-hinwu
+    Mowu'usuhul  Lenbenanma-DAT  smith-DAT  statue-ACC  this  PST-make
 
-'eltansa sonlalyepa wum winyan meyan nebin
-    #33 tomb · 'Eltansa, child of Sonlalye, queen, lies here.
-    'eltansa  sonlalye-pa   wum    winyan  meyan  nebin
-    'Eltansa  Sonlalye-GEN  child  queen   here   lie
+buntiyanye lulkamginnanmapa penmin meyan nebin
+    #33 tomb · Buntiyanye, wife of Lulkamginnanma, lies here.
+    buntiyanye  lulkamginnanma-pa   penmin  meyan  nebin
+    Buntiyanye  Lulkamginnanma-GEN  wife    here   lie
 
-toye moltene wamilhan mipa xahinwu
-    #34 dedication · Toye made this lamp for Molte.
-    toye  molte-ne   wamil-han  mipa  xa-hinwu
-    Toye  Molte-DAT  lamp-ACC   this  PST-make
+wakemsoki xoyun lemo ñowa'enane wamilhan mipa xahinwu
+    #34 dedication · Wakemsoki, good king, made this lamp for Ñowa'ena.
+    wakemsoki  xoyun  lemo  ñowa'ena-ne   wamil-han  mipa  xa-hinwu
+    Wakemsoki  king   good  Ñowa'ena-DAT  lamp-ACC   this  PST-make
 
 yalihan hoł
     #35 warning · Cross the wall.
@@ -178,23 +178,23 @@ topi'o solol milpi
     topi-'o  solol  milpi
     jar-PL   dozen  nine
 
-tiwal xawipapa mem meyan nebin
-    #37 tomb · Tiwal, mother of Xawipa, lies here.
-    tiwal  xawipa-pa   mem     meyan  nebin
-    Tiwal  Xawipa-GEN  mother  here   lie
+wakupimowu puseyenpa hesi meyan nebin
+    #37 tomb · Wakupimowu, sister of Puseyen, lies here.
+    wakupimowu  puseyen-pa   hesi    meyan  nebin
+    Wakupimowu  Puseyen-GEN  sister  here   lie
 
-wito halbulne mumtuhan mipa xahinwu
-    #38 dedication · Wito made this tablet for Halbul.
-    wito  halbul-ne   mumtu-han   mipa  xa-hinwu
-    Wito  Halbul-DAT  tablet-ACC  this  PST-make
+lommowu koltałpasonixinne mumtuhan mipa xahinwu
+    #38 dedication · Lommowu made this tablet for Koltałpasonixin.
+    lommowu  koltałpasonixin-ne   mumtu-han   mipa  xa-hinwu
+    Lommowu  Koltałpasonixin-DAT  tablet-ACC  this  PST-make
 
-nembal kenone yanñinłohan minni mipa xahinwu
-    #39 dedication · Nembal made this red knife for Keno.
-    nembal  keno-ne   yanñinło-han  minni  mipa  xa-hinwu
-    Nembal  Keno-DAT  knife-ACC     red    this  PST-make
+pamka'ena xobensexunne yanñinłohan minni mipa xahinwu
+    #39 dedication · Pamka'ena made this red knife for Xobensexun.
+    pamka'ena  xobensexun-ne   yanñinło-han  minni  mipa  xa-hinwu
+    Pamka'ena  Xobensexun-DAT  knife-ACC     red    this  PST-make
 
-'eltansapa topi
-    #40 label · The jar of 'Eltansa.
-    'eltansa-pa   topi
-    'Eltansa-GEN  jar
+buntiyanyepa topi
+    #40 label · The jar of Buntiyanye.
+    buntiyanye-pa   topi
+    Buntiyanye-GEN  jar
 

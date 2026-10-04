@@ -1,26 +1,26 @@
 SCRIPT — seed 42 era 2: alphabet written left to right
   fricative sounds add: hook down on the right
   nasal sounds add: hook right in the middle
-  #0   p                p        tail right at the bottom
+  #0   p                p        bar level on the right; tail right at the bottom
   #1   t                t        hook left in the middle; zigzag up on the left
   #2   k                k        bar level in the middle
   #3   b                b        wedge up on the left; zigzag right on the right
   #4   d                d        dot on the right; arc right at the bottom
   #5   ʔ                '        dot on the right; wedge up on the left; zigzag left on the left
-  #6   m                m        hook right in the middle; tail right at the bottom
+  #6   m                m        bar level on the right; hook right in the middle; tail right at the bottom
   #7   n                n        hook right in the middle; hook left in the middle; zigzag up on the left
   #8   ŋ                ng       bar level in the middle; hook right in the middle
-  #9   f                f        hook down on the right; tail right at the bottom
+  #9   f                f        bar level on the right; hook down on the right; tail right at the bottom
   #10  h                h        hook down on the right; dot on the right; wedge up on the left; zigzag left on the left
   #11  x                x        bar level in the middle; hook down on the right
-  #12  ts               ts       arc down on the left
-  #13  tʃ               ch       ring on the right; wedge up at the top
+  #12  ts               ts       arc down on the left; zigzag left on the right
+  #13  tʃ               ch       ring at the top; arc left at the bottom; cross on the left
   #14  l                l        cross at the bottom
   #15  r                r        hook left on the right; wedge right on the left; tail right on the left
   #16  j                y        bar upright on the right; cross on the right
   #17  e                e        ring on the right
   #18  i                i        tail right in the middle
-  #19  u                u        arc left at the bottom
+  #19  u                u        arc left at the bottom; cross at the top
   #20  ɨ                ï        dot in the middle
   #21  numeral 0        0        hook up at the top
   #22  numeral 1        1        bar upright at the top; wedge up on the right

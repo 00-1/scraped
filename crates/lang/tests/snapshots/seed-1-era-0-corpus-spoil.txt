@@ -3,30 +3,30 @@ machu mahigatina
     machu  mahiga-ti-na
     enter  temple-PL-ACC
 
-yiyuka kuhi pumusa pabuna gipa tilisu
-    #2 dedication · Yiyuka, queen, made this box for the god.
-    yiyuka  kuhi   pumu-sa   pabu-na  gipa  tili-su
-    Yiyuka  queen  make-PST  box-ACC  this  god-DAT
+nitalamababu buwanu pumusa pabuna gipa tilisu
+    #2 dedication · Nitalamababu, priest, made this box for the god.
+    nitalamababu  buwanu  pumu-sa   pabu-na  gipa  tili-su
+    Nitalamababu  priest  make-PST  box-ACC  this  god-DAT
 
-yitupu kiki'upi yupiŋa buwanu gama nuxa
-    #3 tomb · Yitupu, sister of Kiki'u, priest, lies here.
-    yitupu  kiki'u-pi   yupiŋa  buwanu  gama  nuxa
-    Yitupu  Kiki'u-GEN  sister  priest  lie   here
+ya'ili'i yakalatunipi taŋu gama nuxa
+    #3 tomb · Ya'ili'i, child of Yakalatuni, lies here.
+    ya'ili'i  yakalatuni-pi   taŋu   gama  nuxa
+    Ya'ili'i  Yakalatuni-GEN  child  lie   here
 
-ŋakabi yitupupi sawukuna
-    #4 warning · Do not break the gate of Yitupu.
-    ŋaka-bi    yitupu-pi   sawuku-na
-    break-NEG  Yitupu-GEN  gate-ACC
+ŋakabi ya'ili'ipi sawukuna
+    #4 warning · Do not break the gate of Ya'ili'i.
+    ŋaka-bi    ya'ili'i-pi   sawuku-na
+    break-NEG  Ya'ili'i-GEN  gate-ACC
 
-nayaku pumusa subana gipa samu'asu
-    #5 dedication · Nayaku made this tablet for Samu'a.
-    nayaku  pumu-sa   suba-na     gipa  samu'a-su
-    Nayaku  make-PST  tablet-ACC  this  Samu'a-DAT
+kamaminiguxi pumusa subana gipa yakalatunisu
+    #5 dedication · Kamaminiguxi made this tablet for Yakalatuni.
+    kamaminiguxi  pumu-sa   suba-na     gipa  yakalatuni-su
+    Kamaminiguxi  make-PST  tablet-ACC  this  Yakalatuni-DAT
 
-kiki'u sukachapi nasu gama nuxa
-    #6 tomb · Kiki'u, wife of Sukacha, lies here.
-    kiki'u  sukacha-pi   nasu  gama  nuxa
-    Kiki'u  Sukacha-GEN  wife  lie   here
+siniwasawuku huwuwakaki'upi yupiŋa yilu gama nuxa
+    #6 tomb · Siniwasawuku, sister of Huwuwakaki'u, scribe, lies here.
+    siniwasawuku  huwuwakaki'u-pi   yupiŋa  yilu    gama  nuxa
+    Siniwasawuku  Huwuwakaki'u-GEN  sister  scribe  lie   here
 
 ninimati tupu kagu
     #7 ledger · Eight knives.
@@ -38,163 +38,163 @@ lumiti tupu kagu
     lumi-ti  tupu  kagu
     fish-PL  five  three
 
-sukuti suwamupi pani gama nuxa
-    #9 tomb · Sukuti, father of Suwamu, lies here.
-    sukuti  suwamu-pi   pani    gama  nuxa
-    Sukuti  Suwamu-GEN  father  lie   here
+kasanuti pawabulipupi wusu gama nuxa
+    #9 tomb · Kasanuti, brother of Pawabulipu, lies here.
+    kasanuti  pawabulipu-pi   wusu     gama  nuxa
+    Kasanuti  Pawabulipu-GEN  brother  lie   here
 
-sukacha magayupi sibisi gama nuxa
-    #10 tomb · Sukacha, husband of Magayu, lies here.
-    sukacha  magayu-pi   sibisi   gama  nuxa
-    Sukacha  Magayu-GEN  husband  lie   here
+kasaniguxi huwuwakaki'upi sibisi gama nuxa
+    #10 tomb · Kasaniguxi, husband of Huwuwakaki'u, lies here.
+    kasaniguxi  huwuwakaki'u-pi   sibisi   gama  nuxa
+    Kasaniguxi  Huwuwakaki'u-GEN  husband  lie   here
 
-salanu tuyiyapi chulu gama nuxa
-    #11 tomb · Salanu, daughter of Tuyiya, lies here.
-    salanu  tuyiya-pi   chulu     gama  nuxa
-    Salanu  Tuyiya-GEN  daughter  lie   here
+siniwalipu yakalatunipi ŋuya gama nuxa
+    #11 tomb · Siniwalipu, mother of Yakalatuni, lies here.
+    siniwalipu  yakalatuni-pi   ŋuya    gama  nuxa
+    Siniwalipu  Yakalatuni-GEN  mother  lie   here
 
-nayaku luhasa puyunisu muŋi machu laŋana
-    #12 letter · Nayaku said to Puyuni: Enter the house.
-    nayaku  luha-sa  puyuni-su   muŋi      machu  laŋa-na
-    Nayaku  say-PST  Puyuni-DAT  SENT.END  enter  house-ACC
+kamaminiguxi luhasa bibilinigusu muŋi machu laŋana
+    #12 letter · Kamaminiguxi said to Bibilinigu: Enter the house.
+    kamaminiguxi  luha-sa  bibilinigu-su   muŋi      machu  laŋa-na
+    Kamaminiguxi  say-PST  Bibilinigu-DAT  SENT.END  enter  house-ACC
 
-nayaku pumusa pabuna gipa tilipi mahigasu husi
-    #13 dedication · Nayaku made this box for the dark temple of the god.
-    nayaku  pumu-sa   pabu-na  gipa  tili-pi  mahiga-su   husi
-    Nayaku  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
+kamaminiguxi pumusa pabuna gipa tilipi mahigasu husi
+    #13 dedication · Kamaminiguxi made this box for the dark temple of the god.
+    kamaminiguxi  pumu-sa   pabu-na  gipa  tili-pi  mahiga-su   husi
+    Kamaminiguxi  make-PST  box-ACC  this  god-GEN  temple-DAT  dark
 
-magayu luhasa satayusu muŋi sukacha yitisa xuŋaŋitina tupu tukasu
-    #14 letter · Magayu said to Satayu: Sukacha brought five oxen for the shrine.
-    magayu  luha-sa  satayu-su   muŋi      sukacha  yiti-sa    xuŋaŋi-ti-na  tupu  tuka-su
-    Magayu  say-PST  Satayu-DAT  SENT.END  Sukacha  bring-PST  ox-PL-ACC     five  shrine-DAT
+huwuwakaki'u luhasa waliniguxisu muŋi kixaŋabi suyubana
+    #14 letter · Huwuwakaki'u said to Waliniguxi: Do not take the statue.
+    huwuwakaki'u  luha-sa  waliniguxi-su   muŋi      kixaŋa-bi  suyuba-na
+    Huwuwakaki'u  say-PST  Waliniguxi-DAT  SENT.END  take-NEG   statue-ACC
 
-suwamu luhasa 'isaŋasu muŋi yiyuka kuhi bibi wiŋapusa xapatina tupu kichi yawa hamu chiba
-    #15 letter · Suwamu said to 'Isaŋa: Yiyuka, old queen, gave 46 lamps.
-    suwamu  luha-sa  'isaŋa-su   muŋi      yiyuka  kuhi   bibi  wiŋapu-sa  xapa-ti-na   tupu  kichi  yawa  hamu  chiba
-    Suwamu  say-PST  'Isaŋa-DAT  SENT.END  Yiyuka  queen  old   give-PST   lamp-PL-ACC  five  one    AND   four  ten
+hihutuni luhasa hanakinutisu muŋi hanakinuti wiŋapusa chukitina hamu
+    #15 letter · Hihutuni said to Hanakinuti: Hanakinuti gave four jars.
+    hihutuni  luha-sa  hanakinuti-su   muŋi      hanakinuti  wiŋapu-sa  chuki-ti-na  hamu
+    Hihutuni  say-PST  Hanakinuti-DAT  SENT.END  Hanakinuti  give-PST   jar-PL-ACC   four
 
-yitupu kiki'upi yupiŋa buwanu gama nuxa
-    #16 tomb · Yitupu, sister of Kiki'u, priest, lies here.
-    yitupu  kiki'u-pi   yupiŋa  buwanu  gama  nuxa
-    Yitupu  Kiki'u-GEN  sister  priest  lie   here
+ya'ili'i yakalatunipi taŋu gama nuxa
+    #16 tomb · Ya'ili'i, child of Yakalatuni, lies here.
+    ya'ili'i  yakalatuni-pi   taŋu   gama  nuxa
+    Ya'ili'i  Yakalatuni-GEN  child  lie   here
 
-nayaku nununupi sunu gama nuxa
-    #17 tomb · Nayaku, son of Nununu, lies here.
-    nayaku  nununu-pi   sunu  gama  nuxa
-    Nayaku  Nununu-GEN  son   lie   here
+kamaminiguxi nitalamubasapi taŋu gama nuxa
+    #17 tomb · Kamaminiguxi, child of Nitalamubasa, lies here.
+    kamaminiguxi  nitalamubasa-pi   taŋu   gama  nuxa
+    Kamaminiguxi  Nitalamubasa-GEN  child  lie   here
 
 buwanupi pabu
     #18 label · The box of the priest.
     buwanu-pi   pabu
     priest-GEN  box
 
-satayu luhasa sukachasu muŋi mayusa yitisa liputina kichi chiba
-    #19 letter · Satayu said to Sukacha: Mayusa brought ten goats.
-    satayu  luha-sa  sukacha-su   muŋi      mayusa  yiti-sa    lipu-ti-na   kichi  chiba
-    Satayu  say-PST  Sukacha-DAT  SENT.END  Mayusa  bring-PST  goat-PL-ACC  one    ten
+waliniguxi luhasa kasaniguxisu muŋi kamaminiguxi wiŋapusa ŋasitina hamu yawa tupu kagu chiba
+    #19 letter · Waliniguxi said to Kasaniguxi: Kamaminiguxi gave 84 bowls.
+    waliniguxi  luha-sa  kasaniguxi-su   muŋi      kamaminiguxi  wiŋapu-sa  ŋasi-ti-na   hamu  yawa  tupu  kagu   chiba
+    Waliniguxi  say-PST  Kasaniguxi-DAT  SENT.END  Kamaminiguxi  give-PST   bowl-PL-ACC  four  AND   five  three  ten
 
-'isaŋa sukachapi yupiŋa yilu gama nuxa
-    #20 tomb · 'Isaŋa, sister of Sukacha, scribe, lies here.
-    'isaŋa  sukacha-pi   yupiŋa  yilu    gama  nuxa
-    'Isaŋa  Sukacha-GEN  sister  scribe  lie   here
+hanakinuti husiniguxipi taŋu gama nuxa
+    #20 tomb · Hanakinuti, child of Husiniguxi, lies here.
+    hanakinuti  husiniguxi-pi   taŋu   gama  nuxa
+    Hanakinuti  Husiniguxi-GEN  child  lie   here
 
 mixi wuta 'iga ŋakabi xuga
     #21 potent · [potent] let the seal not break.
     mixi      wuta  'iga  ŋaka-bi    xuga
     POT.OPEN  seal  POT   break-NEG  POT.CLOSE
 
-sasiyi 'isaŋapi chulu gama nuxa
-    #22 tomb · Sasiyi, daughter of 'Isaŋa, lies here.
-    sasiyi  'isaŋa-pi   chulu     gama  nuxa
-    Sasiyi  'Isaŋa-GEN  daughter  lie   here
+kiŋulinigu nitalamubasapi ŋuya gama nuxa
+    #22 tomb · Kiŋulinigu, mother of Nitalamubasa, lies here.
+    kiŋulinigu  nitalamubasa-pi   ŋuya    gama  nuxa
+    Kiŋulinigu  Nitalamubasa-GEN  mother  lie   here
 
-'isaŋa sukachapi yupiŋa gama nuxa
-    #23 tomb · 'Isaŋa, sister of Sukacha, lies here.
-    'isaŋa  sukacha-pi   yupiŋa  gama  nuxa
-    'Isaŋa  Sukacha-GEN  sister  lie   here
+hanakinuti husiniguxipi taŋu gama nuxa
+    #23 tomb · Hanakinuti, child of Husiniguxi, lies here.
+    hanakinuti  husiniguxi-pi   taŋu   gama  nuxa
+    Hanakinuti  Husiniguxi-GEN  child  lie   here
 
-puyuni pumusa tayichuna tima gipa nununusu sakabisu ŋina
-    #24 dedication · Puyuni made this holy altar for Nununu, good king.
-    puyuni  pumu-sa   tayichu-na  tima  gipa  nununu-su   sakabi-su  ŋina
-    Puyuni  make-PST  altar-ACC   holy  this  Nununu-DAT  king-DAT   good
+bibilinigu pumusa tayichuna tima gipa bisayakalasu
+    #24 dedication · Bibilinigu made this holy altar for Bisayakala.
+    bibilinigu  pumu-sa   tayichu-na  tima  gipa  bisayakala-su
+    Bibilinigu  make-PST  altar-ACC   holy  this  Bisayakala-DAT
 
-puyuni pumusa subana gipa bikusu
-    #25 dedication · Puyuni made this tablet for the city.
-    puyuni  pumu-sa   suba-na     gipa  biku-su
-    Puyuni  make-PST  tablet-ACC  this  city-DAT
+bibilinigu pumusa subana gipa bikusu
+    #25 dedication · Bibilinigu made this tablet for the city.
+    bibilinigu  pumu-sa   suba-na     gipa  biku-su
+    Bibilinigu  make-PST  tablet-ACC  this  city-DAT
 
 sakabipi ŋasi
     #26 label · The bowl of the king.
     sakabi-pi  ŋasi
     king-GEN   bowl
 
-mayusa pumusa ŋasina gipa yasichasu sakabisu
-    #27 dedication · Mayusa made this bowl for Yasicha, king.
-    mayusa  pumu-sa   ŋasi-na   gipa  yasicha-su   sakabi-su
-    Mayusa  make-PST  bowl-ACC  this  Yasicha-DAT  king-DAT
+timatachusa pumusa ŋasina gipa salayanutisu
+    #27 dedication · Timatachusa made this bowl for Salayanuti.
+    timatachusa  pumu-sa   ŋasi-na   gipa  salayanuti-su
+    Timatachusa  make-PST  bowl-ACC  this  Salayanuti-DAT
 
-yitupu kiki'upi yupiŋa buwanu gama nuxa
-    #28 tomb · Yitupu, sister of Kiki'u, priest, lies here.
-    yitupu  kiki'u-pi   yupiŋa  buwanu  gama  nuxa
-    Yitupu  Kiki'u-GEN  sister  priest  lie   here
+ya'ili'i yakalatunipi taŋu gama nuxa
+    #28 tomb · Ya'ili'i, child of Yakalatuni, lies here.
+    ya'ili'i  yakalatuni-pi   taŋu   gama  nuxa
+    Ya'ili'i  Yakalatuni-GEN  child  lie   here
 
-salanu luhasa samu'asu sakabisu muŋi tapacha gisina
-    #29 letter · Salanu said to Samu'a, king,: Touch the tomb.
-    salanu  luha-sa  samu'a-su   sakabi-su  muŋi      tapacha  gisi-na
-    Salanu  say-PST  Samu'a-DAT  king-DAT   SENT.END  touch    tomb-ACC
+siniwalipu luhasa yakalatunisu muŋi 'aba ya'ina
+    #29 letter · Siniwalipu said to Yakalatuni: Cross the sea.
+    siniwalipu  luha-sa  yakalatuni-su   muŋi      'aba   ya'i-na
+    Siniwalipu  say-PST  Yakalatuni-DAT  SENT.END  cross  sea-ACC
 
-kinuni yitisa luwutina kagu tukasu
-    #30 ledger · Kinuni brought three loaves for the shrine.
-    kinuni  yiti-sa    luwu-ti-na   kagu   tuka-su
-    Kinuni  bring-PST  loaf-PL-ACC  three  shrine-DAT
+xahukalipu yitisa luwutina kagu tukasu
+    #30 ledger · Xahukalipu brought three loaves for the shrine.
+    xahukalipu  yiti-sa    luwu-ti-na   kagu   tuka-su
+    Xahukalipu  bring-PST  loaf-PL-ACC  three  shrine-DAT
 
 winubi latimana
     #31 warning · Do not burn the door.
     winu-bi   latima-na
     burn-NEG  door-ACC
 
-yitupu kiki'upi yupiŋa gama nuxa
-    #32 tomb · Yitupu, sister of Kiki'u, lies here.
-    yitupu  kiki'u-pi   yupiŋa  gama  nuxa
-    Yitupu  Kiki'u-GEN  sister  lie   here
+ya'ili'i yakalatunipi taŋu gama nuxa
+    #32 tomb · Ya'ili'i, child of Yakalatuni, lies here.
+    ya'ili'i  yakalatuni-pi   taŋu   gama  nuxa
+    Ya'ili'i  Yakalatuni-GEN  child  lie   here
 
 lumiti tupu nimi yawa nimi chiba yawa nimi bugu xapati nimi chiŋiti nimi yawa tupu kichi chiba yawa kichi bugu yukama kichi yawa tupu hamu chiba yawa kagu bugu
     #33 ledger · 227 fish, two lamps, 162 cloths, 391 in all.
     lumi-ti  tupu  nimi  yawa  nimi  chiba  yawa  nimi  bugu     xapa-ti  nimi  chiŋi-ti  nimi  yawa  tupu  kichi  chiba  yawa  kichi  bugu     yukama  kichi  yawa  tupu  hamu  chiba  yawa  kagu   bugu
     fish-PL  five  two   AND   two   ten    AND   two   hundred  lamp-PL  two   cloth-PL  two   AND   five  one    ten    AND   one    hundred  total   one    AND   five  four  ten    AND   three  hundred
 
-sukacha magayupi sibisi gama nuxa
-    #34 tomb · Sukacha, husband of Magayu, lies here.
-    sukacha  magayu-pi   sibisi   gama  nuxa
-    Sukacha  Magayu-GEN  husband  lie   here
+kasaniguxi huwuwakaki'upi sibisi gama nuxa
+    #34 tomb · Kasaniguxi, husband of Huwuwakaki'u, lies here.
+    kasaniguxi  huwuwakaki'u-pi   sibisi   gama  nuxa
+    Kasaniguxi  Huwuwakaki'u-GEN  husband  lie   here
 
-ni'ixipi chuki
-    #35 label · The jar of Ni'ixi.
-    ni'ixi-pi   chuki
-    Ni'ixi-GEN  jar
+husiniguxipi chuki
+    #35 label · The jar of Husiniguxi.
+    husiniguxi-pi   chuki
+    Husiniguxi-GEN  jar
 
-salanu luhasa kahanasu naŋisu muŋi 'ababi puyunipi yakalatina
-    #36 letter · Salanu said to Kahana, servant,: Do not cross the rivers of Puyuni.
-    salanu  luha-sa  kahana-su   naŋi-su      muŋi      'aba-bi    puyuni-pi   yakala-ti-na
-    Salanu  say-PST  Kahana-DAT  servant-DAT  SENT.END  cross-NEG  Puyuni-GEN  river-PL-ACC
+siniwalipu luhasa timaxuŋaŋisu muŋi 'una timatachusapi miwana
+    #36 letter · Siniwalipu said to Timaxuŋaŋi: Drink the water of Timatachusa.
+    siniwalipu  luha-sa  timaxuŋaŋi-su   muŋi      'una   timatachusa-pi   miwa-na
+    Siniwalipu  say-PST  Timaxuŋaŋi-DAT  SENT.END  drink  Timatachusa-GEN  water-ACC
 
 lumiti kagu yawa tupu chiba
     #37 ledger · 53 fish.
     lumi-ti  kagu   yawa  tupu  chiba
     fish-PL  three  AND   five  ten
 
-yasicha luhasa 'isaŋasu yilusu muŋi xuxibi sawukuna
-    #38 letter · Yasicha said to 'Isaŋa, scribe,: Do not open the gate.
-    yasicha  luha-sa  'isaŋa-su   yilu-su     muŋi      xuxi-bi   sawuku-na
-    Yasicha  say-PST  'Isaŋa-DAT  scribe-DAT  SENT.END  open-NEG  gate-ACC
+salayanuti luhasa hanakinutisu muŋi yakalali'i yitisa luwutina tupu hamu
+    #38 letter · Salayanuti said to Hanakinuti: Yakalali'i brought nine loaves.
+    salayanuti  luha-sa  hanakinuti-su   muŋi      yakalali'i  yiti-sa    luwu-ti-na   tupu  hamu
+    Salayanuti  say-PST  Hanakinuti-DAT  SENT.END  Yakalali'i  bring-PST  loaf-PL-ACC  five  four
 
 misubi ya'ina
     #39 warning · Do not fear the sea.
     misu-bi   ya'i-na
     fear-NEG  sea-ACC
 
-kinuni sukachapi wusu gama nuxa
-    #40 tomb · Kinuni, brother of Sukacha, lies here.
-    kinuni  sukacha-pi   wusu     gama  nuxa
-    Kinuni  Sukacha-GEN  brother  lie   here
+xahukalipu timaxuŋaŋipi ŋuya gama nuxa
+    #40 tomb · Xahukalipu, mother of Timaxuŋaŋi, lies here.
+    xahukalipu  timaxuŋaŋi-pi   ŋuya    gama  nuxa
+    Xahukalipu  Timaxuŋaŋi-GEN  mother  lie   here
 

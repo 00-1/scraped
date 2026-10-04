@@ -1,37 +1,37 @@
-mutin konyobunne sësuli senyel tëholhën yowegi
-    #1 letter · Mutin said to Konyobun: Do not take the statue.
-    mutin  konyobun-ne   së-suli  senyel    tëhol-hën   yo-wegi
-    Mutin  Konyobun-DAT  PST-say  SENT.END  statue-ACC  NEG-take
+ñowë'enë nin'usuhulne sësuli senyel tëholhën yowegi
+    #1 letter · Ñowë'enë said to Nin'usuhul: Do not take the statue.
+    ñowë'enë  nin'usuhul-ne   së-suli  senyel    tëhol-hën   yo-wegi
+    Ñowë'enë  Nin'usuhul-DAT  PST-say  SENT.END  statue-ACC  NEG-take
 
 sogihën wegi
     #2 warning · Take the ox.
     sogi-hën  wegi
     ox-ACC    take
 
-nimenëmpë tobi
-    #3 label · The jar of Nimenëm.
-    nimenëm-pë   tobi
-    Nimenëm-GEN  jar
+mowu'usuhulpë tobi
+    #3 label · The jar of Mowu'usuhul.
+    mowu'usuhul-pë   tobi
+    Mowu'usuhul-GEN  jar
 
 tëholhën yohumom
     #4 warning · Do not touch the statue.
     tëhol-hën   yo-humom
     statue-ACC  NEG-touch
 
-domłi wutopë kinlosëm soyun meyën nebin
-    #5 tomb · Domłi, brother of Wuto, king, lies here.
-    domłi  wuto-pë   kinlosëm  soyun  meyën  nebin
-    Domłi  Wuto-GEN  brother   king   here   lie
+pëmkë'enë lunlilëlpepë hesi meyën nebin
+    #5 tomb · Pëmkë'enë, sister of Lunlilëlpe, lies here.
+    pëmkë'enë  lunlilëlpe-pë   hesi    meyën  nebin
+    Pëmkë'enë  Lunlilëlpe-GEN  sister  here   lie
 
-simke wutone sësuli senyel dësoyi gëhune powumlen'ohën wole solol milpi sëhigë
-    #6 letter · Simke said to Wuto: Dësoyi gave 81 cloths for the god.
-    simke  wuto-ne   së-suli  senyel    dësoyi  gëhu-ne  powumlen-'o-hën  wole  solol  milpi  së-higë
-    Simke  Wuto-DAT  PST-say  SENT.END  Dësoyi  god-DAT  cloth-PL-ACC     six   dozen  nine   PST-give
+sugënwoyënye lomgine sësuli senyel powumlenhën sebom
+    #6 letter · Sugënwoyënye said to Lomgi: Burn the cloth.
+    sugënwoyënye  lomgi-ne   së-suli  senyel    powumlen-hën  sebom
+    Sugënwoyënye  Lomgi-DAT  PST-say  SENT.END  cloth-ACC     burn
 
-nulkimme hëdupë sidën meyën nebin
-    #7 tomb · Nulkimme, son of Hëdu, lies here.
-    nulkimme  hëdu-pë   sidën  meyën  nebin
-    Nulkimme  Hëdu-GEN  son    here   lie
+buntiyënye lulkëmginnënmëpë penmin meyën nebin
+    #7 tomb · Buntiyënye, wife of Lulkëmginnënmë, lies here.
+    buntiyënye  lulkëmginnënmë-pë   penmin  meyën  nebin
+    Buntiyënye  Lulkëmginnënmë-GEN  wife    here   lie
 
 gënyil'o milpi
     #8 ledger · Nine fish.
@@ -43,130 +43,130 @@ tobihën pogin
     tobi-hën  pogin
     jar-ACC   break
 
-nimenëm netipë mem meyën nebin
-    #10 tomb · Nimenëm, mother of Neti, lies here.
-    nimenëm  neti-pë   mem     meyën  nebin
-    Nimenëm  Neti-GEN  mother  here   lie
+mowu'usuhul koltëłpësonisinpë bunsihë meyën nebin
+    #10 tomb · Mowu'usuhul, husband of Koltëłpësonisin, lies here.
+    mowu'usuhul  koltëłpësonisin-pë   bunsihë  meyën  nebin
+    Mowu'usuhul  Koltëłpësonisin-GEN  husband  here   lie
 
-gominpë tëhol
-    #11 label · The statue of Gomin.
-    gomin-pë   tëhol
-    Gomin-GEN  statue
+gimñunyenpë tëhol
+    #11 label · The statue of Gimñunyen.
+    gimñunyen-pë   tëhol
+    Gimñunyen-GEN  statue
 
-domłi soyun ninlëne tobihën mibë sëhinwu
-    #12 dedication · Domłi, king, made this jar for Ninlë.
-    domłi  soyun  ninlë-ne   tobi-hën  mibë  së-hinwu
-    Domłi  king   Ninlë-DAT  jar-ACC   this  PST-make
+pëmkë'enë lunlilëlpene tobihën mibë sëhinwu
+    #12 dedication · Pëmkë'enë made this jar for Lunlilëlpe.
+    pëmkë'enë  lunlilëlpe-ne   tobi-hën  mibë  së-hinwu
+    Pëmkë'enë  Lunlilëlpe-DAT  jar-ACC   this  PST-make
 
-dësoyi yiñompë pugëyi meyën nebin
-    #13 tomb · Dësoyi, father of Yiñom, lies here.
-    dësoyi  yiñom-pë   pugëyi  meyën  nebin
-    Dësoyi  Yiñom-GEN  father  here   lie
+lenbenënmë lulkëmginnënmëpë bunsihë meyën nebin
+    #13 tomb · Lenbenënmë, husband of Lulkëmginnënmë, lies here.
+    lenbenënmë  lulkëmginnënmë-pë   bunsihë  meyën  nebin
+    Lenbenënmë  Lulkëmginnënmë-GEN  husband  here   lie
 
-gomin winyën wutone sësuli senyel yëmo sinsewine powumlen'ohën muhëm solol solu sëselël
-    #14 letter · Gomin, queen, said to Wuto: Yëmo brought 58 cloths for the shrine.
-    gomin  winyën  wuto-ne   së-suli  senyel    yëmo  sinsewi-ne  powumlen-'o-hën  muhëm  solol  solu  së-selël
-    Gomin  queen   Wuto-DAT  PST-say  SENT.END  Yëmo  shrine-DAT  cloth-PL-ACC     four   dozen  ten   PST-bring
+gimñunyen lomgine winyënne sësuli senyel wëlkëgënyil sunne yësë'ohën neñu nimsin solol ñëlmël sëselël
+    #14 letter · Gimñunyen said to Lomgi, queen,: Wëlkëgënyil brought 191 sheep for the city.
+    gimñunyen  lomgi-ne   winyën-ne  së-suli  senyel    wëlkëgënyil  sun-ne    yësë-'o-hën   neñu   nimsin  solol  ñëlmël  së-selël
+    Gimñunyen  Lomgi-DAT  queen-DAT  PST-say  SENT.END  Wëlkëgënyil  city-DAT  sheep-PL-ACC  gross  three   dozen  eleven  PST-bring
 
-yëmo pëgi lemo powumlen'ohën muhëm sëhigë
-    #15 ledger · Yëmo, good priest, gave four cloths.
-    yëmo  pëgi    lemo  powumlen-'o-hën  muhëm  së-higë
-    Yëmo  priest  good  cloth-PL-ACC     four   PST-give
+wëlkëgënyil sunne sëgeyi'ohën wole sëhigë
+    #15 ledger · Wëlkëgënyil gave six bowls for the city.
+    wëlkëgënyil  sun-ne    sëgeyi-'o-hën  wole  së-higë
+    Wëlkëgënyil  city-DAT  bowl-PL-ACC    six   PST-give
 
 gihën yohoł
     #16 warning · Do not cross the river.
     gi-hën     yo-hoł
     river-ACC  NEG-cross
 
-yëmo nomuhenpë wël meyën nebin
-    #17 tomb · Yëmo, daughter of Nomuhen, lies here.
-    yëmo  nomuhen-pë   wël       meyën  nebin
-    Yëmo  Nomuhen-GEN  daughter  here   lie
+wëlkëgënyil ningënyilpë kinlosëm meyën nebin
+    #17 tomb · Wëlkëgënyil, brother of Ningënyil, lies here.
+    wëlkëgënyil  ningënyil-pë   kinlosëm  meyën  nebin
+    Wëlkëgënyil  Ningënyil-GEN  brother   here   lie
 
 pësëhën yosebom
     #18 warning · Do not burn the grain.
     pësë-hën   yo-sebom
     grain-ACC  NEG-burn
 
-domłipë mumtu
-    #19 label · The tablet of Domłi.
-    domłi-pë   mumtu
-    Domłi-GEN  tablet
+pëmkë'enëpë mumtu
+    #19 label · The tablet of Pëmkë'enë.
+    pëmkë'enë-pë   mumtu
+    Pëmkë'enë-GEN  tablet
 
-bebili nimenëmne mumtuhën mibë sëhinwu
-    #20 dedication · Bebili made this tablet for Nimenëm.
-    bebili  nimenëm-ne   mumtu-hën   mibë  së-hinwu
-    Bebili  Nimenëm-DAT  tablet-ACC  this  PST-make
+wëgemsogi mowu'usuhulne pulne temsë mumtuhën mibë sëhinwu
+    #20 dedication · Wëgemsogi made this tablet for Mowu'usuhul, great scribe.
+    wëgemsogi  mowu'usuhul-ne   pul-ne      temsë  mumtu-hën   mibë  së-hinwu
+    Wëgemsogi  Mowu'usuhul-DAT  scribe-DAT  great  tablet-ACC  this  PST-make
 
-wuto netipë wum meyën nebin
-    #21 tomb · Wuto, child of Neti, lies here.
-    wuto  neti-pë   wum    meyën  nebin
-    Wuto  Neti-GEN  child  here   lie
+lomgi koltëłpësonisinpë kinlosëm meyën nebin
+    #21 tomb · Lomgi, brother of Koltëłpësonisin, lies here.
+    lomgi  koltëłpësonisin-pë   kinlosëm  meyën  nebin
+    Lomgi  Koltëłpësonisin-GEN  brother   here   lie
 
 yëlihën yohoł
     #22 warning · Do not cross the wall.
     yëli-hën  yo-hoł
     wall-ACC  NEG-cross
 
-billuwe yiñomne sësuli senyel yëlihën yopogin
-    #23 letter · Billuwe said to Yiñom: Do not break the wall.
-    billuwe  yiñom-ne   së-suli  senyel    yëli-hën  yo-pogin
-    Billuwe  Yiñom-DAT  PST-say  SENT.END  wall-ACC  NEG-break
+lommowu mëyukëmtëyone sësuli senyel yëlihën yopogin
+    #23 letter · Lommowu said to Mëyukëmtëyo: Do not break the wall.
+    lommowu  mëyukëmtëyo-ne   së-suli  senyel    yëli-hën  yo-pogin
+    Lommowu  Mëyukëmtëyo-DAT  PST-say  SENT.END  wall-ACC  NEG-break
 
 kosin'o gumkë solol solu wëmil'o gumkë solol gumkë ñegu neñu nimsin solol lëhom
     #24 ledger · 94 loaves, 91 lamps, 185 in all.
     kosin-'o  gumkë  solol  solu  wëmil-'o  gumkë  solol  gumkë  ñegu   neñu   nimsin  solol  lëhom
     loaf-PL   seven  dozen  ten   lamp-PL   seven  dozen  seven  total  gross  three   dozen  five
 
-nimenëmpë yënñinło
-    #25 label · The knife of Nimenëm.
-    nimenëm-pë   yënñinło
-    Nimenëm-GEN  knife
+mowu'usuhulpë yënñinło
+    #25 label · The knife of Mowu'usuhul.
+    mowu'usuhul-pë   yënñinło
+    Mowu'usuhul-GEN  knife
 
-nimenëmpë mowuhën yopogin
-    #26 warning · Do not break the stone of Nimenëm.
-    nimenëm-pë   mowu-hën   yo-pogin
-    Nimenëm-GEN  stone-ACC  NEG-break
+mowu'usuhulpë mowuhën yopogin
+    #26 warning · Do not break the stone of Mowu'usuhul.
+    mowu'usuhul-pë   mowu-hën   yo-pogin
+    Mowu'usuhul-GEN  stone-ACC  NEG-break
 
-yëmopë kënlilni
-    #27 label · The seal of Yëmo.
-    yëmo-pë   kënlilni
-    Yëmo-GEN  seal
+wëlkëgënyilpë kënlilni
+    #27 label · The seal of Wëlkëgënyil.
+    wëlkëgënyil-pë   kënlilni
+    Wëlkëgënyil-GEN  seal
 
-nomuhenpë sigohën yopogin
-    #28 warning · Do not break the box of Nomuhen.
-    nomuhen-pë   sigo-hën  yo-pogin
-    Nomuhen-GEN  box-ACC   NEG-break
+lulkëmginnënmëpë sigohën yopogin
+    #28 warning · Do not break the box of Lulkëmginnënmë.
+    lulkëmginnënmë-pë   sigo-hën  yo-pogin
+    Lulkëmginnënmë-GEN  box-ACC   NEG-break
 
-nimenëm netipë mem meyën nebin
-    #29 tomb · Nimenëm, mother of Neti, lies here.
-    nimenëm  neti-pë   mem     meyën  nebin
-    Nimenëm  Neti-GEN  mother  here   lie
+mowu'usuhul koltëłpësonisinpë bunsihë meyën nebin
+    #29 tomb · Mowu'usuhul, husband of Koltëłpësonisin, lies here.
+    mowu'usuhul  koltëłpësonisin-pë   bunsihë  meyën  nebin
+    Mowu'usuhul  Koltëłpësonisin-GEN  husband  here   lie
 
-nulkimme hëdupë sidën meyën nebin
-    #30 tomb · Nulkimme, son of Hëdu, lies here.
-    nulkimme  hëdu-pë   sidën  meyën  nebin
-    Nulkimme  Hëdu-GEN  son    here   lie
+buntiyënye lulkëmginnënmëpë penmin meyën nebin
+    #30 tomb · Buntiyënye, wife of Lulkëmginnënmë, lies here.
+    buntiyënye  lulkëmginnënmë-pë   penmin  meyën  nebin
+    Buntiyënye  Lulkëmginnënmë-GEN  wife    here   lie
 
-yiñom gëhune wëlkë tobihën mibë sëhinwu
-    #31 dedication · Yiñom made this jar for the holy god.
-    yiñom  gëhu-ne  wëlkë  tobi-hën  mibë  së-hinwu
-    Yiñom  god-DAT  holy   jar-ACC   this  PST-make
+mëyukëmtëyo gëhune wëlkë tobihën mibë sëhinwu
+    #31 dedication · Mëyukëmtëyo made this jar for the holy god.
+    mëyukëmtëyo  gëhu-ne  wëlkë  tobi-hën  mibë  së-hinwu
+    Mëyukëmtëyo  god-DAT  holy   jar-ACC   this  PST-make
 
-nimenëm dësoyine tëholhën mibë sëhinwu
-    #32 dedication · Nimenëm made this statue for Dësoyi.
-    nimenëm  dësoyi-ne   tëhol-hën   mibë  së-hinwu
-    Nimenëm  Dësoyi-DAT  statue-ACC  this  PST-make
+mowu'usuhul lenbenënmëne kelogine tëholhën mibë sëhinwu
+    #32 dedication · Mowu'usuhul made this statue for Lenbenënmë, smith.
+    mowu'usuhul  lenbenënmë-ne   kelogi-ne  tëhol-hën   mibë  së-hinwu
+    Mowu'usuhul  Lenbenënmë-DAT  smith-DAT  statue-ACC  this  PST-make
 
-nulkimme hëdupë sidën pul meyën nebin
-    #33 tomb · Nulkimme, son of Hëdu, scribe, lies here.
-    nulkimme  hëdu-pë   sidën  pul     meyën  nebin
-    Nulkimme  Hëdu-GEN  son    scribe  here   lie
+buntiyënye lulkëmginnënmëpë penmin meyën nebin
+    #33 tomb · Buntiyënye, wife of Lulkëmginnënmë, lies here.
+    buntiyënye  lulkëmginnënmë-pë   penmin  meyën  nebin
+    Buntiyënye  Lulkëmginnënmë-GEN  wife    here   lie
 
-bebili mutinne wëmilhën mibë sëhinwu
-    #34 dedication · Bebili made this lamp for Mutin.
-    bebili  mutin-ne   wëmil-hën  mibë  së-hinwu
-    Bebili  Mutin-DAT  lamp-ACC   this  PST-make
+wëgemsogi soyun lemo ñowë'enëne wëmilhën mibë sëhinwu
+    #34 dedication · Wëgemsogi, good king, made this lamp for Ñowë'enë.
+    wëgemsogi  soyun  lemo  ñowë'enë-ne   wëmil-hën  mibë  së-hinwu
+    Wëgemsogi  king   good  Ñowë'enë-DAT  lamp-ACC   this  PST-make
 
 yëlihën hoł
     #35 warning · Cross the wall.
@@ -178,23 +178,23 @@ tobi'o solol milpi
     tobi-'o  solol  milpi
     jar-PL   dozen  nine
 
-sesomu nimenëmpë penmin meyën nebin
-    #37 tomb · Sesomu, wife of Nimenëm, lies here.
-    sesomu  nimenëm-pë   penmin  meyën  nebin
-    Sesomu  Nimenëm-GEN  wife    here   lie
+wëgubimowu puseyenpë hesi meyën nebin
+    #37 tomb · Wëgubimowu, sister of Puseyen, lies here.
+    wëgubimowu  puseyen-pë   hesi    meyën  nebin
+    Wëgubimowu  Puseyen-GEN  sister  here   lie
 
-billuwe milinlone mumtuhën mibë sëhinwu
-    #38 dedication · Billuwe made this tablet for Milinlo.
-    billuwe  milinlo-ne   mumtu-hën   mibë  së-hinwu
-    Billuwe  Milinlo-DAT  tablet-ACC  this  PST-make
+lommowu koltëłpësonisinne mumtuhën mibë sëhinwu
+    #38 dedication · Lommowu made this tablet for Koltëłpësonisin.
+    lommowu  koltëłpësonisin-ne   mumtu-hën   mibë  së-hinwu
+    Lommowu  Koltëłpësonisin-DAT  tablet-ACC  this  PST-make
 
-domłi soyun webëne yënñinłohën minni mibë sëhinwu
-    #39 dedication · Domłi, king, made this red knife for Webë.
-    domłi  soyun  webë-ne   yënñinło-hën  minni  mibë  së-hinwu
-    Domłi  king   Webë-DAT  knife-ACC     red    this  PST-make
+pëmkë'enë sobenninne yënñinłohën minni mibë sëhinwu
+    #39 dedication · Pëmkë'enë made this red knife for Sobennin.
+    pëmkë'enë  sobennin-ne   yënñinło-hën  minni  mibë  së-hinwu
+    Pëmkë'enë  Sobennin-DAT  knife-ACC     red    this  PST-make
 
-nulkimmepë tobi
-    #40 label · The jar of Nulkimme.
-    nulkimme-pë   tobi
-    Nulkimme-GEN  jar
+buntiyënyepë tobi
+    #40 label · The jar of Buntiyënye.
+    buntiyënye-pë   tobi
+    Buntiyënye-GEN  jar
 
