@@ -662,3 +662,7 @@
 **New content slots:** `life.sign`, `life.home`, `life.plant`, `life.seen`, `fish.no_water`, `fish.caught`, `fish.none`, `snare.set`, `snare.waiting`, `snare.caught`, `snare.empty`, `weather.mark`, `weather.coming`, `sky.eclipse`, `sky.moon`, `sky.figure`, `sky.planet`, `sky.comet`, `sky.meteors`, `wonder.noticed`. Changed: `sense.sound` (call, role, size; sources call and thunder), `forage.found` (kinds, plant), `creature.name` (form, colour, mark, size), `travel.blocked` (flood, snow, fallen trees), weather vars gain storm and snow. New items: nuts, fungi, greens, fish, game.
 
 **Next:** D07.
+
+## 2026-10-04 — S02 added (review)
+
+Review of D04–D06: targets met except those already reported (features visited, scholar). Sign impressions in `read closely` are still stroke lists ("a tail turned right, with a bar, right…"), against Jb's design; the cause is the impression model, not the wording. Added a small, contained steer, `docs/milestones/S02-sign-impressions.md`, to do after D07 and before D08.

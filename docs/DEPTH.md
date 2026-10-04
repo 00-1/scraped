@@ -199,6 +199,7 @@ Strange places are now counted as sites (each live spell, each natural wonder) r
 | D05 | [Things and mechanisms](milestones/D05-things-and-mechanisms.md) | A rich object model, keys and caches, old maps, multi-step machines, and non-linguistic puzzles: symbols, measures, calendars |
 | D06 | [A living world](milestones/D06-living-world.md) | Ecology with signs and rhythms, weather and seasons with consequences, the sky, natural phenomena |
 | D07 | [A language for long texts](milestones/D07-language.md) | Clause combining, subordinate and relative clauses, moods and aspects, derivation and compounds, a cultural lexicon of hundreds of words, meaningful place names |
+| S02 | [Sign impressions as whole shapes](milestones/S02-sign-impressions.md) | Small steer after D07: signs read as shapes (proportions, curves, symmetry, loops, a standout part, a resemblance), never as strokes |
 | D08 | [History and what the writing says](milestones/D08-history-and-texts.md) | Deeper history with people, institutions and projects; twenty-plus text genres; story arcs told across many sites, matching physical evidence |
 | D09 | [The magic, deepened](milestones/D09-magic.md) | A broad concept-to-power table, targeted and conditional spells, writing as the old civilisation's technology, a world saturated with old spells |
 | D10 | [The slow realisation](milestones/D10-slow-realisation.md) | Ordinary tools, accidental discovery, evidence to notice, rewarding play without writing, a non-writing way to leave |
