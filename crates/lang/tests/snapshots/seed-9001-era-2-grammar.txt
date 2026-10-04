@@ -15,7 +15,7 @@ SOUND CHANGES SINCE ERA 0
   era 2: final V > ∅ / VC_# in words of 2+ syllables
   era 2: ʔ > h
   era 2: o > ɔ
-  new words this era: king, scribe, temple, one, ten, sub.when, sub.because, conj.and, cmp.like, cliff, grave, bird, comet, dawn, fog, pray, hunt, fall, feast, love, sweet, weaver, silver, basket, soldier, battle, brave, story
+  new words this era: king, scribe, temple, one, ten, sub.when, sub.because, conj.and, cmp.like, cliff, grave, bird, comet, dawn, fog, pray, hunt, fall, feast, love, sweet, weaver, silver, basket, soldier, battle, brave, story, slightly, widely
 
 MORPHOLOGY
   PL   -hò          (noun)
@@ -1822,6 +1822,9 @@ LEXICON
     never       simhòn
     again       lënkën
     there       benën
+    greatly     kusën
+    slightly    dòt
+    widely      lut
   [numbers]
     one         beyben
     two         nënsul
@@ -1866,3 +1869,4 @@ LEXICON
     sent.end    senyel
     ord         këmsë
     time.at     selpin
+    sub.unless  wunnel

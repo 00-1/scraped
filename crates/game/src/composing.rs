@@ -108,7 +108,7 @@ impl Game {
                 None => Tok::Gap,
             })
             .collect();
-        let meaning = p.sentence(&toks);
+        let mut meaning = p.sentence(&toks);
         // Does it open with the potent formula?
         let open_syms: Vec<Tok> = p.tokens(&[r.plain_word("pot.open")]);
         let framed = toks
@@ -116,6 +116,16 @@ impl Game {
             .filter(|t| **t != Tok::Gap)
             .take(open_syms.len())
             .eq(open_syms.iter());
+        // A misfire (D09): potent writing the grammar can't place whole
+        // acts as what it can, without the one word that doesn't fit, so a
+        // misplaced condition is dropped and the spell acts always, a
+        // misplaced "greatly" leaves it plain. Writing with more than one
+        // such fault turns on its writer instead.
+        // DESIGN-Q: only a single dropped word is salvaged, the first that
+        // makes the rest a spell.
+        if meaning.is_none() && framed {
+            meaning = salvage(&p, &toks);
+        }
         (meaning, framed)
     }
 
@@ -540,4 +550,38 @@ fn domain(n: &NounPhrase) -> String {
         Head::Concept(c) => label(&concepts::get(c).domain),
         Head::Name(_) => "people".to_string(),
     }
+}
+
+/// The spell left when one word of potent writing is dropped, if any.
+fn salvage(p: &Parser, toks: &[Tok]) -> Option<Sentence> {
+    let mut words: Vec<Vec<Tok>> = vec![Vec::new()];
+    for t in toks {
+        if *t == Tok::Gap {
+            if !words.last().is_some_and(Vec::is_empty) {
+                words.push(Vec::new());
+            }
+        } else if let Some(w) = words.last_mut() {
+            w.push(t.clone());
+        }
+    }
+    words.retain(|w| !w.is_empty());
+    // The formula's opening and closing words stay.
+    for k in 1..words.len().saturating_sub(1) {
+        let mut rest: Vec<Tok> = Vec::new();
+        for (i, w) in words.iter().enumerate() {
+            if i == k {
+                continue;
+            }
+            if !rest.is_empty() {
+                rest.push(Tok::Gap);
+            }
+            rest.extend(w.iter().cloned());
+        }
+        if let Some(m) = p.sentence(&rest) {
+            if matches!(&m, Sentence::Clause(c) if c.mood == Mood::Potent) {
+                return Some(m);
+            }
+        }
+    }
+    None
 }

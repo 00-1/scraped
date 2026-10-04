@@ -76,3 +76,24 @@ fn json_corpus() {
     let json = serde_json::to_string_pretty(&corpus.to_json(true)).unwrap();
     check("seed-42-era-1-corpus.json", &json);
 }
+
+/// D09: each world's powers (concept, quality, direction), pinned.
+#[test]
+fn power_tables() {
+    use scraped_lang::powers::Powers;
+    for seed in SEEDS {
+        let p = Powers::new(seed);
+        let mut out = String::new();
+        for c in scraped_lang::concepts::all() {
+            if let Some(pw) = p.of(&c.id) {
+                out.push_str(&format!(
+                    "{:<20} {}{}\n",
+                    c.id,
+                    pw.quality.name(),
+                    if pw.sign > 0 { "+" } else { "-" }
+                ));
+            }
+        }
+        check(&format!("seed-{seed}-powers.txt"), &out);
+    }
+}

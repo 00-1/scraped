@@ -1,0 +1,292 @@
+# What writing can do (D09): the principles that give a concept its power.
+#
+# A potent clause changes something: its predicate says what changes, and
+# its target is the thing changed. A verb's power is what it does ("open":
+# openness up; "freeze": heat down). A noun's power is what it brings when a
+# spell gives it or takes it away ("let the house bring fire": heat up;
+# "let the river take the ice": heat up again). An animal's power draws that
+# animal; a plant's makes that plant grow.
+#
+# Each rule matches concepts by id, by tag or by field and offers powers,
+# most fitting first. Every rule a concept matches adds its offers, ids
+# before tags before fields. A world's culture picks one of a concept's
+# offers (`powers.rs`), so the same word may freeze in one world and still
+# water in another, but never anything its meaning doesn't suggest.
+#
+# Powers are a quality and a direction:
+#   openness  held open / held shut          heat      warm / cold
+#   stability sound / crumbling              light     bright / dark
+#   wetness   wet, water rising / dry        flow      flowing / still
+#   sound     loud / silent                  growth    growing / withering
+#   lure      animals drawn / driven off     calm      calmed, asleep / restless
+#   weight    heavy / light                  visibility revealed / hidden
+#   binding   bound, held fast / loosed      keeping   kept, unspoiled / spoiling
+#   rising    rising, against the fall / sinking
+#
+# `carrier` verbs take their power from their object: + gives it, - takes it.
+
+# --- verbs ---------------------------------------------------------------
+
+[[rule]]
+ids = ["open", "cross"]
+powers = ["openness+"]
+
+[[rule]]
+ids = ["close"]
+powers = ["openness-"]
+
+[[rule]]
+ids = ["enter"]
+powers = ["openness+", "lure+"]
+
+[[rule]]
+ids = ["burn"]
+powers = ["heat+"]
+
+[[rule]]
+ids = ["kindle"]
+powers = ["heat+", "light+"]
+
+[[rule]]
+ids = ["freeze"]
+powers = ["heat-", "flow-"]
+
+[[rule]]
+ids = ["shine"]
+powers = ["light+"]
+
+[[rule]]
+ids = ["flow"]
+powers = ["flow+", "wetness+"]
+
+[[rule]]
+ids = ["pour", "wash", "weep"]
+powers = ["wetness+"]
+
+[[rule]]
+ids = ["drink"]
+powers = ["wetness-"]
+
+[[rule]]
+ids = ["fill"]
+powers = ["wetness+", "keeping+"]
+
+[[rule]]
+ids = ["grow", "bless", "sow", "irrigate"]
+powers = ["growth+"]
+
+[[rule]]
+ids = ["die", "reap"]
+powers = ["growth-"]
+
+[[rule]]
+ids = ["curse"]
+powers = ["growth-", "stability-"]
+
+[[rule]]
+ids = ["fall", "weigh"]
+powers = ["weight+", "rising-"]
+
+[[rule]]
+ids = ["rise"]
+powers = ["rising+", "weight-"]
+
+[[rule]]
+ids = ["carry", "row"]
+powers = ["weight-", "flow+"]
+
+[[rule]]
+ids = ["break", "dig"]
+powers = ["stability-"]
+
+[[rule]]
+ids = ["build", "defend"]
+powers = ["stability+"]
+
+[[rule]]
+ids = ["hold", "guard"]
+powers = ["binding+", "visibility+"]
+
+[[rule]]
+ids = ["keep", "remember"]
+powers = ["keeping+", "binding+"]
+
+[[rule]]
+ids = ["cut", "throw"]
+powers = ["binding-"]
+
+[[rule]]
+ids = ["sleep", "lie", "tend"]
+powers = ["calm+"]
+
+[[rule]]
+ids = ["wake", "fight", "hunt", "fear"]
+powers = ["calm-"]
+
+[[rule]]
+ids = ["sing", "call"]
+powers = ["sound+", "lure+"]
+
+[[rule]]
+ids = ["see", "find", "know"]
+powers = ["visibility+"]
+
+[[rule]]
+ids = ["lose", "forget", "bury"]
+powers = ["visibility-"]
+
+[[rule]]
+ids = ["come", "return"]
+powers = ["lure+"]
+
+[[rule]]
+ids = ["go", "flee", "leave"]
+powers = ["lure-"]
+
+[[rule]]
+ids = ["bring", "give", "send"]
+carrier = "+"
+
+[[rule]]
+ids = ["take", "steal"]
+carrier = "-"
+
+# --- nouns by meaning ----------------------------------------------------
+
+[[rule]]
+ids = ["fire", "sun", "summer", "kiln", "incense", "forge"]
+powers = ["heat+", "light+"]
+
+[[rule]]
+ids = ["ice", "snow", "frost", "winter"]
+powers = ["heat-", "flow-"]
+
+[[rule]]
+ids = ["light", "star", "moon", "lightning", "rainbow", "dawn", "day", "morning", "planet", "comet", "gold"]
+powers = ["light+", "visibility+"]
+
+[[rule]]
+ids = ["darkness", "shadow", "night", "dusk", "evening", "eclipse"]
+powers = ["light-", "visibility-", "calm+"]
+
+[[rule]]
+ids = ["water", "rain", "spring", "lake", "marsh", "mud", "flood", "sea", "wave", "well", "milk", "wine", "oil"]
+powers = ["wetness+", "flow+"]
+
+[[rule]]
+ids = ["river", "current", "canal", "tide", "ford"]
+powers = ["flow+", "wetness+"]
+
+[[rule]]
+ids = ["desert", "drought", "sand", "dust"]
+powers = ["wetness-", "growth-"]
+
+[[rule]]
+ids = ["wind", "cloud", "smoke", "sky", "heaven", "sail", "feather"]
+powers = ["rising+", "flow+", "visibility-"]
+
+[[rule]]
+ids = ["stone", "mountain", "anvil", "iron", "earth", "weight", "brick", "pillar", "hill", "cliff"]
+powers = ["stability+", "weight+"]
+
+[[rule]]
+ids = ["wall", "fortress", "shield", "boundary"]
+powers = ["openness-", "stability+"]
+
+[[rule]]
+ids = ["door", "gate", "pass", "crossroads", "harbour", "bridge"]
+powers = ["openness+", "stability+"]
+
+[[rule]]
+ids = ["storm", "thunder", "war", "battle", "siege"]
+powers = ["sound+", "calm-", "stability-"]
+
+[[rule]]
+ids = ["song", "hymn", "word", "prayer", "festival", "feastday"]
+powers = ["sound+", "calm+"]
+
+[[rule]]
+ids = ["peace", "sanctuary", "innocence"]
+powers = ["calm+", "sound-"]
+
+[[rule]]
+ids = ["eye", "sign", "map", "omen", "lamp"]
+powers = ["visibility+", "light+"]
+
+[[rule]]
+ids = ["fog", "cave", "grave", "ghost", "underworld"]
+powers = ["visibility-", "light-"]
+
+[[rule]]
+ids = ["rope", "thread", "seal", "signet", "oath", "law", "decree", "treaty", "net", "anchor", "contract", "prison", "fold", "debt"]
+powers = ["binding+", "openness-"]
+
+[[rule]]
+ids = ["salt", "honey", "jar", "crock", "basket", "granary", "warehouse", "memory", "cheese", "box", "tomb"]
+powers = ["keeping+", "binding+"]
+
+[[rule]]
+ids = ["age", "ruin", "ash", "malediction"]
+powers = ["keeping-", "stability-", "growth-"]
+
+[[rule]]
+ids = ["field", "garden", "orchard", "vineyard", "farm", "pasture", "furrow", "harvest", "springtide", "blessing", "offering", "seed"]
+powers = ["growth+", "wetness+"]
+
+# --- nouns by kind: living things ----------------------------------------
+
+[[rule]]
+tags = ["animal", "bird", "fishkind", "insect"]
+powers = ["lure+"]
+
+[[rule]]
+tags = ["predator"]
+powers = ["calm-"]
+
+[[rule]]
+tags = ["grazer", "browser"]
+powers = ["calm+"]
+
+[[rule]]
+tags = ["bird"]
+powers = ["rising+"]
+
+[[rule]]
+tags = ["burrower"]
+powers = ["stability-"]
+
+[[rule]]
+tags = ["fungus"]
+powers = ["growth-", "keeping-"]
+
+[[rule]]
+tags = ["moss"]
+powers = ["keeping+", "wetness+"]
+
+[[rule]]
+tags = ["waterplant"]
+powers = ["wetness+", "growth+"]
+
+[[rule]]
+tags = ["plant", "tree", "shrub", "flowering", "grassy", "climber"]
+powers = ["growth+"]
+
+[[rule]]
+tags = ["tree"]
+powers = ["stability+"]
+
+[[rule]]
+tags = ["metal"]
+powers = ["weight+", "binding+"]
+
+[[rule]]
+tags = ["light"]
+powers = ["light+"]
+
+[[rule]]
+tags = ["cold"]
+powers = ["heat-"]
+
+[[rule]]
+tags = ["liquid"]
+powers = ["wetness+"]

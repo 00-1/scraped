@@ -77,6 +77,7 @@ fn clause(c: &Clause, name: &dyn Fn(usize) -> String) -> String {
                 Link::After => "after",
                 Link::SoThat => "so that",
                 Link::Although => "although",
+                Link::Unless => "unless",
             };
             format!("{link} {}", clause(&s.clause, name))
         })

@@ -15,7 +15,7 @@ use crate::fixtures::{Fixtures, MechKind, Spot};
 use crate::outdoors::{hash, outdoor_light, weather, Land, Pos, LOCAL};
 use crate::region::{season_offset, RegionState, Regions, CLIMATE, LIFE, STABILITY, WATER};
 use crate::rules::{ice_cm, Effect, Props, Rules};
-use crate::writing::{resolve, Claim, Class, Property};
+use crate::writing::{resolve, Claim, Class, Now, Property};
 
 /// A fire burning somewhere.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -65,8 +65,11 @@ pub struct Env<'a> {
     pub state: &'a SimState,
     /// Debug and tests: fixed weather and light outdoors.
     pub forced: Option<(&'static str, &'static str)>,
-    /// Claims of live writing acting now.
+    /// Claims of live writing (conditional ones act only while `when`
+    /// allows).
     pub claims: &'a [Claim],
+    /// What spell conditions can see now (D09).
+    pub when: Now,
     /// The regions and their state, when the regional simulation runs.
     pub regional: Option<(&'a Regions, &'a RegionState)>,
     /// The minute now, for what the weather has done (D06).
@@ -188,17 +191,44 @@ impl<'a> Env<'a> {
         let near: Vec<&Claim> = self
             .claims
             .iter()
-            .filter(|c| c.property == property && classes.contains(&c.class))
+            .filter(|c| c.property == property && classes.contains(&c.class) && c.acts(&self.when))
             .collect();
         resolve(&near, at)
     }
 
-    /// Whether writing holds a building's doors open (+1) or shut (-1).
+    /// Whether writing holds a building's doors open (+1) or shut (-1):
+    /// spells on its doors, or on who may pass.
     pub fn held(&self, structure: usize) -> Option<i32> {
         self.claimed(
             Property::Openness,
-            &[Class::Passage],
+            &[Class::Passage, Class::Person],
             self.land.structure_pos[structure],
+        )
+    }
+
+    /// What writing makes of a quality inside a building (D09): spells on
+    /// its rooms, walls, doors and things.
+    pub fn inside(&self, property: Property, structure: usize) -> Option<i32> {
+        self.claimed(
+            property,
+            &[Class::Room, Class::Structure, Class::Passage, Class::Thing],
+            self.land.structure_pos[structure],
+        )
+    }
+
+    /// What writing makes of a quality out of doors at a point (D09):
+    /// spells on the land, water, plants, beasts and air.
+    pub fn outside(&self, property: Property, at: Pos) -> Option<i32> {
+        self.claimed(
+            property,
+            &[
+                Class::Land,
+                Class::Water,
+                Class::Plant,
+                Class::Animal,
+                Class::Air,
+            ],
+            at,
         )
     }
 
@@ -216,7 +246,7 @@ impl<'a> Env<'a> {
     pub fn stability(&self, structure: usize) -> Option<i32> {
         self.claimed(
             Property::Stability,
-            &[Class::Structure],
+            &[Class::Structure, Class::Room],
             self.land.structure_pos[structure],
         )
     }
@@ -403,6 +433,10 @@ impl<'a> Env<'a> {
     /// Whether a wheel at a mechanism turns now.
     pub fn wheel_turns(&self, mechanism: usize) -> bool {
         let m = &self.fixtures.mechanisms[mechanism];
+        // A mill whose water writing keeps flowing turns with none (D09).
+        if self.outside(Property::Flow, m.pos).is_some_and(|f| f > 0) {
+            return true;
+        }
         let Some(s) = m.controls else { return false };
         let cell = self.fixtures.sluices[s].below[0];
         let p = Props {
@@ -422,6 +456,12 @@ impl<'a> Env<'a> {
                 let (cx, cy) = p.cell();
                 let weather = self.weather(p, minutes);
                 let sky = self.outdoor_light(minutes);
+                // Writing may light the land at night or darken it by day (D09).
+                let sky = match self.outside(Property::Light, p) {
+                    Some(l) if l > 0 && sky == "dark" => "dim",
+                    Some(l) if l < 0 && sky == "daylight" => "dim",
+                    _ => sky,
+                };
                 let light = if sky == "dark" && (fire || carried_light) {
                     "dim"
                 } else {
@@ -493,6 +533,12 @@ impl<'a> Env<'a> {
                 } else {
                     "dim"
                 };
+                // Writing may light a room at night or darken it by day (D09).
+                let base = match self.inside(Property::Light, structure) {
+                    Some(l) if l > 0 && base == "dark" => "dim",
+                    Some(l) if l < 0 => "dark",
+                    _ => base,
+                };
                 let light = if (fire && base != "daylight") || (carried_light && base == "dark") {
                     "dim"
                 } else {
@@ -502,8 +548,17 @@ impl<'a> Env<'a> {
                 let weather = self.weather(Pos::of_cell(cx, cy), minutes);
                 let wetness = if flood >= 50 {
                     "flooded"
-                } else if flood > 0 {
+                } else if flood > 0
+                    || self
+                        .inside(Property::Wetness, structure)
+                        .is_some_and(|w| w > 0)
+                {
                     "wet"
+                } else if self
+                    .inside(Property::Wetness, structure)
+                    .is_some_and(|w| w < 0)
+                {
+                    "dry"
                 } else if r.level < 0 || (matches!(weather, "rain" | "storm") && open >= 0.8) {
                     "damp"
                 } else {

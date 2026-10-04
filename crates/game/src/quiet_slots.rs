@@ -8,8 +8,8 @@ use scraped_content::{Context, SlotDef, Value, VarType};
 use crate::attention::{season_evidence_ids, AMOUNTS, REGION_EVIDENCE};
 use crate::site::ctx;
 use crate::slots::{
-    kinds, materials, AIRS, BIOMES, CONDITIONS, LIGHTS, NEEDS, PURPOSES, STRUCTURES, TEMPERATURES,
-    TERRAINS, TIMES, WETNESSES,
+    kinds, materials, AIRS, BIOMES, CLASSES, CONDITIONS, LIGHTS, NEEDS, PURPOSES, QUALITIES,
+    STRUCTURES, TEMPERATURES, TERRAINS, TIMES, WETNESSES,
 };
 use scraped_sim::outdoors::BEARINGS;
 
@@ -315,6 +315,32 @@ fn s_indoors(_: u64) -> Vec<Context> {
     vec![
         ctx(&[("indoors", Value::Bool(true))]),
         ctx(&[("indoors", Value::Bool(false))]),
+    ]
+}
+
+fn s_spell_cue(_: u64) -> Vec<Context> {
+    let c = |q: &str, up: bool, class: &str, thing: &str, with: &str| {
+        ctx(&[
+            ("quality", Value::from(q)),
+            ("rising", Value::Bool(up)),
+            ("class", Value::from(class)),
+            ("thing", Value::from(thing)),
+            ("strength", Value::Number(2)),
+            ("with", Value::from(with)),
+            ("with_rising", Value::Bool(false)),
+            (
+                "indoors",
+                Value::Bool(matches!(class, "room" | "thing" | "passage" | "structure")),
+            ),
+        ])
+    };
+    vec![
+        c("light", true, "room", "house", ""),
+        c("keeping", true, "thing", "jar", ""),
+        c("lure", false, "animal", "wolf", ""),
+        c("flow", true, "water", "river", "heat"),
+        c("visibility", false, "passage", "door", ""),
+        c("sound", false, "land", "road", ""),
     ]
 }
 
@@ -688,6 +714,17 @@ pub fn slots() -> Vec<SlotDef> {
             .var("indoors", VarType::Bool, "Inside a building.")
             .max_len(140)
             .sampler(s_uncanny),
+        SlotDef::new("spell.cue", "Something here is not as it should be, felt or seen: the evidence of old writing pushing one quality of a thing (a lamp-less room lit at night, a jar cold to the touch, birds that never land here, a door you can't see the frame of until you touch it, water running uphill). The strangeness of the place, never its cause: never mention writing, spells, words or magic, and never say what was asked for. Light, heat, doors and falling stone have their own slots.")
+            .var("quality", e(&QUALITIES), "What is pushed: light, wetness, flow, sound, growth, lure (animals drawn or kept off), calm (animals calm or restless), weight, visibility (hidden or revealed), binding (held fast or loosed), keeping (kept fresh, or spoiling), rising (rising against the fall, or sinking).")
+            .var("rising", VarType::Bool, "Brighter, wetter, flowing, louder, growing, drawing animals, calmer, heavier, revealed, held fast, kept, rising (true) or the reverse.")
+            .var("class", e(&CLASSES), "What it acts on: doors, rooms, walls, things, the land, water, plants, animals, the air.")
+            .var("thing", VarType::Text, "The kind of thing affected, in plain English: 'jar', 'door', 'river', 'heron', 'house'.")
+            .var("strength", VarType::Number, "How strongly: 1 faintly, 2 plainly, 3 overwhelmingly.")
+            .var("with", e_or_empty(&QUALITIES), "Another quality pushed on the same kind of thing here, or empty: the two together make one odd sight (cold and flowing water: a frozen fall).")
+            .var("with_rising", VarType::Bool, "Which way the other quality goes.")
+            .var("indoors", VarType::Bool, "Inside a building.")
+            .max_len(160)
+            .sampler(s_spell_cue),
         // ---------- evidence instead of statements ----------
         SlotDef::new("evidence.season", "One sign of the season in this land, shown and never named ('Blossom whitens the thorn.'). Never say the season's name: the player works it out.")
             .var("evidence", e(&ev), "The sign: blossom, meltwater, long days, falling leaves, frost, snow cover…")

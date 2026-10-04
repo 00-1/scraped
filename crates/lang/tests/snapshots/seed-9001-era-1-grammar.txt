@@ -1819,6 +1819,9 @@ LEXICON
     never       sim'on
     again       lënkën
     there       benën
+    greatly     kusën
+    slightly    sugi
+    widely      bilen
   [numbers]
     one         lësul
     two         nënsul
@@ -1863,3 +1866,4 @@ LEXICON
     sent.end    senyel
     ord         këmsë
     time.at     selpin
+    sub.unless  wunnel

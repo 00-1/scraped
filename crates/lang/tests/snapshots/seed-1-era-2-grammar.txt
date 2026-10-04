@@ -1838,6 +1838,9 @@ LEXICON
     never       tohuli
     again       sisonu
     there       timumo
+    greatly     chomili
+    slightly    yunoŋo
+    widely      kofisu
   [numbers]
     one         kichi
     two         nimi
@@ -1877,3 +1880,4 @@ LEXICON
     sent.end    muŋi
     ord         busifi
     time.at     hoþo
+    sub.unless  nununi

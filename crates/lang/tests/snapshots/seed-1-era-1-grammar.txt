@@ -1833,6 +1833,9 @@ LEXICON
     never       tahuli
     again       sisanu
     there       timuma
+    greatly     chamili
+    slightly    yunaŋa
+    widely      kafisu
   [numbers]
     one         kichi
     two         nimi
@@ -1872,3 +1875,4 @@ LEXICON
     sent.end    muŋi
     ord         busifi
     time.at     haþa
+    sub.unless  nununi

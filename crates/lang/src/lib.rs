@@ -27,6 +27,7 @@ pub mod names;
 pub mod numerals;
 pub mod parse;
 pub mod phonology;
+pub mod powers;
 pub mod render;
 pub mod rng;
 pub mod sample;

@@ -1,17 +1,20 @@
-# What potent writing does: the concept-to-property table.
+# What potent writing acts on (D09): the classes of things a spell's target
+# can be, and which qualities each class can take.
 #
-# A potent inscription is a claim: a verb, a subject, and whether it is
-# denied ("let the gate open", "let the house not burn"). Once scraped, the
-# world tries to make the claim true near the surface it was written on.
+# A potent inscription is a claim: a change (from the power of its verb, or
+# of what its verb gives or takes away; see crates/lang/data/powers.toml)
+# made to a target ("let the gate open", "let the house not burn", "let the
+# granary keep the grain"). Once scraped, the world makes the claim true
+# near the surface it was written on, if the target's class can take that
+# quality; otherwise the claim is vague and does nothing.
 #
-# `subject` says what class of thing a concept names; `effect` says what a
-# verb does to each class when the claim is positive (a denied claim does
-# the reverse). Give a new concept a power by adding a row; no code needed.
+# `subject` names a concept's class outright; other concepts take a class
+# from their tags (`tag`). `class` lists the qualities each class takes.
 #
-# Classes:   passage (doors, gates, arches), room (indoors), land (open
-#            ground and the water on it), structure (stone and walls).
-# Properties: openness (+1 held open, -1 held shut), heat (degrees added),
-#            stability (+1 sound, -1 crumbling).
+# Classes:   passage (doors, gates, lids), room (indoors), land (open
+#            ground), structure (stone and walls), water (rivers, wells,
+#            springs), plant, animal, thing (what can be carried), air
+#            (sky and weather), person (who may pass).
 
 [[subject]]
 id = "gate"
@@ -64,52 +67,139 @@ class = "structure"
 
 [[subject]]
 id = "seal"
-class = "structure"
+class = "thing"
 
 [[subject]]
 id = "bowl"
-class = "structure"
+class = "thing"
 
 [[subject]]
 id = "jar"
-class = "structure"
+class = "thing"
 
 [[subject]]
 id = "tablet"
-class = "structure"
+class = "thing"
 
-[[effect]]
-verb = "open"
-class = "passage"
-property = "openness"
-amount = 1
+[[subject]]
+id = "river"
+class = "water"
 
-[[effect]]
-verb = "burn"
+[[subject]]
+id = "sea"
+class = "water"
+
+[[subject]]
+id = "well"
+class = "water"
+
+[[subject]]
+id = "water"
+class = "water"
+
+[[subject]]
+id = "mountain"
 class = "land"
-property = "heat"
-amount = 12
 
-[[effect]]
-verb = "burn"
+[[subject]]
+id = "road"
+class = "land"
+
+[[subject]]
+id = "sun"
+class = "air"
+
+[[subject]]
+id = "moon"
+class = "air"
+
+[[subject]]
+id = "rain"
+class = "air"
+
+[[subject]]
+id = "fire"
+class = "thing"
+
+[[subject]]
+id = "city"
+class = "land"
+
+[[tag]]
+tags = ["openable"]
+class = "passage"
+
+[[tag]]
+tags = ["building", "enterable", "home"]
 class = "room"
-property = "heat"
-amount = 12
 
-[[effect]]
-verb = "burn"
+[[tag]]
+tags = ["water", "liquid"]
+class = "water"
+
+[[tag]]
+tags = ["plant", "tree", "shrub", "flowering", "grassy", "waterplant", "moss", "fungus", "climber", "plantpart"]
+class = "plant"
+
+[[tag]]
+tags = ["animal", "bird", "fishkind", "insect"]
+class = "animal"
+
+[[tag]]
+tags = ["heaven", "air", "light", "cold"]
+class = "air"
+
+[[tag]]
+tags = ["landform", "ground", "settlement", "way", "edge", "high", "low", "crossing", "hollow"]
+class = "land"
+
+[[tag]]
+tags = ["thing", "vessel", "food", "tool", "material", "made", "good", "weapon", "metal", "cloth", "writing_thing", "money"]
+class = "thing"
+
+[[tag]]
+tags = ["person", "title", "kin", "group", "being"]
+class = "person"
+
+# The qualities each class takes. Heat is in degrees (a plain claim adds
+# 12); every other quality is a direction and a strength (1 to 3).
+
+[[class]]
 class = "passage"
-property = "heat"
-amount = 12
+qualities = ["openness", "heat", "stability", "binding", "visibility", "sound", "weight"]
 
-[[effect]]
-verb = "break"
+[[class]]
+class = "room"
+qualities = ["heat", "light", "wetness", "sound", "keeping", "stability", "calm", "visibility", "lure"]
+
+[[class]]
 class = "structure"
-property = "stability"
-amount = -1
+qualities = ["stability", "heat", "weight", "visibility", "wetness", "light"]
 
-[[effect]]
-verb = "break"
-class = "passage"
-property = "openness"
-amount = 1
+[[class]]
+class = "land"
+qualities = ["heat", "light", "wetness", "growth", "lure", "calm", "sound", "stability", "visibility", "rising"]
+
+[[class]]
+class = "water"
+qualities = ["flow", "wetness", "heat", "rising", "light", "sound", "calm"]
+
+[[class]]
+class = "plant"
+qualities = ["growth", "keeping", "wetness", "heat", "light", "lure"]
+
+[[class]]
+class = "animal"
+qualities = ["lure", "calm", "sound", "visibility", "rising", "binding", "weight"]
+
+[[class]]
+class = "thing"
+qualities = ["weight", "keeping", "heat", "light", "binding", "visibility", "openness", "wetness", "rising", "sound", "stability"]
+
+[[class]]
+class = "air"
+qualities = ["heat", "light", "wetness", "flow", "sound", "rising", "visibility", "calm"]
+
+[[class]]
+class = "person"
+qualities = ["openness"]

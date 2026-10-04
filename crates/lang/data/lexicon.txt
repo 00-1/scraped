@@ -683,3 +683,8 @@ wrack|noun|flora|plant,waterplant|kind=plant pl=wrack
 kelp|noun|flora|plant,waterplant|kind=plant pl=kelp
 eelgrass|noun|flora|plant,waterplant|kind=plant pl=eelgrass
 sea_lettuce|noun|flora|plant,waterplant|kind=plant pl=sea_lettuce
+# --- spells (D09): how much, how far, and an exception ----------------------
+greatly|adv|quality||
+slightly|adv|quality||
+widely|adv|quality||
+sub.unless|particle|grammar||

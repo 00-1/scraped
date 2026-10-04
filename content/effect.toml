@@ -9,3 +9,8 @@ example = true
 slot = "effect.held"
 text = "{cap thing} will not move."
 example = true
+
+[[variant]]
+slot = "effect.fast"
+text = "[if how == 'heavy']{cap thing} will not lift, as if rooted.[else]{cap thing} will not come away from where it lies.[end]"
+example = true

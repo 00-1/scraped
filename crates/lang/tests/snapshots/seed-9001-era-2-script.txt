@@ -9,29 +9,29 @@ SCRIPT — seed 9001 era 2: alphabet written right to left
   #5   g                g        hook up at the top; dot in the middle; wedge right on the left
   #6   m                m        hook up in the middle; wedge up in the middle; tail left in the middle; cross at the bottom
   #7   n                n        hook up in the middle; cross at the bottom
-  #8   ɲ                ñ        arc left in the middle; cross at the top
-  #9   s                s        dot at the bottom; cross in the middle
-  #10  h                h        bar upright in the middle; wedge right on the right; zigzag up in the middle
-  #11  l                l        tail up at the bottom
+  #8   ɲ                ñ        arc down at the top; arc left in the middle; cross at the top
+  #9   s                s        dot at the bottom
+  #10  h                h        bar upright in the middle; wedge right on the right
+  #11  l                l        ring in the middle; tail up at the bottom; cross on the right
   #12  ɬ                ł        bar upright on the right; dot on the left
   #13  j                y        bar level on the left; cross on the right
-  #14  w                w        dot on the left
-  #15  e                e        tail right on the right
-  #16  i                i        tail left at the bottom
-  #17  u                u        dot at the bottom; wedge down at the top
-  #18  ə                ë        bar level on the right
-  #19  ɔ                ò        cross on the right; zigzag right at the top
+  #14  w                w        hook right at the top; zigzag right on the right
+  #15  e                e        hook left on the left
+  #16  i                i        ring at the top; tail left at the bottom
+  #17  u                u        hook right on the right; dot at the bottom; wedge down at the top
+  #18  ə                ë        wedge left at the top
+  #19  ɔ                ò        bar upright in the middle; cross on the left
   #20  numeral 0        0        arc right at the top
   #21  numeral 1        1        zigzag right on the right
   #22  numeral 2        2        cross at the top; cross at the bottom
   #23  numeral 3        3        tail down at the top; cross in the middle
   #24  numeral 4        4        dot on the left; tail right on the right
   #25  numeral 5        5        ring on the left
-  #26  numeral 6        6        ring in the middle; tail down on the right
+  #26  numeral 6        6        ring in the middle; tail down on the right; zigzag right in the middle
   #27  numeral 7        7        zigzag right at the bottom
   #28  numeral 8        8        ring at the top
   #29  numeral 9        9        dot in the middle
   #30  numeral 10       10       wedge up on the left
-  #31  numeral 11       11       dot at the top; arc up in the middle; cross at the top
-  #32  (word divider)   ·        wedge up at the top
+  #31  numeral 11       11       dot at the top; arc up in the middle
+  #32  (word divider)   ·        wedge up at the top; wedge up on the left
   #33  (name marker)    °        dot on the right

@@ -1291,6 +1291,50 @@ mod tests {
         }
     }
 
+    /// Spells with every D09 construction (a target with a determiner,
+    /// what is given, degree, extent, denial, a condition and an
+    /// exception) parse back to themselves.
+    #[test]
+    fn spells_round_trip() {
+        use crate::meaning::{Clause, Link, NounPhrase as N};
+        let spells = [
+            Clause::potent("open", N::concept("door").det("this"))
+                .with_adverb("greatly")
+                .with_clause(
+                    Link::Unless,
+                    Clause::plain("carry", N::concept("priest")).with_object(N::concept("seal")),
+                ),
+            Clause::potent("bring", N::concept("house"))
+                .with_object(N::concept("fire"))
+                .with_adverb("here")
+                .with_clause(Link::When, Clause::plain("come", N::concept("night"))),
+            Clause::potent("flow", N::concept("river"))
+                .with_adverb("widely")
+                .denied()
+                .with_clause(Link::Until, Clause::plain("rise", N::concept("sun"))),
+            Clause::potent("enter", N::concept("man").det("no")).with_adverb("slightly"),
+        ];
+        for seed in [1u64, 42, 9001] {
+            for lang in Language::generate(seed).eras() {
+                let corpus = Corpus::generate(&lang, 4);
+                let r = corpus.renderer();
+                let p = Parser::new(&r, Mode::Phonemes);
+                for c in &spells {
+                    let m = Sentence::Clause(c.clone());
+                    let words = r.render(&m).words;
+                    let back = p.sentence(&p.tokens(&words));
+                    assert_eq!(
+                        back.as_ref(),
+                        Some(&m),
+                        "seed {seed} era {}: {}",
+                        lang.era,
+                        crate::english::translate(&m, &|n| r.name(n))
+                    );
+                }
+            }
+        }
+    }
+
     /// Every sentence of the corpus, in every era of three seeds, parses
     /// back to its meaning.
     #[test]

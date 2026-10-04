@@ -1912,6 +1912,9 @@ LEXICON
     never       noko
     again       poka
     there       riya
+    greatly     kehï
+    slightly    hïmu
+    widely      ka'o
   [numbers]
     one         kipa
     two         loto
@@ -1955,3 +1958,4 @@ LEXICON
     sent.end    tufi
     ord         yungi
     time.at     xote
+    sub.unless  rïmi

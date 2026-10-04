@@ -799,6 +799,7 @@ impl Game {
                 ctx(&[("indoors", Value::Bool(indoors))]),
             ));
         }
+        self.spell_cues(out);
         let uncanny = self.uncanny();
         if uncanny != "none" {
             out.push(Fact::new(
@@ -1055,7 +1056,7 @@ fn order(slot: &str) -> u8 {
         "land.ground" | "land.edge" | "ground.wet" => 4,
         "land.landmark" | "land.unseen" | "land.region" => 5,
         "sky.weather" => 6,
-        "air.felt" | "air.moving" | "air.uncanny" | "fire.near" => 7,
+        "air.felt" | "air.moving" | "air.uncanny" | "fire.near" | "spell.cue" => 7,
         "evidence.season" | "evidence.region" => 8,
         "creature.seen" => 9,
         _ => 10,

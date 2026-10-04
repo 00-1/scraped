@@ -403,6 +403,11 @@ pub fn opposite(id: &str) -> Option<&'static Concept> {
         .and_then(|o| all().iter().find(|x| x.id == o))
 }
 
+/// Looks up a concept by id, if there is one.
+pub fn find(id: &str) -> Option<&'static Concept> {
+    index().get(id).map(|&i| &all()[i])
+}
+
 /// Looks up a concept by id. Panics on unknown ids: they are programmer errors.
 pub fn get(id: &str) -> &'static Concept {
     index()

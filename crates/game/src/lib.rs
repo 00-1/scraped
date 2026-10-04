@@ -1636,6 +1636,12 @@ impl Game {
                     let t = self.say("say.take_fixed", named);
                     return self.output(vec![t], None);
                 }
+                if let Some(how) = self.held_by_writing(i) {
+                    let mut c = named.clone();
+                    c.insert("how".into(), Value::from(how));
+                    let t = self.say("effect.fast", c);
+                    return self.output(vec![t], None);
+                }
                 if self.overloaded_by(i) {
                     return self.too_heavy_thing(i);
                 }

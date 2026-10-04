@@ -1811,6 +1811,9 @@ LEXICON
     never       sim'on
     again       lankan
     there       benan
+    greatly     kuxan
+    slightly    xugi
+    widely      bilen
   [numbers]
     one         lasul
     two         nansul
@@ -1855,3 +1858,4 @@ LEXICON
     sent.end    senyel
     ord         kamsa
     time.at     selpin
+    sub.unless  wunnel

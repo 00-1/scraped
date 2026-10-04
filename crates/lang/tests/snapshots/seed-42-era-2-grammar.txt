@@ -1919,6 +1919,9 @@ LEXICON
     never       nuk
     again       puk
     there       riy
+    greatly     cheh
+    slightly    hïm
+    widely      xulek
   [numbers]
     one         chip
     two         lut
@@ -1962,3 +1965,4 @@ LEXICON
     sent.end    tuf
     ord         yung
     time.at     xut
+    sub.unless  rïm

@@ -1824,6 +1824,9 @@ LEXICON
     never       tahuli
     again       xisanu
     there       timuma
+    greatly     chamili
+    slightly    yunaŋa
+    widely      kapisu
   [numbers]
     one         kichi
     two         nimi
@@ -1863,3 +1866,4 @@ LEXICON
     sent.end    muŋi
     ord         buxipi
     time.at     hata
+    sub.unless  nununi

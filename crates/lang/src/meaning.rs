@@ -105,6 +105,12 @@ impl NounPhrase {
     }
 
     /// Sets a counted quantity; plural follows from it.
+    /// With a determiner ("this", "all", "no"…).
+    pub fn det(mut self, d: &str) -> Self {
+        self.determiner = Some(d.to_string());
+        self
+    }
+
     pub fn counted(mut self, n: u16) -> Self {
         self.quantity = Some(n);
         self.number = if n > 1 {
@@ -195,10 +201,12 @@ pub enum Link {
     After,
     SoThat,
     Although,
+    /// An exception (D09): "let no one pass unless the priest comes".
+    Unless,
 }
 
 impl Link {
-    pub const ALL: [Link; 8] = [
+    pub const ALL: [Link; 9] = [
         Link::When,
         Link::Because,
         Link::If,
@@ -207,6 +215,7 @@ impl Link {
         Link::After,
         Link::SoThat,
         Link::Although,
+        Link::Unless,
     ];
 
     /// The function word's concept id.
@@ -220,6 +229,7 @@ impl Link {
             Link::After => "sub.after",
             Link::SoThat => "sub.sothat",
             Link::Although => "sub.although",
+            Link::Unless => "sub.unless",
         }
     }
 }
@@ -285,6 +295,55 @@ pub struct Clause {
 impl Clause {
     pub fn arg(&self, role: Role) -> Option<&NounPhrase> {
         self.args.iter().find(|a| a.role == role).map(|a| &a.np)
+    }
+
+    /// A plain present clause: `subject predicate`.
+    pub fn plain(predicate: &str, subject: NounPhrase) -> Self {
+        Clause {
+            predicate: predicate.to_string(),
+            mood: Mood::Declarative,
+            tense: Tense::NonPast,
+            polarity: Polarity::Positive,
+            args: vec![Argument {
+                role: Role::Subject,
+                np: subject,
+            }],
+            adverbs: Vec::new(),
+            aspect: Aspect::default(),
+            subordinate: Vec::new(),
+            complement: None,
+        }
+    }
+
+    /// A spell (D09): "let `subject` `predicate`".
+    pub fn potent(predicate: &str, subject: NounPhrase) -> Self {
+        Clause {
+            mood: Mood::Potent,
+            ..Clause::plain(predicate, subject)
+        }
+    }
+
+    pub fn with_object(mut self, object: NounPhrase) -> Self {
+        self.args.push(Argument {
+            role: Role::Object,
+            np: object,
+        });
+        self
+    }
+
+    pub fn with_adverb(mut self, adverb: &str) -> Self {
+        self.adverbs.push(adverb.to_string());
+        self
+    }
+
+    pub fn denied(mut self) -> Self {
+        self.polarity = Polarity::Negative;
+        self
+    }
+
+    pub fn with_clause(mut self, link: Link, clause: Clause) -> Self {
+        self.subordinate.push(Subordinate { link, clause });
+        self
     }
 }
 

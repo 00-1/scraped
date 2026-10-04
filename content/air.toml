@@ -14,3 +14,8 @@ example = true
 slot = "air.uncanny"
 text = "[if kind == 'frost']Frost lies where it should not.[else]The air is strangely warm.[end]"
 example = true
+
+[[variant]]
+slot = "spell.cue"
+text = "[if quality == 'light']A light lies on the {thing} that nothing casts.[else]Something about the {thing} is not as it should be.[end]"
+example = true

@@ -588,6 +588,45 @@ fn s_minutes(_: u64) -> Vec<Context> {
     vec![ctx(&[("minutes", Value::Number(30))])]
 }
 
+/// The qualities writing pushes and the classes it acts on (D09), as slot
+/// enum values.
+pub(crate) const QUALITIES: [&str; 15] = [
+    "openness",
+    "heat",
+    "stability",
+    "light",
+    "wetness",
+    "flow",
+    "sound",
+    "growth",
+    "lure",
+    "calm",
+    "weight",
+    "visibility",
+    "binding",
+    "keeping",
+    "rising",
+];
+pub(crate) const CLASSES: [&str; 10] = [
+    "passage",
+    "room",
+    "land",
+    "structure",
+    "water",
+    "plant",
+    "animal",
+    "thing",
+    "air",
+    "person",
+];
+
+fn s_fast(_: u64) -> Vec<Context> {
+    ["bound", "heavy"]
+        .iter()
+        .map(|h| ctx(&[("thing", Value::from("the jar")), ("how", Value::from(*h))]))
+        .collect()
+}
+
 fn s_none(_: u64) -> Vec<Context> {
     vec![Context::new()]
 }
@@ -1816,12 +1855,17 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("scrape.no_tool", "The player tries to scrape writing with nothing to scrape it with.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("scrape.bare", "Nothing fresh to scrape: the surface's writing is already scraped.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("effect.change", "The moment a claim takes effect (or stops) where the player is: a physical change only, never what the writing said. Heat rising or falling; doors swinging open or slamming shut; stone groaning loose or settling firm; frost or warmth spreading over the land.")
-            .var("property", e(&["heat", "openness", "stability"]), "What changes.")
-            .var("rising", VarType::Bool, "Warmer, more open, sounder (true) or the reverse.")
-            .var("class", e(&["passage", "room", "land", "structure"]), "What it acts on: doors and gates, rooms, the open land, stone.")
+            .var("property", e(&QUALITIES), "What changes (D09: any of the fifteen qualities writing can push: heat, openness, stability, light, wetness, flow, sound, growth, lure (animals drawn or driven off), calm (animals calmed or restless), weight, visibility (hidden or revealed), binding (held fast or loosed), keeping (kept fresh or spoiling), rising (rising against the fall, or sinking)).")
+            .var("rising", VarType::Bool, "Warmer, more open, sounder, brighter, wetter, flowing, louder, growing, drawing animals, calmer, heavier, revealed, bound, kept, rising (true) or the reverse.")
+            .var("class", e(&CLASSES), "What it acts on: doors and gates, rooms, the open land, stone, water, plants, animals, things, the air, people.")
             .var("indoors", VarType::Bool, "Whether the player is indoors.")
             .max_len(300)
             .sampler(s_effect),
+        SlotDef::new("effect.fast", "A thing won't come up when the player tries to take it, though nothing holds it (writing's doing; never say so): it is held fast where it lies, or far heavier than it should be.")
+            .var("thing", VarType::Text, "The thing, as named in the room.")
+            .var("how", e(&["bound", "heavy"]), "Held fast to its place, or too heavy to lift.")
+            .max_len(200)
+            .sampler(s_fast),
         SlotDef::new("effect.held", "A door won't move, though nothing bars it: it is held (writing's doing; never say so). The cue is that there is nothing to see: no bar, no rubble, no lock, and still it won't move.").var("thing", VarType::Text, "The door, from place.exit.").sampler(s_named),
         SlotDef::new("tool.found", "The player first picks up one of the three writing tools: the scraper, the stylus or the lens. A moment of discovery; don't explain what it does.")
             .var("kind", e(&["scraper", "stylus", "lens", "fine_scraper", "old_scraper", "first_scraper", "first_lens"]), "Which tool: the scraper, the stylus, the lens, one of the stronger scrapers (fine, old, and the first, strongest of all), or the first lens, which reads the faintest layers.")

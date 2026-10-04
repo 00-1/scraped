@@ -9,6 +9,7 @@ use scraped_sim::fixtures::{MechKind, Spot};
 use scraped_sim::items::{self, CARRY};
 use scraped_sim::outdoors::{bearing, distance_band, hash, Pos, BEARINGS, EYE};
 use scraped_sim::rules::{Effect, Props, Rules, ICE_BEARS};
+use scraped_sim::writing::Now;
 use scraped_world::structures::{Passage, PassageState};
 use scraped_world::terrain::Biome;
 use scraped_world::water::RIVER_FLOW;
@@ -32,9 +33,52 @@ impl Game {
             state: &self.state.sim,
             forced: self.forced,
             claims: &self.claims,
+            when: self.spell_now(),
             regional: Some((&self.site.regions, &self.state.regions)),
             now: self.state.minutes,
             recent: std::cell::OnceCell::new(),
+        }
+    }
+
+    /// What spell conditions see now (D09): night, rain, the season, the
+    /// building the player is in and what they carry. Rain is only worked
+    /// out when a live spell waits on it.
+    pub(crate) fn spell_now(&self) -> Now {
+        let m = self.state.minutes;
+        let conditional = self.claims.iter().filter_map(|c| c.condition.as_ref());
+        let rain = conditional
+            .clone()
+            .any(|c| c.trigger == scraped_sim::writing::Trigger::Rain);
+        let season = scraped_sim::region::season(m);
+        Now {
+            night: match self.forced {
+                Some((_, l)) => l == "dark",
+                None => scraped_sim::outdoors::outdoor_light(m) == "dark",
+            },
+            raining: rain
+                && matches!(
+                    scraped_sim::outdoors::weather(&self.site.world, self.state.pos, m),
+                    "rain" | "storm" | "snow"
+                ),
+            winter: season == 3,
+            summer: season == 1,
+            inside: match self.state.place {
+                Place::Room { structure, .. } => Some(structure),
+                Place::Outside => None,
+            },
+            carrying: if conditional
+                .clone()
+                .any(|c| matches!(c.trigger, scraped_sim::writing::Trigger::Carries(_)))
+            {
+                self.state
+                    .carried
+                    .iter()
+                    .filter(|t| !self.state.gone.contains(t))
+                    .map(|&t| self.thing(t).kind.to_string())
+                    .collect()
+            } else {
+                Vec::new()
+            },
         }
     }
 

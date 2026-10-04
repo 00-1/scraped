@@ -154,7 +154,10 @@ fn scraping_the_pivot_changes_the_world_and_loses_nothing() {
         match verb.as_str() {
             "open" => {
                 assert_eq!(held_before, None);
-                assert_eq!(g.env().held(structure), Some(1), "seed {seed}");
+                assert!(
+                    g.env().held(structure).is_some_and(|h| h > 0),
+                    "seed {seed}"
+                );
                 // Every unbarred door in the building now stands open.
                 let open = g
                     .site
@@ -166,10 +169,12 @@ fn scraping_the_pivot_changes_the_world_and_loses_nothing() {
                     .count();
                 assert!(open > 0);
             }
-            _ => assert_eq!(
-                g.env().room_heat(structure),
-                heat_before + 12,
-                "seed {seed}"
+            // The newest writing on the nearest surface wins: the room is
+            // as warm as the pivot says, whatever warmed it before.
+            _ => assert!(
+                g.env().room_heat(structure) == 12 && heat_before != 12,
+                "seed {seed}: {heat_before} → {}",
+                g.env().room_heat(structure)
             ),
         }
         // Scraping again finds nothing fresh; the stack is unchanged.
@@ -305,4 +310,50 @@ fn show_the_pivot() {
     println!("--- scrape\n{}", g.scrape(thing).text);
     println!("--- look\n{}", g.step("look").text);
     println!("--- read\n{}", g.act("read", Target::Thing(thing)).text);
+}
+
+/// D09: every live spell that isn't waiting on a condition can be
+/// perceived where it acts, through some cue (and none names it: the
+/// cue slots carry qualities and things, never words or meanings).
+#[test]
+fn every_live_spell_is_perceptible_where_it_acts() {
+    for seed in [1u64, 42] {
+        let mut g = Game::new(seed, pack());
+        g.forced = Some(("clear", "daylight"));
+        g.start();
+        let claims: Vec<_> = g
+            .claims
+            .iter()
+            .filter(|c| c.condition.is_none() && c.class != Class::Person)
+            .cloned()
+            .collect();
+        assert!(claims.len() > 100, "seed {seed}: {}", claims.len());
+        let mut unseen = Vec::new();
+        for c in &claims {
+            if c.class.indoors() {
+                g.state.place = Place::Room {
+                    structure: c.structure,
+                    room: 0,
+                };
+            } else {
+                g.state.place = Place::Outside;
+                g.state.pos = c.pos;
+            }
+            let mut facts = Vec::new();
+            g.felt_facts(&mut facts);
+            let seen = facts
+                .iter()
+                .any(|f| matches!(f.slot, "spell.cue" | "air.uncanny" | "danger.unstable"))
+                || (c.property == Property::Openness && g.env().held(c.structure).is_some())
+                || (c.property == Property::Stability && g.env().stability(c.structure).is_some())
+                || c.property == Property::Heat;
+            if !seen {
+                unseen.push(format!(
+                    "{} {} {:?} {:?}",
+                    c.verb, c.subject, c.class, c.property
+                ));
+            }
+        }
+        assert!(unseen.is_empty(), "seed {seed}: {unseen:?}");
+    }
 }

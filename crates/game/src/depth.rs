@@ -447,6 +447,19 @@ pub fn measure(pack: &Pack, seed: u64, hours: f64) -> WorldDepth {
         .map(|c| format!("{:?} {:?} {}", c.class, c.property, c.amount.signum()))
         .collect();
     put("magic.claim_types", types.len() as f64);
+    // D09: how much writing can do, and how much of it lies in wait.
+    let counts = scraped_sim::writing::magic_counts(w, &site.land, &claims);
+    put(
+        "magic.concepts_with_powers",
+        counts.concepts_with_powers as f64,
+    );
+    put("magic.properties", scraped_lang::powers::qualities() as f64);
+    put("magic.live_properties", counts.qualities as f64);
+    put("magic.conditional_spells", counts.conditional as f64);
+    put(
+        "magic.settlements_without_spell",
+        counts.settlements_without as f64,
+    );
     let strange = w
         .structures
         .iter()

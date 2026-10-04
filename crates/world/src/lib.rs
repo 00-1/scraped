@@ -5,6 +5,7 @@
 //! with their interiors and writing, and the state they are in now. Pure
 //! data; nothing here knows about a player.
 
+pub mod charms;
 pub mod debug;
 pub mod decay;
 pub mod features;
@@ -107,6 +108,7 @@ impl World {
         structures::place_more(seed, &terrain, &water, &history, &towns, &mut structures);
         let mut texts = texts::place(seed, &history, &mut structures);
         genres::write(seed, &history, &languages, &mut structures, &mut texts);
+        charms::write(seed, &history, &languages, &mut structures, &mut texts);
         let (traces, effects) = decay::apply(seed, &terrain, &history, &mut structures);
         let features = features::place(seed, &terrain, &water, &geology, &history, &structures);
         let greats = interiors::grow(

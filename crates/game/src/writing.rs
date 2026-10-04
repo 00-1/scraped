@@ -314,17 +314,8 @@ impl Game {
                 continue;
             }
             let up = (c.amount > 0) == starts;
-            let property = match c.property {
-                Property::Heat => "heat",
-                Property::Openness => "openness",
-                Property::Stability => "stability",
-            };
-            let class = match c.class {
-                Class::Passage => "passage",
-                Class::Room => "room",
-                Class::Land => "land",
-                Class::Structure => "structure",
-            };
+            let property = c.property.name();
+            let class = c.class.name();
             let ctx = ctx(&[
                 ("property", Value::from(property)),
                 ("rising", Value::Bool(up)),
@@ -334,6 +325,110 @@ impl Game {
             out.push(self.say("effect.change", ctx));
         }
         out
+    }
+
+    /// Evidence of the spells acting where the player is (D09), one fact
+    /// for each kind of thing and quality pushed here: in a building, the
+    /// spells on it; out of doors, those on the land, water, plants, beasts
+    /// and air that reach this spot. Heat, doors and loose stone have
+    /// their own facts.
+    pub(crate) fn spell_cues(&self, out: &mut Vec<crate::attention::Fact>) {
+        use scraped_sim::writing::Property as Q;
+        let env = self.env();
+        let (at, inside, place_key) = match self.state.place {
+            Place::Room { structure, .. } => (
+                self.site.land.structure_pos[structure],
+                true,
+                format!("s{structure}"),
+            ),
+            Place::Outside => {
+                let (x, y) = self.state.pos.cell();
+                (self.state.pos, false, format!("c{x}:{y}"))
+            }
+        };
+        let here: Vec<&Claim> = self
+            .claims
+            .iter()
+            .filter(|c| {
+                !matches!(c.property, Q::Heat | Q::Openness)
+                    && !(c.property == Q::Stability && c.class == Class::Structure)
+            })
+            .filter(|c| c.class.indoors() == inside && c.class != Class::Person)
+            .filter(|c| c.pos.dist(at) <= c.range && c.acts(&env.when))
+            .collect();
+        let mut pairs: Vec<(Class, Q)> = here.iter().map(|c| (c.class, c.property)).collect();
+        pairs.sort_unstable();
+        pairs.dedup();
+        let resolved: Vec<(Class, Q, i32, &str)> = pairs
+            .iter()
+            .filter_map(|&(class, q)| {
+                let amount = env.claimed(q, &[class], at)?;
+                let thing = here
+                    .iter()
+                    .filter(|c| c.class == class && c.property == q)
+                    .min_by(|a, b| a.pos.dist2(at).cmp(&b.pos.dist2(at)))?
+                    .subject
+                    .as_str();
+                (amount != 0).then_some((class, q, amount, thing))
+            })
+            .collect();
+        for &(class, q, amount, thing) in &resolved {
+            // Two qualities on one kind of thing make one sight.
+            let with = resolved
+                .iter()
+                .find(|o| o.0 == class && o.1 != q)
+                .map(|o| (o.1.name(), o.2 > 0));
+            let strength = amount.abs().min(3);
+            out.push(crate::attention::Fact::new(
+                "spell.cue",
+                format!(
+                    "cue:{place_key}:{}:{}:{}",
+                    class.name(),
+                    q.name(),
+                    amount.signum()
+                ),
+                26.0 + 6.0 * f64::from(strength),
+                ctx(&[
+                    ("quality", Value::from(q.name())),
+                    ("rising", Value::Bool(amount > 0)),
+                    ("class", Value::from(class.name())),
+                    ("thing", Value::from(thing.replace('_', " "))),
+                    ("strength", Value::Number(i64::from(strength))),
+                    ("with", Value::from(with.map_or("", |w| w.0))),
+                    ("with_rising", Value::Bool(with.is_some_and(|w| w.1))),
+                    ("indoors", Value::Bool(inside)),
+                ]),
+            ));
+        }
+    }
+
+    /// Whether writing holds a thing where it lies (D09): bound fast, or
+    /// made too heavy to lift, by a spell on things of its kind in this
+    /// building.
+    pub(crate) fn held_by_writing(&self, thing: usize) -> Option<&'static str> {
+        use scraped_sim::writing::Property as Q;
+        let Place::Room { structure, .. } = self.state.place else {
+            return None;
+        };
+        let kind = self.thing(thing).kind;
+        let env = self.env();
+        let at = self.site.land.structure_pos[structure];
+        let on_it = |q: Q| {
+            let mine: Vec<&Claim> = self
+                .claims
+                .iter()
+                .filter(|c| c.class == Class::Thing && c.property == q && c.subject == kind)
+                .filter(|c| c.acts(&env.when))
+                .collect();
+            scraped_sim::writing::resolve(&mine, at).is_some_and(|a| a > 0)
+        };
+        if on_it(Q::Binding) {
+            Some("bound")
+        } else if on_it(Q::Weight) {
+            Some("heavy")
+        } else {
+            None
+        }
     }
 
     /// Heat writing gives the air here, for cues ("frost against the

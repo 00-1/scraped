@@ -109,14 +109,20 @@ pub struct Driver {
 
 /// The regional variable and target a claim pushes.
 // DESIGN-Q: warmth pushes climate by 6°; opening lets water run (+0.3),
-// sealing holds it back (-0.3); breaking cracks the ground (-0.4).
-pub fn regional_push(property: Property, amount: i32) -> (usize, i32) {
+// sealing holds it back (-0.3); breaking cracks the ground (-0.4). D09:
+// wetting and flowing move water (+0.3, +0.2), growth moves life (+0.3);
+// other qualities stay local.
+pub fn regional_push(property: Property, amount: i32) -> Option<(usize, i32)> {
     let sign = amount.signum();
-    match property {
+    Some(match property {
         Property::Heat => (CLIMATE, 6000 * sign),
         Property::Openness => (WATER, 300 * sign),
         Property::Stability => (STABILITY, 400 * sign),
-    }
+        Property::Wetness => (WATER, 300 * sign),
+        Property::Flow => (WATER, 200 * sign),
+        Property::Growth => (LIFE, 300 * sign),
+        _ => return None,
+    })
 }
 
 impl Regions {
@@ -627,6 +633,11 @@ pub fn great_kind(c: &Claim) -> &'static str {
         (Property::Openness, false) => "binding",
         (Property::Stability, false) => "crevasse",
         (Property::Stability, true) => "holding",
+        (Property::Wetness | Property::Flow, true) => "flood",
+        (Property::Wetness | Property::Flow, false) => "drought",
+        (Property::Growth, true) => "greening",
+        (Property::Growth, false) => "blight",
+        _ => "holding",
     }
 }
 

@@ -13,8 +13,9 @@ use serde::{Deserialize, Serialize};
 
 use scraped_lang::corpus::Kind;
 use scraped_lang::meaning::{
-    Argument, Clause, Head, Mood, NounPhrase, Polarity, Role, Sentence, Tense,
+    Argument, Clause, Head, Link, Mood, NounPhrase, Polarity, Role, Sentence, Tense,
 };
+use scraped_lang::powers::{Power, Powers};
 use scraped_world::history::{EventKind, Role as PersonRole};
 use scraped_world::structures::{Material, Passage, PassageState};
 use scraped_world::texts::Text;
@@ -23,24 +24,62 @@ use scraped_world::World;
 use crate::fixtures::{Fixtures, Spot};
 use crate::outdoors::{hash, Land, Pos, CELL};
 
-/// What kind of thing a claim's subject names.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+/// What kind of thing a claim's target is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Class {
     Passage,
     Room,
     Land,
     Structure,
+    Water,
+    Plant,
+    Animal,
+    Thing,
+    Air,
+    Person,
 }
 
-/// A property claims push.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Property {
-    Openness,
-    Heat,
-    Stability,
+impl Class {
+    pub const ALL: [Class; 10] = [
+        Class::Passage,
+        Class::Room,
+        Class::Land,
+        Class::Structure,
+        Class::Water,
+        Class::Plant,
+        Class::Animal,
+        Class::Thing,
+        Class::Air,
+        Class::Person,
+    ];
+
+    pub fn name(self) -> &'static str {
+        match self {
+            Class::Passage => "passage",
+            Class::Room => "room",
+            Class::Land => "land",
+            Class::Structure => "structure",
+            Class::Water => "water",
+            Class::Plant => "plant",
+            Class::Animal => "animal",
+            Class::Thing => "thing",
+            Class::Air => "air",
+            Class::Person => "person",
+        }
+    }
+
+    /// Whether claims on this class act inside buildings (else outdoors).
+    pub fn indoors(self) -> bool {
+        matches!(
+            self,
+            Class::Passage | Class::Room | Class::Structure | Class::Thing | Class::Person
+        )
+    }
 }
+
+/// A quality claims push (D09: the fifteen of `scraped_lang::powers`).
+pub use scraped_lang::powers::Quality as Property;
 
 #[derive(Debug, Clone, Deserialize)]
 struct SubjectRow {
@@ -49,23 +88,30 @@ struct SubjectRow {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-struct EffectRow {
-    verb: String,
+struct TagRow {
+    tags: Vec<String>,
     class: Class,
-    property: Property,
-    amount: i32,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct ClassRow {
+    class: Class,
+    qualities: Vec<Property>,
 }
 
 #[derive(Deserialize)]
 struct ClaimFile {
     subject: Vec<SubjectRow>,
-    effect: Vec<EffectRow>,
+    tag: Vec<TagRow>,
+    class: Vec<ClassRow>,
 }
 
-/// The concept-to-property table (`data/claims.toml`).
+/// What spells can act on (`data/claims.toml`): each concept's class, and
+/// the qualities each class takes.
 pub struct Table {
     subjects: Vec<SubjectRow>,
-    effects: Vec<EffectRow>,
+    tags: Vec<TagRow>,
+    classes: Vec<ClassRow>,
 }
 
 impl Table {
@@ -76,37 +122,163 @@ impl Table {
                 .expect("data/claims.toml is valid");
             Table {
                 subjects: f.subject,
-                effects: f.effect,
+                tags: f.tag,
+                classes: f.class,
             }
         })
     }
 
+    /// The class of thing a concept names, if a spell can act on it.
     pub fn class(&self, subject: &str) -> Option<Class> {
-        self.subjects
+        if let Some(s) = self.subjects.iter().find(|s| s.id == subject) {
+            return Some(s.class);
+        }
+        let c = scraped_lang::concepts::find(subject)?;
+        self.tags
             .iter()
-            .find(|s| s.id == subject)
-            .map(|s| s.class)
+            .find(|t| t.tags.iter().any(|x| c.has_tag(x)))
+            .map(|t| t.class)
     }
 
-    /// What a claim does: property and signed amount, or None for a vague
-    /// claim the world cannot make true.
+    /// Whether a class can take a quality.
+    pub fn takes(&self, class: Class, q: Property) -> bool {
+        self.classes
+            .iter()
+            .any(|c| c.class == class && c.qualities.contains(&q))
+    }
+
+    /// What a plain claim does (no modifiers): class, property and signed
+    /// amount, or None for a vague claim the world cannot make true.
     pub fn effect(
         &self,
         verb: &str,
         subject: &str,
         negative: bool,
     ) -> Option<(Class, Property, i32)> {
-        let class = self.class(subject)?;
-        let row = self
-            .effects
-            .iter()
-            .find(|e| e.verb == verb && e.class == class)?;
-        Some((
-            class,
-            row.property,
-            if negative { -row.amount } else { row.amount },
-        ))
+        self.effect_in(&Powers::new(0), verb, subject, None, negative)
     }
+
+    /// What a claim does in a world with these powers.
+    pub fn effect_in(
+        &self,
+        powers: &Powers,
+        verb: &str,
+        target: &str,
+        given: Option<&str>,
+        negative: bool,
+    ) -> Option<(Class, Property, i32)> {
+        let class = self.class(target)?;
+        let mut power = match (scraped_lang::powers::carrier(verb), given) {
+            (Some(sign), Some(o)) => {
+                let p = powers.of(o)?;
+                if sign < 0 {
+                    p.reversed()
+                } else {
+                    p
+                }
+            }
+            (Some(_), None) => return None,
+            (None, _) => powers.of(verb)?,
+        };
+        if negative {
+            power = power.reversed();
+        }
+        // A door broken stands open.
+        if class == Class::Passage
+            && power.quality == Property::Stability
+            && power.sign < 0
+            && !self.takes(class, Property::Stability)
+        {
+            power = Power {
+                quality: Property::Openness,
+                sign: 1,
+            };
+        }
+        if !self.takes(class, power.quality) {
+            return None;
+        }
+        Some((class, power.quality, amount(power, 2)))
+    }
+}
+
+/// A power's amount at a degree (1 slightly, 2 plainly, 3 greatly): heat in
+/// degrees, every other quality a signed strength.
+pub fn amount(p: Power, degree: u8) -> i32 {
+    let d = i32::from(degree.clamp(1, 3));
+    match p.quality {
+        Property::Heat => i32::from(p.sign) * 6 * d,
+        _ => i32::from(p.sign) * d,
+    }
+}
+
+/// What a conditional spell waits on (D09).
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[serde(rename_all = "snake_case", tag = "kind", content = "of")]
+pub enum Trigger {
+    Night,
+    Day,
+    Rain,
+    Winter,
+    Summer,
+    /// Someone is inside the building the spell is on.
+    Entered,
+    /// Someone there carries a thing of this kind.
+    Carries(String),
+    /// A condition the world can't judge: it never holds.
+    Unknown,
+}
+
+/// A spell's condition: while its trigger holds (when, if, after), or
+/// while it doesn't (until, unless, before).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct Condition {
+    pub trigger: Trigger,
+    /// Acts while the trigger holds (true) or while it doesn't.
+    pub while_holds: bool,
+}
+
+/// What a condition can see now.
+#[derive(Debug, Clone, Default)]
+pub struct Now {
+    pub night: bool,
+    pub raining: bool,
+    pub winter: bool,
+    pub summer: bool,
+    /// The building the player is in.
+    pub inside: Option<usize>,
+    /// The kinds of thing the player carries.
+    pub carrying: Vec<String>,
+}
+
+impl Condition {
+    /// Whether a spell with this condition, on `structure`, acts now.
+    pub fn acts(&self, now: &Now, structure: usize) -> bool {
+        let holds = match &self.trigger {
+            Trigger::Night => now.night,
+            Trigger::Day => !now.night,
+            Trigger::Rain => now.raining,
+            Trigger::Winter => now.winter,
+            Trigger::Summer => now.summer,
+            Trigger::Entered => now.inside == Some(structure),
+            Trigger::Carries(k) => {
+                now.inside == Some(structure) && now.carrying.iter().any(|c| c == k)
+            }
+            Trigger::Unknown => false,
+        };
+        holds == self.while_holds
+    }
+}
+
+/// How far a spell reaches, by its words.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Extent {
+    /// "this", "here": its own building, or just around it outdoors.
+    Here,
+    /// As far as its surface carries.
+    Plain,
+    /// "widely": three times as far.
+    Wide,
 }
 
 /// A claim acting on the world.
@@ -115,6 +287,7 @@ pub struct Claim {
     /// The text it comes from.
     pub text: usize,
     pub verb: String,
+    /// The target: what the spell changes.
     pub subject: String,
     pub negative: bool,
     pub class: Class,
@@ -125,6 +298,175 @@ pub struct Claim {
     pub range: f64,
     pub year: i32,
     pub structure: usize,
+    /// What the spell gives or takes away, for "bring" and "take".
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub given: Option<String>,
+    pub extent: Extent,
+    /// 1 slightly, 2 plainly, 3 greatly.
+    pub degree: u8,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub condition: Option<Condition>,
+}
+
+impl Claim {
+    /// Whether it acts now (a conditional spell lies dormant otherwise).
+    pub fn acts(&self, now: &Now) -> bool {
+        self.condition
+            .as_ref()
+            .is_none_or(|c| c.acts(now, self.structure))
+    }
+
+    /// The kind of claim, for counting variety: class, quality, direction.
+    pub fn kind(&self) -> (Class, Property, bool) {
+        (self.class, self.property, self.amount > 0)
+    }
+}
+
+/// A spell as its words put it, before the world makes it act.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Spell {
+    pub verb: String,
+    pub target: Head,
+    pub given: Option<String>,
+    pub negative: bool,
+    /// "this" (or a named place): its own building or place only.
+    pub this: bool,
+    pub degree: u8,
+    pub extent: Extent,
+    pub condition: Option<Condition>,
+}
+
+/// The spell a potent text makes, if it is one: its target (the object of
+/// a verb that acts on something, else the subject), what it gives, how
+/// much, how far, and on what condition.
+pub fn spell_of(t: &Text) -> Option<Spell> {
+    if t.kind != Kind::Potent {
+        return None;
+    }
+    let Sentence::Clause(c) = &t.meaning else {
+        return None;
+    };
+    if c.mood != Mood::Potent {
+        return None;
+    }
+    spell_of_clause(c)
+}
+
+/// The spell a potent clause makes (also for player writing).
+pub fn spell_of_clause(c: &Clause) -> Option<Spell> {
+    let arg = |r: Role| c.args.iter().find(|a| a.role == r).map(|a| &a.np);
+    let subject = arg(Role::Subject)?;
+    let object = arg(Role::Object);
+    let carrier = scraped_lang::powers::carrier(&c.predicate).is_some();
+    let (target, given) = match (carrier, object) {
+        (true, Some(o)) => (subject, concept_of(o)),
+        (false, Some(o)) => (o, None),
+        (_, None) => (subject, None),
+    };
+    let mut negative = c.polarity == Polarity::Negative;
+    if target.determiner.as_deref() == Some("no") {
+        negative = !negative;
+    }
+    let mut degree = 2;
+    let mut extent = Extent::Plain;
+    for a in &c.adverbs {
+        match a.as_str() {
+            "greatly" => degree = 3,
+            "slightly" => degree = 1,
+            "here" => extent = Extent::Here,
+            "widely" => extent = Extent::Wide,
+            "never" => negative = !negative,
+            _ => {}
+        }
+    }
+    let this = target.determiner.as_deref() == Some("this") || matches!(target.head, Head::Name(_));
+    if this {
+        extent = Extent::Here;
+    }
+    let condition = c.subordinate.iter().find_map(|s| {
+        let while_holds = match s.link {
+            Link::When | Link::If | Link::After => true,
+            Link::Until | Link::Unless | Link::Before => false,
+            _ => return None,
+        };
+        let trigger = trigger_of(&s.clause);
+        // "until the night does not come": a denied trigger turns about.
+        let neg = s.clause.polarity == Polarity::Negative;
+        Some(Condition {
+            trigger,
+            while_holds: while_holds != neg,
+        })
+    });
+    Some(Spell {
+        verb: c.predicate.clone(),
+        target: target.head.clone(),
+        given,
+        negative,
+        this,
+        degree,
+        extent,
+        condition,
+    })
+}
+
+fn concept_of(np: &NounPhrase) -> Option<String> {
+    match &np.head {
+        Head::Concept(id) => Some(id.clone()),
+        _ => None,
+    }
+}
+
+/// What a condition clause waits on.
+// DESIGN-Q: conditions the world can judge: night and day (night, dusk,
+// evening, darkness, moon, stars; day, dawn, morning, sun, light; their
+// going reverses them), rain (rain, storm, cloud, flood), winter (winter,
+// snow, frost, ice), summer, someone entering (enter or come, said of a
+// person), and someone carrying a kind of thing (carry, hold or bring it).
+pub fn trigger_of(c: &Clause) -> Trigger {
+    let arg = |r: Role| c.args.iter().find(|a| a.role == r).map(|a| &a.np);
+    let s = arg(Role::Subject).and_then(concept_of);
+    let o = arg(Role::Object).and_then(concept_of);
+    let going = matches!(
+        c.predicate.as_str(),
+        "go" | "leave" | "die" | "fall" | "flee" | "depart"
+    );
+    let person = |id: &str| {
+        Table::get().class(id) == Some(Class::Person)
+            || arg(Role::Subject).is_some_and(|np| matches!(np.head, Head::Name(_)))
+    };
+    if matches!(c.predicate.as_str(), "carry" | "hold" | "bring") {
+        if let Some(o) = o {
+            return Trigger::Carries(o);
+        }
+    }
+    let Some(s) = s else {
+        return if matches!(c.predicate.as_str(), "enter" | "come") {
+            Trigger::Entered
+        } else {
+            Trigger::Unknown
+        };
+    };
+    match s.as_str() {
+        "night" | "dusk" | "evening" | "darkness" | "moon" | "star" | "shadow" => {
+            if going {
+                Trigger::Day
+            } else {
+                Trigger::Night
+            }
+        }
+        "day" | "dawn" | "morning" | "sun" | "light" => {
+            if going {
+                Trigger::Night
+            } else {
+                Trigger::Day
+            }
+        }
+        "rain" | "storm" | "cloud" | "flood" => Trigger::Rain,
+        "winter" | "snow" | "frost" | "ice" => Trigger::Winter,
+        "summer" => Trigger::Summer,
+        _ if matches!(c.predicate.as_str(), "enter" | "come") && person(&s) => Trigger::Entered,
+        _ => Trigger::Unknown,
+    }
 }
 
 /// One written-on surface and its layers of writing, oldest first.
@@ -382,6 +724,17 @@ impl Writing {
                     }
                     _ => false,
                 });
+                // Nor where an everyday spell holds or hides them (D09).
+                let held = held
+                    || w.texts.iter().any(|t| {
+                        t.structure == structure
+                            && claim_of(w, land, t, t.id).is_some_and(|c| {
+                                matches!(
+                                    c.property,
+                                    Property::Openness | Property::Binding | Property::Visibility
+                                ) && c.class == Class::Passage
+                            })
+                    });
                 let door = !held
                     && st
                         .interior
@@ -822,13 +1175,39 @@ pub fn top_unscraped_of(layers: &[usize], scraped: &BTreeSet<usize>) -> Option<u
 
 /// The claim a text makes when live, if it is potent and not vague.
 pub fn claim_of(w: &World, land: &Land, t: &Text, id: usize) -> Option<Claim> {
-    let (verb, subject, negative) = claim_parts(t)?;
-    let (class, property, amount) = Table::get().effect(&verb, &subject, negative)?;
+    let spell = spell_of(t)?;
+    let powers = Powers::new(w.seed);
+    let table = Table::get();
+    // A named place: the spell acts on that town's land.
+    let (target, named) = match &spell.target {
+        Head::Concept(c) => (c.clone(), None),
+        Head::Name(n) => {
+            let town = n.checked_sub(w.history.people.len())?;
+            (
+                "city".to_string(),
+                Some(w.history.settlements.get(town)?.cell),
+            )
+        }
+    };
+    let (class, property, plain) = table.effect_in(
+        &powers,
+        &spell.verb,
+        &target,
+        spell.given.as_deref(),
+        spell.negative,
+    )?;
+    let power = Power {
+        quality: property,
+        sign: if plain > 0 { 1 } else { -1 },
+    };
     // History's casts reach as far as their event says (the root's only to
-    // its own surroundings until M10); new releases by surface.
+    // its own surroundings until M10); other writing by its surface and
+    // its words.
     // DESIGN-Q: the root inscription acts within 900 m until M10's great
-    // inscriptions.
-    let range = match t.event.map(|e| &w.history.events[e].kind) {
+    // inscriptions. "Here" and "this" hold a spell to its own building
+    // (indoors) or 150 m around it (outdoors); "widely" triples its reach;
+    // a named town is its land, 600 m about its centre.
+    let base = match t.event.map(|e| &w.history.events[e].kind) {
         Some(EventKind::Writing { effect, root, .. }) => {
             let r = f64::from(effect.radius) * f64::from(CELL);
             if *root {
@@ -839,18 +1218,34 @@ pub fn claim_of(w: &World, land: &Land, t: &Text, id: usize) -> Option<Claim> {
         }
         _ => reach(t.material),
     };
+    let (pos, range) = match named {
+        Some(cell) => (Pos::of_cell(cell.ux(), cell.uy()), 600.0),
+        None => (
+            land.structure_pos[t.structure],
+            match spell.extent {
+                Extent::Here if class.indoors() => 0.0,
+                Extent::Here => 150.0,
+                Extent::Plain => base,
+                Extent::Wide => base * 3.0,
+            },
+        ),
+    };
     Some(Claim {
         text: id,
-        verb,
-        subject,
-        negative,
+        verb: spell.verb,
+        subject: target,
+        negative: spell.negative,
         class,
         property,
-        amount,
-        pos: land.structure_pos[t.structure],
+        amount: amount(power, spell.degree),
+        pos,
         range,
         year: t.year,
         structure: t.structure,
+        given: spell.given,
+        extent: spell.extent,
+        degree: spell.degree,
+        condition: spell.condition,
     })
 }
 
@@ -873,29 +1268,89 @@ pub fn resolve(claims: &[&Claim], at: Pos) -> Option<i32> {
     Some(first.2)
 }
 
+/// The D09 measures of a world's magic.
+#[derive(Debug, Clone, Default)]
+pub struct MagicCounts {
+    /// Distinct kinds of live claim (class, quality, direction).
+    pub kinds: usize,
+    pub conditional: usize,
+    /// Settlements with no live spell within reach of their centre.
+    pub settlements_without: usize,
+    /// Concepts the world's languages name that have a power.
+    pub concepts_with_powers: usize,
+    /// Qualities live spells push.
+    pub qualities: usize,
+}
+
+pub fn magic_counts(w: &World, land: &Land, claims: &[Claim]) -> MagicCounts {
+    let kinds: BTreeSet<(Class, Property, bool)> = claims.iter().map(Claim::kind).collect();
+    let qualities: BTreeSet<Property> = claims.iter().map(|c| c.property).collect();
+    let settlements_without = w
+        .history
+        .settlements
+        .iter()
+        .filter(|s| {
+            !w.structures.iter().any(|st| {
+                st.settlement == Some(s.id) && {
+                    let p = land.structure_pos[st.id];
+                    claims.iter().any(|c| c.pos.dist(p) <= c.range)
+                }
+            })
+        })
+        .count();
+    let powers = Powers::new(w.seed);
+    let concepts_with_powers = scraped_lang::concepts::all()
+        .iter()
+        .filter(|c| w.languages.iter().any(|l| l.lexicon.has(&c.id)) && powers.of(&c.id).is_some())
+        .count();
+    MagicCounts {
+        kinds: kinds.len(),
+        conditional: claims.iter().filter(|c| c.condition.is_some()).count(),
+        settlements_without,
+        concepts_with_powers,
+        qualities: qualities.len(),
+    }
+}
+
 /// Spoiler view: every surface's stack, the claims acting now, and why each
 /// settlement is strange.
 pub fn debug(w: &World, land: &Land, writing: &Writing, scraped: &BTreeSet<usize>) -> String {
     use std::fmt::Write as _;
     let mut out = String::new();
     let claims = writing.live_claims(w, land, scraped);
+    let m = magic_counts(w, land, &claims);
+    let _ = writeln!(
+        out,
+        "MAGIC  {} live, {} kinds, {} conditional, {} settlements without, {} concepts with powers, {} qualities", // DEBUG-TEXT
+        claims.len(),
+        m.kinds,
+        m.conditional,
+        m.settlements_without,
+        m.concepts_with_powers,
+        m.qualities
+    );
     let _ = writeln!(out, "LIVE CLAIMS ({})", claims.len()); // DEBUG-TEXT
     for c in &claims {
         let st = &w.structures[c.structure];
-        let _ = writeln!(
+        let _ =
+            writeln!(
             out,
-            "  text {:>4}  {}{} {:<7} → {:?} {:?} {:+}  range {:.0} m  at {:?} {} (year {})", // DEBUG-TEXT
+            "  text {:>4}  {}{} {:<7}{} → {:?} {:?} {:+}  range {:.0} m  at {:?} {} (year {}){}", // DEBUG-TEXT
             c.text,
             if c.negative { "not " } else { "" },
             c.verb,
             c.subject,
+            c.given.as_deref().map_or(String::new(), |g| format!(" ({g})")),
             c.class,
             c.property,
             c.amount,
             c.range,
             st.kind,
             st.id,
-            c.year
+            c.year,
+            c.condition
+                .as_ref()
+                .map_or(String::new(), |k| format!("  {}{:?}", if k.while_holds { "while " } else { "unless " }, k.trigger)) // DEBUG-TEXT
         );
     }
     let _ = writeln!(out, "\nWHY EACH SETTLEMENT IS STRANGE"); // DEBUG-TEXT
@@ -976,6 +1431,10 @@ mod tests {
             range: 1000.0,
             year,
             structure: 0,
+            given: None,
+            extent: Extent::Plain,
+            degree: 2,
+            condition: None,
         }
     }
 
@@ -1025,6 +1484,104 @@ mod tests {
                 assert_eq!(t.effect(verb, &n.id, false), pos);
             }
         }
+    }
+
+    #[test]
+    fn spells_take_their_shape_from_their_words() {
+        use scraped_lang::meaning::NounPhrase as N;
+        let p = Powers::new(1);
+        let t = Table::get();
+        // "Let this house bring fire when night comes": the house warms,
+        // only at night, only itself.
+        let c = Clause::potent("bring", N::concept("house").det("this"))
+            .with_object(N::concept("fire"))
+            .with_clause(Link::When, Clause::plain("come", N::concept("night")));
+        let s = spell_of_clause(&c).unwrap();
+        assert_eq!(s.given.as_deref(), Some("fire"));
+        assert_eq!(s.extent, Extent::Here);
+        let cond = s.condition.clone().unwrap();
+        assert_eq!(
+            (cond.trigger.clone(), cond.while_holds),
+            (Trigger::Night, true)
+        );
+        let (class, q, a) = t
+            .effect_in(&p, &s.verb, "house", s.given.as_deref(), s.negative)
+            .unwrap();
+        assert_eq!(class, Class::Room);
+        assert_eq!(p.of("fire").unwrap().quality, q);
+        assert!(a > 0);
+        // Taking it away pushes the other way.
+        let (_, _, b) = t
+            .effect_in(&p, "take", "house", Some("fire"), false)
+            .unwrap();
+        assert_eq!(a, -b);
+        // "No wolf": the determiner denies it.
+        let w = Clause::potent("come", N::concept("wolf").det("no")).with_adverb("greatly");
+        let s = spell_of_clause(&w).unwrap();
+        assert!(s.negative);
+        assert_eq!(s.degree, 3);
+        // An exception: shut unless someone carries the seal.
+        let d = Clause::potent("open", N::concept("door").det("this"))
+            .denied()
+            .with_clause(
+                Link::Unless,
+                Clause::plain("carry", N::concept("man")).with_object(N::concept("seal")),
+            );
+        let cond = spell_of_clause(&d).unwrap().condition.unwrap();
+        assert_eq!(cond.trigger, Trigger::Carries("seal".into()));
+        let mut now = Now {
+            inside: Some(7),
+            ..Now::default()
+        };
+        assert!(cond.acts(&now, 7), "a stranger is kept out");
+        now.carrying.push("seal".into());
+        assert!(!cond.acts(&now, 7), "the household passes");
+        // A spell with no meaning in this class is vague.
+        assert!(t.effect_in(&p, "flow", "door", None, false).is_none());
+    }
+
+    #[test]
+    fn conditions_hold_exactly_when_their_trigger_does() {
+        let at_night = Condition {
+            trigger: Trigger::Night,
+            while_holds: true,
+        };
+        let until_night = Condition {
+            trigger: Trigger::Night,
+            while_holds: false,
+        };
+        for night in [false, true] {
+            let now = Now {
+                night,
+                ..Now::default()
+            };
+            assert_eq!(at_night.acts(&now, 0), night);
+            assert_eq!(until_night.acts(&now, 0), !night);
+        }
+        let entered = Condition {
+            trigger: Trigger::Entered,
+            while_holds: true,
+        };
+        let inside = Now {
+            inside: Some(3),
+            ..Now::default()
+        };
+        assert!(entered.acts(&inside, 3));
+        assert!(!entered.acts(&inside, 4));
+        let never = Condition {
+            trigger: Trigger::Unknown,
+            while_holds: true,
+        };
+        assert!(!never.acts(&inside, 3));
+    }
+
+    #[test]
+    fn resolution_does_not_depend_on_order() {
+        let at = Pos::new(0, 0);
+        let cs = [claim(12, 100, 10), claim(-12, 200, 50), claim(6, 300, 70)];
+        let a = resolve(&[&cs[0], &cs[1], &cs[2]], at);
+        let b = resolve(&[&cs[2], &cs[0], &cs[1]], at);
+        assert_eq!(a, b);
     }
 
     #[test]

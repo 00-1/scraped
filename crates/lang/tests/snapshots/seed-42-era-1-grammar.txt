@@ -9,7 +9,7 @@ SOUNDS (ipa = spelling)
 SOUND CHANGES SINCE ERA 0
   era 1: final V > ∅ / VC_# in words of 2+ syllables
   era 1: a > o
-  new words this era: servant, temple, road, altar, oil, drink, cross, good, four, quote.open, tooth, guest, hill, bridge, farm, hall, dust, sky, then, live, keep, count, sell, weep, send, hate, hot, warm, wet, true, near, yellow, weaver, chisel, clay, law, decree, priestess
+  new words this era: servant, temple, road, altar, oil, drink, cross, good, four, quote.open, tooth, guest, hill, bridge, farm, hall, dust, sky, then, live, keep, count, sell, weep, send, hate, hot, warm, wet, true, near, yellow, weaver, chisel, clay, law, decree, priestess, widely
 
 MORPHOLOGY
   PL   -ngo         (noun)
@@ -1917,6 +1917,9 @@ LEXICON
     never       nok
     again       pok
     there       riy
+    greatly     keh
+    slightly    hïm
+    widely      xolek
   [numbers]
     one         kip
     two         lot
@@ -1960,3 +1963,4 @@ LEXICON
     sent.end    tuf
     ord         yung
     time.at     xot
+    sub.unless  rïm

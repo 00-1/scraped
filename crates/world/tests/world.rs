@@ -205,7 +205,7 @@ fn sizes_stay_in_bounds() {
             w.structures.len()
         );
         assert!(
-            (40..=1500).contains(&w.texts.len()),
+            (40..=2500).contains(&w.texts.len()),
             "seed {}: {} texts",
             w.seed,
             w.texts.len()

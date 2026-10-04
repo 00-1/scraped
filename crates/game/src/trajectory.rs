@@ -73,7 +73,9 @@ impl Game {
             let Some(region) = self.site.regions.at(c.pos) else {
                 continue;
             };
-            let (variable, target) = regional_push(c.property, c.amount);
+            let Some((variable, target)) = regional_push(c.property, c.amount) else {
+                continue;
+            };
             drivers.push(Driver {
                 region,
                 reach,
