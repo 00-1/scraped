@@ -225,6 +225,9 @@ pub struct DepthBot {
     marked: BTreeSet<String>,
     /// Whether it has put its cloak on.
     cloak_on: bool,
+    /// Pages of the current text read on from the first (D08: long texts
+    /// are skimmed past the third page).
+    pages: u32,
     /// The building it is in, and when it went in.
     inside_since: Option<(String, u32)>,
     /// Features noticed from each square: kind, bearing, distance.
@@ -276,6 +279,7 @@ impl DepthBot {
             leaving: None,
             inside_since: None,
             cloak_on: false,
+            pages: 0,
             entrances: BTreeMap::new(),
             marked: BTreeSet::new(),
             idle: 0,
@@ -702,12 +706,14 @@ impl DepthBot {
     /// Reading: the scholar reads every page closely; the explorer reads
     /// closely now and then, looks harder at a sign or traces one, and
     /// otherwise takes a text in at a glance and moves on (S01).
-    fn reading(&self, g: &Game) -> Option<String> {
+    fn reading(&mut self, g: &Game) -> Option<String> {
         let last = self.last.as_ref().map(|(c, _, _)| c.as_str()).unwrap_or("");
         let after_glance = last.starts_with("read ");
         let after_close = matches!(last, "read closely" | "more");
         if self.scholar() {
-            return g.state.reading.is_some().then(|| "more".into());
+            self.pages = if last == "more" { self.pages + 1 } else { 0 };
+            // DESIGN-Q (bot): three pages of a text, then on to the next.
+            return (g.state.reading.is_some() && self.pages < 3).then(|| "more".into());
         }
         if after_glance && g.state.reading.is_some() && self.roll(1) % 100 < 45 {
             return Some("read closely".into());

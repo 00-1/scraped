@@ -3,112 +3,124 @@
 Regenerate: `scraped-lang world --seed 42 --spoil stories`. English is the spoiler gloss, not what a player reads.
 
 ```
-STORIES — seed 42 · 45 arcs
+STORIES — seed 42 · 34 arcs
 
 ARC 0 Trial — Rekïdongu, Ngïkeluxu, Ngïkedipu — 3 texts in 2 places
   [223 Annal, era 0, year 69] in Kudeyopu (Temple)
-    Rekïdongu stole the fish of Ngïkeluxu in the 25th year of Ye'okefe then. Ngïkeluxu [done] called Rekïdongu in the 26th year of Ye'okefe. Ngïkedipu, elder, judged Rekïdongu in the 26th year of Ye'okefe there.
+    Rekïdongu, smith, stole the fish of Ngïkeluxu in the 25th year of Ye'okefe. Ngïkeluxu, build+agt, [done] called Rekïdongu in the 26th year of Ye'okefe. Ngïkedipu, elder, judged Ngïkeluxu in the 26th year of Ye'okefe.
   [224 Court, era 0, year 69] in Kudeyopu (Temple)
-    Ngïkeluxu said to Ngïkedipu, elder, in the 26th year of Ye'okefe there that rekïdongu stole the fish of ngïkeluxu. Rekïdongu [done] said "Rekïdongu did not steal the fish of Ngïkeluxu". Ngïkedipu, elder, judged Rekïdongu after Ngïkedipu heard the witnesses. Ngïkedipu [done] gave the fine for Ngïkeluxu.
+    Ngïkeluxu said to Ngïkedipu, elder, in the 26th year of Ye'okefe that rekïdongu stole the fish of ngïkeluxu. Rekïdongu, smith, [done] said "Rekïdongu did not steal the fish of Ngïkeluxu". Ngïkedipu, elder, judged Rekïdongu after Ngïkedipu heard the witnesses. Ngïkedipu gave the fine for Rekïdongu.
   [225 Graffito, era 0, year 69] in Kudeyopu (House)
     May the god of the storm curse Rekïdongu.
 
-ARC 1 Trial — Rekïdongu, Tubayonoyïla, Ngïkedipu — 3 texts in 2 places
-  [226 Annal, era 0, year 51] in Kudeyopu (Temple)
-    Rekïdongu [done] stole the small cloth of Tubayonoyïla in the 7th year of Ye'okefe then. Tubayonoyïla called Rekïdongu in the 8th year of Ye'okefe. Ngïkedipu, elder, [done] judged Rekïdongu in the 8th year of Ye'okefe.
-  [227 Court, era 0, year 51] in Kudeyopu (Temple)
-    Tubayonoyïla said to Ngïkedipu, elder, in the 8th year of Ye'okefe that rekïdongu [done] stole the cloth of tubayonoyïla then. Rekïdongu, smith, said "Rekïdongu [done] did not steal the cloth of Tubayonoyïla then". Ngïkedipu, elder, judged Rekïdongu after Ngïkedipu heard the witnesses. Ngïkedipu, elder, gave the fine for Tubayonoyïla.
-  [228 Graffito, era 0, year 51] in Kudeyopu (House)
-    Rekïdongu [done] stole here.
+ARC 1 Project — Ngïkenoyïla, Rebenatsu — 3 texts in 2 places
+  [226 Annal, era 0, year 266] in Kudeyopu (Temple)
+    Rebenatsu [done] dug the earth of the temple for Ngïkenoyïla in the 11th year of Ngïkenoyïla. Rebenatsu, build+agt, [done] built the temple of Kudeyopu for Ngïkenoyïla in the 5th year of Bonakehïpa again.
+  [227 Building, era 0, year 266] in Kudeyopu (Temple)
+    Rebenatsu, build+agt, built this new temple for Ngïkenoyïla, king, in the 5th year of Bonakehïpa. May the god of the fire bless this dark temple.
+  [228 Receipt, era 0, year 266] in Kudeyopu (Storehouse)
+    63 stones, 36 oils, 31 loaves, 130 in all.
 
-ARC 2 Feud — Rapingehade, Ye'obatila, Tubayodiha — 4 texts in 3 places
-  [229 Annal, era 0, year 109] in Hikumime (Archive)
-    Rapingehade, king, [done] lent 31 cloths for Ye'obatila in the 5th year of Rapingehade. Rapingehade, king, hated Ye'obatila in the 8th year of Rapingehade there. Rapingehade called Ye'obatila in the 9th year of Rapingehade there. Tubayodiha, judge+agt, judged Ye'obatila in the 9th year of Rapingehade there. Rapingehade, king, loved Ye'obatila in the 22th year of Rapingehade again.
-  [230 Court, era 0, year 109] in Hikumime (Archive)
-    Rapingehade, king, said to Tubayodiha, judge+agt, in the 9th year of Rapingehade that rapingehade, king, [done] lent 31 cloths for ye'obatila. Ye'obatila said "Rapingehade, king, [done] did not lend 31 cloths for Ye'obatila". Tubayodiha, judge+agt, judged Ye'obatila after Tubayodiha heard the witnesses. Tubayodiha [done] gave the fine for Rapingehade.
-  [231 Contract, era 0, year 109] in Hikumime (MarketHall)
-    Rapingehade, king, [done] lent 31 cloths for Ye'obatila in the 5th year of Rapingehade. Ye'obatila gives 38 cloths for Rapingehade in the harvest. Rapingehade takes the field of Ye'obatila there if Ye'obatila does not give the cloth.
-  [232 Dedication, era 0, year 109] in Hikumime (House)
-    Rapingehade, king, gave this altar for the god after Rapingehade loved Ye'obatila.
+ARC 2 Project — Kïnonemïme, Rebenatsu — 2 texts in 2 places
+  [229 Annal, era 0, year 238] in Kudeyopu (Temple)
+    Rebenatsu, build+agt, [done] dug the earth of the well for Kïnonemïme in the 38th year of Kïnonemïme. Rebenatsu, build+agt, did not build the well of Kudeyopu in the 3th year of Ngïkenoyïla.
+  [230 Letter, era 0, year 238] in Kudeyopu (House)
+    Rebenatsu, build+agt, said to Kïnonemïme, king, "The men do not build the well of Kudeyopu". Rebenatsu, build+agt, [done] did not find the stone.
 
-ARC 3 Project — Ye'okefe, Rebenatsu — 3 texts in 3 places
-  [233 Annal, era 0, year 73] in Hikumime (Archive)
-    Rebenatsu, build+agt, dug the earth of the wall for Ye'okefe in the 14th year of Ye'okefe. Rebenatsu built the wall of Hikumime for Ye'okefe in the 30th year of Ye'okefe.
-  [234 Building, era 0, year 73] in Hikumime (Temple)
-    Rebenatsu, build+agt, built this wall for Ye'okefe, king, in the 30th year of Ye'okefe. May the god of the fire bless this wall.
-  [235 Receipt, era 0, year 73] in Hikumime (MarketHall)
-    36 stones, 31 oils, 108 loaves, 175 in all.
+ARC 3 Project — Ngïketsopa, Rapingehongï — 3 texts in 3 places
+  [231 Annal, era 0, year 27] in Hikumime (Archive)
+    Rapingehongï, build+agt, dug the earth of the gate for Ngïketsopa in the 12th year of Ngïketsopa again. Rapingehongï, build+agt, [done] built the gate of Hikumime for Ngïketsopa in the 19th year of Ngïketsopa then.
+  [232 Building, era 0, year 27] in Hikumime (Temple)
+    Rapingehongï, build+agt, [done] built this gate for Ngïketsopa, king, in the 19th year of Ngïketsopa there. May the god of the fire bless this gate.
+  [233 Receipt, era 0, year 27] in Hikumime (MarketHall)
+    108 stones, 27 oils, 94 loaves, 229 in all.
 
-ARC 4 Project — Rapingehade, Rapingehongï — 3 texts in 3 places
-  [236 Annal, era 0, year 128] in Kudeyopu (Temple)
-    Rapingehongï, build+agt, [done] dug the earth of the hall for Rapingehade in the 20th year of Rapingehade. The peoples of Kudeyopu did not find the cloth in the 5th year of Rapingedïda. Rapingehongï did not build the beautiful hall of Kudeyopu in the 16th year of Rapingedïda.
-  [237 Inventory, era 0, year 128] in Kudeyopu (Storehouse)
-    Two cloths, 24 empty jars.
-  [238 Letter, era 0, year 128] in Kudeyopu (House)
-    Rapingehongï, build+agt, said to Rapingehade, king, "The men do not build the hall of Kudeyopu". Rapingehongï, build+agt, did not find the stone.
+ARC 4 Project — Ngïkenoyïla, Rebenatsu — 2 texts in 2 places
+  [234 Annal, era 0, year 269] in Kudeyopu (Temple)
+    Rebenatsu dug the earth of the hall for Ngïkenoyïla in the 15th year of Ngïkenoyïla. Rebenatsu did not build the strong hall of Kudeyopu in the 8th year of Bonakehïpa then.
+  [235 Letter, era 0, year 269] in Kudeyopu (House)
+    Rebenatsu, build+agt, said to Ngïkenoyïla, king, again "The men do not build the hall of Kudeyopu". Rebenatsu did not find the stone again.
 
-ARC 5 Project — Rapingehade, Rapingehongï — 2 texts in 2 places
-  [239 Annal, era 0, year 109] in Kudeyopu (Temple)
-    Rapingehongï, build+agt, [done] dug the earth of the gate for Rapingehade in the 18th year of Rapingehade. Rapingehongï, build+agt, did not build the gate of Kudeyopu in the 22th year of Rapingehade again.
-  [240 Letter, era 0, year 109] in Kudeyopu (House)
-    Rapingehongï, build+agt, said to Rapingehade, king, "The men do not build the gate of Kudeyopu". Rapingehongï did not find the stone.
-
-ARC 6 Project — Lïkobatila, Konïlala — 2 texts in 2 places
-  [241 Annal, era 0, year 165] in Kudeyopu (Temple)
-    Konïlala dug the earth of the temple for Lïkobatila in the 4th year of Lïkobatila. Konïlala, build+agt, did not build the temple of Kudeyopu in the 21th year of Lïkobatila.
-  [242 Letter, era 0, year 165] in Kudeyopu (House)
-    Konïlala, build+agt, said to Lïkobatila, king, "The men do not build the temple of Kudeyopu". Konïlala did not find the stone.
-
-ARC 7 Disaster — Rapingehongï, Rapingedïda — 9 texts in 5 places
-  [243 Annal, era 0, year 120] in Kudeyopu (Temple)
-    The river took the houses of Kudeyopu in the 2th year of Rapingedïda. Rapingehongï, build+agt, [done] died in the 2th year of Rapingedïda. The peoples of Kudeyopu did not find the oil in the 3th year of Rapingedïda then. Rapingedïda, king, [done] said in the 3th year of Rapingedïda then "Do not sell the oil". Konïhïpa dug the earth of the palace for Rapingedïda in the 4th year of Rapingedïda.
-  [244 Prayer, era 0, year 120] in Kudeyopu (Temple)
-    May the god of the fire keep the peoples of Kudeyopu. The peoples wept because the river took the houses of Kudeyopu.
-  [245 Inventory, era 0, year 120] in Kudeyopu (Storehouse)
-    Six oils, 34 empty jars.
-  [246 Building, era 0, year 120] in Kudeyopu (Temple)
-    Konïhïpa, build+agt, built this palace for Rapingedïda, king, in the 8th year of Rapingedïda. May the god of the fire bless this palace.
-  [247 Receipt, era 0, year 120] in Kudeyopu (Storehouse)
+ARC 5 Disaster — Lïkobatila — 9 texts in 8 places
+  [236 Annal, era 0, year 184] in Hikumime (Archive)
+    The earth broke the walls of Hikumime in the 19th year of Lïkobatila again. The peoples of Hikumime [done] did not find the fish in the 20th year of Lïkobatila. Lïkobatila, king, said in the 20th year of Lïkobatila then "Do not sell the fish". Konïlala, build+agt, dug the earth of the gate for Lïkobatila in the 21th year of Lïkobatila then. Konïlala, build+agt, built the white gate of Hikumime for Lïkobatila in the 14th year of Ngayobatila.
+  [237 Prayer, era 0, year 184] in Hikumime (Temple)
+    May the god of the fire keep the peoples of Hikumime. The peoples [done] wept because the earth broke the walls of Hikumime.
+  [238 Inventory, era 0, year 184] in Hikumime (Storehouse)
+    Six fish, 34 empty jars.
+  [239 Building, era 0, year 184] in Hikumime (Temple)
+    Konïlala, build+agt, [done] built this gate for Lïkobatila, king, in the 14th year of Ngayobatila. May the god of the fire bless this white gate.
+  [240 Receipt, era 0, year 184] in Hikumime (MarketHall)
     60 stones, 63 oils, 33 loaves, 156 in all.
-  [366 Decree, era 0, year 115] in Hikumime (Palace)
-    Rapingedïda, king, said in the 3th year of Rapingedïda "Do not sell the oil". The judge+agt takes each ox of the man if the man sells the oil.
-  [367 Decree, era 0, year 115] in Kudeyopu (Temple)
-    Rapingedïda, king, said in the 3th year of Rapingedïda "Do not sell the oil". The judge+agt takes each ox of the man if the man sells the oil.
-  [368 Decree, era 0, year 115] in Lïhunguki (MarketHall)
-    Rapingedïda, king, said in the 3th year of Rapingedïda "Do not sell the oil". The judge+agt takes each ox of the man if the man sells the oil.
-  [369 Decree, era 0, year 115] in Papatonguki (Temple)
-    Rapingedïda, king, said in the 3th year of Rapingedïda "Do not sell the oil". The judge+agt takes each ox of the man if the man sells the oil.
+  [334 Decree, era 0, year 164] in Hikumime (Palace)
+    Lïkobatila, king, said in the 20th year of Lïkobatila "Do not sell the fish". The judge+agt takes each small ox of the man if the man sells the fish.
+  [335 Decree, era 0, year 164] in Kudeyopu (Temple)
+    Lïkobatila, king, said in the 20th year of Lïkobatila "Do not sell the fish". The judge+agt takes each small ox of the man if the man sells the fish.
+  [336 Decree, era 0, year 164] in Lïhunguki (MarketHall)
+    Lïkobatila, king, said in the 20th year of Lïkobatila "Do not sell the fish". The judge+agt takes each small ox of the man if the man sells the fish.
+  [337 Decree, era 0, year 164] in Papatonguki (Temple)
+    Lïkobatila, king, said in the 20th year of Lïkobatila "Do not sell the fish". The judge+agt takes each small ox of the man if the man sells the fish.
 
-ARC 8 Omen — Ngïketsopa — 3 texts in 3 places
-  [248 Annal, era 0, year 34] in Hikumime (Archive)
-    The peoples of Hikumime saw the eclipse in the 25th year of Ngïketsopa again. The god of the rain [done] said to Ngïketsopa in the 25th year of Ngïketsopa: Ngïketsopa, king, gave the bowl for the god of the rain in the 26th year of Ngïketsopa.
-  [249 Oracle, era 0, year 34] in Hikumime (Temple)
-    Ngïketsopa, king, [done] said to the god of the rain "[question] Hikumime falls". The god of the rain said to Ngïketsopa "Give the bowl for the god of the rain, and Hikumime does not fall".
-  [250 Dedication, era 0, year 34] in Hikumime (House)
-    Ngïketsopa, king, gave this altar for the god of the rain after the peoples saw the eclipse.
+ARC 6 Disaster — Kïnonemïme — 9 texts in 5 places
+  [241 Annal, era 0, year 220] in Kudeyopu (Temple)
+    The earth [done] broke the walls of Kudeyopu in the 2th year of Kïnonemïme there. The peoples of Kudeyopu did not find the fish in the 3th year of Kïnonemïme again. Kïnonemïme, king, [done] said in the 3th year of Kïnonemïme then "Do not sell the fish". Konïhïpa, build+agt, dug the earth of the wall for Kïnonemïme in the 4th year of Kïnonemïme then. Konïhïpa, build+agt, [done] built the wall of Kudeyopu for Kïnonemïme in the 24th year of Kïnonemïme there.
+  [242 Prayer, era 0, year 220] in Kudeyopu (Temple)
+    May the god of the rain keep the peoples of Kudeyopu. The peoples wept again because the earth [done] broke the walls of Kudeyopu.
+  [243 Inventory, era 0, year 220] in Kudeyopu (Storehouse)
+    Three fish, 14 empty jars.
+  [244 Building, era 0, year 220] in Kudeyopu (Temple)
+    Konïhïpa, build+agt, [done] built this wall for Kïnonemïme, king, in the 24th year of Kïnonemïme. May the god of the fire bless this wall.
+  [245 Receipt, era 0, year 220] in Kudeyopu (Storehouse)
+    32 stones, 109 oils, 23 loaves, 164 in all.
+  [338 Decree, era 0, year 199] in Hikumime (Palace)
+    Kïnonemïme, king, [done] said in the 3th year of Kïnonemïme again "Do not sell the fish". The judge+agt takes each ox of the man then if the man sells the fish.
+  [339 Decree, era 0, year 199] in Kudeyopu (Temple)
+    Kïnonemïme, king, [done] said in the 3th year of Kïnonemïme again "Do not sell the fish". The judge+agt takes each ox of the man then if the man sells the fish.
+  [340 Decree, era 0, year 199] in Lïhunguki (MarketHall)
+    Kïnonemïme, king, [done] said in the 3th year of Kïnonemïme again "Do not sell the fish". The judge+agt takes each ox of the man then if the man sells the fish.
+  [341 Decree, era 0, year 199] in Papatonguki (Temple)
+    Kïnonemïme, king, [done] said in the 3th year of Kïnonemïme again "Do not sell the fish". The judge+agt takes each ox of the man then if the man sells the fish.
 
-ARC 9 Omen — Kïnonemïme — 3 texts in 3 places
-  [251 Annal, era 0, year 215] in Hikumime (Archive)
-    The peoples of Hikumime saw the comet in the 18th year of Kïnonemïme. The god of the storm [done] said to Kïnonemïme in the 18th year of Kïnonemïme: Kïnonemïme, king, gave the white bowl for the god of the storm in the 19th year of Kïnonemïme.
-  [252 Oracle, era 0, year 215] in Hikumime (Temple)
-    Kïnonemïme, king, [done] said to the god of the storm "[question] Hikumime falls". The god of the storm said to Kïnonemïme "Give the bowl for the god of the storm, and Hikumime does not fall".
-  [253 Dedication, era 0, year 215] in Hikumime (House)
-    Kïnonemïme, king, gave this altar for the god of the storm after the peoples saw the comet.
+ARC 7 Venture — Kudebepa — 4 texts in 3 places
+  [246 Annal, era 0, year 261] in Hikumime (Archive)
+    Kudebepa, sell+agt, carried the wine for the peoples of Kudeyopu in the 24th year of Ngïkenoyïla. The peoples of Hikumime [done] did not find the wine in the 25th year of Ngïkenoyïla. Ximonemïme lent 51 wines for Kudebepa in the 26th year of Ngïkenoyïla.
+  [247 Inventory, era 0, year 261] in Kudeyopu (Storehouse)
+    60 wines, 18 jars, the seal of Kudebepa.
+  [248 Letter, era 0, year 261] in Hikumime (House)
+    Kudebepa said to Ngïkenoyïla: Kudebepa [done] carried the wine for the peoples of Kudeyopu. The peoples of Hikumime did not find the wine. Send three sheep for Kudebepa.
+  [249 Contract, era 0, year 261] in Kudeyopu (Storehouse)
+    Ximonemïme, scribe, [done] lent 51 wines for Kudebepa in the 26th year of Ngïkenoyïla again. Kudebepa gives 63 wines for Ximonemïme there.
 
-ARC 10 Omen — Rapingedïda — 3 texts in 3 places
-  [254 Annal, era 0, year 135] in Hikumime (Archive)
-    The peoples of Hikumime saw the eclipse in the 22th year of Rapingedïda then. The god of the sea [done] said to Rapingedïda in the 22th year of Rapingedïda there: Rapingedïda, king, gave the new bowl for the god of the sea in the 23th year of Rapingedïda.
-  [255 Oracle, era 0, year 135] in Hikumime (Temple)
-    Rapingedïda, king, [done] said to the god of the sea again "[question] Hikumime falls". The god of the sea said to Rapingedïda then "Give the bowl for the god of the sea, and Hikumime does not fall".
-  [256 Dedication, era 0, year 135] in Hikumime (House)
-    Rapingedïda, king, gave this altar for the god of the sea after the peoples saw the eclipse.
+ARC 8 Omen — Lïkobatila — 3 texts in 3 places
+  [250 Annal, era 0, year 168] in Hikumime (Archive)
+    The peoples of Hikumime [done] saw the eclipse in the 23th year of Lïkobatila there. The god of the rain said to Lïkobatila in the 23th year of Lïkobatila there: Lïkobatila, king, gave the bowl for the god of the rain in the 24th year of Lïkobatila.
+  [251 Oracle, era 0, year 168] in Hikumime (Temple)
+    Lïkobatila, king, said to the god of the rain "[question] Hikumime falls". The god of the rain said to Lïkobatila "Give the bowl for the god of the rain, and Hikumime does not fall".
+  [252 Dedication, era 0, year 168] in Hikumime (House)
+    Lïkobatila, king, gave this altar for the god of the rain after the peoples saw the eclipse.
 
-ARC 11 Letters — Ye'okefe, Rekïdongu — 3 texts in 3 places
-  [257 Annal, era 0, year 64] in Kudeyopu (Temple)
-    Ye'okefe, king, married Rekïdongu in the 17th year of Ye'okefe. The peoples of Hikumime [done] did not find the knives in the 21th year of Ye'okefe then.
-  [258 Letter, era 0, year 64] in Kudeyopu (House)
-    Ye'okefe, king, said to Rekïdongu: Ye'okefe, king, [done] married Rekïdongu. May the god of the rain keep Rekïdongu. Send the oil for Ye'okefe before the winter comes.
-  [259 Letter, era 0, year 64] in Hikumime (House)
-    Rekïdongu said to Ye'okefe again: The peoples of Hikumime [done] did not find the knives then. May the god of the rain keep Ye'okefe. Send the oil for Rekïdongu before the winter comes.
+ARC 9 Omen — Ngïketsopa — 3 texts in 3 places
+  [253 Annal, era 0, year 21] in Hikumime (Archive)
+    The peoples of Hikumime [done] saw the eclipse in the 12th year of Ngïketsopa. The god of the sea said to Ngïketsopa in the 12th year of Ngïketsopa: Ngïketsopa, king, gave the old bowl for the god of the sea in the 13th year of Ngïketsopa then.
+  [254 Oracle, era 0, year 21] in Hikumime (Temple)
+    Ngïketsopa, king, said to the god of the sea then "[question] Hikumime falls". The god of the sea said to Ngïketsopa there "Give the bowl for the god of the sea, and Hikumime does not fall".
+  [255 Dedication, era 0, year 21] in Hikumime (House)
+    Ngïketsopa, king, gave this old altar for the god of the sea then after the peoples saw the eclipse.
+
+ARC 10 Omen — Kïnonemïme — 3 texts in 2 places
+  [256 Annal, era 0, year 229] in Kudeyopu (Temple)
+    The peoples of Kudeyopu saw the comet in the 32th year of Kïnonemïme then. The god of the sea said to Kïnonemïme in the 32th year of Kïnonemïme then: Kïnonemïme, king, [done] gave the bowl for the god of the sea in the 33th year of Kïnonemïme.
+  [257 Oracle, era 0, year 229] in Kudeyopu (Temple)
+    Kïnonemïme, king, said to the god of the sea "[question] Kudeyopu falls". The god of the sea said to Kïnonemïme "Give the bowl for the god of the sea, and Kudeyopu does not fall".
+  [258 Dedication, era 0, year 229] in Kudeyopu (House)
+    Kïnonemïme, king, [done] gave this altar for the god of the sea after the peoples saw the comet.
+
+ARC 11 Life — Rebenatsu — 3 texts in 2 places
+  [259 Annal, era 0, year 269] in Kudeyopu (Temple)
+    Rebenatsu, build+agt, [done] dug the earth of the well for Kïnonemïme in the 38th year of Kïnonemïme. Rebenatsu, build+agt, did not build the well of Kudeyopu in the 3th year of Ngïkenoyïla. Rebenatsu [done] dug the earth of the temple for Ngïkenoyïla in the 11th year of Ngïkenoyïla. Rebenatsu dug the earth of the hall for Ngïkenoyïla in the 15th year of Ngïkenoyïla. Rebenatsu [done] built the holy temple of Kudeyopu for Ngïkenoyïla in the 5th year of Bonakehïpa again.
+  [260 Blessing, era 0, year 269] in Kudeyopu (House)
+    May the god of the fire bless the house of Rebenatsu. May the children of Rebenatsu live always.
+  [261 Graffito, era 0, year 269] in Kudeyopu (House)
+    Rebenatsu, build+agt, [done] came in the 38th year of Kïnonemïme here.
 
 ```
