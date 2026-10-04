@@ -1599,9 +1599,17 @@ fn everyday<'a>(rng: &mut Rng, h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, 
                         one(clause("rise", Some(np("sun")), None)
                             .now()
                             .sub(Link::When, clause("wake", Some(s.god(d)), None).now())),
-                        one(
-                            clause("honour", Some(det(plural("people"), "all")), Some(s.god(d)))
+                        Sentence::Joined(
+                            Conj::And,
+                            vec![
+                                clause(
+                                    "honour",
+                                    Some(det(plural("people"), "all")),
+                                    Some(s.god(d)),
+                                )
                                 .now(),
+                                clause("sing", Some(det(plural("people"), "all")), None).now(),
+                            ],
                         ),
                     ]);
                     if let Some(at) = here(pen, &["wall", "statue", "altar", "niche"]) {
@@ -1785,6 +1793,14 @@ fn everyday<'a>(rng: &mut Rng, h: &History, scribe: &dyn Fn(u32) -> Scribe<'a>, 
                                 )
                                 .mood(Mood::Optative)));
                             }
+                            body.push(one(clause(
+                                "send",
+                                None,
+                                Some(np(*rng.pick(&["oil", "grain", "cloth"]))),
+                            )
+                            .mood(Mood::Imperative)
+                            .to(s.name(a))
+                            .sub(Link::Before, clause("come", Some(np("winter")), None).now())));
                             if let Some(at) = here(pen, &["chest", "shelf", "niche", "table"]) {
                                 pen.write(
                                     at,

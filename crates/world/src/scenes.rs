@@ -258,10 +258,18 @@ pub fn place(
                 if add(kind, at, Some(s.id), Some(e.id), cause) {
                     count += 1;
                 } else if disaster {
-                    // Its spot taken: the marks lie out in the street.
-                    let c = Cell::new(s.cell.ux() + 1 + e.id % 3, s.cell.uy() + 1);
-                    if add(kind, outside(c), Some(s.id), Some(e.id), cause) {
-                        count += 1;
+                    // Its spot taken: the marks are in another building.
+                    for st in &here {
+                        let at = SceneAt::Room {
+                            structure: st.id,
+                            room: 0,
+                        };
+                        if !st.interior.rooms.is_empty()
+                            && add(kind, at, Some(s.id), Some(e.id), cause)
+                        {
+                            count += 1;
+                            break;
+                        }
                     }
                 }
             }
