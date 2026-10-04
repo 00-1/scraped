@@ -36,6 +36,17 @@ pub enum Regularity {
 }
 
 /// All difficulty dials for one language.
+/// How the aspect and mood markers stand (D07): as separate words (easy
+/// to spot), as the seed chooses, or all attached to the verb.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Markers {
+    Words,
+    #[default]
+    Mixed,
+    Attached,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct Difficulty {
     pub separation: Separation,
@@ -45,6 +56,8 @@ pub struct Difficulty {
     /// Number of historical eras, 1–5.
     pub eras: u32,
     pub regularity: Regularity,
+    /// Aspect and mood markers as words or affixes (D07).
+    pub markers: Markers,
 }
 
 impl Default for Difficulty {
@@ -58,6 +71,7 @@ impl Default for Difficulty {
             script: None,
             eras: 3,
             regularity: Regularity::Regular,
+            markers: Markers::Mixed,
         }
     }
 }
@@ -77,6 +91,7 @@ impl Difficulty {
                 names: NameMarking::Determinative,
                 script: Some(ScriptKind::Alphabet),
                 eras: 2,
+                markers: Markers::Words,
                 ..d
             },
             "standard" => d,
@@ -84,6 +99,7 @@ impl Difficulty {
                 separation: Separation::Dots,
                 eras: 4,
                 regularity: Regularity::Fused,
+                markers: Markers::Attached,
                 ..d
             },
             _ => return None,

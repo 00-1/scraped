@@ -135,6 +135,28 @@ impl GrammarSheet {
             "adjectives, numerals, 'this' and 'here' never inflect".to_string(),
             "a counted noun is plural when the number is above one".to_string(),
         ];
+        morphology_notes.push(
+            "derivations sit next to the root, before inflection: AGT one who does it, PLACE where it is done, INSTR what it is done with (from verbs); ABST the state or quality (from nouns and adjectives); DIM a small one; ADJZ like it (from nouns)".to_string(),
+        );
+        morphology_notes.push(format!(
+            "compounds: {}",
+            if m.compound_head_last {
+                "modifier then head (river-stone: a stone of the river)"
+            } else {
+                "head then modifier (stone-river: a stone of the river)"
+            }
+        ));
+        morphology_notes.push(format!(
+            "names: {}",
+            match crate::names::NameStyle::of(lang.seed) {
+                crate::names::NameStyle::Compound =>
+                    "two words compounded (a quality or thing, then a beast or thing)",
+                crate::names::NameStyle::Derived =>
+                    "one word with a derivation (little hawk, oak-like)",
+                crate::names::NameStyle::Mixed =>
+                    "two words compounded, or one word with a derivation",
+            }
+        ));
         if !m.particles().is_empty() {
             morphology_notes.push(
                 "particles are separate words right after their host (before it when affixes are prefixes)".to_string(),
@@ -185,6 +207,11 @@ impl GrammarSheet {
                         affix(a, "verb", m.verb_position)
                     }
                 })
+                .chain(
+                    m.derivations
+                        .iter()
+                        .map(|a| affix(a, "derivation", m.noun_position)),
+                )
                 .collect(),
             fusions: m
                 .fusions

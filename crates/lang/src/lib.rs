@@ -198,7 +198,8 @@ impl Language {
         phonology.respell(&spelling);
 
         let numerals = Numerals::generate(seed);
-        let morphology = Morphology::generate(seed, &phonology, difficulty.regularity);
+        let morphology =
+            Morphology::generate_with(seed, &phonology, difficulty.regularity, difficulty.markers);
         let syntax = Syntax::generate(seed);
         let lexicon = {
             let mut rng = Rng::new(seed, Stream::Lexicon);

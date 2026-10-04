@@ -511,6 +511,14 @@ fn bench(req: &Value) -> Value {
         } else {
             Regularity::Regular
         },
+        // D07: aspect and mood markers as words (4) or all attached (8).
+        markers: if flags & 4 != 0 {
+            scraped_lang::difficulty::Markers::Words
+        } else if flags & 8 != 0 {
+            scraped_lang::difficulty::Markers::Attached
+        } else {
+            scraped_lang::difficulty::Markers::Mixed
+        },
     };
     let seed = seed(req);
     let count: u32 = opt(req, "count", 30);
@@ -520,8 +528,23 @@ fn bench(req: &Value) -> Value {
         .map(|lang| {
             let corpus = Corpus::generate(lang, count);
             let r = corpus.renderer();
+            // D07: longer sentences using every construction, for seeing
+            // the grammar at work (meanings are random, not texts).
+            let mut rng = scraped_lang::rng::Rng::new(seed, scraped_lang::rng::Stream::Inscription(9_000));
+            let long: Vec<Value> = (0..10)
+                .map(|_| {
+                    let m = scraped_lang::sample::sentence(lang, &mut rng, r.names.len());
+                    let rendered = r.render(&m);
+                    json!({
+                        "text": r.surface(&rendered),
+                        "translation": scraped_lang::english::translate(&m, &|n| r.name(n)),
+                        "words": rendered.words.iter().map(|w| json!({"segmented": r.segmented(w), "gloss": w.gloss()})).collect::<Vec<_>>(),
+                    })
+                })
+                .collect();
             json!({
                 "era": lang.era,
+                "long": long,
                 "corpus": corpus.to_json(true),
                 "plain": corpus.inscriptions.iter().map(|i| corpus.text(i)).collect::<Vec<_>>(),
                 "glyphs": corpus.inscriptions.iter().map(|i| r.glyph_lines(&i.rendered, Corpus::GLYPH_LINE)).collect::<Vec<_>>(),

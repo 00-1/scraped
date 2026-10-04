@@ -159,6 +159,22 @@ impl Morphology {
     /// Generates affixes for a language. Affixes are distinct, and every
     /// combination within a paradigm spells out differently.
     pub fn generate(seed: u64, phonology: &Phonology, regularity: Regularity) -> Self {
+        Self::generate_with(
+            seed,
+            phonology,
+            regularity,
+            crate::difficulty::Markers::Mixed,
+        )
+    }
+
+    /// Generates affixes with the aspect and mood markers set by the
+    /// difficulty dial (D07).
+    pub fn generate_with(
+        seed: u64,
+        phonology: &Phonology,
+        regularity: Regularity,
+        markers: crate::difficulty::Markers,
+    ) -> Self {
         let mut rng = Rng::new(seed, Stream::Morphology);
         let noun_position = position(&mut rng);
         let verb_position = position(&mut rng);
@@ -189,7 +205,7 @@ impl Morphology {
                 compound_head_last: true,
             };
             if m.affixes_are_distinct() {
-                m.add_moods_and_aspect(seed, phonology);
+                m.add_moods_and_aspect(seed, phonology, markers);
                 m.add_derivations(seed, phonology);
                 if regularity == Regularity::Fused {
                     m.fuse_some(seed, phonology);
@@ -206,7 +222,12 @@ impl Morphology {
     // tense plus one marked aspect: perfective, imperfective or habitual.
     // Moods are optative, conditional and interrogative, each with its own
     // marker.
-    fn add_moods_and_aspect(&mut self, seed: u64, phonology: &Phonology) {
+    fn add_moods_and_aspect(
+        &mut self,
+        seed: u64,
+        phonology: &Phonology,
+        markers: crate::difficulty::Markers,
+    ) {
         let mut rng = Rng::new(seed, Stream::Grammar);
         self.aspect = rng.weighted(&[
             (Aspect::Simple, 25),
@@ -216,10 +237,19 @@ impl Morphology {
         ]);
         let base = self.clone();
         loop {
-            let mut make = |gloss: &'static str| Affix {
-                gloss,
-                form: phonology.random_affix(&mut rng),
-                particle: rng.chance(30),
+            let mut make = |gloss: &'static str| {
+                let form = phonology.random_affix(&mut rng);
+                // The draw is made whatever the dial, so forms stay put.
+                let chance = rng.chance(30);
+                Affix {
+                    gloss,
+                    form,
+                    particle: match markers {
+                        crate::difficulty::Markers::Words => true,
+                        crate::difficulty::Markers::Mixed => chance,
+                        crate::difficulty::Markers::Attached => false,
+                    },
+                }
             };
             let aspect_gloss = match self.aspect {
                 Aspect::Perfective => "PFV",

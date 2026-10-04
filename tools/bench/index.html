@@ -103,6 +103,7 @@ footer { color: var(--muted); font-size: .85rem; }
     <div class="field"><label for="script">Script</label><select id="script"><option value="0">by seed</option><option value="1">alphabet</option><option value="2">abjad</option><option value="3">syllabary</option></select></div>
     <label class="toggle" for="names"><input type="checkbox" id="names"> Mark names</label>
     <label class="toggle" for="fused"><input type="checkbox" id="fused"> Fused forms</label>
+    <div class="field"><label for="markers">Aspect &amp; mood</label><select id="markers"><option value="0">by seed</option><option value="4">separate words</option><option value="8">attached</option></select></div>
     <button type="submit" class="primary">Generate</button>
     <button type="button" id="random">Random seed</button>
     <label class="toggle" for="spoil"><input type="checkbox" id="spoil"> Show spoilers</label>
@@ -179,7 +180,7 @@ function generate() {
   const count = Math.min(200, Math.max(1, parseInt($("count").value, 10) || 30));
   const eras = Math.min(5, Math.max(1, parseInt($("eras").value, 10) || 3));
   $("count").value = count; $("eras").value = eras;
-  const flags = ($("names").checked ? 1 : 0) | ($("fused").checked ? 2 : 0);
+  const flags = ($("names").checked ? 1 : 0) | ($("fused").checked ? 2 : 0) | Number($("markers").value);
   const t0 = performance.now();
   state.data = api({ cmd: "bench", seed: seed.toString(), count, eras,
     separation: Number($("separation").value), script: Number($("script").value), flags });
@@ -238,7 +239,11 @@ function render() {
       ${spoil ? `<div class="spoil">
         <div class="meta"><span class="chip">${esc(i.kind)}</span><span class="tr">${esc(i.translation)}</span></div>
         <div class="igt">${i.words.map(w => `<div><span>${esc(w.segmented)}</span><span class="g">${esc(w.gloss)}</span></div>`).join("")}</div>
-      </div>` : ""}</li>`).join("")}</ol>`;
+      </div>` : ""}</li>`).join("")}</ol>
+      <h2>Longer sentences</h2><p class="note">Random meanings using every construction of the grammar (joined and subordinate clauses, relative clauses, reported speech, comparison, moods, derived words).</p>
+      <ol class="corpus">${(era.long || []).map((l, n) => `<li><span class="n">${n + 1}</span><span class="line">${esc(l.text)}</span>
+      ${spoil ? `<div class="spoil"><div class="meta"><span class="tr">${esc(l.translation)}</span></div>
+        <div class="igt">${l.words.map(w => `<div><span>${esc(w.segmented)}</span><span class="g">${esc(w.gloss)}</span></div>`).join("")}</div></div>` : ""}</li>`).join("")}</ol>`;
   } else if (state.tab === "eras") {
     const last = d.eras[d.eras.length - 1].sheet;
     const rules = spoil && last.history.length ? `<div class="rules"><h2>Sound changes</h2>${last.history.map(s =>

@@ -17,6 +17,12 @@ MORPHOLOGY
   OPT  yim-         (verb)
   COND tu-          (verb)
   Q    la-          (verb)
+  AGT  -sa          (derivation)
+  PLACE -ka          (derivation)
+  INSTR -no          (derivation)
+  ABST -na          (derivation)
+  DIM  -nu          (derivation)
+  ADJZ -wo          (derivation)
   nouns: root-NUMBER-CASE
   verbs: NEG-MOOD-TENSE-ASPECT-root
   aspect marked: imperfective (ongoing)
@@ -24,6 +30,9 @@ MORPHOLOGY
   unmarked: singular, subject case, non-past, positive
   adjectives, numerals, 'this' and 'here' never inflect
   a counted noun is plural when the number is above one
+  derivations sit next to the root, before inflection: AGT one who does it, PLACE where it is done, INSTR what it is done with (from verbs); ABST the state or quality (from nouns and adjectives); DIM a small one; ADJZ like it (from nouns)
+  compounds: modifier then head (river-stone: a stone of the river)
+  names: two words compounded (a quality or thing, then a beast or thing)
 
 SYNTAX
   clause order: SOV
