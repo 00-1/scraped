@@ -9,11 +9,17 @@ publish.workspace = true
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+# The bench and authoring calls and every spoiler; the browser player is
+# built without them (C01).
+default = ["spoilers"]
+spoilers = ["scraped-game/spoilers"]
+
 [dependencies]
 scraped-lang = { path = "../lang" }
 scraped-content = { path = "../content" }
 serde.workspace = true
 serde_json.workspace = true
 scraped-world = { path = "../world" }
-scraped-game = { path = "../game" }
+scraped-game = { path = "../game", default-features = false }
 scraped-sim = { path = "../sim" }

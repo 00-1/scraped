@@ -306,7 +306,7 @@ impl Game {
                 .then(b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal))
                 .then_with(|| a.2.key.cmp(&b.2.key))
         });
-        if self.spoil {
+        if self.spoiling() {
             for (score, fresh, f) in &scored {
                 self.attended.push(serde_json::json!({
                     "slot": f.slot,

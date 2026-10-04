@@ -14,8 +14,18 @@ path = "src/main.rs"
 name = "scraped-mcp"
 path = "src/bin/scraped-mcp.rs"
 
+[features]
+# The developer tools keep spoilers; the player build is made without them:
+# cargo build --release -p scraped-play --bin scraped-player --no-default-features
+default = ["spoilers"]
+spoilers = ["scraped-game/spoilers"]
+
+[[bin]]
+name = "scraped-player"
+path = "src/bin/scraped-player.rs"
+
 [dependencies]
 scraped-content = { path = "../content" }
-scraped-game = { path = "../game" }
+scraped-game = { path = "../game", default-features = false }
 serde.workspace = true
 serde_json.workspace = true

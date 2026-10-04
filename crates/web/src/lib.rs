@@ -4,6 +4,7 @@
 //! JavaScript writes a JSON request into memory from `alloc`, calls `call`,
 //! and reads the JSON reply from the returned pointer (`output_len` bytes).
 //! No bindings generator: the interface is three functions.
+#![cfg_attr(not(feature = "spoilers"), allow(dead_code, unused_imports))]
 
 use std::cell::RefCell;
 
@@ -117,7 +118,9 @@ struct FileText {
 fn dispatch(req: &Value) -> Result<Value, String> {
     let cmd: String = field(req, "cmd")?;
     match cmd.as_str() {
+        #[cfg(feature = "spoilers")]
         "bench" => Ok(bench(req)),
+        #[cfg(feature = "spoilers")]
         "world" => Ok(with_world(seed(req), |w| {
             let (side, px) = scraped_world::debug::pixels(w, 1);
             let lang = |e: u32| &w.languages[e as usize];
@@ -147,6 +150,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             })
         })),
         // D04: floor plans of an interior, a level at a time (spoilers).
+        #[cfg(feature = "spoilers")]
         "plan" => {
             let structure: usize = field(req, "structure")?;
             Ok(with_world(seed(req), |w| {
@@ -194,13 +198,26 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             }
             None => Err("no game started".to_string()),
         }),
+        // Sealed (C01): the seed and state can't be read by eye; the moves
+        // stay readable, for the app's history.
         "play_save" => GAME.with(|g| match g.borrow().as_ref() {
-            Some(game) => Ok(json!(game.save())),
+            Some(game) => {
+                let save = game.save();
+                Ok(json!({
+                    "sealed": scraped_game::saves::seal(&serde_json::to_string(&save).map_err(|e| e.to_string())?),
+                    "turn": save.turn,
+                    "commands": save.commands,
+                }))
+            }
             None => Err("no game started".to_string()),
         }),
         "play_load" => {
             let (pack, _) = pack(req)?;
-            let save: scraped_game::Save = field(req, "save")?;
+            let save: scraped_game::Save = match req["save"]["sealed"].as_str() {
+                Some(sealed) => serde_json::from_str(&scraped_game::saves::unseal(sealed)?)
+                    .map_err(|e| e.to_string())?,
+                None => field(req, "save")?,
+            };
             let (mut game, changed) = scraped_game::Game::load(&save, pack);
             game.spoil = opt(req, "spoil", false);
             game.trace = opt(req, "trace", false);
@@ -215,16 +232,19 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state, "truth": look.truth }),
             )
         }
+        #[cfg(feature = "spoilers")]
         "regions" => {
             let g = scraped_game::Game::new(seed(req), scraped_content::Pack::default());
             Ok(json!({ "text": g.regions_debug(opt(req, "days", 180)) }))
         }
+        #[cfg(feature = "spoilers")]
         "writing" => {
             let site = scraped_game::site::Site::new(seed(req));
             Ok(
                 json!({ "text": scraped_sim::writing::debug(&site.world, &site.land, &site.writing, &site.writing.scraped) }),
             )
         }
+        #[cfg(feature = "spoilers")]
         "site" => {
             let id: usize = field(req, "settlement")?;
             Ok(with_world(
@@ -232,10 +252,12 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 |w| json!({ "text": scraped_world::debug::site(w, id) }),
             ))
         }
+        #[cfg(feature = "spoilers")]
         "registry" => {
             let (pack, _) = pack(req)?;
             Ok(registry_json(&scraped_game::slots::registry_for(&pack)))
         }
+        #[cfg(feature = "spoilers")]
         "storylet_schema" => Ok(scraped_game::storylets::schema()),
         // The world to play for a requested seed: itself if fair, else a
         // fair one derived from it.
@@ -304,6 +326,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             Ok(json!({ "hash": scraped_game::coverage::transcript_hash(&pack, seed(req), &preset, steps) }))
         }
         // Bots play the given seeds; which text players meet, and how often.
+        #[cfg(feature = "spoilers")]
         "coverage" => {
             let (pack, _) = pack(req)?;
             let seeds: Vec<u64> = opt::<Vec<String>>(req, "seeds", vec!["1".into(), "42".into()])
@@ -318,6 +341,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             )))
         }
         // The D01 depth metrics, for the bench and the authoring tool.
+        #[cfg(feature = "spoilers")]
         "depth" => {
             let (pack, _) = pack(req)?;
             let seeds: Vec<u64> = opt::<Vec<String>>(req, "seeds", vec!["1".into()])
@@ -332,6 +356,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 hours.clamp(1.0, 72.0)
             )))
         }
+        #[cfg(feature = "spoilers")]
         "voice" => {
             let (pack, _) = pack(req)?;
             Ok(json!({
@@ -342,6 +367,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
         }
         // What changed since `old` (the committed pack the tool was built
         // with), and whether saves still replay the same.
+        #[cfg(feature = "spoilers")]
         "diff" => {
             let new: Pack = field(req, "pack")?;
             let old: Pack = match req.get("old") {
@@ -360,6 +386,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             Ok(json!(scraped_content::voice::diff(&old, &new)))
         }
         // Hot reload: the running playtest takes the new text.
+        #[cfg(feature = "spoilers")]
         "play_pack" => {
             let (pack, _) = pack(req)?;
             GAME.with(|g| match g.borrow_mut().as_mut() {
@@ -371,20 +398,24 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             })
         }
         // The run inspector: what the player knows and has done.
+        #[cfg(feature = "spoilers")]
         "play_inspect" => GAME.with(|g| match g.borrow().as_ref() {
             Some(game) => Ok(game.inspect()),
             None => Err("no game started".to_string()),
         }),
+        #[cfg(feature = "spoilers")]
         "storylet_preview" => {
             let (pack, _) = pack(req)?;
             let id: String = field(req, "id")?;
             let mut g = scraped_game::Game::new(seed(req), pack);
             Ok(g.preview_storylet(&id))
         }
+        #[cfg(feature = "spoilers")]
         "parse" => {
             let (pack, errors) = pack(req)?;
             Ok(json!({ "pack": pack, "errors": errors, "version": pack.version() }))
         }
+        #[cfg(feature = "spoilers")]
         "write" => {
             let pack: Pack = field(req, "pack")?;
             let files: Vec<FileText> = pack
@@ -397,6 +428,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                 .collect();
             Ok(json!({ "files": files, "version": pack.version() }))
         }
+        #[cfg(feature = "spoilers")]
         "lint" => {
             let (pack, errors) = pack(req)?;
             let lang = Language::generate(42);
@@ -408,6 +440,7 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let cov = coverage(&registry, &pack, &issues);
             Ok(json!({ "issues": issues, "coverage": cov, "version": pack.version() }))
         }
+        #[cfg(feature = "spoilers")]
         "lint_variant" => {
             let v: Variant = field(req, "variant")?;
             let (pack, _) = pack(req)?;
@@ -419,12 +452,14 @@ fn dispatch(req: &Value) -> Result<Value, String> {
         }
         // Responses as the attention model assembles them (D02), so a
         // writer sees a piece among its neighbours and writes for the budget.
+        #[cfg(feature = "spoilers")]
         "in_context" => {
             let (pack, _) = pack(req)?;
             let slot: String = opt(req, "slot", String::new());
             let count: usize = opt(req, "count", 6);
             Ok(json!({ "rows": scraped_game::bots::in_context(&pack, seed(req), &slot, count) }))
         }
+        #[cfg(feature = "spoilers")]
         "preview" => {
             let (pack, _) = pack(req)?;
             let slot: String = field(req, "slot")?;

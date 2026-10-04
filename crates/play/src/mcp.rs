@@ -15,15 +15,21 @@ use crate::{protocol_line, PROTOCOL};
 /// The MCP protocol revision this server speaks.
 pub const MCP_VERSION: &str = "2025-06-18";
 
-/// A running server: the pack, and the game if one has begun.
+/// A running server: the pack, and the game if one has begun (a shared
+/// world's, when one is open).
 pub struct Server {
     pack: Pack,
     game: Option<Game>,
+    world: Option<crate::world::Shared>,
 }
 
 impl Server {
     pub fn new(pack: Pack) -> Self {
-        Server { pack, game: None }
+        Server {
+            pack,
+            game: None,
+            world: None,
+        }
     }
 
     /// Handles one message; `None` for notifications, which get no reply.
@@ -37,7 +43,7 @@ impl Server {
                 "capabilities": { "tools": {} },
                 "serverInfo": { "name": "scraped-again", "version": env!("CARGO_PKG_VERSION") },
                 // DEBUG-TEXT: instructions for agents, not player text.
-                "instructions": "Scraped Again: a text game about deciphering a lost language. Start with new_game, then send commands with act (look, read stele, go temple, help). Text in the game is what the player sees; never invent what writing means.",
+                "instructions": format!("Scraped Again: a text game about deciphering a lost language. Start with new_game (or open_world for a world shared with a person), then send commands with act (look, read stele, go temple, help); talk and talk_since carry table talk with your partner. Text in the game is what the player sees; never invent what writing means.\n\n{}", crate::FAIR_PLAY),
             })),
             "ping" => Ok(json!({})),
             "tools/list" => Ok(json!({ "tools": tools() })),
@@ -81,29 +87,80 @@ impl Server {
                 let mut g = Game::create(seed, self.pack.clone(), &preset, None);
                 let o = g.start();
                 self.game = Some(g);
+                self.world = None;
                 Ok(output(o))
             }
             "act" => {
                 let cmd = args["command"]
                     .as_str()
                     .ok_or((-32602, "act needs a command".to_string()))?;
+                if let Some(w) = self.world.as_mut() {
+                    return w.play(cmd).map(output).map_err(|e| (-32000, e));
+                }
                 let g = self.game.as_mut().ok_or_else(no_game)?;
                 Ok(output(g.step(cmd)))
             }
-            "save" => {
-                let g = self.game.as_ref().ok_or_else(no_game)?;
-                let save = g.save();
+            "open_world" => {
+                let path = args["path"]
+                    .as_str()
+                    .ok_or((-32602, "open_world needs a path".to_string()))?;
+                let who = args["as"].as_str().unwrap_or("ai");
+                let (w, o) =
+                    crate::world::Shared::open(std::path::Path::new(path), who, self.pack.clone())
+                        .map_err(|e| (-32000, e))?;
+                self.game = None;
+                self.world = Some(w);
+                Ok(output(o))
+            }
+            "talk" => {
+                let w = self
+                    .world
+                    .as_mut()
+                    .ok_or((-32000, "no shared world open: call open_world".to_string()))?;
+                let t = args["text"]
+                    .as_str()
+                    .ok_or((-32602, "talk needs text".to_string()))?;
+                w.talk(t).map_err(|e| (-32000, e))?;
+                Ok(text(String::new(), json!({ "talk": w.file.talk.len() })))
+            }
+            "talk_since" => {
+                let w = self
+                    .world
+                    .as_ref()
+                    .ok_or((-32000, "no shared world open: call open_world".to_string()))?;
+                let since = args["since"].as_u64().unwrap_or(0) as usize;
+                let talk = w.talk_since(since);
+                let lines: Vec<String> = talk
+                    .iter()
+                    .map(|t| format!("{} (after move {}): {}", t.who, t.turn, t.text))
+                    .collect();
                 Ok(text(
-                    serde_json::to_string(&save).expect("save"),
-                    json!(save),
+                    lines.join("\n"),
+                    json!({ "talk": talk, "next": since.max(w.file.talk.len()) }),
                 ))
             }
+            "save" => {
+                let g = self.game.as_ref().ok_or_else(no_game)?;
+                // Sealed (C01): not for reading by eye.
+                let sealed =
+                    scraped_game::saves::seal(&serde_json::to_string(&g.save()).expect("save"));
+                Ok(text(sealed.clone(), json!({ "save": sealed })))
+            }
             "load" => {
-                let save: Save = serde_json::from_value(args["save"].clone())
+                let raw = match &args["save"] {
+                    Value::String(s) => s.clone(),
+                    Value::Object(o) if o.get("save").is_some_and(Value::is_string) => {
+                        o["save"].as_str().unwrap_or("").to_string()
+                    }
+                    other => other.to_string(),
+                };
+                let json = scraped_game::saves::unseal(&raw).map_err(|e| (-32602, e))?;
+                let save: Save = serde_json::from_str(&json)
                     .map_err(|e| (-32602, format!("not a save: {e}")))?;
                 let (mut g, _) = Game::load(&save, self.pack.clone());
                 let o = g.step("look");
                 self.game = Some(g);
+                self.world = None;
                 Ok(output(o))
             }
             "seed_code" => {
@@ -136,13 +193,28 @@ fn tools() -> Value {
         },
         {
             "name": "save",
-            "description": "The current game as a save (seed, difficulty and commands), to load later.",
+            "description": "The current game as a sealed save, to load later.",
             "inputSchema": { "type": "object", "properties": {} }
         },
         {
             "name": "load",
             "description": "Load a save returned by the save tool.",
-            "inputSchema": { "type": "object", "properties": { "save": { "type": "object" } }, "required": ["save"] }
+            "inputSchema": { "type": "object", "properties": { "save": { "description": "what the save tool returned" } }, "required": ["save"] }
+        },
+        {
+            "name": "open_world",
+            "description": "Open a world shared with a person (a .world file from the shared worlds folder) and play on from its newest move. Refused for an older copy than one already played here.",
+            "inputSchema": { "type": "object", "properties": { "path": { "type": "string" }, "as": { "type": "string", "description": "who you are in this world (default ai)" } }, "required": ["path"] }
+        },
+        {
+            "name": "talk",
+            "description": "Leave a message for your partner in the open shared world (not a game command).",
+            "inputSchema": { "type": "object", "properties": { "text": { "type": "string" } }, "required": ["text"] }
+        },
+        {
+            "name": "talk_since",
+            "description": "Read the shared world's table talk after the first `since` messages (0 for all).",
+            "inputSchema": { "type": "object", "properties": { "since": { "type": "integer", "minimum": 0 } } }
         },
         {
             "name": "seed_code",
@@ -193,7 +265,23 @@ mod tests {
             .iter()
             .map(|t| t["name"].as_str().unwrap())
             .collect();
-        assert_eq!(names, ["new_game", "act", "save", "load", "seed_code"]);
+        assert_eq!(
+            names,
+            [
+                "new_game",
+                "act",
+                "save",
+                "load",
+                "open_world",
+                "talk",
+                "talk_since",
+                "seed_code"
+            ]
+        );
+        assert!(init["result"]["instructions"]
+            .as_str()
+            .unwrap()
+            .contains("Play from what the game shows you"));
         let early = call(
             &mut s,
             3,

@@ -14,3 +14,9 @@ scraped-world = { path = "../world" }
 serde.workspace = true
 serde_json.workspace = true
 toml.workspace = true
+
+[features]
+# Debug and spoiler output: ground truth, the facts weighed, slot traces.
+# The player build (`scraped-player`) leaves it out, so they don't exist.
+default = ["spoilers"]
+spoilers = []

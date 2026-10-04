@@ -8,6 +8,24 @@
 
 pub mod mcp;
 
+mod baked {
+    include!(concat!(env!("OUT_DIR"), "/pack.rs"));
+}
+
+/// The fair-play note shown to any agent that plays (C01).
+pub const FAIR_PLAY: &str = include_str!("../../../docs/coop/FAIR-PLAY.md");
+
+/// The content pack baked into the program (C01: the player program
+/// carries its text with it, and no authoring notes).
+pub fn baked_pack() -> Pack {
+    let files: Vec<(String, String)> = baked::FILES
+        .iter()
+        .map(|(n, t)| (n.to_string(), t.to_string()))
+        .collect();
+    Pack::load(&files).0
+}
+pub mod world;
+
 use std::path::{Path, PathBuf};
 
 use scraped_content::Pack;
@@ -171,10 +189,11 @@ impl Session {
                     .map(PathBuf::from)
                     .unwrap_or_else(|| self.default_save());
                 let save = self.game.save();
-                match std::fs::write(
-                    &path,
-                    serde_json::to_string_pretty(&save).expect("save serialises"),
-                ) {
+                // Sealed (C01): not for reading or editing by eye.
+                let sealed = scraped_game::saves::seal(
+                    &serde_json::to_string(&save).expect("save serialises"),
+                );
+                match std::fs::write(&path, sealed) {
                     Ok(()) => self.note("say.saved"),
                     Err(e) => self.wrap_output(format!("[{}: {e}]", path.display())),
                 }
@@ -186,6 +205,7 @@ impl Session {
                     .unwrap_or_else(|| self.default_save());
                 let loaded = std::fs::read_to_string(&path)
                     .map_err(|e| e.to_string())
+                    .and_then(|t| scraped_game::saves::unseal(&t))
                     .and_then(|t| serde_json::from_str::<Save>(&t).map_err(|e| e.to_string()));
                 match loaded {
                     Ok(save) => {

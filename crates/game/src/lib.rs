@@ -636,6 +636,12 @@ impl Game {
         self.site.world.seed
     }
 
+    /// Whether outputs carry ground truth: never in the player build (C01),
+    /// where the `spoilers` feature is left out.
+    pub fn spoiling(&self) -> bool {
+        cfg!(feature = "spoilers") && self.spoil
+    }
+
     /// The opening text.
     pub fn start(&mut self) -> Output {
         // The opening beat replaces the bare wake-up when Jb has written it.
@@ -1147,8 +1153,8 @@ impl Game {
         Output {
             text,
             state,
-            truth: if self.spoil { truth } else { None },
-            renders: if self.trace {
+            truth: if self.spoiling() { truth } else { None },
+            renders: if self.trace && cfg!(feature = "spoilers") {
                 self.renders.clone()
             } else {
                 Vec::new()
