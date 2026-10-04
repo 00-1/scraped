@@ -283,6 +283,12 @@ On completion, the game gives a zoomed-out assessment, in text, of how the world
 
 Idea: present that assessment as a chronicle in the world's own language, written by those who came after. The player can mostly read it by then, and understanding their own ending is the final test.
 
+## Possible future: other players as other hands
+
+Not planned; recorded so current work doesn't close it off (Jb, 2026-10-04).
+
+If the game ever has several players in one world, they would live on **separate timelines and share only traces**. Each player has their own clock, weather and seasons. What's shared is the world's lasting changes: writing, scraping, marks, opened doors, moved things, released spells. When a player syncs, others' changes appear in their world as things that happened while they weren't looking. Players are (almost) never in the same place at the same time, so there are no player interactions to support: others are present only through what they leave. In keeping with the theme, other players become other hands in the layers, and writing is how they speak to each other. Clashes resolve by order: whoever synced first took the lamp. To keep this open, saves keep the player's state separate from the world's (C01).
+
 ## Open questions
 
 - [ ] **What does "influence" mean?** One option: inscriptions are claims the world tries to honour ("the bridge holds"), so effects follow meaning and precision matters.
