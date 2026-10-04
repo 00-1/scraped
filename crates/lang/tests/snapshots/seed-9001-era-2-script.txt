@@ -11,7 +11,7 @@ SCRIPT — seed 9001 era 2: alphabet written right to left
   #7   n                n        hook up in the middle; cross at the bottom
   #8   ɲ                ñ        arc left in the middle; cross at the top
   #9   s                s        dot at the bottom; cross in the middle
-  #10  h                h        bar upright in the middle; wedge right on the right; zigzag down in the middle
+  #10  h                h        bar upright in the middle; wedge right on the right; zigzag up in the middle
   #11  l                l        tail up at the bottom
   #12  ɬ                ł        bar upright on the right; dot on the left
   #13  j                y        bar level on the left; cross on the right

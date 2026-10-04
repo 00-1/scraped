@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 use scraped_content::{Context, Renderer, Value};
 use scraped_lang::script::GlyphKey;
-use scraped_lang::slots::{impression_texts, stroke_context, LangHooks};
+use scraped_lang::slots::{impression_texts, part_phrase, LangHooks};
 use scraped_sim::outdoors::label;
 use serde_json::json;
 
@@ -441,15 +441,18 @@ impl Game {
             self.preset == "archaeologist",
         );
         let imp = imps[index].clone();
-        // Its most distinctive part: the rarest other mark, else the main
-        // stroke, told in full.
-        let part = imp.others.first().copied().unwrap_or(imp.main);
+        let shape = &imp.shape;
+        // Its most distinctive part, told with which way it faces.
         let distinctive = {
             let lang = &self.site.world.languages[era as usize];
             let hooks = LangHooks { lang };
             let seed = self.seed() ^ (u64::from(era) << 40 | index as u64 | 0xd157 << 16);
             let mut r = Renderer::new(&self.registry, &self.pack, seed, &hooks);
-            r.render("glyph.stroke", &stroke_context(&part))
+            imp.shape
+                .parts
+                .first()
+                .map(|p| part_phrase(&mut r, p))
+                .unwrap_or_default()
         };
         let top = self.text_of_sign(thing, n);
         let hand = self.hand(top);
@@ -458,17 +461,16 @@ impl Game {
         } else {
             String::new()
         };
-        let main = serde_json::to_value(imp.main.stroke)
-            .ok()
-            .and_then(|v| v.as_str().map(str::to_string))
-            .unwrap_or_default();
         let c = ctx(&[
             ("number", Value::Number(n as i64)),
             ("impression", Value::from(impression)),
-            ("outline", Value::from(imp.outline)),
-            ("main", Value::from(main)),
-            ("resembles", Value::from(imp.resembles)),
-            ("count", Value::Number(imp.count as i64)),
+            ("proportion", Value::from(shape.proportion)),
+            ("curve", Value::from(shape.curve)),
+            ("busy", Value::from(shape.busy)),
+            ("symmetry", Value::from(shape.symmetry)),
+            ("pieces", Value::Number(shape.pieces as i64)),
+            ("holes", Value::Number(shape.holes as i64)),
+            ("resembles", Value::from(shape.resembles)),
             ("distinctive", Value::from(distinctive)),
             ("hand", Value::from(hand)),
             ("heard", Value::Bool(!sound.is_empty())),

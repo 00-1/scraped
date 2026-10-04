@@ -528,7 +528,10 @@ fn s_glyph(seed: u64) -> Vec<Context> {
             let heard = i % 3 == 0;
             ctx(&[
                 ("number", Value::Number(i as i64 + 1)),
-                ("impression", Value::from(format!("a {} sign", imp.outline))),
+                (
+                    "impression",
+                    Value::from(format!("a {} sign", imp.told.proportion)),
+                ),
                 ("heard", Value::Bool(heard)),
                 ("sound", Value::from(if heard { "ka" } else { "" })),
             ])

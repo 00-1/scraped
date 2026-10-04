@@ -6,14 +6,14 @@ SCRIPT — seed 42 era 0: alphabet written left to right
   #2   k                k        bar level in the middle
   #3   b                b        wedge up on the left; zigzag right on the right
   #4   d                d        dot on the right; arc right at the bottom
-  #5   ʔ                '        dot on the right; wedge up on the left; zigzag left on the left
+  #5   ʔ                '        dot on the right; wedge up on the left; zigzag right on the left
   #6   m                m        bar level on the right; hook right in the middle; tail right at the bottom
   #7   n                n        hook right in the middle; hook left in the middle; zigzag up on the left
   #8   ŋ                ng       bar level in the middle; hook right in the middle
   #9   f                f        bar level on the right; hook down on the right; tail right at the bottom
-  #10  h                h        hook down on the right; dot on the right; wedge up on the left; zigzag left on the left
+  #10  h                h        hook down on the right; dot on the right; wedge up on the left; zigzag right on the left
   #11  x                x        bar level in the middle; hook down on the right
-  #12  ts               ts       arc down on the left; zigzag left on the right
+  #12  ts               ts       arc down on the left; zigzag right on the right
   #13  l                l        cross at the bottom
   #14  r                r        hook left on the right; wedge right on the left; tail right on the left
   #15  j                y        bar upright on the right; cross on the right

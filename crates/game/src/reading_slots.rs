@@ -3,7 +3,7 @@
 //! name as the player refers to it.
 
 use scraped_content::{Context, SlotDef, Value, VarType};
-use scraped_lang::impression::RESEMBLANCES;
+use scraped_lang::impression::{BUSY, CURVES, PROPORTIONS, RESEMBLANCES, SYMMETRY};
 
 use crate::site::ctx;
 use crate::slots::{materials, WRITING};
@@ -14,11 +14,6 @@ fn e(values: &[&str]) -> VarType {
         values: values.iter().map(|s| s.to_string()).collect(),
     }
 }
-
-const OUTLINES: [&str; 6] = ["round", "tall", "wide", "angular", "slight", "plain"];
-const STROKES: [&str; 9] = [
-    "bar", "hook", "dot", "ring", "arc", "wedge", "tail", "cross", "zigzag",
-];
 
 fn s_whole(_: u64) -> Vec<Context> {
     (0..6)
@@ -53,22 +48,28 @@ fn s_closer(_: u64) -> Vec<Context> {
                     "impression",
                     Value::from(
                         [
-                            "a tall sign, a hook",
-                            "a round sign, a ring like an eye",
-                            "like a tall sign, a hook, with a dot at the bottom",
+                            "a tall, curved sign like a crook",
+                            "a squarish, curved sign like an eye",
+                            "like a tall, curved sign like a crook, with a dot below",
                         ][i % 3],
                     ),
                 ),
-                ("outline", Value::from(OUTLINES[i % OUTLINES.len()])),
-                ("main", Value::from(STROKES[i % STROKES.len()])),
+                (
+                    "proportion",
+                    Value::from(PROPORTIONS[i % PROPORTIONS.len()]),
+                ),
+                ("curve", Value::from(CURVES[i % CURVES.len()])),
+                ("busy", Value::from(BUSY[1 + i % 3])),
+                ("symmetry", Value::from(SYMMETRY[1 + i % 4])),
+                ("pieces", Value::Number(1 + i as i64 % 3)),
+                ("holes", Value::Number(i as i64 % 2)),
                 (
                     "resembles",
                     Value::from(RESEMBLANCES[i % RESEMBLANCES.len()]),
                 ),
-                ("count", Value::Number(1 + i as i64 % 4)),
                 (
                     "distinctive",
-                    Value::from(["a hook turned left, at the top", "a dot, in the middle"][i % 2]),
+                    Value::from(["a curl above", "a dot inside"][i % 2]),
                 ),
                 ("hand", Value::from(HANDS[i % HANDS.len()])),
                 ("heard", Value::Bool(heard)),
@@ -173,11 +174,14 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("glyph.closer", "The player examines one sign of a text closely: a fuller impression than a close reading gives (its proportions, its most distinctive part, what it resembles, how it is cut), still how it looks, never how it is built stroke by stroke (tracing gives that). If its sound has been heard, it can say so.")
             .var("number", VarType::Number, "The sign's position in the text, from 1.")
             .var("impression", VarType::Text, "The sign at a glance, from glyph.impression.")
-            .var("outline", e(&OUTLINES), "Its overall outline.")
-            .var("main", e(&STROKES), "The stroke that carries it.")
+            .var("proportion", e(PROPORTIONS), "Its proportions.")
+            .var("curve", e(CURVES), "Curved, angular or both.")
+            .var("busy", e(&BUSY[1..]), "Spare or busy: how much is cut.")
+            .var("symmetry", e(&SYMMETRY[1..]), "Which way it is symmetric.")
+            .var("pieces", VarType::Number, "How many separate pieces it falls into.")
+            .var("holes", VarType::Number, "How many enclosed spaces it has.")
             .var("resembles", e(RESEMBLANCES), "What it looks like ('' if nothing).")
-            .var("count", VarType::Number, "How many strokes.")
-            .var("distinctive", VarType::Text, "Its most distinctive part, from glyph.stroke.")
+            .var("distinctive", VarType::Text, "The part of it that stands out most, from glyph.part (with which way it faces).")
             .var("hand", e(HANDS), "The hand it is written in.")
             .var("heard", VarType::Bool, "Whether the player has heard its sound.")
             .var("sound", VarType::Text, "Its sound, romanised, if heard.")

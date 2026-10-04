@@ -32,3 +32,5 @@ The cause is in the engine, not the example wording. An impression is an outline
 - Unique-impression share is unchanged (1.0 on gentle and standard).
 - `docs/samples/S02/` holds one `read closely` page per seed (1, 42, 9001), before and after, with a two-line note. No other samples needed.
 - LOG entry; then D08.
+
+**Done (2026-10-04).** All four met: the stroke-word test (`impressions_never_name_strokes`), unique share 1.0 on gentle and standard (`every_sign_is_told_apart`, 40 seeds × 3 script kinds), samples, LOG.

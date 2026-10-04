@@ -158,3 +158,48 @@ fn no_response_shows_a_raw_id() {
         }
     }
 }
+
+/// S02: impressions tell shapes, never strokes: no stroke name, turn or
+/// exact place, in any era, on three seeds, for every kind of script.
+#[test]
+fn impressions_never_name_strokes() {
+    use scraped_content::Renderer;
+    use scraped_lang::difficulty::Difficulty;
+    use scraped_lang::script::ScriptKind;
+    use scraped_lang::slots::{impression_texts, LangHooks};
+    use scraped_lang::Language;
+    const STROKE_WORDS: [&str; 15] = [
+        "bar", "hook", "ring", "arc", "wedge", "tail", "cross", "zigzag", "turned", "up", "down",
+        "left", "right", "centre", "top",
+    ];
+    let pack = pack();
+    let registry = crate::slots::registry_for(&pack);
+    for seed in [1, 42, 9001] {
+        for kind in [
+            ScriptKind::Alphabet,
+            ScriptKind::Abjad,
+            ScriptKind::Syllabary,
+        ] {
+            let difficulty = Difficulty {
+                script: Some(kind),
+                ..Difficulty::default()
+            };
+            for lang in Language::generate_with(seed, difficulty).eras() {
+                let hooks = LangHooks { lang: &lang };
+                let mut r = Renderer::new(&registry, &pack, seed, &hooks);
+                for text in impression_texts(&mut r, &lang.script, false) {
+                    let words = text
+                        .split(|c: char| !c.is_alphabetic() && c != '-' && c != '\'')
+                        .map(str::to_lowercase);
+                    for w in words {
+                        assert!(
+                            !STROKE_WORDS.contains(&w.as_str()),
+                            "seed {seed} {kind:?} era {}: {text}",
+                            lang.era
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

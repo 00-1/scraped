@@ -115,6 +115,9 @@ impl Mark {
             (Stroke::Dot | Stroke::Ring | Stroke::Cross, _) => Turn::Up,
             (Stroke::Bar, Turn::Down) => Turn::Up,
             (Stroke::Bar, Turn::Left) => Turn::Right,
+            // A zigzag looks the same turned half about (S02).
+            (Stroke::Zigzag, Turn::Down) => Turn::Up,
+            (Stroke::Zigzag, Turn::Left) => Turn::Right,
             (_, t) => t,
         };
         Mark { stroke, turn, spot }

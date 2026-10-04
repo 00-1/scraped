@@ -67,7 +67,7 @@ example = true
 
 [[variant]]
 slot = "glyph.closer"
-text = "Sign {number}: {impression}. Its {main} catches the eye; {distinctive}[if heard], the sign that sounded «{sound}»[end]."
+text = "Sign {number}: {impression}. [if distinctive]{cap distinctive} catches the eye[else]Nothing about it stands out[end][if heard]; the sign that sounded «{sound}»[end]."
 example = true
 
 [[variant]]

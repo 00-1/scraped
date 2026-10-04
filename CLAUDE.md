@@ -8,9 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**S02 — Sign impressions as whole shapes** (`docs/milestones/S02-sign-impressions.md`), a small steer after D07 and before **D08 — History and texts** (`docs/milestones/D08-history-and-texts.md`), in the depth roadmap in `docs/DEPTH.md`. D01–D07 and S01 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms, a living world, a language for long texts). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
-
-Keep S02 to its scope and one focused session.
+**D08 — History and texts** (`docs/milestones/D08-history-and-texts.md`), the eighth milestone of the depth roadmap in `docs/DEPTH.md`. D01–D07, S01 and S02 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms, a living world, a language for long texts, sign impressions as whole shapes). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
 

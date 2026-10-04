@@ -10,7 +10,7 @@ SCRIPT — seed 1 era 2: alphabet written left to right
   #6   ʔ                '        arc right on the right; arc left at the bottom; tail left on the right
   #7   m                m        tail down at the bottom; zigzag up at the bottom
   #8   n                n        ring on the right
-  #9   ŋ                ŋ        ring at the top; wedge up at the top; zigzag left at the bottom
+  #9   ŋ                ŋ        ring at the top; wedge up at the top; zigzag right at the bottom
   #10  f                f        dot on the right; arc left in the middle; cross in the middle
   #11  v                v        dot on the right; ring on the right; arc left in the middle; cross in the middle
   #12  s                s        hook up at the top; dot on the right; wedge left on the right

@@ -676,3 +676,13 @@ Review of D04–D06: targets met except those already reported (features visited
 **New content slots:** none (names and sentences are generated language).
 
 **Next:** S02, then D08.
+
+## 2026-10-04 — S02 done
+
+**Sign impressions as whole shapes:** an impression is now worked out from the sign as drawn (laid on a grid): proportions, curved or angular, spare or busy, symmetry, enclosed spaces, separate pieces, which way its weight leans along the line and sits, where it sits on the line, which way its lines run, its parts (dot, loop, crossing, point, curl, sweep, arch, line, saw edge) with a coarse place, and one of 31 everyday resemblances picked by rules on these (`crates/lang/src/impression.rs`). Each sign starts at proportions, curves and resemblance; a sign that reads like another gains the most noticeable feature that tells them apart. No stroke names, turns or exact places (a test over three seeds, all eras, every script kind); every sign still reads differently on gentle and standard, a few alike on archaeologist. `glyph.closer` gives the whole shape and the part that stands out. Also fixed: a zigzag turned half about looked the same but counted as a different sign. Samples in `docs/samples/S02/`.
+
+**Open questions:** "Sign impressions (S02)" in DECISIONS: the resemblance rules, spare/busy thresholds, archaeologist's one extra feature.
+
+**New content slots:** `glyph.part` (part, place, facing). Changed: `glyph.impression` (proportion, curve, resembles, parts, pieces, holes, symmetry, busy, leans, weight, sits, runs, like, added; no strokes), `glyph.closer` (proportion, curve, busy, symmetry, pieces, holes, resembles, distinctive from glyph.part; no main stroke or count).
+
+**Next:** D08.

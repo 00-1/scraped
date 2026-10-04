@@ -306,3 +306,12 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Place names | Heads from the site (ford on a river, shore by the sea, hill on high ground…), modifiers from colour, age, size, holiness and a few things of the land | `crates/world/src/history.rs` (`place_words`) | now |
 | Dates | "In the Nth year/day of …" with ordinals as the numeral and an ordinal word; in the language now, used by texts from D08 | `crates/lang/src/meaning.rs` (`Role::Time`) | D08 |
 | Storylet writing | A storylet's inscription picks among core nouns only, so every world has the word | `crates/game/src/storylets.rs` | now |
+
+## Sign impressions (S02)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Which features, in what order of noticeability | Proportions, curves and a resemblance always; then as needed: the part that stands out, pieces, enclosed spaces, symmetry, spare or busy, lean, weight, where it sits on the line, which way its lines run, further parts, and last which way the parts face (forward/back along the writing, high/low, standing/lying) | `crates/lang/src/impression.rs` (`FEATURES`) | now |
+| Resemblances | 31 everyday things (eye, wheel, shield, lamp, egg, key, crook, fish-hook, tree, star, comb, ladder, doorway, bridge, moon…), the first whose rule fits | `crates/lang/src/impression.rs` (`resembles`) | now |
+| Spare or busy | Drawn stroke length plus 15 per stroke: up to 90 spare, from 160 busy | `crates/lang/src/impression.rs` (`shape`) | now |
+| Archaeologist | Each sign gains at most one feature beyond its proportions, curves and resemblance, so a few pairs read alike | `crates/lang/src/impression.rs` (`impressions`) | now |
