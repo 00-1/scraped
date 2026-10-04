@@ -161,11 +161,25 @@ The mapper walks without sleeping, eating or getting lost, so 34 hours of walkin
 
 New metrics: `things.puzzles`, `things.maps`, `things.object_kinds`; `things.longest_chain` counts works.
 
+### After D06 (seeds 1–10)
+
+| Metric | Before | D06 | Target |
+|---|---|---|---|
+| Species per world (animals / plants) | 4 archetypes | 59.8 / 48.8 | at least 40 / 40 |
+| Animals known by signs before being seen (explorer, 24 h; insects aside) | 0 | 0.84 of 3.4 met | most |
+| Weather consequences per 30-day month that change routes or places | about 0 | 114 (flooded fords, snow-closed heights, windthrow, low lakes; counted per 5 km area and week) | at least 3 |
+| Natural wonders per world | 0 | 9.5 (at least 5 on every seed tested) | at least 5 |
+| Strange places with no writing cause | 0% | 49% | at least 25% |
+| Facts per arrival (median / p95) | 3 / 3.3 | 3 / 3.3 | 3 (D02) |
+| Facts per `look` (median / p95) | 2 / 6 | 2 / 6 | at most 4 / 6 (D02) |
+
+Strange places are now counted as sites (each live spell, each natural wonder) rather than every structure within a spell's reach. The explorer meets few animals in a day (3.4) because it spends most of its time in towns and buildings. New metrics: `life.animals`, `life.plants`, `life.met`, `life.known_by_signs_first`, `weather.consequences_per_month`, `magic.natural_wonders`.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
 
-- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 8 of seeds 1–10 (16 of 1–20; after D03, 8 of 10 and 17 of 20; after S01, 8 of 10). Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
+- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 9 of seeds 1–10 after D06 (8 after D03, S01 and D05; 16 of 1–20 before D03). Since D06 it fishes when hungry by water (warm, by day), won't forage while shivering, waits outdoors now and then, and looks up once a night. Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
 - **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 5 of seeds 1–10 and a great inscription on 6. The spec asks for 8. What stops it is in the game, not the bot:
   - **Held doors.** Old writing holds whole towns' doors shut. The only counter is to write "open" with a passage word (door, gate, tomb, box), and those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets the scholar write them.
   - **Scarce light.** Torches burn an hour, lamps four. Deep rooms are often dark, and the scholar must come back later with fuel.

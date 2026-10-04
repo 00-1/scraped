@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**D06 — A living world** (`docs/milestones/D06-living-world.md`), the sixth milestone of the depth roadmap in `docs/DEPTH.md`. D01–D05 and S01 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
+**D07 — A language for long texts** (`docs/milestones/D07-language.md`), the seventh milestone of the depth roadmap in `docs/DEPTH.md`. D01–D06 and S01 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms, a living world). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
 

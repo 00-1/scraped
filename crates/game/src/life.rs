@@ -227,7 +227,7 @@ impl Game {
                 let sign = if tracks && h >> 12 & 1 == 0 {
                     "tracks"
                 } else {
-                    s.signs[(h >> 13) as usize % s.signs.len()]
+                    s.signs[((h >> 13) % s.signs.len() as u64) as usize]
                 };
                 // Insects' signs are everywhere and small: half are passed by.
                 if s.role == "insect" && h >> 30 & 1 == 0 {
@@ -402,16 +402,16 @@ impl Game {
                 }
                 let far = matches!(s.role, "grazer" | "browser" | "predator" | "scavenger");
                 let dist = if far {
-                    [120.0, 400.0, 900.0][(h >> 12) as usize % 3]
+                    [120.0, 400.0, 900.0][((h >> 12) % 3) as usize]
                 } else {
                     30.0
                 };
-                let b = BEARINGS[(h >> 16) as usize % 8];
+                let b = BEARINGS[((h >> 16) % 8) as usize];
                 let many = match s.role {
                     "grazer" | "insect" | "fish" => {
-                        ["one", "a few", "many"][(h >> 20) as usize % 3]
+                        ["one", "a few", "many"][((h >> 20) % 3) as usize]
                     }
-                    "bird" | "migrant" => ["one", "a pair", "a few"][(h >> 20) as usize % 3],
+                    "bird" | "migrant" => ["one", "a pair", "a few"][((h >> 20) % 3) as usize],
                     _ => "one",
                 };
                 seen.push((
@@ -470,7 +470,7 @@ impl Game {
             if base == 0.0 || (h % 1000) as f64 > l.plenty * 900.0 {
                 continue;
             }
-            let from = (!matches!(s.role, "insect" | "small")).then_some((h >> 16) as usize % 8);
+            let from = (!matches!(s.role, "insect" | "small")).then_some(((h >> 16) % 8) as usize);
             out.push((
                 call,
                 s.role,

@@ -2,10 +2,11 @@
 
 Where the project stands, for the next agent. Read `CLAUDE.md` first, then this.
 
-## State (2026-10-03)
+## State (2026-10-04)
 
-- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), and depth milestones **D01 (Instruments)**, **D02 (Quiet text)** and **D03 (Places with character)**.
-- **Next:** **D04 — Great interiors** (`docs/milestones/D04-great-interiors.md`). Its inputs are already recorded: caves' contents (`World::features[].inside`), underground routes (`World::underground`), every building's room plan (`StructureKind::info().rooms`, placeholders to replace), and scenes tied to rooms (`World::scenes`).
+- **Done:** the first roadmap (M01–M14), the Android app (Compose + Rust; preview APK at the GitHub release `android-preview-1`), depth milestones **D01–D06** and the course corrections **S01**.
+- **Next:** **D07 — A language for long texts** (`docs/milestones/D07-language.md`). The sky's figures and planets are already named in the oldest language from the few concepts it has (`World::sky`); D07's cultural lexicon can widen that, and D08 texts can name them.
+- **Wasm:** usize is 32 bits there. Take a hash modulo as u64 before casting to usize, or picks differ from native (`node tools/smoke/determinism.cjs` catches it).
 - **Branch:** `claude/laughing-edison-9brdzg`. Everything is committed and pushed. CI (`.github/workflows/ci.yml`) runs fmt, clippy, tests, the release-mode bot tests, the wasm build, the browser smoke tests and the Android build.
 - `content release-check` fails on purpose. It is the release gate, and it waits for Jb's own text.
 
@@ -16,7 +17,7 @@ Every depth milestone is judged by numbers and by reading samples:
 - `cargo run --release -p scraped-cli -- depth --seeds 1-10`: the metrics (definitions and the D01/D02 tables in `docs/DEPTH.md`).
 - `... -- bots --seeds 1-10 [--bot explorer|scholar]`: how far the bots get.
 - `... -- samples D04 [--hours 10]`: explorer transcripts into `docs/samples/D04/`. Write a `NOTES.md` beside them.
-- To regenerate snapshots after an intended change: `UPDATE_SNAPSHOTS=1 cargo test --release -p scraped-game --tests`. That covers `crates/game/tests/depth.txt` and `transcripts.txt`. Then run `tools/build.sh && node tools/smoke/determinism.cjs`, so wasm matches native.
+- To regenerate snapshots after an intended change: `UPDATE_SNAPSHOTS=1 cargo test --release -p scraped-game --tests`. That covers `crates/game/tests/transcripts.txt` and `crates/world/tests/fingerprints.txt`. Then run `tools/build.sh && node tools/smoke/determinism.cjs`, so wasm matches native.
 
 ## How descriptions work now (D02)
 

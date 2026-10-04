@@ -811,9 +811,9 @@ fn plant_habits(role: &str, h: u64) -> (&'static str, &'static str, Option<usize
     let (flowers, fruits) = match role {
         "fungus" => (None, Some(2)),
         "fern" | "moss" => (None, None),
-        "grass" | "water" => (Some(1), Some(1 + (h >> 16) as usize % 2)),
+        "grass" | "water" => (Some(1), Some(1 + ((h >> 16) % 2) as usize)),
         _ => {
-            let fl = (h >> 16) as usize % 2;
+            let fl = ((h >> 16) % 2) as usize;
             let fr = if fruit == "none" { None } else { Some(fl + 1) };
             (Some(fl), fr)
         }
@@ -921,7 +921,10 @@ impl Life {
                         let climate = [C, T, W]
                             .into_iter()
                             .filter(|c| form.climate & band & c != 0)
-                            .nth((h >> 20) as usize % (form.climate & band).count_ones() as usize)
+                            .nth(
+                                ((h >> 20) % ((form.climate & band).count_ones() as usize) as u64)
+                                    as usize,
+                            )
                             .unwrap_or(T);
                         let colour = *pick(colours(kingdom, role, climate), h >> 24);
                         let mark = *pick(marks(kingdom, role), h >> 32);
@@ -1013,7 +1016,7 @@ impl Life {
             let (foot, signs, calls, home, active, abundance, tolerance) = habits(form.role);
             s.foot = foot;
             // Each species leaves two of its role's signs.
-            let a = (h >> 48) as usize % signs.len();
+            let a = ((h >> 48) % signs.len() as u64) as usize;
             s.signs = vec![signs[a], signs[(a + 1) % signs.len()]];
             s.call = (!calls.is_empty()).then(|| *pick(calls, h >> 52));
             s.home = home;

@@ -57,15 +57,15 @@ All through the attention model: species signs, sightings and behaviour (as vari
 
 ## Checklist
 
-- [ ] Species and plants generated from biomes and climate
-- [ ] Behaviour, rhythms, territories and dens
-- [ ] Signs and tracks
-- [ ] Simple foraging, fishing and trapping
-- [ ] Life follows regional change
-- [ ] Moving weather systems and their consequences
-- [ ] The sky: stars, moon, planets, events; night navigation
-- [ ] Natural phenomena
-- [ ] Slots and variables, through the attention model
-- [ ] Targets met; samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Species and plants generated from biomes and climate
+- [x] Behaviour, rhythms, territories and dens
+- [x] Signs and tracks
+- [x] Simple foraging, fishing and trapping
+- [x] Life follows regional change
+- [x] Moving weather systems and their consequences
+- [x] The sky: stars, moon, planets, events; night navigation
+- [x] Natural phenomena
+- [x] Slots and variables, through the attention model
+- [x] Targets met; samples committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

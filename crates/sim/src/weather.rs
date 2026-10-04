@@ -174,7 +174,7 @@ pub fn fronts(w: &World, week: u32) -> Vec<Front> {
                 48 + (r >> 20) % 48,
             ),
         };
-        let bearing = (wind + 7 + (r >> 30) as usize % 3) % 8;
+        let bearing = (wind + 7 + ((r >> 30) % 3) as usize) % 8;
         let (ux, uy) = unit(bearing);
         let minutes = (hours * 60) as u32;
         // Fog forms in the evening; the rest at any hour.

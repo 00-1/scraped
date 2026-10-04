@@ -652,3 +652,13 @@
 **New content slots:** `object.examine`, `object.closer`, `emblem.describe`, `object.not_open`, `object.locked`, `object.unlocked`, `object.opened`, `door.unlocked`, `cache.sign`, `cache.found`, `dig.found`, `dig.nothing`, `map.read`, `map.place`, `mech.idle`, `works.done`, `calendar.notch`, `move.rope`. `say.door_stuck` gains causes locked, works and calendar.
 
 **Next:** D06.
+
+## 2026-10-04 — D06 done
+
+**A living world:** species generated per world from habitats and climate (about 60 animals and 49 plants), with roles, colours, marks, signs, calls, homes, seasons and a tolerance of regional life, under a damped hunter-and-prey cycle (`crates/world/src/life.rs`); signs on looking closer or down, roaming animals' fresh tracks, calls on listening, plants in season, sightings to a player who looks about or waits (`crates/game/src/life.rs`); forage names its plant, fishing and snares. Weather fronts that cross the map with the wind, and what they leave: flooded fords, snow-closed heights, storm-felled trees, low lakes, closing routes and showing on the land; a front on its way shows in the sky; storms thunder (`crates/sim/src/weather.rs`, `crates/game/src/skies.rs`). The sky: twelve figures named in the oldest language with a still star to steer by at night, a 30-day moon, planets, eclipses on a cycle, a comet, showers of falling stars (`crates/world/src/sky.rs`). Ten kinds of natural wonder placed by geography (`crates/world/src/phenomena.rs`). Explorer survival 9 of 10; scholar unchanged. Targets met (see DEPTH.md). Also fixed: picks that cast to usize before the modulo (wasm).
+
+**Open questions:** "A living world (D06)" in DECISIONS: familiar body plans as ids, how shy animals are, foraging odds kept as before, no gear for fishing or snares, weather and consequence thresholds, day length still fixed, the sky's cycles, strange places counted as sites.
+
+**New content slots:** `life.sign`, `life.home`, `life.plant`, `life.seen`, `fish.no_water`, `fish.caught`, `fish.none`, `snare.set`, `snare.waiting`, `snare.caught`, `snare.empty`, `weather.mark`, `weather.coming`, `sky.eclipse`, `sky.moon`, `sky.figure`, `sky.planet`, `sky.comet`, `sky.meteors`, `wonder.noticed`. Changed: `sense.sound` (call, role, size; sources call and thunder), `forage.found` (kinds, plant), `creature.name` (form, colour, mark, size), `travel.blocked` (flood, snow, fallen trees), weather vars gain storm and snow. New items: nuts, fungi, greens, fish, game.
+
+**Next:** D07.

@@ -147,19 +147,19 @@ impl Sky {
                 k += 1;
             }
             used.push(figure);
-            let quality =
-                ((r >> 16) % 3 == 0).then(|| QUALITIES[(r >> 20) as usize % QUALITIES.len()]);
+            let quality = ((r >> 16) % 3 == 0)
+                .then(|| QUALITIES[((r >> 20) % QUALITIES.len() as u64) as usize]);
             constellations.push(Constellation {
                 id: i,
                 figure,
                 quality,
                 name: name(figure, quality),
-                shape: SHAPES[(r >> 28) as usize % SHAPES.len()],
+                shape: SHAPES[((r >> 28) % SHAPES.len() as u64) as usize],
                 stars: 4 + ((r >> 36) % 9) as u8,
                 bright: if i == 0 {
                     "brilliant"
                 } else {
-                    BRIGHTNESS[(r >> 40) as usize % 3]
+                    BRIGHTNESS[((r >> 40) % 3) as usize]
                 },
                 // The pole figure is always up; the others take a season
                 // each, three to a season.
@@ -183,8 +183,8 @@ impl Sky {
                     offset: (r >> 24) as u32 % 1000,
                     inner,
                     name: name(
-                        ["fire", "lamp", "seal", "god", "king"][(r >> 40) as usize % 5],
-                        Some(QUALITIES[(r >> 44) as usize % QUALITIES.len()]),
+                        ["fire", "lamp", "seal", "god", "king"][((r >> 40) % 5) as usize],
+                        Some(QUALITIES[((r >> 44) % QUALITIES.len() as u64) as usize]),
                     ),
                 }
             })
