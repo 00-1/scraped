@@ -123,3 +123,58 @@ fn fishing_and_snares_catch_what_lives_there() {
     }
     assert!(caught >= 3, "caught {caught}");
 }
+
+#[test]
+fn a_clear_night_shows_the_still_star_and_steers_the_walker() {
+    let mut g = game(3);
+    let p = spots(&g)
+        .into_iter()
+        .find(|p| {
+            let (x, y) = p.cell();
+            !matches!(
+                g.site.world.terrain.biome.get(x, y),
+                scraped_world::terrain::Biome::Forest | scraped_world::terrain::Biome::Pine
+            )
+        })
+        .unwrap();
+    g.state.pos = p;
+    // The first clear night hour.
+    let night = (2..40)
+        .flat_map(|d| [d * 1440 + 23 * 60, d * 1440 + 60])
+        .find(|&t| {
+            g.state.minutes = t;
+            g.conditions().0 == "clear"
+        })
+        .expect("a clear night");
+    g.state.minutes = night;
+    let mut facts = Vec::new();
+    g.sky_facts(&mut facts);
+    assert!(facts.iter().any(|f| f.slot == "sky.figure"
+        && f.vars.get("still") == Some(&scraped_content::Value::Bool(true))));
+    let (w, l, _) = g.conditions();
+    assert!(g.star_to_steer_by(w, l, p));
+}
+
+#[test]
+fn weather_closes_ways_and_shows_it() {
+    // Somewhere in the first months, the weather closes a cell that a
+    // walker could otherwise cross, and the land shows what happened.
+    let mut g = game(2);
+    let mut shown = false;
+    'outer: for d in (0..360).step_by(5) {
+        g.state.minutes = d * 1440 + 12 * 60;
+        for p in spots(&g) {
+            let (x, y) = p.cell();
+            if g.env().closed(x, y).is_some() {
+                g.state.pos = p;
+                let mut facts = Vec::new();
+                g.weather_facts(Response::Look, &mut facts);
+                assert!(facts.iter().any(|f| f.slot == "weather.mark"));
+                assert!(!g.env().passable(x, y));
+                shown = true;
+                break 'outer;
+            }
+        }
+    }
+    assert!(shown);
+}

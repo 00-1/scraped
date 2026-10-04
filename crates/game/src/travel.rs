@@ -45,7 +45,13 @@ impl Game {
         }
         let w = outdoors::weather(&self.site.world, pos, minutes);
         let l = outdoors::outdoor_light(minutes);
-        (w, l, sight_range(w, l))
+        let mut range = sight_range(w, l);
+        // A bright moon on a clear night shows skylines further off (D06).
+        // DESIGN-Q: 1.5 km by a near-full moon, against 500 m by starlight.
+        if l == "dark" && w == "clear" && self.site.world.sky.moonlit(minutes) {
+            range = range.max(1500.0);
+        }
+        (w, l, range)
     }
 
     pub(crate) fn town_here(&self) -> Option<usize> {
@@ -466,7 +472,9 @@ impl Game {
                     .sight(&self.site.world, pos, EYE, g, 10.0, range),
                 _ => false,
             };
-            let guided = following || goal_seen || sun || !view.is_empty();
+            // The still star keeps the heading true on a clear night (D06).
+            let star = self.star_to_steer_by(weather, light, pos);
+            let guided = following || goal_seen || sun || star || !view.is_empty();
             if guided {
                 // Landmarks show where the player really is.
                 err = 0;

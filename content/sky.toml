@@ -4,3 +4,33 @@ notes = "The sky: weather and light, and what looking up shows."
 slot = "sky.weather"
 text = "[if weather == 'rain']It is raining[else][if weather == 'fog']Fog lies close[else]The sky is clear[end][end], {time}."
 example = true
+
+[[variant]]
+slot = "sky.eclipse"
+text = "[if body == 'sun']The light thins and dims at midday.[else]The full moon turns the colour of rust.[end]"
+example = true
+
+[[variant]]
+slot = "sky.moon"
+text = "[if day]A pale moon[else]A {phase} moon[end] [if side == 'south']high in the south[else]in the {side}[end]."
+example = true
+
+[[variant]]
+slot = "sky.figure"
+text = "{cap stars} {bright} stars in a {shape}[if still], one of them fixed[end], in the {side}."
+example = true
+
+[[variant]]
+slot = "sky.planet"
+text = "A {colour} star[if low] low in the sky[else] among the {in_shape} stars[end]."
+example = true
+
+[[variant]]
+slot = "sky.comet"
+text = "A smudge of light with a tail, in the {side}."
+example = true
+
+[[variant]]
+slot = "sky.meteors"
+text = "Stars fall, one after another."
+example = true

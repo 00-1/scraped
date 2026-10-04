@@ -28,6 +28,9 @@ pub const MARKS: &[&str] = &[
 /// What is on its way.
 pub const COMING: &[&str] = &["rain", "storm", "fog", "snow"];
 
+/// Where things stand in the sky.
+pub const SIDES: &[&str] = &["north", "east", "south", "west"];
+
 impl Game {
     /// Cells around the player within `r` cells.
     fn cells_around(&self, r: i64) -> Vec<(usize, usize)> {
@@ -139,5 +142,137 @@ impl Game {
                 ));
             }
         }
+    }
+}
+
+impl Game {
+    /// What the night or day sky holds now beyond the sun: figures of
+    /// stars and the still star, the moon, planets, a comet, falling
+    /// stars, an eclipse. Only under a clear sky.
+    pub(crate) fn sky_facts(&mut self, out: &mut Vec<Fact>) {
+        let now = self.state.minutes;
+        let (weather, light, _) = self.conditions();
+        if weather != "clear" {
+            return;
+        }
+        let sky = &self.site.world.sky;
+        let dark = light == "dark";
+        let mut facts = Vec::new();
+        if sky.solar_eclipse(now) {
+            facts.push(Fact::new(
+                "sky.eclipse",
+                format!("sky-eclipse:{}", now / 1440),
+                80.0,
+                ctx(&[("body", Value::from("sun"))]),
+            ));
+        }
+        if let Some(side) = sky.moon_side(now) {
+            let red = sky.lunar_eclipse(now);
+            let phase = sky.phase(now);
+            if red {
+                facts.push(Fact::new(
+                    "sky.eclipse",
+                    format!("sky-eclipse:{}", now / 1440),
+                    80.0,
+                    ctx(&[("body", Value::from("moon"))]),
+                ));
+            }
+            facts.push(Fact::new(
+                "sky.moon",
+                "sky-moon",
+                if !dark {
+                    10.0
+                } else if phase == "full" {
+                    40.0
+                } else {
+                    30.0
+                },
+                ctx(&[
+                    ("phase", Value::from(phase)),
+                    ("side", Value::from(side)),
+                    ("day", Value::Bool(!dark)),
+                ]),
+            ));
+        }
+        if dark {
+            for (c, side) in sky.figures_up(now) {
+                let sal = if c.pole {
+                    30.0
+                } else if side == "south" {
+                    24.0
+                } else {
+                    14.0
+                } + if c.bright == "brilliant" { 6.0 } else { 0.0 };
+                facts.push(Fact::new(
+                    "sky.figure",
+                    format!("sky-figure:{}", c.id),
+                    sal,
+                    ctx(&[
+                        ("shape", Value::from(c.shape)),
+                        (
+                            "stars",
+                            Value::from(crate::attention::vague(usize::from(c.stars))),
+                        ),
+                        ("bright", Value::from(c.bright)),
+                        ("side", Value::from(side)),
+                        ("still", Value::Bool(c.pole)),
+                    ]),
+                ));
+            }
+            for p in &sky.planets {
+                let time = crate::site::time_of_day(now);
+                if p.inner {
+                    let evening = sky.evening_star(p, now);
+                    let shows = if evening {
+                        time == "evening"
+                    } else {
+                        time == "dawn"
+                    };
+                    if !shows {
+                        continue;
+                    }
+                }
+                let c = sky.planet_in(p, now);
+                facts.push(Fact::new(
+                    "sky.planet",
+                    format!("sky-planet:{}", p.id),
+                    if p.inner { 26.0 } else { 16.0 },
+                    ctx(&[
+                        ("colour", Value::from(p.colour)),
+                        ("in_shape", Value::from(c.shape)),
+                        ("low", Value::Bool(p.inner)),
+                    ]),
+                ));
+            }
+            if sky.comet(now) {
+                facts.push(Fact::new(
+                    "sky.comet",
+                    format!("sky-comet:{}", now / 1440 / 20),
+                    50.0,
+                    ctx(&[("side", Value::from(SIDES[(now / 1440 % 4) as usize]))]),
+                ));
+            }
+            if sky.shower(now) {
+                facts.push(Fact::new(
+                    "sky.meteors",
+                    format!("sky-meteors:{}", now / 1440),
+                    45.0,
+                    ctx(&[]),
+                ));
+            }
+        }
+        out.extend(facts);
+    }
+
+    /// Whether the still star shows to steer by: a clear night, outside
+    /// the woods.
+    pub(crate) fn star_to_steer_by(&self, weather: &str, light: &str, pos: Pos) -> bool {
+        let (x, y) = pos.cell();
+        weather == "clear"
+            && light == "dark"
+            && !matches!(
+                self.site.world.terrain.biome.get(x, y),
+                Biome::Forest | Biome::Pine
+            )
     }
 }

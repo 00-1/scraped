@@ -570,8 +570,14 @@ impl Game {
             ("time", Value::from(time)),
             ("birds", Value::Bool(birds)),
         ]);
-        let tx = self.say("sense.sky", c);
-        self.output(vec![tx], None)
+        // The sun or stars first, then what else the sky holds (D06).
+        let mut facts = vec![Fact::new("sense.sky", "look-up", 90.0, c).anchored()];
+        self.sky_facts(&mut facts);
+        let mut coming = Vec::new();
+        self.weather_facts(Response::Around, &mut coming);
+        facts.extend(coming.into_iter().filter(|f| f.slot == "weather.coming"));
+        let parts = self.attend(facts, Response::Closer);
+        self.output(vec![parts.join(" ")], None)
     }
 
     /// `look down`: the ground or floor, and what the season or the land's
