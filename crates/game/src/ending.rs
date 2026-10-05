@@ -293,7 +293,12 @@ impl Game {
             releases.push(Release {
                 text: t,
                 scraped_by: if history { "history" } else { "you" }.to_string(),
-                written_by: if t >= base { "you" } else { "history" }.to_string(),
+                written_by: if t >= base && t < scraped_sim::writing::SEALED_BASE {
+                    "you"
+                } else {
+                    "history"
+                }
+                .to_string(),
                 power: self.state.released.get(&t).copied().unwrap_or(0),
                 claim,
             });

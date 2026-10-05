@@ -110,7 +110,7 @@ pub fn bots(args: &[String]) -> Result<String, String> {
         for &seed in &o.seeds {
             let r = play(&p, seed, kind, hours, 200_000);
             out.push_str(&format!(
-                "{kind:<9} seed {seed:>5}: {:>6.1} h, {:>6} commands, {:>3} buildings, {:>3} texts read, {:>3} new things, died {}, great {}, deepest {}, first release {}\n", // DEBUG-TEXT
+                "{kind:<9} seed {seed:>5}: {:>6.1} h, {:>6} commands, {:>3} buildings, {:>3} texts read, {:>3} new things, died {}, great {}, deepest {}, sealed {}/{}, first release {}\n", // DEBUG-TEXT
                 r.hours,
                 r.commands.len(),
                 r.buildings,
@@ -119,6 +119,8 @@ pub fn bots(args: &[String]) -> Result<String, String> {
                 r.died.as_deref().unwrap_or("no"),
                 r.read_great,
                 r.read_deepest,
+                r.sealed_opened,
+                r.sealed_met,
                 r.first_release
                     .as_ref()
                     .map_or("never".to_string(), |(h, c)| format!("{h:.1} h ({c})"))

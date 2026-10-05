@@ -25,7 +25,9 @@ pub const HANDS: &[&str] = &["cramped", "broad", "slanted", "careful", "heavy", 
 impl Game {
     pub(crate) fn text(&self, id: usize) -> &Text {
         let base = self.site.writing.count(&self.site.world);
-        if id >= base {
+        if id >= scraped_sim::writing::SEALED_BASE {
+            self.site.writing.text(&self.site.world, id)
+        } else if id >= base {
             &self.player_texts[id - base]
         } else {
             self.site.writing.text(&self.site.world, id)
@@ -302,7 +304,9 @@ impl Game {
         };
         // Fresh ink must dry before it can be scraped off cleanly.
         let base = self.site.writing.count(&self.site.world);
-        if text >= base && self.state.minutes < self.state.written[text - base].minutes + DRYING {
+        // The player's own text (the sealed places' accounts lie above it).
+        let mine = text >= base && text < scraped_sim::writing::SEALED_BASE;
+        if mine && self.state.minutes < self.state.written[text - base].minutes + DRYING {
             let t = self.say("scrape.wet", named);
             return self.output(vec![t], None);
         }
@@ -314,13 +318,13 @@ impl Game {
         let drivers_before = self.drivers.clone();
         self.state.scraped.insert(text);
         let power = self.power();
-        if text >= base {
+        if mine {
             self.state.released.insert(text, power);
         }
         self.recompute_claims();
         self.record_acts(text, &drivers_before);
         self.last_scrape = Some(text);
-        let backlash = text >= base && self.backlash(text - base);
+        let backlash = mine && self.backlash(text - base);
         let material = label(&self.thing(thing).material);
         let mut parts = vec![self.say(
             "scrape.done",
@@ -331,7 +335,7 @@ impl Game {
         )];
         parts.extend(self.hear_signs(text));
         let mut felt = self.claim_changes(&before);
-        if self.claims.iter().any(|c| c.text == text) && text >= base {
+        if self.claims.iter().any(|c| c.text == text) && mine {
             felt.extend(self.release_feeling(power));
             self.hook("first_release", "", "");
         } else if self.claims.iter().any(|c| c.text == text) {
@@ -344,7 +348,7 @@ impl Game {
             // A malformed claim in the potent frame turns on its writer.
             parts.push(self.say("write.backlash", Context::new()));
             self.hurt(1, "writing");
-        } else if text >= base {
+        } else if mine {
             self.check_self_claim(text);
         }
         self.output(parts, None)
@@ -570,6 +574,37 @@ impl Game {
     }
 
     /// Whether writing holds the current building's doors: +1 open, -1 shut.
+    /// The ward stone of a sealed place (D11): the thing out of doors that
+    /// carries its ward.
+    pub(crate) fn ward_stone(&self, structure: usize) -> Option<usize> {
+        let sealed = self
+            .site
+            .writing
+            .sealed
+            .iter()
+            .find(|x| x.structure == structure)?;
+        (0..self.site.things.len()).find(|&t| self.site.things[t].texts.contains(&sealed.ward))
+    }
+
+    /// Whether a sealed place's way in is shut (D11): it stays shut until
+    /// what is live on its ward stone is a spell that opens, acting now.
+    /// Nothing written anywhere else moves it.
+    pub(crate) fn sealed_shut(&self, structure: usize) -> bool {
+        let Some(stone) = self.ward_stone(structure) else {
+            return false;
+        };
+        let Some(live) = live_of(&self.layers(stone), &self.state.scraped) else {
+            return true;
+        };
+        let now = self.spell_now();
+        !self.claims.iter().any(|c| {
+            c.text == live
+                && c.property == scraped_sim::writing::Property::Openness
+                && c.amount > 0
+                && c.acts(&now)
+        })
+    }
+
     pub(crate) fn doors_held(&self) -> Option<i32> {
         match self.state.place {
             Place::Room { structure, .. } => self.env().held(structure),

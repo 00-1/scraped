@@ -144,6 +144,24 @@ impl Room {
     }
 }
 
+/// A building whose way in wouldn't give (D11: a sealed place), and how
+/// far the scholar has got with the ward on the stone at its door.
+#[derive(Debug, Clone)]
+struct SealedSite {
+    square: (i32, i32),
+    /// Its name for the spot, to come back by.
+    spot: Option<String>,
+    /// What it typed to go in.
+    noun: String,
+    /// What the response said would not move ("gate").
+    ward: String,
+    /// Tries so far, and the step reached: 0 to write, 1 written, 2 dried,
+    /// 3 scraped.
+    tries: u8,
+    phase: u8,
+    open: bool,
+}
+
 /// How to find a building again.
 #[derive(Debug, Clone)]
 struct Building {
@@ -182,6 +200,8 @@ pub struct DepthBot {
     /// drop that can't be climbed back).
     wander: std::cell::RefCell<BTreeMap<String, usize>>,
     shut: BTreeSet<((i32, i32), String)>,
+    /// Sealed places met (D11).
+    sealed: Vec<SealedSite>,
     /// Landmarks reached, or given up on.
     visited: BTreeSet<String>,
     /// Times each landmark was set out for.
@@ -259,6 +279,7 @@ impl DepthBot {
             sheltering: false,
             wander: std::cell::RefCell::new(BTreeMap::new()),
             shut: BTreeSet::new(),
+            sealed: Vec::new(),
             visited: BTreeSet::new(),
             attempts: BTreeMap::new(),
             sighted: BTreeMap::new(),
@@ -420,9 +441,36 @@ impl DepthBot {
             if from == "outside" {
                 let sq = square_of(g);
                 if let Some(n) = cmd.strip_prefix("go ") {
+                    let held = g.renders[self.renders.min(g.renders.len())..]
+                        .iter()
+                        .find(|r| r.trace.slot == "effect.held")
+                        .and_then(|r| match r.vars.get("thing") {
+                            Some(Value::Text(t)) => t.split_whitespace().last().map(str::to_string),
+                            _ => None,
+                        });
                     if here == "outside" {
                         self.shut.insert((sq, n.to_string()));
-                    } else if let Some(b) = building_of(&here) {
+                        if let Some(ward) = held {
+                            if !self.sealed.iter().any(|x| x.square == sq && x.noun == n) {
+                                self.sealed.push(SealedSite {
+                                    square: sq,
+                                    spot: self.named.get(&sq).cloned(),
+                                    noun: n.to_string(),
+                                    ward,
+                                    tries: 0,
+                                    phase: 0,
+                                    open: false,
+                                });
+                            }
+                        }
+                    } else if let Some(x) = self
+                        .sealed
+                        .iter_mut()
+                        .find(|x| x.square == sq && x.noun == n)
+                    {
+                        x.open = true;
+                    }
+                    if let (false, Some(b)) = (here == "outside", building_of(&here)) {
                         self.buildings.entry(b).or_insert(Building {
                             spot: self.named.get(&sq).cloned(),
                             square: sq,
@@ -1478,6 +1526,71 @@ impl DepthBot {
         None
     }
 
+    /// A sealed place (D11), once the scholar can write the words: back
+    /// to its door, an opening spell written over the ward on a stone
+    /// there, left to dry, scraped, and in. Each stone in turn; four tries.
+    fn unseal(&mut self, g: &Game, last: &Output) -> Option<String> {
+        let s = &last.state;
+        let tools =
+            s.carried.iter().any(|c| c.contains("stylus")) && s.carried.iter().any(|c| scrapes(c));
+        if !self.scholar() || !tools || g.state.pending.is_some() {
+            return None;
+        }
+        let known = |w: &str| g.state.encountered.get(w).map_or(0, |t| t.len()) >= g.threshold;
+        let i = self
+            .sealed
+            .iter()
+            .position(|x| !x.open && x.tries < 4 && known("open") && known(&x.ward))?;
+        let square = square_of(g);
+        let last_cmd = self
+            .last
+            .as_ref()
+            .map(|(c, _, _)| c.clone())
+            .unwrap_or_default();
+        let x = self.sealed[i].clone();
+        if square != x.square {
+            // Back by the name it gave the spot; once, then it's lost.
+            let spot = x.spot.clone()?;
+            let c = format!("go {spot}");
+            if last_cmd == c {
+                self.sealed[i].tries = 4;
+                return None;
+            }
+            return Some(c);
+        }
+        let stones: Vec<usize> = (0..s.things.len())
+            .filter(|&k| s.things[k].contains("inscription"))
+            .collect();
+        if stones.is_empty() {
+            self.sealed[i].tries = 4;
+            return None;
+        }
+        let stone = noun(&s.things, stones[x.tries as usize % stones.len()]);
+        let x = &mut self.sealed[i];
+        match x.phase {
+            1 if last_cmd.starts_with("write ") => {
+                // Left to dry (a stone that took nothing costs a try).
+                x.phase = 2;
+                Some("wait 1 hour".into())
+            }
+            2 => {
+                x.phase = 3;
+                Some(format!("scrape {stone}"))
+            }
+            3 => {
+                x.phase = 0;
+                x.tries += 1;
+                self.shut.remove(&(x.square, x.noun.clone()));
+                Some(format!("go {}", x.noun))
+            }
+            _ => {
+                x.phase = 1;
+                let glyphs = claim_glyphs(g, "open", &x.ward);
+                Some(format!("write {glyphs} on {stone}"))
+            }
+        }
+    }
+
     /// A way that didn't let us through: open it, or prise it open, or
     /// note it barred; once opened, go through.
     fn blocked_way(&mut self, s: &Summary) -> Option<String> {
@@ -1702,6 +1815,9 @@ impl DepthBot {
         let s = &last.state;
         let p = g.state.pos;
         let square = square_of(g);
+        if let Some(c) = self.unseal(g, last) {
+            return c;
+        }
 
         // The scholar names the spot before going in, to find it again.
         if self.scholar() && !s.exits.is_empty() && !self.named.contains_key(&square) {
@@ -2083,6 +2199,9 @@ pub struct BotRun {
     pub texts_read: usize,
     pub read_deepest: bool,
     pub read_great: bool,
+    /// Sealed places (D11) found shut, and those gone into.
+    pub sealed_met: usize,
+    pub sealed_opened: usize,
     /// What it carried at the end.
     pub carried: Vec<String>,
     /// The bot's own notes on what it set out to do.
@@ -2231,6 +2350,8 @@ pub fn play_with(
         buildings: 0,
         texts_read: 0,
         read_deepest: false,
+        sealed_met: 0,
+        sealed_opened: 0,
         read_great: false,
         carried: Vec::new(),
         notes: Vec::new(),
@@ -2364,6 +2485,19 @@ pub fn play_with(
     run.texts_read = g.state.read.len();
     let deep = &g.site.writing.deep;
     run.read_deepest = deep.first().is_some_and(|d| g.state.read.contains(d));
+    run.sealed_met = bot
+        .sealed
+        .iter()
+        .map(|x| x.noun.as_str())
+        .collect::<BTreeSet<_>>()
+        .len();
+    run.sealed_opened = g
+        .site
+        .writing
+        .sealed
+        .iter()
+        .filter(|x| g.state.visited.contains(&x.structure))
+        .count();
     run.read_great = g
         .site
         .greats

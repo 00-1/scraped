@@ -48,6 +48,8 @@ pub mod reading;
 mod reading_slots;
 #[cfg(test)]
 mod reading_tests;
+#[cfg(test)]
+mod sealed_tests;
 pub mod seedcode;
 mod senses;
 pub mod site;
@@ -1625,6 +1627,23 @@ impl Game {
                 }
                 if !self.site.enterable(s) {
                     let t = self.say("say.buried", named);
+                    return self.output(vec![t], None);
+                }
+                // A sealed place (D11): its way in won't give while its
+                // ward holds.
+                if self.sealed_shut(s) {
+                    self.pass(1);
+                    let noun = self
+                        .site
+                        .writing
+                        .sealed
+                        .iter()
+                        .find(|x| x.structure == s)
+                        .map_or("door", |x| x.noun);
+                    let t = self.say(
+                        "effect.held",
+                        ctx(&[("thing", Value::from(format!("the {noun}")))]),
+                    );
                     return self.output(vec![t], None);
                 }
                 self.pass(1);

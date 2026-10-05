@@ -497,6 +497,35 @@ pub struct Writing {
     /// A previous run's final inscription, carried into this world as a
     /// faint, very old layer (legacy, M11).
     pub legacy: Option<usize>,
+    /// Places old writing keeps shut (D11), in the order a reader can open
+    /// them: what each needs is taught beside the one before.
+    pub sealed: Vec<Sealed>,
+    /// The texts of the sealed places: their wards, what lies beneath, and
+    /// what is written inside. Their ids start at `SEALED_BASE`, so a
+    /// player's own texts keep their ids from older builds.
+    pub sealed_texts: Vec<Text>,
+}
+
+/// Where the sealed places' texts are numbered from (D11): above any
+/// world's texts and any player's, so adding them shifts no saved id.
+pub const SEALED_BASE: usize = 1 << 24;
+
+/// A place old writing keeps shut (D11): a building whose way in is held by
+/// a ward on the stone at its door. Nothing written anywhere else moves it:
+/// only what is live on that stone counts. The ward's own words, read off
+/// the stone, show the shape a counter-spell must take; the words for the
+/// next place lie beneath the ward and inside.
+#[derive(Debug, Clone, Serialize)]
+pub struct Sealed {
+    pub structure: usize,
+    /// The ward: "let this <noun> not open", greatly.
+    pub ward: usize,
+    /// What its ward holds shut, by concept id.
+    pub noun: &'static str,
+    /// The account just beneath the ward, telling the next place's words.
+    pub clue: Option<usize>,
+    /// The account inside, telling the next place's words again.
+    pub inside: Option<usize>,
 }
 
 /// The claim a potent text makes, if any: (verb, subject, negative).
@@ -784,8 +813,13 @@ impl Writing {
         if let Some(m) = legacy {
             out.add_legacy(w, fixtures, start, m);
         }
+        out.add_sealed(w, land, fixtures, start);
         // Stack every text on its surface, oldest first.
-        let all = w.texts.iter().chain(out.extra.iter());
+        let all = w
+            .texts
+            .iter()
+            .chain(out.extra.iter())
+            .chain(out.sealed_texts.iter());
         let mut surfaces: Vec<Surface> = Vec::new();
         let mut order: Vec<&Text> = all.collect();
         order.sort_by_key(|t| (t.structure, t.room, t.feature, t.year, t.id));
@@ -806,6 +840,190 @@ impl Writing {
         }
         out.surfaces = surfaces;
         out
+    }
+
+    /// The sealed places (D11): buildings with a stone at their door, held
+    /// shut by a ward, away from the start and holding nothing the game
+    /// needs without writing. Each ward holds a different kind of way (a
+    /// gate, a door, a tomb). The words for the first lie beneath its own
+    /// ward and in one ordinary building; for each next one, beneath the
+    /// ward before and inside the place before. Opening them in order is
+    /// always possible, so the chain has no loop.
+    // DESIGN-Q: three sealed places at most, nearest the start first; the
+    // ward is "let this <gate|door|tomb> not open", greatly; the accounts
+    // say "a man opened the <noun>". Only what is live on the ward stone
+    // counts for the way in.
+    fn add_sealed(&mut self, w: &World, land: &Land, fixtures: &Fixtures, start: usize) {
+        use scraped_world::structures::Condition;
+        const NOUNS: [&str; 3] = ["gate", "door", "tomb"];
+        let era = (w.languages.len() as u32).saturating_sub(1);
+        let year = w.history.eras.last().map_or(0, |e| e.end);
+        let start_pos = Pos::of_cell(
+            w.history.settlements[start].cell.ux(),
+            w.history.settlements[start].cell.uy(),
+        );
+        let greats: BTreeSet<usize> = crate::region::great_events(w)
+            .into_iter()
+            .filter_map(|e| w.texts.iter().find(|t| t.event == Some(e)))
+            .map(|t| t.structure)
+            .chain(
+                w.texts
+                    .iter()
+                    .filter(|t| t.event == Some(w.history.root))
+                    .map(|t| t.structure),
+            )
+            .collect();
+        let busy: BTreeSet<usize> = self
+            .extra
+            .iter()
+            .map(|t| t.structure)
+            .chain(greats)
+            .chain(fixtures.items.iter().filter_map(|p| match p.at {
+                crate::fixtures::Spot::Room { structure, .. } => Some(structure),
+                crate::fixtures::Spot::Out { .. } => None,
+            }))
+            .collect();
+        // An inscribable feature in a room a walker can reach.
+        let wall = |s: usize| -> Option<(usize, usize)> {
+            let st = &w.structures[s];
+            fixtures.reachable_rooms(w, s).into_iter().find_map(|r| {
+                st.interior.rooms[r]
+                    .features
+                    .iter()
+                    .position(|f| INSCRIBABLE.contains(&f.kind))
+                    .map(|f| (r, f))
+            })
+        };
+        let mut picks: Vec<(i64, usize)> = w
+            .structures
+            .iter()
+            .filter(|st| {
+                !st.outside.is_empty()
+                    && st.condition != Condition::Buried
+                    && st.settlement != Some(start)
+                    && !busy.contains(&st.id)
+                    && land.structure_pos[st.id].dist(start_pos) >= 1500.0
+                    && wall(st.id).is_some()
+            })
+            .map(|st| (land.structure_pos[st.id].dist2(start_pos), st.id))
+            .collect();
+        picks.sort_unstable();
+        // Spread them: none within 1 km of another.
+        let mut chosen: Vec<usize> = Vec::new();
+        for (_, s) in picks {
+            if chosen.len() == NOUNS.len() {
+                break;
+            }
+            if chosen
+                .iter()
+                .all(|&c| land.structure_pos[c].dist(land.structure_pos[s]) >= 1000.0)
+                && land.route(w, start_pos, land.structure_pos[s]).is_some()
+            {
+                chosen.push(s);
+            }
+        }
+        if chosen.is_empty() {
+            return;
+        }
+        let account = |noun: &str| {
+            let mut c = Clause::plain("open", NounPhrase::concept("man"))
+                .with_object(NounPhrase::concept(noun));
+            c.tense = Tense::Past;
+            Sentence::Clause(c)
+        };
+        let push = |out: &mut Writing, t: Text| -> usize {
+            let id = SEALED_BASE + out.sealed_texts.len();
+            out.sealed_texts.push(Text { id, ..t });
+            id
+        };
+        let base = |structure: usize, room: Option<usize>, feature: Option<usize>, material| Text {
+            id: 0,
+            era,
+            year,
+            kind: Kind::Account,
+            genre: scraped_world::texts::Genre::of(Kind::Account),
+            arc: None,
+            meaning: Sentence::List(Vec::new()),
+            author: None,
+            event: None,
+            structure,
+            room,
+            feature,
+            material,
+        };
+        // The first place's words, once in an ordinary building nearest it.
+        let first = chosen[0];
+        if let Some((s, (r, f))) = w
+            .structures
+            .iter()
+            .filter(|st| !chosen.contains(&st.id) && !busy.contains(&st.id))
+            .filter_map(|st| wall(st.id).map(|rf| (st.id, rf)))
+            .min_by_key(|(s, _)| land.structure_pos[*s].dist2(land.structure_pos[first]))
+        {
+            let material = w.structures[s].interior.rooms[r].features[f].material;
+            let t = Text {
+                meaning: account(NOUNS[0]),
+                ..base(s, Some(r), Some(f), material)
+            };
+            push(self, t);
+        }
+        for (k, &s) in chosen.iter().enumerate() {
+            // Beneath the ward: the words for this place (the first) or the
+            // next one; then the ward itself, on top, cast.
+            let next = if k == 0 { Some(0) } else { None }
+                .into_iter()
+                .chain((k + 1 < chosen.len()).then_some(k + 1))
+                .collect::<Vec<_>>();
+            let mut clue = None;
+            for n in next {
+                let id = push(
+                    self,
+                    Text {
+                        meaning: account(NOUNS[n]),
+                        ..base(s, None, None, Material::Stone)
+                    },
+                );
+                self.scraped.insert(id);
+                if n == k + 1 {
+                    clue = Some(id);
+                }
+            }
+            let ward = push(
+                self,
+                Text {
+                    kind: Kind::Potent,
+                    genre: scraped_world::texts::Genre::Ward,
+                    meaning: Sentence::Clause(
+                        Clause::potent("open", NounPhrase::concept(NOUNS[k]).det("this"))
+                            .denied()
+                            .with_adverb("greatly"),
+                    ),
+                    ..base(s, None, None, Material::Stone)
+                },
+            );
+            self.scraped.insert(ward);
+            // Inside: the next place's words again.
+            let inside = (k + 1 < chosen.len())
+                .then(|| wall(s))
+                .flatten()
+                .map(|(r, f)| {
+                    let material = w.structures[s].interior.rooms[r].features[f].material;
+                    push(
+                        self,
+                        Text {
+                            meaning: account(NOUNS[k + 1]),
+                            ..base(s, Some(r), Some(f), material)
+                        },
+                    )
+                });
+            self.sealed.push(Sealed {
+                structure: s,
+                ward,
+                noun: NOUNS[k],
+                clue,
+                inside,
+            });
+        }
     }
 
     /// Accounts beneath the root inscription, in the first era's language:
@@ -997,7 +1215,9 @@ impl Writing {
     }
 
     pub fn text<'a>(&'a self, w: &'a World, id: usize) -> &'a Text {
-        if id < w.texts.len() {
+        if id >= SEALED_BASE {
+            &self.sealed_texts[id - SEALED_BASE]
+        } else if id < w.texts.len() {
             &w.texts[id]
         } else {
             &self.extra[id - w.texts.len()]
