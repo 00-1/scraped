@@ -1,7 +1,7 @@
 # Handoff
 
-- **Where Jb plays:** in the browser at https://00-1.github.io/scraped/play.html, or on Android with the APK attached to the release https://github.com/00-1/scraped/releases/tag/v0.1.1 (newer test builds: the latest `android-preview-N` prerelease).
-- **Version:** v0.1.1 (D10; v0.1.0 was the first release, S03). The player programs for a terminal or an agent are listed at https://00-1.github.io/scraped/players.html.
+- **Where Jb plays:** in a browser, by downloading `scraped-player-browser.html` from the release https://github.com/00-1/scraped/releases/tag/v0.1.1 and opening it (one self-contained file), or at https://00-1.github.io/scraped/play.html once Pages is switched on (Settings → Pages → Source: GitHub Actions; until then the Pages workflow's `configure-pages` step fails); or on Android with the APK attached to the release https://github.com/00-1/scraped/releases/tag/v0.1.1 (newer test builds: the latest `android-preview-N` prerelease).
+- **Version:** v0.1.1 (D10; v0.1.0 was the first release, S03). The player programs for a terminal or an agent are attached to each release (and listed at https://00-1.github.io/scraped/players.html once Pages is on).
 - **Sending a bug:** export the save (browser: menu → Export save; Android: long-press the world in the list → Export; terminal: `save`) and send the save file with a line on what looked wrong. It is replayed exactly with `scraped-lang replay SAVE` (add `--build VERSION=PATH` for stretches played on another release).
 
 Where the project stands, for the next agent. Read `CLAUDE.md` first, then this.
