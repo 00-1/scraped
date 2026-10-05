@@ -168,7 +168,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-android"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "jni",
  "scraped-content",
@@ -179,7 +179,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "scraped-content",
  "scraped-game",
@@ -193,7 +193,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-content"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -202,7 +202,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-game"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "scraped-content",
  "scraped-lang",
@@ -215,7 +215,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-lang"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "rand_chacha",
  "scraped-content",
@@ -226,7 +226,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-play"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "scraped-content",
  "scraped-game",
@@ -236,7 +236,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-sim"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "scraped-lang",
  "scraped-world",
@@ -247,7 +247,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-web"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "scraped-content",
  "scraped-game",
@@ -260,7 +260,7 @@ dependencies = [
 
 [[package]]
 name = "scraped-world"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "scraped-lang",
  "serde",

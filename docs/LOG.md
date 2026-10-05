@@ -753,3 +753,7 @@ Review of D08, C01 and D09: large and solid, but 279 of 280 text variants are st
 **New content slots:** `read.grime`, `clean.done`, `clean.nothing`, `say.no_beyond`, `land.rim`, `end.beyond`. Changed: `end.summary` gains kinds, rooms, secrets, walked, rim; `great.site`'s example no longer names writing. Storylet hook `first_accident`.
 
 **Next:** D11.
+
+## 2026-10-05 — v0.1.1
+
+A patch release of the D10 build for Jb's first play (`saves check --against v0.1.0`: every corpus save replays identically). Released through `.github/RELEASE`. v0.1.0 had published with player builds and the APK.
