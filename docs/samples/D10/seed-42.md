@@ -17,7 +17,7 @@ A worn holy city of a few houses. The worn temple stands alone of its kind here.
 **> look around**
 
 ```
-A holy city by a hilltop, clustered. Parts: temple quarter, sacred way, scholars' quarter, graves and old town. A sinkhole to the south. A field walls to the southwest. Dark ash tree, in flower. A few tawny crow to the west, feeding. Silvery gorse, in leaf.
+A holy city by a hilltop, clustered. Parts: temple quarter, sacred way, scholars' quarter, graves and old town. A sinkhole to the south. Field walls to the southwest. Dark ash tree, in flower. A few tawny crows to the west, feeding. Silvery gorse, in leaf.
 ```
 
 **> look up**
@@ -29,7 +29,7 @@ The sky: sun low in the east. Birds wheel overhead.
 **> wait**
 
 ```
-You wait about thirty minutes. Many green locust to the southeast, on the wing.
+You wait about thirty minutes. Many green locusts to the southeast, on the wing.
 ```
 
 **> examine 1 stone inscription**
@@ -43,7 +43,7 @@ A stone inscription. Marks are cut into it: writing. You could read it.
 ```
 On a stone inscription, forty-six signs in eleven groups, about four lines, in a cramped hand.
 
-This writing was scraped; 20 of 46 glyphs are lost.
+This writing was scraped; about half of its signs are lost.
 
 Fainter marks lie beneath.
 
@@ -237,7 +237,7 @@ A clay wall. Marks are cut into it: writing. You could read it.
 ```
 On a clay wall, nine hundred and fifty-nine signs in one hundred and sixty-eight groups, about eighty lines, in a slanted hand. A seal is pressed at the foot.
 
-This writing was scraped; 12 of 959 glyphs are lost.
+This writing was scraped; a few of its signs are lost.
 ```
 
 **> read closely**
@@ -792,7 +792,7 @@ A clay wall. Marks are cut into it: writing. You could read it.
 ```
 On a clay wall, eighteen signs in six groups, about two lines, in a cramped hand.
 
-This writing was scraped; 10 of 18 glyphs are lost.
+This writing was scraped; about half of its signs are lost.
 ```
 
 **> examine knife**
@@ -1178,7 +1178,7 @@ On a clay wall, eighteen signs in six groups, about two lines, in a broad hand.
 
 Grime hides some of the signs.
 
-This writing was scraped; 16 of 18 glyphs are lost.
+This writing was scraped; nearly all of its signs are lost.
 
 Fainter marks lie beneath.
 ```
@@ -1212,7 +1212,7 @@ On a clay wall, eighteen signs (page 1 of 2):
 
 13. (worn away)
 14. (worn away)
-15. like a wide, mixed sign, with a line beside, with a curl beside
+15. like the «p» sign, with a curl beside
 
 16. (worn away)
 
@@ -1278,7 +1278,7 @@ On a plaster wall, one hundred and fifty-four signs (page 1 of 10):
 2. «u»
 3. a squarish, angular sign like a star
 4. «u»
-5. like a wide, angular sign, with a saw edge beside, with a curl
+5. like the «t» sign, with a curl
 6. «i»
 
 7. «x»
@@ -1351,7 +1351,7 @@ A clay wall. Marks are cut into it: writing. You could read it.
 ```
 On a clay wall, twenty-one signs in six groups, about two lines, in a careful hand.
 
-This writing was scraped; 14 of 21 glyphs are lost.
+This writing was scraped; most of its signs are lost.
 
 Fainter marks lie beneath.
 ```
@@ -1435,13 +1435,13 @@ A sinkhole, in limestone.
 **> go to the field walls**
 
 ```
-A field walls, in limestone. It looks very old.
+Field walls, in limestone. It looks very old.
 ```
 
 **> wait 1 hour**
 
 ```
-You wait about an hour. Many blue moth to the southeast, at the flowers.
+You wait about an hour. Many blue moths to the southeast, at the flowers.
 ```
 
 **> wait 1 hour**
@@ -1453,7 +1453,7 @@ You wait about an hour. One green locust to the southwest, on the wing.
 **> wait 1 hour**
 
 ```
-You wait about an hour. A pair tawny crow to the northwest, flying over.
+You wait about an hour. A pair tawny crows to the northwest, flying over.
 
 Your mouth is dry.
 ```
@@ -1479,7 +1479,7 @@ There is nothing to drink.
 **> out**
 
 ```
-The temple quarter. A field walls here. Something about the snake is not as it should be.
+The temple quarter. Field walls here. Something about the snake is not as it should be.
 ```
 
 **> go 1 worn house**

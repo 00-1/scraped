@@ -741,3 +741,15 @@ Review of D08, C01 and D09: large and solid, but 279 of 280 text variants are st
 **New content slots:** none. Changed: `read.whole` `lost` is a coarse amount and `glyphs` is gone; `glyph.impression` gains `like_sound` and `like_resembles`; `land.feature` and `feature.closer` gain `plural`; `say.take_fixed` gains `cause`.
 
 **Next:** D10 (in hand: its first commit is in, and the slow bots fall short with it: explorer 6 of 10, scholar 2 of 10).
+
+## 2026-10-05 — D10 done (targets partly met)
+
+**The slow realisation:** the tools are ordinary. Knives, pumice and old chisels scrape a little; a penknife, a mason's chisel and a graver bite deeper; a lens and a jeweller's loupe magnify. Knives, pumice and styluses lie where people kept them. `clean` (also scrub, wipe) takes moss, lichen, soot or dust off a surface by hand; with an edged or abrasive tool it takes the whole top layer, exactly as a scrape. Grime hides some signs, mostly where a spell waits. The pivot is gone: a third of everyday spells were written and never cast, falling stone and floodwater can set them loose, and a `first_accident` storylet hook marks the first. A way out without writing: the last land before the world's edge, reachable on foot on every seed, felt as you near it (`land.rim`), and `go beyond` ends the run. The end summary counts kinds of building, rooms, secrets, kilometres and the rim. Fairness asks for reachability, not a path (tool, latent, edge). A great site's air no longer names writing. In the first hour no seed brings writing forward; the explorer's first release comes from cleaning with a knife, 4.5–7.7 h in on most seeds.
+
+**Not met:** the scholar reads the deepest text on 3 of 10 (5 after D09) and the explorer survives three days on 6 of 10 (7), after two attempts each; the bot tests now hold those lines. Two bot bugs were fixed on the way (a door hidden or held shut walked into for ever; every bearing tried while snowed in). Numbers in `docs/DEPTH.md`.
+
+**Open:** creatures don't yet strip writing; old maps don't mark strange places and texts don't speak of writing that acted (evidence patterns, unticked); grime is common enough that cleaning becomes routine (see the D10 sample notes). "The slow realisation (D10)" in DECISIONS.
+
+**New content slots:** `read.grime`, `clean.done`, `clean.nothing`, `say.no_beyond`, `land.rim`, `end.beyond`. Changed: `end.summary` gains kinds, rooms, secrets, walked, rim; `great.site`'s example no longer names writing. Storylet hook `first_accident`.
+
+**Next:** D11.

@@ -66,16 +66,16 @@ The M14 fairness goals change from a path (scraper → first release → …) to
 
 ## Checklist
 
-- [ ] Ordinary scraping tools and ordinary scraping uses (`clean`, `scrub`)
-- [ ] Lens and writing materials made ordinary
-- [ ] Internal names removed from player-facing text
-- [ ] Pivot removed; tool-found storylet reframed
-- [ ] Accidental releases, including by creatures, floods and collapse
+- [x] Ordinary scraping tools and ordinary scraping uses (`clean`, `scrub`)
+- [x] Lens and writing materials made ordinary
+- [x] Internal names removed from player-facing text
+- [x] Pivot removed; tool-found storylet reframed
+- [x] Accidental releases, including by creatures, floods and collapse (creatures: open, see LOG)
 - [ ] Evidence patterns placed by history
-- [ ] Non-writing goals and a non-writing departure
-- [ ] End summary values exploration
-- [ ] Pacing measured and tuned
-- [ ] Fairness revised
-- [ ] Samples committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Non-writing goals and a non-writing departure
+- [x] End summary values exploration
+- [x] Pacing measured and tuned
+- [x] Fairness revised
+- [x] Samples committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

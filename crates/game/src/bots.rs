@@ -586,6 +586,14 @@ impl DepthBot {
         if g.state.pending.is_some() {
             return "first".into();
         }
+        // A way that didn't let us through is noted before anything else,
+        // or whatever leads back by it (thirst, the dark, leaving) would
+        // try it for ever.
+        if here != "outside" {
+            if let Some(c) = self.blocked_way(s) {
+                return c;
+            }
+        }
         if let Some(c) = self.body(g, last) {
             return c;
         }
@@ -1375,7 +1383,8 @@ impl DepthBot {
                     .collect()
             })
             .unwrap_or_default();
-        if ways.is_empty() {
+        let all_barred = ways.is_empty();
+        if all_barred {
             // Every way here barred: try them again (a held door may give).
             ways = self
                 .rooms
@@ -1390,6 +1399,11 @@ impl DepthBot {
         let mut turns = self.wander.borrow_mut();
         let n = turns.entry(here.to_string()).or_default();
         *n += 1;
+        // Shut in: let time pass between tries, since what holds a door
+        // may hold only by night, by day or in the rain.
+        if all_barred && (*n).is_multiple_of(2) {
+            return "wait 1 hour".into();
+        }
         ways[*n % ways.len()].clone()
     }
 
@@ -1468,9 +1482,16 @@ impl DepthBot {
     /// note it barred; once opened, go through.
     fn blocked_way(&mut self, s: &Summary) -> Option<String> {
         let here = s.place.clone();
+
         // A way that didn't let us through: open it, or prise it open.
         if let Some((cmd, from, _)) = self.last.clone() {
-            if from == here && s.exits.contains(&cmd) {
+            // A way known from before counts too: writing can hide a door
+            // from the room's list while the route still runs through it.
+            let known = self
+                .rooms
+                .get(&here)
+                .is_some_and(|r| r.exits.contains(&cmd));
+            if from == here && (s.exits.contains(&cmd) || known) {
                 let can_pry = s.carried.iter().any(|c| c.contains("pry"));
                 let r = self.rooms.entry(here.clone()).or_default();
                 if r.done.insert((format!("way {cmd}"), "open")) {
@@ -1840,9 +1861,11 @@ impl DepthBot {
                 }
             }
         }
-        // Hemmed in: forget what blocked us here and try again.
+        // Hemmed in: let an hour pass (snow, flood and dark lift in time),
+        // then forget what blocked us here and try again.
         if (0..BEARINGS.len()).all(|b| self.blocked.contains(&(square, b))) {
             self.blocked.retain(|(sq, _)| *sq != square);
+            return "wait 1 hour".into();
         }
         // Otherwise head for the least-walked direction.
         let mut best = (u32::MAX, 0usize);
@@ -2303,9 +2326,10 @@ pub fn play_with(
         if hour <= 1.0
             && g.renders[taken.min(g.renders.len())..].iter().any(|r| {
                 let sl = r.trace.slot.as_str();
+                // A great site's air is felt, not named as writing (D10).
                 sl.starts_with("scrape.")
                     || sl.starts_with("write.")
-                    || sl.starts_with("great.")
+                    || (sl.starts_with("great.") && sl != "great.site")
                     || matches!(sl, "story.release" | "story.first_write")
             })
         {

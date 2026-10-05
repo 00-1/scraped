@@ -338,7 +338,7 @@ A stone hearth. Marks are cut into it: writing. You could read it.
 ```
 On a stone hearth, thirty-four signs in eight groups, about three lines, in a slanted hand. A few shapes keep coming back.
 
-This writing was scraped; 24 of 34 glyphs are lost.
+This writing was scraped; most of its signs are lost.
 
 Fainter marks lie beneath.
 
@@ -488,7 +488,7 @@ On a clay wall, seventy-eight signs in seventeen groups, about seven lines, in a
 
 Dust hides some of the signs.
 
-This writing was scraped; 37 of 78 glyphs are lost.
+This writing was scraped; about half of its signs are lost.
 ```
 
 **> clean clay wall**
@@ -628,7 +628,7 @@ A clay wall. Marks are cut into it: writing. You could read it.
 ```
 On a clay wall, forty-eight signs in ten groups, about four lines, in a heavy hand. A few shapes keep coming back.
 
-This writing was scraped; 25 of 48 glyphs are lost.
+This writing was scraped; about half of its signs are lost.
 
 Fainter marks lie beneath.
 ```
@@ -811,7 +811,7 @@ On a clay tablet, one hundred and thirty signs (page 2 of 9):
 ```
 West by the door, some 6 metres.
 
-A storeroom, dim and close. Two clay provisionses.
+A storeroom, dim and close. Two clay provisions.
 ```
 
 **> out**
@@ -1449,7 +1449,7 @@ On a clay wall, fifty-six signs in twelve groups, about five lines, in a cramped
 
 Grime hides some of the signs.
 
-This writing was scraped; 31 of 56 glyphs are lost.
+This writing was scraped; about half of its signs are lost.
 ```
 
 **> clean clay wall**
@@ -1638,7 +1638,7 @@ On a plaster wall, eighty-six signs in fifteen groups, about eight lines, in a b
 
 Dust hides some of the signs.
 
-This writing was scraped; 49 of 86 glyphs are lost.
+This writing was scraped; about half of its signs are lost.
 ```
 
 **> clean plaster wall**
@@ -1730,7 +1730,7 @@ A stone hearth. Marks are cut into it: writing. You could read it.
 ```
 On a stone hearth, thirty-four signs in eight groups, about three lines, in a cramped hand.
 
-This writing was scraped; 22 of 34 glyphs are lost.
+This writing was scraped; most of its signs are lost.
 ```
 
 **> examine plaster wall**
@@ -1744,7 +1744,7 @@ A plaster wall. Marks are cut into it: writing. You could read it.
 ```
 On a plaster wall, one hundred and twenty-six signs in twenty-five groups, about eleven lines, in a cramped hand. A few shapes keep coming back.
 
-This writing was scraped; 24 of 126 glyphs are lost.
+This writing was scraped; some of its signs are lost.
 ```
 
 **> examine waterskin**
@@ -1946,7 +1946,7 @@ A plaster wall. Marks are cut into it: writing. You could read it.
 ```
 On a plaster wall, fifty signs in eleven groups, about five lines, in a careful hand.
 
-This writing was scraped; 32 of 50 glyphs are lost.
+This writing was scraped; most of its signs are lost.
 
 Fainter marks lie beneath.
 ```
@@ -1968,7 +1968,7 @@ On a plaster wall, fifty signs (page 1 of 4):
 9. «s»
 10. «i»
 
-11. like a squarish, curved sign like a horn, with a dot beside
+11. like the «'» sign, with a dot beside
 12. (worn away)
 13. «b»
 14. (worn away)
@@ -2098,7 +2098,7 @@ On a wood shelf, one hundred and sixty signs (page 2 of 10):
 
 19. «s»
 20. «i»
-21. like a squarish, curved sign like a horn, with a dot beside
+21. like the «'» sign, with a dot beside
 22. «i»
 23. a squarish, angular sign, with a curl above
 24. «i»
@@ -2137,7 +2137,7 @@ On a wood shelf, one hundred and sixty signs (page 3 of 10):
 45. «s»
 46. «u»
 
-47. like a squarish, curved sign like a horn, with a dot beside
+47. like the «'» sign, with a dot beside
 48. «o»
 
 (Read on for more.)
@@ -2151,7 +2151,7 @@ On a wood shelf, one hundred and sixty signs (page 4 of 10):
 49. «þ»
 50. «o»
 
-51. like a squarish, curved sign like a horn, with a dot beside
+51. like the «'» sign, with a dot beside
 52. «u»
 53. «s»
 54. «i»

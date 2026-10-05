@@ -361,6 +361,20 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | What the player perceives | Heat, doors and loose stone as before; light and wetness change rooms and the land; mills turn; things held fast or too heavy won't lift; beasts kept off or drawn and plants withered or thriving change what lives where; everything else shows only as evidence (`spell.cue`) through the attention model | `crates/sim/src/env.rs`, `crates/game/src/writing.rs`, `crates/game/src/life.rs` | D10 |
 | Regions | Wetting and flowing move a region's water, growth its life (great inscriptions and the player's strongest releases only) | `crates/sim/src/region.rs` (`regional_push`) | now |
 
+## The slow realisation (D10)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Scraping tools | Four of rising bite, all found, none made: knife, penknife, mason's chisel, graver; pumice and an old chisel scrape as a knife. Knives and pumice lie where people kept them | `crates/sim/src/items.rs` (`scrape_power`), `crates/sim/src/fixtures.rs` | D11 |
+| Lenses | A lens (the layer beneath) and a jeweller's loupe (every layer) | `crates/game/src/writing.rs` (`lens_power`) | D11 |
+| Cleaning | By hand only grime comes off; with an edged or abrasive tool the whole top layer comes away, exactly as a scrape | `crates/game/src/writing.rs` (`clean`) | now |
+| Grime | Two in five surfaces outdoors or in worn buildings, one in eight elsewhere, four in five where a spell waits; grime hides two signs in five | `crates/game/src/writing.rs` (`grime`) | now |
+| Latent spells | One everyday spell in three was written and never cast; four more inscriptions 1.5 km or more from the start. Nothing is placed beside a tool | `crates/sim/src/writing.rs` | now |
+| The world strips writing | Falling stone scours a room; floodwater washes soft surfaces (clay, plaster, wood, vellum); creatures don't yet | `crates/game/src/writing.rs` (`world_strips`) | D11 |
+| The way out without writing | The reachable land nearest the map's edge, farthest from the start of the twelve nearest; "go beyond" within 400 m ends the run | `crates/game/src/site.rs` (`world_edge`), `crates/game/src/ending.rs` | now |
+| Evidence patterns | Strangeness sits where the writing that causes it is (D09); old maps don't yet mark strange places, and texts don't yet speak of writing that did things | `crates/sim/src/writing.rs` | D11 |
+| A great site's air | Felt, never named as writing | `great.site` | now |
+
 ## Before Jb plays (S03)
 
 | Question | Current default | Where | Affects |

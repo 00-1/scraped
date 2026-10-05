@@ -1977,7 +1977,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("count", VarType::Number, "How many faint layers show (more than one only through the first lens).")
             .max_len(200)
             .sampler(s_count),
-        SlotDef::new("great.site", "The room holds one of the great inscriptions: writing whose force is felt across the land. Something palpable, never its meaning.").max_len(400).sampler(s_none),
+        SlotDef::new("great.site", "The room holds one of the great inscriptions: writing whose force is felt across the land. Something palpable, never its meaning, and never named as writing (D10: writing is background at first).").max_len(400).sampler(s_none),
         SlotDef::new("great.release", "The player scrapes writing with a scraper strong enough that its claim reaches across a region, or further. The feeling of something vast letting go.")
             .var("scale", e(&["region", "great"]), "How far it reaches: a region, or the great scale.")
             .max_len(400)

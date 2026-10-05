@@ -218,17 +218,31 @@ About 650 texts a world. Sentence shapes fall short on the smallest worlds; two 
 
 Kinds stay short of 60 after three attempts at more varied everyday spells: a world's buildings and the culture's choice of powers (where "keep" binds rather than keeps, say) bound the combinations, and doubling the spells to reach more kinds pushed spells past half of all writing. Most regions have no building to carry a large spell. Spells are short (a clause), so words per text fell. Arrivals and looks stay as brief as before (arrival median 19.3 words, 3 facts). New metrics: `magic.concepts_with_powers`, `magic.properties`, `magic.live_properties`, `magic.conditional_spells`, `magic.settlements_without_spell`, `magic.regions_with_large_spell_share`.
 
+### After D10 (seeds 1–10)
+
+| Metric | D09 | D10 | Target |
+|---|---|---|---|
+| Responses in the first hour that bring writing forward (scraping, writing, a great inscription's force) | – | 0 on every seed | 0 |
+| Explorer's first release (72 h) | – | 4.5–7.7 h on 6 seeds; 25 h on one; never on 3 | 3–10 h on most seeds |
+| Scholar's first release (90 days) | – | 9.6–109 h | |
+| Non-writing goals with payoffs per world | – | 12.9 | at least 10 |
+| Seeds where the rim is reachable on foot | – | 10 of 10 | all |
+
+The explorer's first release always comes from cleaning a surface with a knife ("clean clay wall"), hours in; never from a deliberate scrape. Realisation is spread: the explorer from 4.5 h to never, the scholar from 10 h to four and a half days. New metrics: `pacing.first_release_hours` (24 if never), `pacing.pointers_first_hour`, `goals.non_writing`, `goals.rim_reachable`. A great site's `great.site` is atmosphere, not a pointer, once its example no longer names writing.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
 
-- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 7 of seeds 1–10 after D09 (on seeds 1, 3 and 4 it shelters in houses an old cast keeps cold and goes in and out of them until the cold takes it; two attempts to have it give up on a cold shelter made things worse), 8 after D07 (worlds changed with the new lexicon; 9 after D06, 8 after D03, S01 and D05; 16 of 1–20 before D03). Since D07 it goes out by day to gather wood when cold under a roof with no fire. Since D06 it fishes when hungry by water (warm, by day), won't forage while shivering, waits outdoors now and then, and looks up once a night. Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
+- **Curious explorer** (`crates/game/src/bots.rs`): survives three days on 6 of seeds 1–10 after D10 (since D10 it cleans what it finds grimy; seed 6 now runs out of food on the land, fires burning out, and dies walking to shelter), 7 after D09 (on seeds 1, 3 and 4 it shelters in houses an old cast keeps cold and goes in and out of them until the cold takes it; two attempts to have it give up on a cold shelter made things worse), 8 after D07 (worlds changed with the new lexicon; 9 after D06, 8 after D03, S01 and D05; 16 of 1–20 before D03). Since D07 it goes out by day to gather wood when cold under a roof with no fire. Since D06 it fishes when hungry by water (warm, by day), won't forage while shivering, waits outdoors now and then, and looks up once a night. Since S01 it plays like a curious person: it digs in with a few senses wherever it arrives (not every sense, not everywhere), follows the features, sounds and smells a response turns up, looks at groups of alike buildings, stops examining a kind of thing once that stops giving anything, reads closely now and then and sometimes examines or traces a sign. It sees four buildings of a town once it has a firesteel and a cloak, then goes out to the land; it leaves any building after 45 minutes and won't drop down holes. Since D03 it goes into kinds of building it has seen least first, makes for towns from noon, and shelters indoors from the evening or when cold. Deaths are cold: worlds whose start lies under a cold spell, nights caught in the open.
 - **Scholar** (grammar spoilers, no map; body kept well): in 90 days reads the deepest text on 4 of seeds 1–10 after D08 (6 after D07, 5 after D06): there is twice as much to read and it reads it all, skimming only past the third page, so it finds the lens later and a great inscription on 9 (6). The spec asks for 8. What stops it is in the game, not the bot:
   - **Held doors.** Old writing holds whole towns' doors shut. The only counter is to write "open" with a passage word (door, gate, tomb, box), and those words are met in fewer than two texts even after 100–170 texts read, so the understanding gate never lets the scholar write them.
   - **Scarce light.** Torches burn an hour, lamps four. Deep rooms are often dark, and the scholar must come back later with fuel.
   - **Distance.** The first lens is placed in roughly the 90th-percentile building by distance from the start, so reaching it means exploring most of the world.
 
   D07 (a larger lexicon) and D09 (the magic, deepened) should lift this; the test holds at 4 of 10.
+
+  After D10 it reads the deepest text on 3 of 10 (seeds 5, 8, 9). Worlds changed (tools, grime, latent spells), so seeds won and lost are not like for like with D09 (now 2, 4 lost; 5 kept). Two bot bugs were fixed along the way: it walked into a door hidden or held shut for ever (it now notes a blocked way before anything else), and it tried every bearing when snowed in without letting time pass. Two attempts; not met.
 
   After D09 it reads the deepest text on 5 of 10. Spells now hold doors, darken rooms and leave stacks of layers everywhere: the writing tools no longer lie where writing keeps rooms dark or doors shut, and with a stronger lens the scholar goes back first to the deepest stack it has seen.
 

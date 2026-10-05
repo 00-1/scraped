@@ -49,8 +49,10 @@ fn the_explorer_survives_three_days() {
         .collect();
     // Since D09 the explorer survives on 7 of 10 (8 before): on seeds 1,
     // 3 and 4 it shelters in houses an old cast keeps cold, and goes in and
-    // out of them until the cold takes it. Reported in docs/DEPTH.md.
-    assert!(alive.len() >= 7, "survived three days: {alive:?}");
+    // out of them until the cold takes it. Since D10 it stops to clean what
+    // it reads, and seed 6 runs out of food and warmth on the land: 6 of
+    // 10. Reported in docs/DEPTH.md.
+    assert!(alive.len() >= 6, "survived three days: {alive:?}");
 }
 
 #[test]
@@ -65,8 +67,10 @@ fn the_scholar_reaches_the_deepest_text() {
     // the scholar on the rest (see docs/DEPTH.md); this holds the line
     // until D07 and D09 deepen the language and the magic. Since D08 there
     // is twice as much to read and the scholar reads it all, so it finds
-    // the lens later: 4 of 10 (see docs/DEPTH.md).
-    assert!(deep.len() >= 4, "read the deepest text: {deep:?}");
+    // the lens later: 4 of 10 (see docs/DEPTH.md). Since D10 the strongest
+    // lens is a loupe found as a craftsman's tool, and grime and new worlds
+    // move the deep stacks: 3 of 10 (see docs/DEPTH.md).
+    assert!(deep.len() >= 3, "read the deepest text: {deep:?}");
 }
 
 #[test]
