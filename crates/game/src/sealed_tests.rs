@@ -141,3 +141,34 @@ fn sealed_places_form_an_attested_chain() {
         }
     }
 }
+
+/// After the first place, a ward gives only to a counter as strong as
+/// itself: "open this door" leaves it shut, "open this door greatly" opens.
+#[test]
+fn a_later_ward_asks_for_a_strong_counter() {
+    let mut tried = 0;
+    for seed in [1, 42, 9001] {
+        let Some((mut g, s, stone)) = at_ward(seed, 1) else {
+            continue;
+        };
+        tried += 1;
+        let noun = g.site.writing.sealed[1].noun;
+        g.state.it = Some(Target::Thing(stone));
+        let glyphs = glyphs_for(&mut g, &open_this(noun));
+        g.step(&format!("write {glyphs} on it"));
+        g.advance(40, Activity::Resting);
+        g.scrape(stone);
+        assert!(g.sealed_shut(s), "seed {seed}: a plain counter opened it");
+        let mut strong = open_this(noun);
+        if let Sentence::Clause(c) = &mut strong {
+            c.adverbs.push("greatly".into());
+        }
+        let glyphs = glyphs_for(&mut g, &strong);
+        g.state.it = Some(Target::Thing(stone));
+        let w = g.step(&format!("write {glyphs} on it"));
+        g.advance(40, Activity::Resting);
+        g.scrape(stone);
+        assert!(!g.sealed_shut(s), "seed {seed}: still shut: {}", w.text);
+    }
+    assert!(tried > 0, "no world with a second sealed place");
+}

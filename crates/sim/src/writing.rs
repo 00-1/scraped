@@ -522,6 +522,9 @@ pub struct Sealed {
     pub ward: usize,
     /// What its ward holds shut, by concept id.
     pub noun: &'static str,
+    /// How strongly a counter-spell must open it (1 slightly, 2 plainly,
+    /// 3 greatly): the deeper into the chain, the stronger the ward.
+    pub degree: u8,
     /// The account just beneath the ward, telling the next place's words.
     pub clue: Option<usize>,
     /// The account inside, telling the next place's words again.
@@ -851,8 +854,10 @@ impl Writing {
     /// always possible, so the chain has no loop.
     // DESIGN-Q: three sealed places at most, nearest the start first; the
     // ward is "let this <gate|door|tomb> not open", greatly; the accounts
-    // say "a man opened the <noun>". Only what is live on the ward stone
-    // counts for the way in.
+    // say "a man opened the <noun>" ("greatly", for every place after the
+    // first). Only what is live on the ward stone counts for the way in,
+    // and after the first place only a counter as strong as the ward
+    // ("greatly") opens it.
     fn add_sealed(&mut self, w: &World, land: &Land, fixtures: &Fixtures, start: usize) {
         use scraped_world::structures::Condition;
         const NOUNS: [&str; 3] = ["gate", "door", "tomb"];
@@ -925,9 +930,12 @@ impl Writing {
         if chosen.is_empty() {
             return;
         }
-        let account = |noun: &str| {
+        let account = |k: usize| {
             let mut c = Clause::plain("open", NounPhrase::concept("man"))
-                .with_object(NounPhrase::concept(noun));
+                .with_object(NounPhrase::concept(NOUNS[k]));
+            if k > 0 {
+                c = c.with_adverb("greatly");
+            }
             c.tense = Tense::Past;
             Sentence::Clause(c)
         };
@@ -962,7 +970,7 @@ impl Writing {
         {
             let material = w.structures[s].interior.rooms[r].features[f].material;
             let t = Text {
-                meaning: account(NOUNS[0]),
+                meaning: account(0),
                 ..base(s, Some(r), Some(f), material)
             };
             push(self, t);
@@ -979,7 +987,7 @@ impl Writing {
                 let id = push(
                     self,
                     Text {
-                        meaning: account(NOUNS[n]),
+                        meaning: account(n),
                         ..base(s, None, None, Material::Stone)
                     },
                 );
@@ -1011,7 +1019,7 @@ impl Writing {
                     push(
                         self,
                         Text {
-                            meaning: account(NOUNS[k + 1]),
+                            meaning: account(k + 1),
                             ..base(s, Some(r), Some(f), material)
                         },
                     )
@@ -1020,6 +1028,7 @@ impl Writing {
                 structure: s,
                 ward,
                 noun: NOUNS[k],
+                degree: if k == 0 { 2 } else { 3 },
                 clue,
                 inside,
             });

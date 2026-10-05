@@ -587,12 +587,19 @@ impl Game {
     }
 
     /// Whether a sealed place's way in is shut (D11): it stays shut until
-    /// what is live on its ward stone is a spell that opens, acting now.
-    /// Nothing written anywhere else moves it.
+    /// what is live on its ward stone is a spell that opens, as strongly as
+    /// the ward asks, acting now. Nothing written anywhere else moves it.
     pub(crate) fn sealed_shut(&self, structure: usize) -> bool {
         let Some(stone) = self.ward_stone(structure) else {
             return false;
         };
+        let degree = self
+            .site
+            .writing
+            .sealed
+            .iter()
+            .find(|x| x.structure == structure)
+            .map_or(0, |x| x.degree);
         let Some(live) = live_of(&self.layers(stone), &self.state.scraped) else {
             return true;
         };
@@ -601,6 +608,7 @@ impl Game {
             c.text == live
                 && c.property == scraped_sim::writing::Property::Openness
                 && c.amount > 0
+                && c.degree >= degree
                 && c.acts(&now)
         })
     }

@@ -445,7 +445,8 @@ pub fn check(site: &Site, preset: &str) -> Report {
             missing.push(format!("ward {k} unreachable"));
             break;
         }
-        for root in ["open", x.noun] {
+        let strong = (x.degree >= 3).then_some("greatly");
+        for root in ["open", x.noun].into_iter().chain(strong) {
             if known.get(root).map_or(0, BTreeSet::len) < THRESHOLD {
                 missing.push(format!("ward {k}: {root} too rarely met"));
             }

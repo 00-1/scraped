@@ -1585,7 +1585,11 @@ impl DepthBot {
             }
             _ => {
                 x.phase = 1;
-                let glyphs = claim_glyphs(g, "open", &x.ward);
+                // As strongly as it can say: a ward may ask for "greatly".
+                let mut glyphs = claim_glyphs(g, "open", &x.ward);
+                if known("greatly") {
+                    glyphs = claim_glyphs_greatly(g, "open", &x.ward);
+                }
                 Some(format!("write {glyphs} on {stone}"))
             }
         }
@@ -2028,6 +2032,14 @@ fn claim_glyphs(g: &Game, verb: &str, subject: &str) -> String {
         subordinate: Vec::new(),
         complement: None,
     });
+    g.sound_words(&m)
+}
+
+/// `claim_glyphs`, said "greatly".
+fn claim_glyphs_greatly(g: &Game, verb: &str, subject: &str) -> String {
+    use scraped_lang::meaning::{Clause, NounPhrase, Sentence};
+    let m =
+        Sentence::Clause(Clause::potent(verb, NounPhrase::concept(subject)).with_adverb("greatly"));
     g.sound_words(&m)
 }
 
