@@ -242,7 +242,11 @@ fn scholar_samples(
         for (a, b) in shown {
             md.push_str(&format!("\n---\n\n*From command {}:*\n", a + 1)); // DEBUG-TEXT
             for i in a..b {
-                md.push_str(&format!("\n**> {}**\n\n{}", r.commands[i], block(&r.texts[i + 1])));
+                md.push_str(&format!(
+                    "\n**> {}**\n\n{}",
+                    r.commands[i],
+                    block(&r.texts[i + 1])
+                ));
             }
         }
         let path = dir.join(format!("scholar-{seed}.md"));
