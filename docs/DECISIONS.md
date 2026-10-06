@@ -375,6 +375,20 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Evidence patterns | Strangeness sits where the writing that causes it is (D09); old maps don't yet mark strange places, and texts don't yet speak of writing that did things | `crates/sim/src/writing.rs` | D11 |
 | A great site's air | Felt, never named as writing | `great.site` | now |
 
+## Problems only writing solves (D11)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How many sealed places | Up to three per world, nearest the start first, 1.5 km or more from it, a kilometre apart, none in the start town, none holding a tool | `crates/sim/src/writing.rs` (`add_sealed`) | D12 |
+| What a ward says | "let this gate / door / tomb not open", greatly, on the stone at the door (or, for a great inscription's building, on a wall of its entrance room) | `add_sealed` | D12 |
+| What opens a sealed place | Only what is live on its ward surface: an opening spell, acting now, written over the ward (so it must agree with it) and scraped. Nothing written elsewhere counts | `crates/game/src/writing.rs` (`sealed_shut`) | now |
+| How strong a counter must be | Plain for the first place, "greatly" for the rest | `Sealed::degree` | D12 |
+| The chain | One fixed order. Beneath each ward and inside each place, an account names the next place's word; the first's lies deep under its own ward and in one ordinary building | `add_sealed` | D12 |
+| The chain's end | A great inscription's building where one holds no tool (5 of 10 worlds), sealed from within; its account names the town of the root inscription | `add_sealed` | D12 |
+| Conditions in a counter | Allowed: "open this gate when night comes" opens it only by night | `sealed_shut` | now |
+| Saved ids | The sealed places' texts are numbered from `SEALED_BASE` (2^24), so older saves keep their ids | `crates/sim/src/writing.rs` | now |
+| Other sealed kinds | Not built: a drowned district, a valley held in winter, a hidden library, a bridge that holds while a spell lasts | — | D12 |
+
 ## Before Jb plays (S03)
 
 | Question | Current default | Where | Affects |

@@ -219,21 +219,23 @@ fn scholar_samples(
             .zip(r.texts.iter().skip(1))
             .enumerate()
             .filter(|(_, (c, t))| {
-                t.contains("will not move") || c.starts_with("write ") || c.starts_with("scrape ")
+                (c.starts_with("go ") && t.starts_with("The ") && t.contains("will not move"))
+                    || ((c.starts_with("write ") || c.starts_with("scrape "))
+                        && c.contains("inscription"))
             })
             .map(|(i, _)| i)
-            .take(40)
+            .take(30)
             .collect();
         let mut shown: Vec<(usize, usize)> = Vec::new();
         for i in key {
-            let (a, b) = (i.saturating_sub(2), (i + 3).min(r.commands.len()));
+            let (a, b) = (i.saturating_sub(2), (i + 4).min(r.commands.len()));
             match shown.last_mut() {
                 Some(last) if a <= last.1 => last.1 = b,
                 _ => shown.push((a, b)),
             }
         }
         let mut md = format!(
-            "# {milestone}: the scholar, seed {seed}\n\nExcerpts from {} commands, {:.1} hours of game time: around ways that would not give, and what was written and scraped. Example text only; spoiler-free.\n", // DEBUG-TEXT
+            "# {milestone}: the scholar, seed {seed}\n\nExcerpts from {} commands, {:.1} hours of game time: around ways in that would not give, and what was written and scraped on inscriptions. Example text only; spoiler-free.\n", // DEBUG-TEXT
             r.commands.len(),
             r.hours
         );

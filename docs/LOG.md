@@ -757,3 +757,15 @@ Review of D08, C01 and D09: large and solid, but 279 of 280 text variants are st
 ## 2026-10-05 — v0.1.1
 
 A patch release of the D10 build for Jb's first play (`saves check --against v0.1.0`: every corpus save replays identically). Released through `.github/RELEASE`. v0.1.0 had published with player builds and the APK.
+
+## 2026-10-06 — D11 done
+
+**Problems only writing solves:** each world has up to three sealed places (2.9 on seeds 1–10), chosen from its buildings away from the start and holding no tool. A ward at the way in ("let this gate not open", greatly) holds them; only what is live on the ward's own surface counts, so the counter-spell must be written over the ward (agreeing with it, M09), left to dry and scraped. After the first place a plain counter is not enough: it must say "greatly". A counter may carry a condition and then opens only while it holds ("when night comes"). The places form a chain: beneath each ward (the lens reads it) and inside each place, an account names the next place's word; the first's lies deep beneath its own ward (the loupe) and in one ordinary building. Where a great inscription's building holds no tool (5 of 10 worlds), it ends the chain, sealed from within (its ward on the entrance room's wall holds every way on), and its account names the town where the root inscription was cut: the thread to the deepest text. The fairness check gains a `sealed` goal that walks the chain in order (all of seeds 1–20), and counts a great inscription behind it as reachable once the chain can be walked. The scholar remembers a way in that would not give, comes back once it can write the words, and opens it: at least one on 7 of 10 seeds. It reads the deepest text on 4 of 10 (3 after D10). The sealed places' texts are numbered from `SEALED_BASE`, so old saves keep their ids: a minor change. `samples D11 --bot scholar` writes excerpts of a season.
+
+**Not built:** the other kinds the spec names (a drowned district, a valley held in winter, a hidden library, a bridge that holds while a spell lasts); a chain that can be walked in more than one order; agreement with layers deeper than the live one. Also seen: "A graves" (plural room names take an article), and a collapsed door answering "will not move".
+
+**Open questions:** "Problems only writing solves (D11)" in DECISIONS.
+
+**New content slots:** none (the way in that won't give uses `effect.held`).
+
+**Next:** D12.

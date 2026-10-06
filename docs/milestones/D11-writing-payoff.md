@@ -36,12 +36,12 @@ The root event and deepest text (M11) are the end of a long thread through the w
 
 ## Checklist
 
-- [ ] Writing-gated places from history, visible early
-- [ ] Composition puzzles with targets, modifiers and conditions
-- [ ] Layer-constrained writing in puzzles; deep reading required
-- [ ] Puzzle chains
-- [ ] Great inscriptions as journeys
-- [ ] Deepest text as the end of a thread
-- [ ] Samples (scholar bot, spoiler-free) committed with a note
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Writing-gated places from history, visible early
+- [x] Composition puzzles with targets, modifiers and conditions
+- [x] Layer-constrained writing in puzzles; deep reading required
+- [x] Puzzle chains
+- [x] Great inscriptions as journeys
+- [x] Deepest text as the end of a thread
+- [x] Samples (scholar bot, spoiler-free) committed with a note
+- [x] Tests listed above
+- [x] LOG.md entry

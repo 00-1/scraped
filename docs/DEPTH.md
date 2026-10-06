@@ -230,6 +230,18 @@ Kinds stay short of 60 after three attempts at more varied everyday spells: a wo
 
 The explorer's first release always comes from cleaning a surface with a knife ("clean clay wall"), hours in; never from a deliberate scrape. Realisation is spread: the explorer from 4.5 h to never, the scholar from 10 h to four and a half days. New metrics: `pacing.first_release_hours` (24 if never), `pacing.pointers_first_hour`, `goals.non_writing`, `goals.rim_reachable`. A great site's `great.site` is atmosphere, not a pointer, once its example no longer names writing.
 
+### After D11 (seeds 1–10)
+
+| Metric | D10 | D11 | Target |
+|---|---|---|---|
+| Sealed places per world (opened only by writing) | 0 | 2.9 | a late game in each world |
+| Worlds whose chain ends at a great inscription | – | 5 of 10 | |
+| Worlds whose sealed chain the fairness check can walk | – | 20 of 20 (seeds 1–20) | all |
+| Scholar opens at least one sealed place (90 days) | – | 7 of 10 | |
+| Scholar reads the deepest text (90 days) | 3 of 10 | 4 of 10 | |
+
+The spec sets no numbers; these say how far the late game reaches. Each sealed place is visible and reachable to its door without writing (tests); the scholar opens one from attested words alone, by the grammar it was given. New bot fields: `sealed_met`, `sealed_opened`.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
