@@ -24,12 +24,12 @@
 
 ## Checklist
 
-- [ ] Authoring tool updated
-- [ ] All clients updated
-- [ ] Fairness and difficulty retuned
-- [ ] Performance checked in browser and on phone
-- [ ] Whole-game tuning on a seed batch
-- [ ] `docs/PLAYTEST.md`
-- [ ] Content plan for Jb
-- [ ] Tests listed above
-- [ ] LOG.md entry
+- [x] Authoring tool updated
+- [x] All clients updated
+- [x] Fairness re-checked on 50 seeds at every difficulty (presets not retuned: every seed already gives a fair world)
+- [x] Performance checked in the browser (phone estimated from native timings; no phone available)
+- [x] Whole-game tuning on a seed batch
+- [x] `docs/PLAYTEST.md`
+- [x] Content plan for Jb
+- [x] Tests listed above (CI and smokes green; depth targets: 16 rows met, 8 not, see DEPTH)
+- [x] LOG.md entry

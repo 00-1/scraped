@@ -769,3 +769,15 @@ A patch release of the D10 build for Jb's first play (`saves check --against v0.
 **New content slots:** none (the way in that won't give uses `effect.held`).
 
 **Next:** D12.
+
+## 2026-10-06 — D12 done (targets partly met)
+
+**Integration and tuning:** every depth target from D01 to D11 measured together on 50 seeds (`docs/DEPTH.md`, "All together"): sixteen rows met, eight not. Of those eight, six were worked at in their own milestones and stay short (digging share 0.17, features visited, claim kinds 49.9, regions with a large spell, explorer survival 6 of 10, scholar's deepest 4 of 10); two clash with later design and go to Jb (strange places without writing against D09's saturation; words per text against one-clause spells). Fairness: every one of 50 seeds gives a fair world at every difficulty (39–42 fair as made). Performance: 1.5–2 s for a new world natively, 4.8 s in the browser (15 s with the CPU slowed fourfold), 0.05 s a command. Clients: help lists the ordinary verbs (senses, clean, eat, drink, fire, sleep, manual) and nothing about writing; the Android chips offer clean and listen; the agent's `act` examples no longer show writing. Authoring tool: the review order follows how often players meet each family; the writing inspector lists sealed places and their chain; Gaps mode already plays both depth bots. For Jb: `docs/PLAYTEST.md` (three seeds, spoiler-free play, looking under the hood, what feedback helps) and `docs/CONTENT-PLAN.md` (slot families by play, from `scraped-lang content plan`). Names already plural take no article ("graves").
+
+**Not done:** difficulty presets were checked (every seed fair at each) but not retuned; no phone was available, so the phone figure is an estimate from the native timings.
+
+**Open questions:** "Integration and tuning (D12)" in DECISIONS.
+
+**New content slots:** none. Changed: `say.help`'s description and example list the ordinary verbs.
+
+**Next:** the depth roadmap is complete. A v0.2.0 release (D11's sealed places need a minor bump), then Jb's playtest and content.

@@ -8,7 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**D12 — Integration and tuning** (`docs/milestones/D12-integration.md`) in the depth roadmap in `docs/DEPTH.md`. D01–D11, S01–S03 and C01 are done (instruments, quiet text, places with character, course corrections, great interiors, things and mechanisms, a living world, a language for long texts, sign impressions as whole shapes, history and what the writing says, shared play and versions, the magic deepened, the slow realisation, problems only writing solves). The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
+**None: the depth roadmap is complete.** D01–D12, S01–S03 and C01 are done (`docs/DEPTH.md`). What comes next is Jb's playtest (`docs/PLAYTEST.md`) and content (`docs/CONTENT-PLAN.md`); wait for his steer before starting new design work, and meanwhile fix bugs he reports. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
 Since C01, saves are snapshots and releases follow `docs/VERSIONING.md`: run `scraped-lang saves check` after a change to rules or generation, and prefer changes that need only a minor bump.
 

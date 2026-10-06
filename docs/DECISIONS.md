@@ -389,6 +389,15 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Saved ids | The sealed places' texts are numbered from `SEALED_BASE` (2^24), so older saves keep their ids | `crates/sim/src/writing.rs` | now |
 | Other sealed kinds | Not built: a drowned district, a valley held in winter, a hidden library, a bridge that holds while a spell lasts | — | D12 |
 
+## Integration and tuning (D12)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Strangeness without writing | D06 asked that at least a quarter of strange places have no writing cause; D09 asked for 150+ live spells per world. With about 170 spells and 10.6 natural wonders, the share is 6%. Either more natural wonders (about 57 a world), a narrower count (only spells a player can perceive), or a lower target | `crates/game/src/depth.rs` (`magic.strange_without_writing_share`) | now |
+| Words per text | D08 asked for 15; D09's spells are one clause each, so the mean is 13.4. Count spells apart, or accept | `writing.words_per_text` | now |
+| Review order | Opening, early, late; within each, the families players meet most first (`content plan`) | `crates/game/src/slots.rs` (`REVIEW`) | content |
+| Help | Lists the ordinary verbs (senses, clean, eat, drink, fire, sleep, manual); never writing's power, scraping as more than cleaning, or leaving | `say.help` | content |
+
 ## Before Jb plays (S03)
 
 | Question | Current default | Where | Affects |

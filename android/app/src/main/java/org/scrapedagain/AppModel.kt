@@ -265,7 +265,7 @@ class AppModel(app: Application) : AndroidViewModel(app) {
             val name = t.optString(i)
             things += name to lastWord(name)
         }
-        return Chips(commands, listOf("read", "take", "examine"), things, listOf("inventory", "status", "wait"))
+        return Chips(commands, listOf("read", "take", "examine", "clean"), things, listOf("inventory", "status", "listen", "wait"))
     }
 
     private fun lastWord(name: String): String =

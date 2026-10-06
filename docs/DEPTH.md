@@ -242,6 +242,41 @@ The explorer's first release always comes from cleaning a surface with a knife (
 
 The spec sets no numbers; these say how far the late game reaches. Each sealed place is visible and reachable to its door without writing (tests); the scholar opens one from attested words alone, by the grammar it was given. New bot fields: `sealed_met`, `sealed_opened`.
 
+### All together (D12, seeds 1–50)
+
+Every target from D01 to D11, measured at once on 50 seeds (explorer 24 h; bots on seeds 1–10 as before).
+
+| Target | 50 seeds | Met? |
+|---|---|---|
+| Words per arrival at most 60 (median / p95) | 18.9 / 30 | yes |
+| Facts per `look` at most 4 / 6 (median / p95) | 2.1 / 5.9 | yes |
+| Facts digging could find, at least 3× those shown | 4.7× | yes |
+| Building kinds at least 25; natural feature kinds at least 12 | 39.3; 23.4 | yes |
+| Scenes per settlement at least 3, some outside | 4.1 (least 3.1), 18.8 outside | yes |
+| Towns sharing role, size and layout: none | 0 | yes |
+| Digging verbs at least 0.20 of commands | 0.17 | **no** (0.22 at S01) |
+| Natural features visited, at least 5 in 10 h | 1.4 in 24 h | **no** (never met) |
+| Largest interior at least 400 spaces; great interiors at least 4; levels at least 6; loops at least 15; hidden spaces at least 5 | 479; 9.3; 7.0; 26.5; 6 | yes |
+| Object kinds at least 120 (103 objects); things per structure at least 6; mechanism chain at least 4; puzzles at least 8; old maps at least 2 | 170 (103); 52.6; 4; 31.1; 4 | yes |
+| Species at least 40 / 40; weather consequences at least 3 a month; wonders at least 5 | 58.8 / 47.9; 99.5; 10.6 | yes |
+| Strange places with no writing cause at least 25% | 6% | **no**: see DECISIONS (D09's 150+ spells per world outweigh D06's wonders) |
+| Event kinds at least 25; genres at least 20; largest genre at most 20%; sentence shapes at least 600; arcs in 3+ places at least 10; people named in 3+ places at least 30 | 31.7; 30.3; 17%; 811; 24.6; 79.3 | yes |
+| Mean words per text at least 15 | 13.4 | **no** (spells are one clause, D09) |
+| Concepts with powers at least 120; properties 15; conditional spells at least 20; settlements without a spell: none | 278; 15; 41.5; 0 | yes |
+| Live spells at least 150 | 169 (mean) | yes on the mean; D10 left a third of everyday spells latent |
+| Claim kinds at least 60 | 49.9 | **no** (56.4 before D10's latent spells) |
+| Regions with a large spell: each | 10% | **no** |
+| First hour bringing writing forward: 0 | 0 | yes |
+| Non-writing goals at least 10; rim reachable on all | 12.9; all | yes |
+| Explorer's first release 3–10 h on most seeds | 6 of 10 (D10) | yes |
+| Explorer survives three days, 8 of 10 | 6 of 10 | **no** |
+| Scholar reads the deepest text, 8 of 10 asked | 4 of 10 | **no** |
+| Fairness: every seed gives a fair world, at every difficulty | 50 of 50 (fair as made: gentle 39, standard 41, archaeologist 42) | yes |
+
+Sixteen rows of targets are met together on 50 seeds; eight are not. Each of those was worked at in its own milestone (two or three attempts each) and is reported there. Two clash with later design rather than falling short: strange places without a writing cause (D06) against a world saturated with old spells (D09), and words per text (D08) against one-clause spells (D09). Both are in DECISIONS for Jb.
+
+**Performance:** a new world takes 0.7–0.8 s to generate natively, 0.05–0.4 s more to lay out, and 0.3–0.9 s for the fairness check: 1.5–2 s in all on a desktop core. In the browser the first world shows after 4.8 s, and after 15 s with the CPU slowed four times (a stand-in for a mid-range phone); each command then takes 0.05 s (0.13 s slowed). The Android app runs the engine natively, so a phone should open a new world in roughly 5–8 s.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.

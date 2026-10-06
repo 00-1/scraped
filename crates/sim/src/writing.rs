@@ -1588,6 +1588,32 @@ pub fn debug(w: &World, land: &Land, writing: &Writing, scraped: &BTreeSet<usize
         top.map(|t| t.0),
         top.map_or(0.0, |t| *t.1 as f64 * 100.0 / w.texts.len().max(1) as f64)
     );
+    // Sealed places (D11), in the order the chain opens them.
+    let _ = writeln!(out, "SEALED ({})", writing.sealed.len()); // DEBUG-TEXT
+    for (k, x) in writing.sealed.iter().enumerate() {
+        let st = &w.structures[x.structure];
+        let _ = writeln!(
+            out,
+            "  {}. {:?} #{} ward {} on {} (\"{}\", degree {}){}{}", // DEBUG-TEXT
+            k + 1,
+            st.kind,
+            x.structure,
+            x.ward,
+            if x.inner {
+                "a wall of the entrance room"
+            } else {
+                "the stone at its door"
+            }, // DEBUG-TEXT
+            x.noun,
+            x.degree,
+            if x.great {
+                ", a great inscription inside"
+            } else {
+                ""
+            }, // DEBUG-TEXT
+            if x.inner { ", sealed from within" } else { "" } // DEBUG-TEXT
+        );
+    }
     let _ = writeln!(out, "LIVE CLAIMS ({})", claims.len()); // DEBUG-TEXT
     for c in &claims {
         let st = &w.structures[c.structure];

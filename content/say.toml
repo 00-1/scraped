@@ -91,7 +91,8 @@ text = '''
 Try: look, examine (x) something, go to a building or anything you can see, north, ne, up, out,
 head north, follow the river downstream, go back, name this place the gap, go to the gap,
 open and close doors, take, drop, inventory (i), read something, read closely,
-examine sign 3, trace sign 3, wait.'''
+examine sign 3, trace sign 3, listen, smell, touch, look closer, clean something,
+eat, drink, gather wood, make fire, sleep, wait, manual.'''
 example = true
 
 [[variant]]
