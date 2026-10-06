@@ -11,6 +11,7 @@ pub const USAGE: &str = "\
 content commands (default folder: ./content, or --content DIR):
   scraped-lang content lint [--json]
   scraped-lang content coverage [--json]
+  scraped-lang content plan [--count SEEDS]   (what to write first, by play)
   scraped-lang content preview SLOT [--seed N] [--count K]
   scraped-lang content registry
   scraped-lang content release-check";
@@ -116,6 +117,7 @@ pub fn run(args: &[String]) -> Result<String, String> {
                 Ok(out)
             }
         }
+        Some("plan") => Ok(plan(&reg, &pack, &issues, count.max(1))),
         Some("coverage") => {
             let cov = coverage(&reg, &pack, &issues);
             if json {
@@ -177,4 +179,71 @@ pub fn run(args: &[String]) -> Result<String, String> {
         }
         _ => Err(USAGE.to_string()),
     }
+}
+
+/// The content plan (D12): slot families ordered by how much play they
+/// touch, from both depth bots playing seeds 1..=`seeds`, with how many
+/// variants each has and needs. For Jb: write from the top.
+fn plan(
+    reg: &scraped_content::Registry,
+    pack: &Pack,
+    issues: &[scraped_content::Issue],
+    seeds: usize,
+) -> String {
+    use std::collections::BTreeMap;
+    let list: Vec<u64> = (1..=seeds as u64).collect();
+    let cov = scraped_game::coverage::run(pack, &list, 3_000);
+    let written = coverage(reg, pack, issues);
+    #[derive(Default)]
+    struct Family {
+        slots: usize,
+        per_hour: f64,
+        gap_hours: f64,
+        written: usize,
+        needed: usize,
+        never: usize,
+    }
+    let family = |id: &str| id.split('.').next().unwrap_or(id).to_string();
+    let mut fams: BTreeMap<String, Family> = BTreeMap::new();
+    for c in &written {
+        let f = fams.entry(family(&c.slot)).or_default();
+        f.slots += 1;
+        f.written += c.written;
+        f.needed += c.needed;
+    }
+    for c in &cov.slots {
+        let f = fams.entry(family(&c.slot)).or_default();
+        f.per_hour += c.per_hour;
+        f.gap_hours += c.gap_hours;
+    }
+    for id in &cov.never {
+        fams.entry(family(id)).or_default().never += 1;
+    }
+    let mut rows: Vec<(String, Family)> = fams.into_iter().collect();
+    rows.sort_by(|a, b| {
+        b.1.per_hour
+            .partial_cmp(&a.1.per_hour)
+            .unwrap_or(std::cmp::Ordering::Equal)
+            .then(a.0.cmp(&b.0))
+    });
+    let mut out = String::from(
+        "| # | Family | Slots | Seen per hour | Still example text, per hour | Variants written / needed | Slots no bot reached |\n|---|---|---|---|---|---|---|\n" // DEBUG-TEXT
+    );
+    for (i, (name, f)) in rows.iter().enumerate() {
+        out.push_str(&format!(
+            "| {} | `{name}` | {} | {:.1} | {:.1} | {} / {} | {} |\n",
+            i + 1,
+            f.slots,
+            f.per_hour,
+            f.gap_hours,
+            f.written,
+            f.needed,
+            f.never
+        ));
+    }
+    out.push_str(&format!(
+        "\nFrom {} runs of the explorer and scholar on seeds 1–{seeds}, {:.0} hours of play.\n", // DEBUG-TEXT
+        cov.runs, cov.hours
+    ));
+    out
 }

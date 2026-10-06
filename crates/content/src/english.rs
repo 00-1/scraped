@@ -4,6 +4,15 @@
 
 /// "a hook", "an arc".
 pub fn article(word: &str) -> String {
+    // A name already plural takes none (D12: "graves", "cistern tunnels").
+    let last = word
+        .trim_end()
+        .rsplit([' ', '-', '_'])
+        .next()
+        .unwrap_or(word);
+    if plurals().plural_only.iter().any(|p| p == last) {
+        return word.to_string();
+    }
     let first = word
         .trim_start()
         .chars()
@@ -25,6 +34,8 @@ pub fn capitalise(s: &str) -> String {
 #[derive(serde::Deserialize)]
 struct Plurals {
     unchanging: Vec<String>,
+    #[serde(default)]
+    plural_only: Vec<String>,
     irregular: std::collections::BTreeMap<String, String>,
 }
 
@@ -175,6 +186,8 @@ mod tests {
     fn helpers() {
         assert_eq!(article("arc"), "an arc");
         assert_eq!(article("hook"), "a hook");
+        assert_eq!(article("graves"), "graves");
+        assert_eq!(article("cistern tunnels"), "cistern tunnels");
         assert_eq!(plural_if("box", 2), "boxes");
         assert_eq!(plural_if("city", 3), "cities");
         assert_eq!(plural_if("jar", 1), "jar");

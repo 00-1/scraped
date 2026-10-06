@@ -7,4 +7,4 @@ The scholar over a season (90 days) on seeds 1, 42 and 9001, in excerpts around 
 - **The chain shows as repeats.** On seed 42 the gate refuses twice and a door once before the first opening, then a second gate later.
 - **Placeholder text.** "Something changes: the openness of the passage rises" is `effect.change`'s example and says too much; Jb's variants should show the gate, not name a quality.
 
-What reads oddly: a room called "graves" takes "A" ("A graves, dim and close"): plural room names need the S03 plural treatment. Opening a collapsed or blocked door also answers "will not move", the held door's line, which can mislead.
+What reads oddly: a room called "graves" takes "A" ("A graves, dim and close"; fixed in D12). A collapsed or blocked door says "will not move" in the same words as a held one: two slots (`say.door_stuck`, `effect.held`) whose examples happen to match, so Jb's variants should tell them apart.

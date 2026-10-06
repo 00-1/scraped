@@ -14,6 +14,13 @@ unchanging = [
     "cattle", "dice", "kelp", "wrack", "eelgrass", "seaweed",
 ]
 
+# Names that are already plural, said without "a" ("Graves, dim and
+# close"; D11 samples).
+plural_only = [
+    "graves", "cells", "stacks", "tunnels", "crystals", "stalactites", "farmyards",
+    "gardens", "mines", "workshops", "stairs", "remains", "bones",
+]
+
 [irregular]
 man = "men"
 woman = "women"
