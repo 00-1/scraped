@@ -781,3 +781,7 @@ A patch release of the D10 build for Jb's first play (`saves check --against v0.
 **New content slots:** none. Changed: `say.help`'s description and example list the ordinary verbs.
 
 **Next:** the depth roadmap is complete. A v0.2.0 release (D11's sealed places need a minor bump), then Jb's playtest and content.
+
+## 2026-10-06 — v0.2.0
+
+A minor release of the D11 and D12 build (`saves check --against v0.1.1`: older saves load and carry on), with a 0.2.0 corpus save. Released through `.github/RELEASE`.
