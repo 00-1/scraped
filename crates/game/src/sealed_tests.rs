@@ -37,7 +37,7 @@ fn at_ward(seed: u64, k: usize) -> Option<(Game, usize, usize)> {
 }
 
 #[test]
-fn every_world_has_sealed_places_with_a_stone_out_of_doors() {
+fn every_world_has_sealed_places_with_a_ward_at_the_way_in() {
     for seed in [1, 42, 9001] {
         let g = Game::new(seed, pack());
         assert!(
@@ -46,7 +46,15 @@ fn every_world_has_sealed_places_with_a_stone_out_of_doors() {
         );
         for x in &g.site.writing.sealed {
             let stone = g.ward_stone(x.structure).expect("a ward stone");
-            assert_eq!(g.site.things[stone].home, Place::Outside);
+            let home = if x.inner {
+                Place::Room {
+                    structure: x.structure,
+                    room: 0,
+                }
+            } else {
+                Place::Outside
+            };
+            assert_eq!(g.site.things[stone].home, home);
             // The ward is the stone's live layer when play begins.
             let layers = g.layers(stone);
             assert_eq!(
@@ -171,4 +179,127 @@ fn a_later_ward_asks_for_a_strong_counter() {
         assert!(!g.sealed_shut(s), "seed {seed}: still shut: {}", w.text);
     }
     assert!(tried > 0, "no world with a second sealed place");
+}
+
+/// The chain often ends at a great inscription (a journey that needs
+/// walking, surviving and writing), and its last place always points to
+/// where the first great writing was done: a town named in its account.
+#[test]
+fn the_chain_ends_at_a_great_inscription_and_points_to_the_root() {
+    let mut greats = 0;
+    for seed in 1..=8u64 {
+        let site = crate::site::Site::create(seed, "standard", None);
+        let w = &site.writing;
+        let Some(last) = w.sealed.last() else {
+            continue;
+        };
+        if last.great {
+            greats += 1;
+            assert!(site
+                .greats
+                .iter()
+                .any(|g| { site.world.texts[g.text].structure == last.structure }));
+        }
+        let Some(inside) = last.inside else { continue };
+        let t = w.text(&site.world, inside);
+        let named = t.meaning.noun_phrases().iter().any(|n| {
+            matches!(n.head, scraped_lang::meaning::Head::Name(i) if i >= site.world.history.people.len())
+        });
+        assert!(named, "seed {seed}: the last place names no town");
+    }
+    assert!(
+        greats >= 2,
+        "only {greats} of 8 chains end at a great inscription"
+    );
+}
+
+/// A counter can carry a condition (D09), and then it opens the way only
+/// while the condition holds: "let this gate open when night comes".
+#[test]
+fn a_conditional_counter_opens_only_when_it_holds() {
+    let Some((mut g, s, stone)) = at_ward(42, 0) else {
+        panic!("no sealed place");
+    };
+    let noun = g.site.writing.sealed[0].noun;
+    let mut by_night = open_this(noun);
+    if let Sentence::Clause(c) = &mut by_night {
+        c.subordinate.push(scraped_lang::meaning::Subordinate {
+            link: scraped_lang::meaning::Link::When,
+            clause: scraped_lang::meaning::Clause::plain("come", NounPhrase::concept("night")),
+        });
+    }
+    let glyphs = glyphs_for(&mut g, &by_night);
+    g.state.it = Some(Target::Thing(stone));
+    let w = g.step(&format!("write {glyphs} on it"));
+    g.advance(40, Activity::Resting);
+    g.scrape(stone);
+    assert!(
+        g.state.written.iter().any(|x| x.thing == stone),
+        "{}",
+        w.text
+    );
+    g.forced = Some(("clear", "daylight"));
+    assert!(g.sealed_shut(s), "open by day");
+    g.forced = Some(("clear", "dark"));
+    assert!(!g.sealed_shut(s), "shut by night");
+}
+
+/// Sealed from within: the entrance room is open, every way on from it
+/// holds until a counter is written over the ward on its wall.
+#[test]
+fn a_great_place_sealed_from_within() {
+    for seed in 1..=8u64 {
+        let mut g = Game::new(seed, pack());
+        let Some(k) = g.site.writing.sealed.iter().position(|x| x.inner) else {
+            continue;
+        };
+        g.trace = true;
+        g.forced = Some(("clear", "daylight"));
+        g.start();
+        let x = g.site.writing.sealed[k].clone();
+        let stone = g.ward_stone(x.structure).unwrap();
+        g.state.place = Place::Outside;
+        g.state.pos = g.site.land.structure_pos[x.structure];
+        g.act("go", Target::Structure(x.structure));
+        assert_eq!(
+            g.state.place,
+            Place::Room {
+                structure: x.structure,
+                room: 0
+            }
+        );
+        let Some(way) = g.ways().into_iter().find(|w| !w.collapsed) else {
+            continue;
+        };
+        let o = if way.state == crate::PassageState::Closed {
+            g.act("open", Target::Way(way.link))
+        } else {
+            g.go_way(way.link)
+        };
+        assert!(
+            o.renders.iter().any(|r| r.trace.slot == "effect.held"),
+            "{}",
+            o.text
+        );
+        g.make_item("stylus", true);
+        g.make_item("graver", true);
+        g.forced_light = true;
+        g.threshold = 0;
+        let mut strong = open_this(x.noun);
+        if let Sentence::Clause(c) = &mut strong {
+            c.adverbs.push("greatly".into());
+        }
+        let glyphs = glyphs_for(&mut g, &strong);
+        g.state.it = Some(Target::Thing(stone));
+        let w = g.step(&format!("write {glyphs} on it"));
+        g.advance(40, Activity::Resting);
+        g.scrape(stone);
+        assert!(
+            !g.sealed_shut(x.structure),
+            "seed {seed}: still held: {}",
+            w.text
+        );
+        return;
+    }
+    panic!("no world in 1..=8 sealed from within");
 }

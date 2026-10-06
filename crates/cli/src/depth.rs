@@ -14,8 +14,9 @@ depth instruments:
       measures each world, and an explorer's H hours in it (default 24)
   scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H] [--json]
       plays the depth bots and reports how far they got
-  scraped-lang samples MILESTONE [--hours H] [--inside]
-      writes explorer transcripts for seeds 1, 42 and 9001 (default 3 hours)
+  scraped-lang samples MILESTONE [--hours H] [--inside] [--bot scholar]
+      writes explorer transcripts for seeds 1, 42 and 9001 (default 3 hours;
+      the scholar: excerpts of a season around ways held and writing)
       to docs/samples/MILESTONE/; --inside starts at the largest great
       interior's entrance with a lamp
   --content DIR    the content pack (default: content)";
@@ -171,6 +172,9 @@ pub fn samples(args: &[String]) -> Result<String, String> {
     let p = pack(&o.content)?;
     let dir = PathBuf::from("docs/samples").join(&milestone);
     std::fs::create_dir_all(&dir).map_err(|e| format!("cannot create {}: {e}", dir.display()))?;
+    if o.bot.as_deref() == Some("scholar") {
+        return scholar_samples(&p, &dir, &milestone, o.hours.unwrap_or(2160.0));
+    }
     let hours = o.hours.unwrap_or(3.0);
     let mut out = String::new();
     for seed in SAMPLE_SEEDS {
@@ -191,6 +195,55 @@ pub fn samples(args: &[String]) -> Result<String, String> {
             md.push_str(&format!("\n**> {c}**\n\n{}", block(t)));
         }
         let path = dir.join(format!("seed-{seed}.md"));
+        std::fs::write(&path, md).map_err(|e| format!("cannot write {}: {e}", path.display()))?;
+        out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
+    }
+    Ok(out)
+}
+
+/// The scholar over a season is too long to print: excerpts around what
+/// the late game turns on (D11), a way that won't give and what is written
+/// and scraped, a few commands either side, gaps marked.
+fn scholar_samples(
+    p: &Pack,
+    dir: &std::path::Path,
+    milestone: &str,
+    hours: f64,
+) -> Result<String, String> {
+    let mut out = String::new();
+    for seed in SAMPLE_SEEDS {
+        let r = play(p, seed, "scholar", hours, 200_000);
+        let key: Vec<usize> = r
+            .commands
+            .iter()
+            .zip(r.texts.iter().skip(1))
+            .enumerate()
+            .filter(|(_, (c, t))| {
+                t.contains("will not move") || c.starts_with("write ") || c.starts_with("scrape ")
+            })
+            .map(|(i, _)| i)
+            .take(40)
+            .collect();
+        let mut shown: Vec<(usize, usize)> = Vec::new();
+        for i in key {
+            let (a, b) = (i.saturating_sub(2), (i + 3).min(r.commands.len()));
+            match shown.last_mut() {
+                Some(last) if a <= last.1 => last.1 = b,
+                _ => shown.push((a, b)),
+            }
+        }
+        let mut md = format!(
+            "# {milestone}: the scholar, seed {seed}\n\nExcerpts from {} commands, {:.1} hours of game time: around ways that would not give, and what was written and scraped. Example text only; spoiler-free.\n", // DEBUG-TEXT
+            r.commands.len(),
+            r.hours
+        );
+        for (a, b) in shown {
+            md.push_str(&format!("\n---\n\n*From command {}:*\n", a + 1)); // DEBUG-TEXT
+            for i in a..b {
+                md.push_str(&format!("\n**> {}**\n\n{}", r.commands[i], block(&r.texts[i + 1])));
+            }
+        }
+        let path = dir.join(format!("scholar-{seed}.md"));
         std::fs::write(&path, md).map_err(|e| format!("cannot write {}: {e}", path.display()))?;
         out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
     }

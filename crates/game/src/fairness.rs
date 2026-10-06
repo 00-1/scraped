@@ -95,7 +95,12 @@ impl Reach<'_> {
             return r;
         }
         let w = &self.site.world;
-        let sealed = self.site.writing.sealed.iter().any(|x| x.structure == s);
+        let sealed = self
+            .site
+            .writing
+            .sealed
+            .iter()
+            .any(|x| x.structure == s && !x.inner);
         let r = self.site.enterable(s)
             && (!sealed || self.opened.contains(&s))
             && self
@@ -119,10 +124,21 @@ impl Reach<'_> {
                 )
                 .is_some(),
             Some(r) => {
-                self.site
-                    .fixtures
-                    .reachable_rooms(&self.site.world, s)
-                    .contains(&r)
+                // Sealed from within: only the entrance room until opened.
+                let held = r > 0
+                    && !self.opened.contains(&s)
+                    && self
+                        .site
+                        .writing
+                        .sealed
+                        .iter()
+                        .any(|x| x.structure == s && x.inner);
+                !held
+                    && self
+                        .site
+                        .fixtures
+                        .reachable_rooms(&self.site.world, s)
+                        .contains(&r)
                     && self.structure(s)
             }
         }
@@ -323,6 +339,82 @@ pub fn check(site: &Site, preset: &str) -> Report {
         .map(|g| format!("{} pushed only by a great inscription", g.property.name()))
         .collect();
     goal("powers", unattested);
+    // Sealed places (D11): each ward stone stands where a walker can reach
+    // it, and the words to open it are met in enough readable texts, given
+    // the lenses and the places before it opened. The chain is walked in
+    // order, so it has no loop; what it opens counts as reachable for the
+    // goals after it (a great inscription can lie at its end).
+    let roots_of = |id: usize| {
+        let t = writing.text(w, id);
+        let mut roots = BTreeSet::new();
+        concepts_of(
+            &t.meaning,
+            &mut roots,
+            &w.languages[t.era as usize].numerals,
+        );
+        roots
+    };
+    let lens = reach.item("lens") || reach.item("loupe");
+    let loupe = reach.item("loupe");
+    let mut known = contexts.clone();
+    let learn = |known: &mut BTreeMap<String, BTreeSet<usize>>, id: usize| {
+        for r in roots_of(id) {
+            known.entry(r).or_default().insert(id);
+        }
+    };
+    let ward_layers: BTreeSet<usize> = writing
+        .sealed
+        .iter()
+        .flat_map(|x| [Some(x.ward), x.clue, x.inside])
+        .flatten()
+        .collect();
+    // What lies open from the start: accounts in ordinary buildings, and
+    // the oldest under the first ward (the first lens reads it).
+    let free: Vec<usize> = writing
+        .sealed_texts
+        .iter()
+        .map(|t| t.id)
+        .filter(|id| !ward_layers.contains(id))
+        .collect();
+    for id in free {
+        let t = writing.text(w, id);
+        let ok = if t.room.is_none() {
+            loupe && reach.room(t.structure, None)
+        } else {
+            reach.text(id)
+        };
+        if ok {
+            learn(&mut known, id);
+        }
+    }
+    let mut sealed_missing: Vec<String> = Vec::new();
+    if writing.sealed.is_empty() {
+        sealed_missing.push("no sealed place".into());
+    }
+    for (k, x) in writing.sealed.iter().enumerate() {
+        let ward_room = if x.inner { Some(0) } else { None };
+        if !reach.room(x.structure, ward_room) {
+            sealed_missing.push(format!("ward {k} unreachable"));
+            break;
+        }
+        let strong = (x.degree >= 3).then_some("greatly");
+        for root in ["open", x.noun].into_iter().chain(strong) {
+            if known.get(root).map_or(0, BTreeSet::len) < THRESHOLD {
+                sealed_missing.push(format!("ward {k}: {root} too rarely met"));
+            }
+        }
+        if !sealed_missing.is_empty() {
+            break;
+        }
+        reach.opened.insert(x.structure);
+        reach.routes.remove(&x.structure);
+        if let Some(c) = x.clue.filter(|_| lens) {
+            learn(&mut known, c);
+        }
+        if let Some(i) = x.inside.filter(|&i| reach.text(i)) {
+            learn(&mut known, i);
+        }
+    }
     // A great inscription, and the first scraper.
     let great = site.greats.iter().any(|g| reach.text(g.text));
     goal(
@@ -389,81 +481,7 @@ pub fn check(site: &Site, preset: &str) -> Report {
             .into_iter()
             .collect(),
     );
-    // Sealed places (D11): each ward stone stands where a walker can reach
-    // it, and the words to open it are met in enough readable texts, given
-    // the lenses and the places before it opened. The chain is walked in
-    // order, so it has no loop.
-    let roots_of = |id: usize| {
-        let t = writing.text(w, id);
-        let mut roots = BTreeSet::new();
-        concepts_of(
-            &t.meaning,
-            &mut roots,
-            &w.languages[t.era as usize].numerals,
-        );
-        roots
-    };
-    let lens = reach.item("lens") || reach.item("loupe");
-    let loupe = reach.item("loupe");
-    let mut known = contexts.clone();
-    let learn = |known: &mut BTreeMap<String, BTreeSet<usize>>, id: usize| {
-        for r in roots_of(id) {
-            known.entry(r).or_default().insert(id);
-        }
-    };
-    let ward_layers: BTreeSet<usize> = writing
-        .sealed
-        .iter()
-        .flat_map(|x| [Some(x.ward), x.clue, x.inside])
-        .flatten()
-        .collect();
-    // What lies open from the start: accounts in ordinary buildings, and
-    // the oldest under the first ward (the first lens reads it).
-    let free: Vec<usize> = writing
-        .sealed_texts
-        .iter()
-        .map(|t| t.id)
-        .filter(|id| !ward_layers.contains(id))
-        .collect();
-    for id in free {
-        let t = writing.text(w, id);
-        let ok = if t.room.is_none() {
-            loupe && reach.room(t.structure, None)
-        } else {
-            reach.text(id)
-        };
-        if ok {
-            learn(&mut known, id);
-        }
-    }
-    let mut missing: Vec<String> = Vec::new();
-    if writing.sealed.is_empty() {
-        missing.push("no sealed place".into());
-    }
-    for (k, x) in writing.sealed.iter().enumerate() {
-        if !reach.room(x.structure, None) {
-            missing.push(format!("ward {k} unreachable"));
-            break;
-        }
-        let strong = (x.degree >= 3).then_some("greatly");
-        for root in ["open", x.noun].into_iter().chain(strong) {
-            if known.get(root).map_or(0, BTreeSet::len) < THRESHOLD {
-                missing.push(format!("ward {k}: {root} too rarely met"));
-            }
-        }
-        if !missing.is_empty() {
-            break;
-        }
-        reach.opened.insert(x.structure);
-        reach.routes.remove(&x.structure);
-        if let Some(c) = x.clue.filter(|_| lens) {
-            learn(&mut known, c);
-        }
-        if let Some(i) = x.inside.filter(|&i| reach.text(i)) {
-            learn(&mut known, i);
-        }
-    }
-    goal("sealed", missing);
+    goal("sealed", sealed_missing);
     // Ambiguity: roots of the newest era that write the same as another.
     let lang = &w.languages[newest as usize];
     let mut forms: BTreeMap<String, usize> = BTreeMap::new();

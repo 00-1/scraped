@@ -160,6 +160,8 @@ struct SealedSite {
     tries: u8,
     phase: u8,
     open: bool,
+    /// Legs of the journey back (travel stops for what comes into view).
+    legs: u8,
 }
 
 /// How to find a building again.
@@ -460,6 +462,7 @@ impl DepthBot {
                                     tries: 0,
                                     phase: 0,
                                     open: false,
+                                    legs: 0,
                                 });
                             }
                         }
@@ -1482,14 +1485,18 @@ impl DepthBot {
         if !self.scholar() || !tools || cast >= 4 {
             return None;
         }
-        // Something blank to write on: looked at, no writing, not an item.
+        // Something to write on: looked at, not an item; blank first, then
+        // (a ward may hold only to what is written over it, D11) written.
         let room = self.rooms.get(&here)?;
-        let blank = (0..s.things.len()).find(|&i| {
+        let fit = |i: usize, written: bool| {
             let n = &s.things[i];
             room.done.contains(&(n.clone(), "examine"))
-                && !room.written.contains(n)
+                && room.written.contains(n) == written
                 && !room.items.contains(n)
-        })?;
+        };
+        let blank = (0..s.things.len())
+            .find(|&i| fit(i, cast % 2 == 1))
+            .or_else(|| (0..s.things.len()).find(|&i| fit(i, cast % 2 == 0)))?;
         let surface = noun(&s.things, blank);
         let last_cmd = self
             .last
@@ -1519,7 +1526,11 @@ impl DepthBot {
                 .into_iter()
                 .find(|w| known(w));
             if let (true, Some(subject)) = (known("open"), subject) {
-                let glyphs = claim_glyphs(g, "open", subject);
+                let glyphs = if known("greatly") {
+                    claim_glyphs_greatly(g, "open", subject)
+                } else {
+                    claim_glyphs(g, "open", subject)
+                };
                 return Some(format!("write {glyphs} on {surface}"));
             }
         }
@@ -1549,15 +1560,17 @@ impl DepthBot {
             .unwrap_or_default();
         let x = self.sealed[i].clone();
         if square != x.square {
-            // Back by the name it gave the spot; once, then it's lost.
+            // Back by the name it gave the spot, a leg at a time (a
+            // journey stops for what comes into view); lost after many.
             let spot = x.spot.clone()?;
-            let c = format!("go {spot}");
-            if last_cmd == c {
+            self.sealed[i].legs += 1;
+            if self.sealed[i].legs > 12 {
                 self.sealed[i].tries = 4;
                 return None;
             }
-            return Some(c);
+            return Some(format!("go {spot}"));
         }
+        self.sealed[i].legs = 0;
         let stones: Vec<usize> = (0..s.things.len())
             .filter(|&k| s.things[k].contains("inscription"))
             .collect();
@@ -2508,7 +2521,16 @@ pub fn play_with(
         .writing
         .sealed
         .iter()
-        .filter(|x| g.state.visited.contains(&x.structure))
+        .filter(|x| {
+            if x.inner {
+                g.state
+                    .rooms_seen
+                    .iter()
+                    .any(|&(st, r)| st == x.structure && r > 0)
+            } else {
+                g.state.visited.contains(&x.structure)
+            }
+        })
         .count();
     run.read_great = g
         .site

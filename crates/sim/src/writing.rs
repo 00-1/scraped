@@ -527,8 +527,14 @@ pub struct Sealed {
     pub degree: u8,
     /// The account just beneath the ward, telling the next place's words.
     pub clue: Option<usize>,
-    /// The account inside, telling the next place's words again.
+    /// The account inside, telling the next place's words again (in the
+    /// last place: where the first great writing was done).
     pub inside: Option<usize>,
+    /// Whether it holds a great inscription: the chain's end (D11).
+    pub great: bool,
+    /// Sealed from within: the way in is open, its ward on a wall of the
+    /// entrance room holds every way on from there.
+    pub inner: bool,
 }
 
 /// The claim a potent text makes, if any: (verb, subject, negative).
@@ -867,26 +873,28 @@ impl Writing {
             w.history.settlements[start].cell.ux(),
             w.history.settlements[start].cell.uy(),
         );
+        let root = w.texts.iter().find(|t| t.event == Some(w.history.root));
         let greats: BTreeSet<usize> = crate::region::great_events(w)
             .into_iter()
             .filter_map(|e| w.texts.iter().find(|t| t.event == Some(e)))
             .map(|t| t.structure)
-            .chain(
-                w.texts
-                    .iter()
-                    .filter(|t| t.event == Some(w.history.root))
-                    .map(|t| t.structure),
-            )
+            .filter(|&s| root.is_none_or(|r| r.structure != s))
+            .collect();
+        let holding: BTreeSet<usize> = fixtures
+            .items
+            .iter()
+            .filter_map(|p| match p.at {
+                crate::fixtures::Spot::Room { structure, .. } => Some(structure),
+                crate::fixtures::Spot::Out { .. } => None,
+            })
             .collect();
         let busy: BTreeSet<usize> = self
             .extra
             .iter()
             .map(|t| t.structure)
-            .chain(greats)
-            .chain(fixtures.items.iter().filter_map(|p| match p.at {
-                crate::fixtures::Spot::Room { structure, .. } => Some(structure),
-                crate::fixtures::Spot::Out { .. } => None,
-            }))
+            .chain(greats.iter().copied())
+            .chain(root.map(|r| r.structure))
+            .chain(holding.iter().copied())
             .collect();
         // An inscribable feature in a room a walker can reach.
         let wall = |s: usize| -> Option<(usize, usize)> {
@@ -926,6 +934,47 @@ impl Writing {
             {
                 chosen.push(s);
             }
+        }
+        // A great inscription's building has no stone at its door and
+        // always holds something: it is sealed from within, its ward on a
+        // wall of the entrance room holding every way on, so long as no
+        // tool lies inside and the great writing lies beyond that room.
+        let tools = |s: usize| {
+            fixtures.items.iter().any(|p| {
+                matches!(p.at, crate::fixtures::Spot::Room { structure, .. } if structure == s)
+                    && (crate::items::scrape_power(p.kind) > 0
+                        || matches!(p.kind, "stylus" | "lens" | "loupe"))
+            })
+        };
+        let inner = |g: usize| -> Option<usize> {
+            let st = &w.structures[g];
+            let beyond = w
+                .texts
+                .iter()
+                .any(|t| t.structure == g && t.event.is_some() && t.room.is_some_and(|r| r > 0));
+            if st.condition == Condition::Buried
+                || st.settlement == Some(start)
+                || tools(g)
+                || !beyond
+                || land.structure_pos[g].dist(start_pos) < 1500.0
+                || !fixtures.reachable_rooms(w, g).contains(&0)
+                || land.route(w, start_pos, land.structure_pos[g]).is_none()
+            {
+                return None;
+            }
+            st.interior
+                .rooms
+                .first()?
+                .features
+                .iter()
+                .position(|f| INSCRIBABLE.contains(&f.kind))
+        };
+        let mut great: Option<usize> = None;
+        if let Some((g, f0)) = greats.iter().find_map(|&g| inner(g).map(|f| (g, f))) {
+            chosen.truncate(NOUNS.len() - 1);
+            chosen.retain(|&c| land.structure_pos[c].dist(land.structure_pos[g]) >= 1000.0);
+            chosen.push(g);
+            great = Some(f0);
         }
         if chosen.is_empty() {
             return;
@@ -976,6 +1025,18 @@ impl Writing {
             push(self, t);
         }
         for (k, &s) in chosen.iter().enumerate() {
+            let last = k + 1 == chosen.len();
+            // Where the ward lies: the stone at the door, or (a great
+            // inscription's building) a wall of the entrance room.
+            let inner = great.filter(|_| last);
+            let (room, feature, material) = match inner {
+                Some(f) => (
+                    Some(0),
+                    Some(f),
+                    w.structures[s].interior.rooms[0].features[f].material,
+                ),
+                None => (None, None, Material::Stone),
+            };
             // Beneath the ward: the words for this place (the first) or the
             // next one; then the ward itself, on top, cast.
             let next = if k == 0 { Some(0) } else { None }
@@ -988,7 +1049,7 @@ impl Writing {
                     self,
                     Text {
                         meaning: account(n),
-                        ..base(s, None, None, Material::Stone)
+                        ..base(s, room, feature, material)
                     },
                 );
                 self.scraped.insert(id);
@@ -1006,29 +1067,57 @@ impl Writing {
                             .denied()
                             .with_adverb("greatly"),
                     ),
-                    ..base(s, None, None, Material::Stone)
+                    ..base(s, room, feature, material)
                 },
             );
             self.scraped.insert(ward);
-            // Inside: the next place's words again.
-            let inside = (k + 1 < chosen.len())
-                .then(|| wall(s))
-                .flatten()
-                .map(|(r, f)| {
-                    let material = w.structures[s].interior.rooms[r].features[f].material;
-                    push(
-                        self,
-                        Text {
-                            meaning: account(k + 1),
-                            ..base(s, Some(r), Some(f), material)
-                        },
-                    )
+            // Inside: the next place's words again; inside the last, where
+            // the first great writing was done: the thread to the deepest
+            // text. (Beyond the entrance room, where a ward holds within.)
+            let thread = root
+                .and_then(|r| w.structures[r.structure].settlement)
+                .map(|town| {
+                    let mut c = Clause::plain("scrape", NounPhrase::concept("king"))
+                        .with_object(NounPhrase::concept("tablet"));
+                    c.args.push(Argument {
+                        role: Role::Recipient,
+                        np: NounPhrase::name(w.history.people.len() + town),
+                    });
+                    c.tense = Tense::Past;
+                    Sentence::Clause(c)
                 });
+            let meaning = if last { thread } else { Some(account(k + 1)) };
+            let within = |s: usize| -> Option<(usize, usize)> {
+                let st = &w.structures[s];
+                fixtures
+                    .reachable_rooms(w, s)
+                    .into_iter()
+                    .filter(|&r| inner.is_none() || r > 0)
+                    .find_map(|r| {
+                        st.interior.rooms[r]
+                            .features
+                            .iter()
+                            .position(|f| INSCRIBABLE.contains(&f.kind))
+                            .map(|f| (r, f))
+                    })
+            };
+            let inside = meaning.zip(within(s)).map(|(meaning, (r, f))| {
+                let material = w.structures[s].interior.rooms[r].features[f].material;
+                push(
+                    self,
+                    Text {
+                        meaning,
+                        ..base(s, Some(r), Some(f), material)
+                    },
+                )
+            });
             self.sealed.push(Sealed {
                 structure: s,
                 ward,
                 noun: NOUNS[k],
                 degree: if k == 0 { 2 } else { 3 },
+                great: great.is_some() && last,
+                inner: inner.is_some(),
                 clue,
                 inside,
             });

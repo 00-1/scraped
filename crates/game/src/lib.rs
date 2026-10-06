@@ -1631,7 +1631,14 @@ impl Game {
                 }
                 // A sealed place (D11): its way in won't give while its
                 // ward holds.
-                if self.sealed_shut(s) {
+                if self.sealed_shut(s)
+                    && !self
+                        .site
+                        .writing
+                        .sealed
+                        .iter()
+                        .any(|x| x.structure == s && x.inner)
+                {
                     self.pass(1);
                     let noun = self
                         .site
@@ -1984,6 +1991,21 @@ impl Game {
             let c = self.site.way_vars(&way);
             let t = self.say("say.blocked", c);
             return self.output(vec![t], None);
+        }
+        // Sealed from within (D11): every way on from the entrance room
+        // holds while the ward on its wall does.
+        if let Place::Room { structure, room: 0 } = self.state.place {
+            let inner = self
+                .site
+                .writing
+                .sealed
+                .iter()
+                .any(|x| x.structure == structure && x.inner);
+            if inner && way.to != self.state.place && self.sealed_shut(structure) {
+                let named = ctx(&[("thing", Value::from(self.way_name(&way)))]);
+                let t = self.say("effect.held", named);
+                return self.output(vec![t], None);
+            }
         }
         // A rope climbs back up a drop (D05).
         let climb = way.against
