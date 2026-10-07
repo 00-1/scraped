@@ -2,7 +2,7 @@ notes = "The end of a run: other endings than death, and the summary of what it 
 
 [[variant]]
 slot = "end.summary"
-text = "Your time here is over, after {days} days. You walked {walked} kilometres, entered {places} buildings of {kinds} kinds, found {secrets} hidden things[if rim] and reached the end of the land[end], read {read} texts, wrote {wrote} and scraped {released}."
+text = "Your time here is over, after {count days day}. You walked {walked} {plural kilometre walked}, entered {places} {plural building places} of {kinds} {plural kind kinds}, found {secrets} hidden {plural thing secrets}[if rim] and reached the end of the land[end], read {read} {plural text read}, wrote {wrote} and scraped {released}."
 example = true
 
 [[variant]]

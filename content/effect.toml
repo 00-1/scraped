@@ -21,6 +21,11 @@ text = "You rub the {cover} from {thing}."
 example = true
 
 [[variant]]
+slot = "clean.scoured"
+text = "You work {thing} over until it comes up bare."
+example = true
+
+[[variant]]
 slot = "clean.nothing"
 text = "There is nothing to clean from {thing}."
 example = true

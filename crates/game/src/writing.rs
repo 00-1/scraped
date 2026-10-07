@@ -195,9 +195,13 @@ impl Game {
     /// scrape; by hand, only the grime.
     pub(crate) fn clean(&mut self, thing: usize) -> Output {
         let name = self.thing_name(thing);
-        if self.power() > 0 && !self.layers(thing).is_empty() {
+        let layers = self.layers(thing);
+        if self.power() > 0 && top_unscraped_of(&layers, &self.state.scraped).is_some() {
             self.state.cleaned.insert(thing);
-            return self.scrape(thing);
+            self.cleaning = true;
+            let o = self.scrape(thing);
+            self.cleaning = false;
+            return o;
         }
         match self.grime(thing) {
             Some(cover) => {
@@ -299,7 +303,12 @@ impl Game {
             return self.too_weak(thing);
         }
         let Some(text) = top_unscraped_of(&layers, &self.state.scraped) else {
-            let t = self.say("scrape.bare", named);
+            let slot = if self.cleaning {
+                "clean.nothing"
+            } else {
+                "scrape.bare"
+            };
+            let t = self.say(slot, named);
             return self.output(vec![t], None);
         };
         // Fresh ink must dry before it can be scraped off cleanly.
@@ -327,7 +336,11 @@ impl Game {
         let backlash = mine && self.backlash(text - base);
         let material = label(&self.thing(thing).material);
         let mut parts = vec![self.say(
-            "scrape.done",
+            if self.cleaning {
+                "clean.scoured"
+            } else {
+                "scrape.done"
+            },
             ctx(&[
                 ("thing", Value::from(name)),
                 ("material", Value::from(material)),

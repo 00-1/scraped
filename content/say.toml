@@ -16,6 +16,21 @@ text = "{cap thing} will not move[if cause == 'rubble']: rubble chokes the doorw
 example = true
 
 [[variant]]
+slot = "say.too_dark"
+text = "It is too dark to make out any {words}."
+example = true
+
+[[variant]]
+slot = "say.indoors"
+text = "The {words} lies outside; find your way out first."
+example = true
+
+[[variant]]
+slot = "say.take_none"
+text = "There is nothing here to take."
+example = true
+
+[[variant]]
 slot = "say.take_held"
 text = "You already have {thing}."
 example = true

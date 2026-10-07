@@ -415,6 +415,8 @@ pub struct Game {
     impression_cache: BTreeMap<u32, (usize, Vec<String>)>,
     /// Whether the last command was reading, so `look closer` reads on.
     reading_now: bool,
+    /// A scrape done by cleaning with a tool: told as cleaning (S04).
+    cleaning: bool,
     /// Facts already said in this response before the description (a move
     /// report inside), taken off its budget (D04).
     said_already: usize,
@@ -598,6 +600,7 @@ impl Game {
             glyph_cache: BTreeMap::new(),
             impression_cache: BTreeMap::new(),
             reading_now: false,
+            cleaning: false,
             listening: false,
             attentive: false,
             arrival_keys: Vec::new(),
@@ -811,7 +814,28 @@ impl Game {
     }
 
     /// Renders a description; variants may vary from turn to turn.
-    fn say(&mut self, slot: &str, c: Context) -> String {
+    /// The command as the player typed it, to quote back ("to head north",
+    /// not "to head"; S04).
+    pub(crate) fn typed(&self, verb: &str) -> String {
+        self.log
+            .last()
+            .map(|s| s.trim().to_lowercase())
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| verb.to_string())
+    }
+
+    fn say(&mut self, slot: &str, mut c: Context) -> String {
+        // The player's own words quoted back lose their article: "You see no
+        // sinkhole here", not "no the sinkhole" (S04).
+        if let Some(Value::Text(w)) = c.get("words") {
+            let bare = ["the ", "a ", "an ", "some "]
+                .iter()
+                .find_map(|a| w.strip_prefix(a))
+                .map(str::to_string);
+            if let Some(b) = bare {
+                c.insert("words".into(), Value::from(b));
+            }
+        }
         let seed = self.seed() ^ u64::from(self.state.minutes);
         self.renderer_say(slot, &c, seed, true)
     }
@@ -1245,7 +1269,17 @@ impl Game {
         self.advance(minutes, Activity::Resting);
     }
 
-    fn command(&mut self, cmd: Command) -> Output {
+    fn command(&mut self, mut cmd: Command) -> Output {
+        // "enter" alone is "go in" (S04).
+        if cmd.verb == "go"
+            && cmd.words.is_empty()
+            && self
+                .log
+                .last()
+                .is_some_and(|l| l.trim().eq_ignore_ascii_case("enter"))
+        {
+            cmd.words = vec!["in".to_string()];
+        }
         self.breathe();
         let was_reading = std::mem::take(&mut self.reading_now);
         self.attentive = std::mem::take(&mut self.listening);
@@ -1280,6 +1314,30 @@ impl Game {
                     ctx(&[("items", Value::List(items)), ("count", Value::Number(n))]),
                 );
                 self.output(vec![t], None)
+            }
+            "take" if cmd.words.first().map(String::as_str) == Some("all") => {
+                self.take_all(&cmd.words[1..])
+            }
+            "drop" if cmd.words.first().map(String::as_str) == Some("all") => {
+                let carried = self.state.carried.clone();
+                if carried.is_empty() {
+                    let t = self.say(
+                        "say.inventory",
+                        ctx(&[
+                            ("items", Value::List(Vec::new())),
+                            ("count", Value::Number(0)),
+                        ]),
+                    );
+                    return self.output(vec![t], None);
+                }
+                let mut parts = Vec::new();
+                for t in carried {
+                    let o = self.act("drop", Target::Thing(t));
+                    if !o.text.trim().is_empty() {
+                        parts.push(o.text);
+                    }
+                }
+                self.output(parts, None)
             }
             "wait" => self.wait(&cmd.words),
             "manual" => {
@@ -1397,7 +1455,58 @@ impl Game {
             .filter(|w| !CHOOSING.contains(&w.as_str()))
             .cloned()
             .collect();
+        // "go in", "enter" alone, out in the open (S04): the building here,
+        // or which of them.
+        let bare_in = verb == "go"
+            && self.state.place == Place::Outside
+            && matches!(
+                words
+                    .iter()
+                    .map(String::as_str)
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+                ["in"] | ["inside"]
+            );
+        let buildings: Vec<Target> = cands
+            .iter()
+            .map(|c| c.target)
+            .filter(|t| matches!(t, Target::Structure(_)))
+            .collect();
+        // A plural ("look at the walls", "take the jars", S04): each of them.
+        if let Some(last) = words.last().filter(|w| w.len() > 3 && w.ends_with('s')) {
+            if matches!(verb, "examine" | "take" | "read")
+                && matches!(
+                    resolve(words, &cands, self.state.it.as_ref()),
+                    Resolution::None
+                )
+            {
+                let stem = last
+                    .strip_suffix("es")
+                    .filter(|s| s.ends_with(['s', 'x', 'h']))
+                    .or_else(|| last.strip_suffix('s'))
+                    .unwrap_or(last);
+                let mut single = words.to_vec();
+                *single.last_mut().expect("a word") = stem.to_string();
+                let found = match resolve(&single, &cands, None) {
+                    Resolution::One(t) => vec![t],
+                    Resolution::Many(ts) => ts,
+                    Resolution::None => Vec::new(),
+                };
+                if !found.is_empty() {
+                    let mut parts = Vec::new();
+                    for t in found.into_iter().take(4) {
+                        let o = self.act(verb, t);
+                        if !o.text.trim().is_empty() {
+                            parts.push(o.text);
+                        }
+                    }
+                    return self.output(parts, None);
+                }
+            }
+        }
         let resolved = match resolve(words, &cands, self.state.it.as_ref()) {
+            _ if bare_in && buildings.len() == 1 => Resolution::One(buildings[0]),
+            _ if bare_in && buildings.len() > 1 => Resolution::Many(buildings.clone()),
             Resolution::None if any_one && !bare.is_empty() => {
                 resolve(&bare, &cands, self.state.it.as_ref())
             }
@@ -1408,6 +1517,38 @@ impl Game {
             Resolution::None if verb == "go" && self.state.place == Place::Outside => {
                 let t = self.say(
                     "travel.unseen",
+                    ctx(&[("words", Value::from(words.join(" ")))]),
+                );
+                self.output(vec![t], None)
+            }
+            // Indoors, going to something out in the open (S04): from the
+            // entrance, out and on; from further in, say so.
+            Resolution::None if verb == "go" && self.state.place != Place::Outside => {
+                let here = self.state.place;
+                self.state.place = Place::Outside;
+                let outside = self.visible_targets();
+                self.state.place = here;
+                let seen = matches!(
+                    resolve(words, &outside, None),
+                    Resolution::One(_) | Resolution::Many(_)
+                );
+                if seen && matches!(here, Place::Room { room: 0, .. }) {
+                    let out = self.go_out();
+                    let on = self.with_target("go", words);
+                    let text = [out.text, on.text]
+                        .into_iter()
+                        .filter(|t| !t.trim().is_empty())
+                        .collect();
+                    return self.output(text, None);
+                }
+                let slot = if seen { "say.indoors" } else { "say.not_here" };
+                let t = self.say(slot, ctx(&[("words", Value::from(words.join(" ")))]));
+                self.output(vec![t], None)
+            }
+            // In the dark, what can't be seen isn't "not here" (S04).
+            Resolution::None if self.is_dark() => {
+                let t = self.say(
+                    "say.too_dark",
                     ctx(&[("words", Value::from(words.join(" ")))]),
                 );
                 self.output(vec![t], None)
@@ -1520,6 +1661,47 @@ impl Game {
         }
     }
 
+    /// `take all` and `take all <kind>` (S04): every loose thing here that
+    /// could be carried, one take each.
+    fn take_all(&mut self, kind: &[String]) -> Output {
+        let want: Vec<String> = kind
+            .iter()
+            .filter(|w| !matches!(w.as_str(), "the" | "of" | "a"))
+            .map(|w| w.trim_end_matches('s').to_string())
+            .collect();
+        let things: Vec<usize> = if self.is_dark() {
+            Vec::new()
+        } else {
+            self.here()
+                .into_iter()
+                .filter(|&t| {
+                    !self.state.carried.contains(&t)
+                        && (self.thing(t).portable
+                            || scraped_sim::items::kind(self.thing(t).kind).is_some())
+                        && (want.is_empty() || {
+                            let name = self.thing_name(t);
+                            want.iter().all(|w| name.contains(w.as_str()))
+                        })
+                })
+                .collect()
+        };
+        if things.is_empty() {
+            let t = self.say("say.take_none", Context::new());
+            return self.output(vec![t], None);
+        }
+        let mut parts = Vec::new();
+        for t in things {
+            let o = self.act("take", Target::Thing(t));
+            if !o.text.trim().is_empty() {
+                parts.push(o.text);
+            }
+            if self.state.dead.is_some() {
+                break;
+            }
+        }
+        self.output(parts, None)
+    }
+
     fn act(&mut self, verb: &str, target: Target) -> Output {
         // Groups: looking at them lists their members; going to one goes to
         // the nearest member not yet entered.
@@ -1621,6 +1803,19 @@ impl Game {
             ("pry", t) => self.pry(t),
             ("scrape", Target::Thing(i)) => self.scrape(i),
             ("clean", Target::Thing(i)) => self.clean(i),
+            // A building looked at from outside: never a way in (S04).
+            ("examine", Target::Structure(s)) if self.state.place == Place::Outside => {
+                self.pass(1);
+                let name = self.structure_name(s);
+                let st = &self.site.world.structures[s];
+                let vars = ctx(&[
+                    ("name", Value::from(name)),
+                    ("kind", Value::from(label(&st.kind))),
+                    ("condition", Value::from(label(&st.condition))),
+                ]);
+                let t = self.say("place.building", vars);
+                self.output(vec![t], None)
+            }
             ("examine", Target::Structure(s)) | ("go", Target::Structure(s)) => {
                 if verb == "examine" {
                     self.pass(1);

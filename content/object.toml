@@ -2,7 +2,7 @@ notes = "Objects with histories (D05): found things, their emblems and close det
 
 [[variant]]
 slot = "object.examine"
-text = "{cap a material} {kind}[if condition != 'whole'], {condition}[end].[if emblem] It bears {emblem}.[end][if numeral] It is marked with {numeral}, and weighs about {heft} of the smallest.[end]"
+text = "{cap a2 material kind}[if condition != 'whole'], {condition}[end].[if emblem] It bears {emblem}.[end][if numeral] It is marked with {numeral}, and weighs about {heft} of the smallest.[end]"
 example = true
 
 [[variant]]
@@ -12,7 +12,7 @@ example = true
 
 [[variant]]
 slot = "emblem.describe"
-text = "{a device} {motif}[if border != 'none'] in a {border} border[end]"
+text = "[if device == 'in a ring']{a motif} in a ring[else][if device == 'on a bar']{a motif} on a bar[else][if device == 'single']{a motif}[else]{a device} {motif}[end][end][end][if border != 'none'] in a {border} border[end]"
 example = true
 
 [[variant]]

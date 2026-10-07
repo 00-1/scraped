@@ -2,12 +2,12 @@ notes = "Things the player can examine, read or carry."
 
 [[variant]]
 slot = "thing.name"
-text = "[if item]{a kind}[else]{a material} {kind}[end]"
+text = "[if item]{a kind}[else]{a2 material kind}[end]"
 example = true
 
 [[variant]]
 slot = "thing.examine"
-text = "{cap a material} {kind}.[if written] Marks are cut into it: writing. You could read it.[end]"
+text = "{cap a2 material kind}.[if written] Marks are cut into it: writing. You could read it.[end]"
 example = true
 
 [[variant]]

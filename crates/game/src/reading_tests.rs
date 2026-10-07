@@ -236,3 +236,28 @@ fn related_signs_name_a_findable_base() {
         }
     }
 }
+
+/// S04: no impression names the same part twice ("with a curl, with a
+/// curl"), in any era of three worlds.
+#[test]
+fn impressions_never_repeat_a_part() {
+    use scraped_content::Renderer;
+    use scraped_lang::slots::{impression_texts, LangHooks};
+    use scraped_lang::Language;
+    let pack = crate::composing_tests::pack();
+    let registry = crate::slots::registry_for(&pack);
+    for seed in [1u64, 42, 9001] {
+        for lang in Language::generate(seed).eras() {
+            let hooks = LangHooks { lang: &lang };
+            let mut r = Renderer::new(&registry, &pack, seed, &hooks);
+            for text in impression_texts(&mut r, &lang.script, false, &|_| None) {
+                let parts: Vec<&str> = text.split(", with ").skip(1).collect();
+                let mut seen = std::collections::BTreeSet::new();
+                for p in parts {
+                    let p = p.split(',').next().unwrap_or(p).trim();
+                    assert!(seen.insert(p.to_string()), "seed {seed}: {text}");
+                }
+            }
+        }
+    }
+}

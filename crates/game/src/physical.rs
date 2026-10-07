@@ -1061,7 +1061,8 @@ impl Game {
     }
 
     pub(crate) fn outdoors_needed(&mut self, verb: &str) -> Output {
-        let t = self.say("travel.indoors", ctx(&[("verb", Value::from(verb))]));
+        let typed = self.typed(verb);
+        let t = self.say("travel.indoors", ctx(&[("verb", Value::from(typed))]));
         self.output(vec![t], None)
     }
 

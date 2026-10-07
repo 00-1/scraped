@@ -13,6 +13,9 @@ pub fn article(word: &str) -> String {
     if plurals().plural_only.iter().any(|p| p == last) {
         return word.to_string();
     }
+    if plurals().mass.iter().any(|p| p == last) {
+        return format!("some {word}");
+    }
     let first = word
         .trim_start()
         .chars()
@@ -36,6 +39,8 @@ struct Plurals {
     unchanging: Vec<String>,
     #[serde(default)]
     plural_only: Vec<String>,
+    #[serde(default)]
+    mass: Vec<String>,
     irregular: std::collections::BTreeMap<String, String>,
 }
 
@@ -187,6 +192,8 @@ mod tests {
         assert_eq!(article("arc"), "an arc");
         assert_eq!(article("hook"), "a hook");
         assert_eq!(article("graves"), "graves");
+        assert_eq!(article("oil"), "some oil");
+        assert_eq!(article("greens"), "some greens");
         assert_eq!(article("cistern tunnels"), "cistern tunnels");
         assert_eq!(plural_if("box", 2), "boxes");
         assert_eq!(plural_if("city", 3), "cities");

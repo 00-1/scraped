@@ -2,5 +2,5 @@ notes = "Sleeping."
 
 [[variant]]
 slot = "sleep.done"
-text = "You sleep for {hours} hours[if woken] and wake suddenly[end]."
+text = "You sleep for {count hours hour}[if woken] and wake suddenly[end]."
 example = true

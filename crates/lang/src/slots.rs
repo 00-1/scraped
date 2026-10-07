@@ -259,6 +259,7 @@ fn impression_samples(seed: u64) -> Vec<Context> {
 
 /// What a related sign's base is called (S03): its sound if heard, else
 /// its resemblance if no other sign shares it, else its whole look.
+#[derive(Default)]
 pub struct Base {
     pub look: String,
     pub sound: String,
@@ -313,15 +314,21 @@ pub fn impression_texts(
                 continue;
             }
             let t = &imp.told;
-            let parts = t
-                .parts
-                .iter()
-                .map(|p| Value::from(part_phrase(r, p)))
-                .collect();
-            let added = t
-                .added
-                .iter()
-                .map(|p| Value::from(part_phrase(r, p)))
+            let phrases = |r: &mut Renderer, ps: &[crate::impression::Part]| -> Vec<String> {
+                let mut out: Vec<String> = Vec::new();
+                for p in ps {
+                    let ph = part_phrase(r, p);
+                    // Never the same part twice (S04).
+                    if !out.contains(&ph) {
+                        out.push(ph);
+                    }
+                }
+                out
+            };
+            let parts = phrases(r, &t.parts);
+            let added: Vec<String> = phrases(r, &t.added)
+                .into_iter()
+                .filter(|a| !parts.contains(a))
                 .collect();
             let like = Base {
                 look: t.like.and_then(|j| texts[j].clone()).unwrap_or_default(),
@@ -333,8 +340,42 @@ pub fn impression_texts(
                     .unwrap_or_default()
                     .to_string(),
             };
-            let c = impression_context(t, parts, like, added);
-            texts[i] = Some(r.render("glyph.impression", &c));
+            // The base must be one the player can find (S04): by its sound,
+            // a resemblance no other sign shares, or a look no other sign
+            // has. Otherwise the sign is told on its own: the base's look
+            // and every part, with no "like".
+            let look_unique = !like.look.is_empty()
+                && texts.iter().flatten().filter(|x| **x == like.look).count() == 1;
+            let findable = !like.sound.is_empty() || !like.resembles.is_empty() || look_unique;
+            let alone = if t.like.is_some() && (!findable || added.is_empty()) {
+                let mut all = parts.clone();
+                all.extend(added.iter().cloned());
+                let own = Told {
+                    like: None,
+                    added: Vec::new(),
+                    ..t.clone()
+                };
+                let c = impression_context(
+                    &own,
+                    all.into_iter().map(Value::from).collect(),
+                    Base::default(),
+                    Vec::new(),
+                );
+                Some(r.render("glyph.impression", &c))
+                    // Told on its own it must still read like no other sign.
+                    .filter(|x| !texts.iter().flatten().any(|y| y == x))
+            } else {
+                None
+            };
+            texts[i] = Some(alone.unwrap_or_else(|| {
+                let c = impression_context(
+                    t,
+                    parts.into_iter().map(Value::from).collect(),
+                    like,
+                    added.into_iter().map(Value::from).collect(),
+                );
+                r.render("glyph.impression", &c)
+            }));
         }
     }
     texts.into_iter().map(Option::unwrap_or_default).collect()

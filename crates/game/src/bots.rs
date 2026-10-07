@@ -2048,6 +2048,136 @@ fn claim_glyphs(g: &Game, verb: &str, subject: &str) -> String {
     g.sound_words(&m)
 }
 
+/// The hand player's phrasing (S04): what the explorer means, typed the
+/// way people type it.
+fn hand_phrase(cmd: &str, seed: u64, step: u64) -> String {
+    let h = hash(&[seed, 0x4a4e, step]);
+    let pick = |opts: &[String]| opts[(h % opts.len() as u64) as usize].clone();
+    let the = |x: &str| {
+        if x.starts_with(|c: char| c.is_ascii_digit()) || x.starts_with("the ") {
+            x.to_string()
+        } else {
+            format!("the {x}")
+        }
+    };
+    let split = |verb: &str| cmd.strip_prefix(verb).map(str::trim);
+    if let Some(x) = split("examine ") {
+        return pick(&[
+            format!("x {x}"),
+            format!("look at {}", the(x)),
+            format!("examine {}", the(x)),
+            cmd.to_string(),
+        ]);
+    }
+    if let Some(x) = split("take ") {
+        return pick(&[
+            format!("get {x}"),
+            format!("pick up {}", the(x)),
+            format!("take {}", the(x)),
+            cmd.to_string(),
+        ]);
+    }
+    if let Some(x) = split("read ").filter(|x| *x != "closely") {
+        return pick(&[format!("read {}", the(x)), cmd.to_string()]);
+    }
+    if let Some(x) = split("go ") {
+        if !x.contains(' ') || x.starts_with(|c: char| c.is_ascii_digit()) {
+            return cmd.to_string();
+        }
+        return pick(&[
+            format!("enter {}", the(x)),
+            format!("go to {}", the(x)),
+            format!("go into {}", the(x)),
+            cmd.to_string(),
+        ]);
+    }
+    match cmd {
+        "out" => pick(&["leave".into(), "go out".into(), "exit".into(), "out".into()]),
+        "inventory" => "i".into(),
+        _ => cmd.to_string(),
+    }
+}
+
+/// Now and then the hand player does what people do on their own (S04):
+/// takes everything in a room, sets off from indoors for something seen
+/// outside, or looks at a thing just named.
+fn hand_extra(
+    g: &Game,
+    taken: usize,
+    out: &Output,
+    outdoors: &[String],
+    seed: u64,
+    step: u64,
+) -> Option<String> {
+    let h = hash(&[seed, 0x4a4f, step]) % 100;
+    let said = |slot: &str| {
+        g.renders[taken.min(g.renders.len())..]
+            .iter()
+            .any(|r| r.trace.slot == slot)
+    };
+    let inside = out.state.place != "outside";
+    if inside && said("room.items") && h < 40 {
+        return Some("take all".into());
+    }
+    if inside && out.state.place.ends_with(" room 0") && h < 8 && !outdoors.is_empty() {
+        let l = &outdoors[(hash(&[seed, 0x4a50, step]) % outdoors.len() as u64) as usize];
+        return Some(format!("go to the {l}"));
+    }
+    if !inside && !out.state.exits.is_empty() && (16..22).contains(&h) {
+        return Some("go in".into());
+    }
+    // Alike things here: looked at all together, by a plural.
+    let mut kinds: BTreeMap<&str, usize> = BTreeMap::new();
+    for t in &out.state.things {
+        *kinds
+            .entry(t.split_whitespace().last().unwrap_or(t))
+            .or_default() += 1;
+    }
+    if let Some((k, _)) = kinds
+        .iter()
+        .find(|(_, n)| **n >= 2)
+        .filter(|_| (22..30).contains(&h))
+    {
+        return Some(format!(
+            "look at the {}",
+            scraped_content::english::plural_if(k, 2)
+        ));
+    }
+    if (10..16).contains(&h) && !out.state.things.is_empty() {
+        let t = &out.state.things
+            [(hash(&[seed, 0x4a51, step]) % out.state.things.len() as u64) as usize];
+        let word = t.split_whitespace().last().unwrap_or(t);
+        return Some(format!("x {word}"));
+    }
+    None
+}
+
+/// What counts against the hand player (S04): the parser not following
+/// it, and a hole in a response where a word should be.
+fn hand_check(g: &Game, taken: usize, cmd: &str, out: &Output, from: &str, run: &mut BotRun) {
+    const FAILS: &[&str] = &[
+        "say.not_here",
+        "say.unknown_verb",
+        "say.need_object",
+        "travel.no_edge",
+        "travel.unseen",
+    ];
+    let rs = &g.renders[taken.min(g.renders.len())..];
+    if rs.iter().any(|r| FAILS.contains(&r.trace.slot.as_str())) {
+        run.failures.push((
+            cmd.to_string(),
+            out.text.trim().to_string(),
+            from.to_string(),
+        ));
+    }
+    for line in out.text.lines() {
+        let l = line.trim();
+        if l.contains("  ") || l.contains(" .") || l.contains(" ,") || l.contains("()") {
+            run.blanks.push((cmd.to_string(), l.to_string()));
+        }
+    }
+}
+
 /// `claim_glyphs`, said "greatly".
 fn claim_glyphs_greatly(g: &Game, verb: &str, subject: &str) -> String {
     use scraped_lang::meaning::{Clause, NounPhrase, Sentence};
@@ -2224,6 +2354,10 @@ pub struct BotRun {
     pub texts_read: usize,
     pub read_deepest: bool,
     pub read_great: bool,
+    /// S04: commands the parser couldn't follow (command, what it said,
+    /// where), and responses with a hole where a word should be.
+    pub failures: Vec<(String, String, String)>,
+    pub blanks: Vec<(String, String)>,
     /// Sealed places (D11) found shut, and those gone into.
     pub sealed_met: usize,
     pub sealed_opened: usize,
@@ -2361,7 +2495,11 @@ pub fn play_with(
     if g.state.place != before {
         out = g.step("look");
     }
-    let mut bot = DepthBot::new(kind, seed);
+    // The hand player (S04) is the explorer, typing like a person.
+    let hand = kind == "hand";
+    let mut bot = DepthBot::new(if hand { "explorer" } else { kind }, seed);
+    let mut extra: Option<String> = None;
+    let mut outdoors: Vec<String> = Vec::new();
     let start = g.state.minutes;
     let mut run = BotRun {
         bot: kind.to_string(),
@@ -2375,6 +2513,8 @@ pub fn play_with(
         buildings: 0,
         texts_read: 0,
         read_deepest: false,
+        failures: Vec::new(),
+        blanks: Vec::new(),
         sealed_met: 0,
         sealed_opened: 0,
         read_great: false,
@@ -2445,10 +2585,27 @@ pub fn play_with(
         if g.state.dead.is_some() || f64::from(g.state.minutes - start) >= hours * 60.0 {
             break;
         }
-        let cmd = bot.next(&g, &out);
+        let cmd = match extra.take() {
+            Some(c) => c,
+            None if hand => hand_phrase(&bot.next(&g, &out), seed, run.commands.len() as u64),
+            None => bot.next(&g, &out),
+        };
         let before = g.state.place;
         let pos = g.state.pos;
+        let from = out.state.place.clone();
         out = g.step(&cmd);
+        if hand {
+            hand_check(&g, taken, &cmd, &out, &from, &mut run);
+            if out.state.place == "outside" {
+                outdoors = out
+                    .state
+                    .landmarks
+                    .iter()
+                    .map(|l| l.name.trim_start_matches("the ").to_string())
+                    .collect();
+            }
+            extra = hand_extra(&g, taken, &out, &outdoors, seed, run.commands.len() as u64);
+        }
         let moved = g.state.pos.dist(pos) > 100.0;
         run.kinds
             .push(response_kind(&cmd, &before, &g.state.place, moved));

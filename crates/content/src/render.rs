@@ -51,7 +51,13 @@ pub const HELPERS: &[Helper] = &[
         name: "a",
         arity: 1,
         words: &[0],
-        usage: "{a x}: x with 'a' or 'an' in front",
+        usage: "{a x}: x with 'a', 'an' or 'some' in front ('a knife', 'an axe', 'some oil')",
+    },
+    Helper {
+        name: "a2",
+        arity: 2,
+        words: &[0, 1],
+        usage: "{a2 x y}: 'x y' with 'a' or 'an' chosen for the whole phrase ('a clay wall', not 'some clay wall')",
     },
     Helper {
         name: "cap",
@@ -372,6 +378,7 @@ impl<'a> Renderer<'a> {
         };
         Ok(match name {
             "a" => english::article(&args[0].text()),
+            "a2" => english::article(&format!("{} {}", args[0].text(), args[1].text())),
             "cap" => english::capitalise(&args[0].text()),
             "plural" => english::plural_if(&args[0].text(), num(&args[1])?),
             "count" => {

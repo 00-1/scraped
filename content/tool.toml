@@ -2,5 +2,5 @@ notes = "Finding the writing tools."
 
 [[variant]]
 slot = "tool.found"
-text = "You find a {kind}."
+text = "It sits well in the hand."
 example = true

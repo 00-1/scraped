@@ -245,7 +245,8 @@ impl Game {
         if self.state.place == Place::Outside {
             return None;
         }
-        let t = self.say("travel.indoors", ctx(&[("verb", Value::from(verb))]));
+        let typed = self.typed(verb);
+        let t = self.say("travel.indoors", ctx(&[("verb", Value::from(typed))]));
         Some(self.output(vec![t], None))
     }
 
@@ -456,15 +457,15 @@ impl Game {
             let now = self.state.minutes;
             let (weather, light, range) = self.conditions_at(pos, now);
             let view = self.view_from(pos, range);
-            // DESIGN-Q: in clear daylight outside woods the sun keeps the
-            // player's heading true even with no landmark in view.
-            let (cx, cy) = pos.cell();
-            let sun = weather == "clear"
-                && light == "daylight"
-                && !matches!(
-                    self.site.world.terrain.biome.get(cx, cy),
-                    scraped_world::terrain::Biome::Forest | scraped_world::terrain::Biome::Pine
-                );
+            // DESIGN-Q: the sun keeps the player's heading true by day (S04:
+            // lost in daylight was a bug): in daylight unless fog, storm or
+            // snow hides it, under trees too; low at dawn and dusk only when
+            // the sky is clear.
+            let sun = match light {
+                "daylight" => !matches!(weather, "fog" | "storm" | "snow"),
+                "dim" => weather == "clear",
+                _ => false,
+            };
             let goal_seen = match goal {
                 Goal::To(g) => self
                     .site
@@ -629,8 +630,13 @@ impl Game {
                             self.arrival_keys = self.target_keys(d);
                         }
                     } else if wi >= waypoints.len() {
+                        // No destination named: going back (S04).
                         let name = dest.map(|d| self.target_name(d)).unwrap_or_default();
-                        event = Some(("travel.not_there", ctx(&[("name", Value::from(name))])));
+                        let back = dest.is_none();
+                        event = Some((
+                            "travel.not_there",
+                            ctx(&[("name", Value::from(name)), ("back", Value::Bool(back))]),
+                        ));
                     }
                 }
                 (Goal::Along(path), Some((e, Some(by_what)))) if wi >= path.len() => {

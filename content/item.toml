@@ -2,7 +2,7 @@ notes = "Items: looking at them, lighting, making, carrying, wearing."
 
 [[variant]]
 slot = "item.examine"
-text = "A {kind}.[if lit] It is burning.[end][if holds > 0] It holds {water} of {holds} drinks.[end][if worn] You are wearing it.[end]"
+text = "{cap a kind}.[if lit] It is burning.[end][if holds > 0] It holds {water} of {holds} drinks.[end][if worn] You are wearing it.[end]"
 example = true
 
 [[variant]]

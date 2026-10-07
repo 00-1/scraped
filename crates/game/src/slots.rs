@@ -570,6 +570,21 @@ fn s_word(_: u64) -> Vec<Context> {
     ]
 }
 
+fn s_not_there(seed: u64) -> Vec<Context> {
+    let mut out: Vec<Context> = s_place_name(seed)
+        .into_iter()
+        .map(|mut c| {
+            c.insert("back".into(), Value::Bool(false));
+            c
+        })
+        .collect();
+    out.push(ctx(&[
+        ("name", Value::from("")),
+        ("back", Value::Bool(true)),
+    ]));
+    out
+}
+
 fn s_words(_: u64) -> Vec<Context> {
     vec![
         ctx(&[("words", Value::from("throne"))]),
@@ -1503,6 +1518,11 @@ pub fn slots() -> Vec<SlotDef> {
             .var("thing", VarType::Text, thing)
             .var("cause", e(&["", "rubble", "fallen", "locked", "works", "calendar"]), "Why it won't come (S03): '' for a fixed thing; for a way that is stuck, rubble in it, fallen stone, a lock, a works gate with no handle this side, or a calendar door on the wrong day.")
             .sampler(s_take_fixed),
+        SlotDef::new("clean.scoured", "The player cleans a written surface with an edged or abrasive tool, and the whole top layer comes away (S04: told as cleaning; never name scraping or writing's power). What follows (sounds heard, anything that changes) is told after it.")
+            .var("thing", VarType::Text, "What was cleaned.")
+            .var("material", VarType::Text, "What it is made of.")
+            .sampler(s_named),
+        SlotDef::new("say.take_none", "'take all' (S04), and nothing here can be carried, or it is too dark to see what could.").sampler(s_none),
         SlotDef::new("say.take_held", "The player tries to pick up something already carried.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("say.drop", "The player puts something down.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("say.drop_unheld", "The player tries to drop something not carried.").var("thing", VarType::Text, thing).sampler(s_named),
@@ -1526,6 +1546,12 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_named),
         SlotDef::new("say.outside_already", "The player tries to go out while already outside.").sampler(s_none),
         SlotDef::new("say.not_entrance", "The player types 'out' in a room deeper inside a building; they must find their way back to the entrance first.").sampler(s_none),
+        SlotDef::new("say.too_dark", "The player names something to look at or handle in the dark (S04): too dark to see it, not 'not here'.")
+            .var("words", VarType::Text, "What they asked for, as typed (without its article).")
+            .sampler(s_words),
+        SlotDef::new("say.indoors", "The player, deep in a building, asks to go to something out in the open (S04): it's outside, and they must find their way out first.")
+            .var("words", VarType::Text, "What they asked for, as typed (without its article).")
+            .sampler(s_words),
         SlotDef::new("say.not_here", "The player names something that isn't here (or that the game can't match).")
             .var("words", VarType::Text, "What the player typed.")
             .sampler(s_words),
@@ -1611,9 +1637,10 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(200)
             .sampler(s_place_name),
         SlotDef::new("travel.not_there", "The player walked as far as they thought they needed to, but the place they were heading for is not here: they have drifted off course.")
-            .var("name", VarType::Text, "Where they meant to go.")
+            .var("name", VarType::Text, "Where they meant to go (empty when going back).")
+            .var("back", VarType::Bool, "They were going back the way they came, to no named place (S04).")
             .max_len(200)
-            .sampler(s_place_name),
+            .sampler(s_not_there),
         SlotDef::new("travel.interrupt", "Something comes into view for the first time, and the player stops to look.")
             .var("name", VarType::Text, "What they see, from land.name.")
             .var("kind", e(&landmarks()), "What it is.")
@@ -1643,7 +1670,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("travel.no_edge", "The player asks to follow something that isn't close by (no river here, say), or it's unclear which.")
             .var("words", VarType::Text, "What the player typed.")
             .sampler(s_words),
-        SlotDef::new("travel.indoors", "An outdoor command (head, follow, back, name) typed indoors: go outside first.")
+        SlotDef::new("travel.indoors", "An outdoor command (head, follow, back, name) typed indoors: go outside first. `verb` is the command as typed ('head north').")
             .var("verb", VarType::Text, "The command.")
             .sampler(s_indoors),
         SlotDef::new("place.dark", "The look in a room too dark to see: no things, only the ways out the player can feel. Should make the player want light.")

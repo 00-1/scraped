@@ -16,6 +16,11 @@ text = "{cap amount} {material} {plural kind 2}."
 example = true
 
 [[variant]]
+slot = "room.items"
+text = "{cap list items} [if one]lies[else]lie[end] here."
+example = true
+
+[[variant]]
 slot = "room.thing"
 text = "{cap name}[if item] lies here[else] stands here[end]."
 example = true

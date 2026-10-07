@@ -175,6 +175,9 @@ pub fn samples(args: &[String]) -> Result<String, String> {
     if o.bot.as_deref() == Some("scholar") {
         return scholar_samples(&p, &dir, &milestone, o.hours.unwrap_or(2160.0));
     }
+    if o.bot.as_deref() == Some("hand") {
+        return hand_report(&p, &dir, o.hours.unwrap_or(10.0));
+    }
     let hours = o.hours.unwrap_or(3.0);
     let mut out = String::new();
     for seed in SAMPLE_SEEDS {
@@ -253,5 +256,43 @@ fn scholar_samples(
         std::fs::write(&path, md).map_err(|e| format!("cannot write {}: {e}", path.display()))?;
         out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
     }
+    Ok(out)
+}
+
+/// The hand player's failure report (S04): every command the parser
+/// couldn't follow, with where it was typed and what came back, and every
+/// response with a hole where a word should be.
+fn hand_report(p: &Pack, dir: &std::path::Path, hours: f64) -> Result<String, String> {
+    let mut md = String::from(
+        "# S04: the hand player's failures\n\nThe explorer, typing like a person (`x`, `get`, `pick up the …`, `enter the …`, `leave`, `take all`, `go to` outside things from indoors). Each command the parser could not follow, where it was typed, and what came back. Example text only.\n", // DEBUG-TEXT
+    );
+    let mut out = String::new();
+    for seed in SAMPLE_SEEDS {
+        let r = play(p, seed, "hand", hours, 20_000);
+        let share = r.failures.len() as f64 * 100.0 / r.commands.len().max(1) as f64;
+        md.push_str(&format!(
+            "\n## Seed {seed}\n\n{} commands, {:.1} hours: {} failed ({share:.1}%), {} responses with a hole.\n\n", // DEBUG-TEXT
+            r.commands.len(),
+            r.hours,
+            r.failures.len(),
+            r.blanks.len()
+        ));
+        for (cmd, text, place) in &r.failures {
+            let first = text.lines().next().unwrap_or("");
+            md.push_str(&format!("- `{cmd}` at {place}: {first}\n"));
+        }
+        for (cmd, line) in &r.blanks {
+            md.push_str(&format!("- hole after `{cmd}`: {line}\n"));
+        }
+        out.push_str(&format!(
+            "seed {seed}: {} commands, {} failed ({share:.1}%), {} holes\n", // DEBUG-TEXT
+            r.commands.len(),
+            r.failures.len(),
+            r.blanks.len()
+        ));
+    }
+    let path = dir.join("failures.md");
+    std::fs::write(&path, md).map_err(|e| format!("cannot write {}: {e}", path.display()))?;
+    out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
     Ok(out)
 }

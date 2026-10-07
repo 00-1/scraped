@@ -430,6 +430,22 @@ fn s_ways(_: u64) -> Vec<Context> {
     ]
 }
 
+fn s_room_items(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            (
+                "items",
+                Value::List(vec!["a knife".into(), "a torch".into(), "some oil".into()]),
+            ),
+            ("one", Value::Bool(false)),
+        ]),
+        ctx(&[
+            ("items", Value::List(vec!["a seal".into()])),
+            ("one", Value::Bool(true)),
+        ]),
+    ]
+}
+
 fn s_room_group(_: u64) -> Vec<Context> {
     ["jar", "shelf", "gravestone", "tablet"]
         .iter()
@@ -641,6 +657,12 @@ pub fn slots() -> Vec<SlotDef> {
             .var("why", e(STANDOUTS), "Why it stands out: tallest, only (of its kind), best kept or worst kept (against the rest).")
             .max_len(160)
             .sampler(s_standout),
+        SlotDef::new("place.building", "One building looked at from outside ('examine the temple'): what it is and how it stands. It never takes the player in; 'go' does that (S04).")
+            .var("name", VarType::Text, "Its name, from place.structure.")
+            .var("kind", e(STRUCTURES), "What it is.")
+            .var("condition", e(CONDITIONS), "Its state.")
+            .max_len(160)
+            .sampler(s_standout),
         SlotDef::new("place.group", "Alike buildings taken together, when looking closer ('several houses, most of them worn'). Vague amounts only.")
             .var("kind", e(STRUCTURES), "What they are.")
             .var("amount", e(&AMOUNTS), "How many, roughly.")
@@ -764,6 +786,11 @@ pub fn slots() -> Vec<SlotDef> {
             .var("material", e(materials()), "What they're made of.")
             .max_len(140)
             .sampler(s_room_group),
+        SlotDef::new("room.items", "The loose things lying about a room that could be carried, all told together in one breath (S04: never one more per look). Each name comes with its article ('a knife', 'some oil').")
+            .var("items", VarType::List, "Each thing, by name.")
+            .var("one", VarType::Bool, "Just one thing.")
+            .max_len(300)
+            .sampler(s_room_items),
         SlotDef::new("room.thing", "One thing in a room, mentioned on its own because it stands out (big things before small).")
             .var("name", VarType::Text, "Its name.")
             .var("kind", VarType::Text, "What it is.")

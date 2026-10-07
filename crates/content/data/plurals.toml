@@ -14,6 +14,15 @@ unchanging = [
     "cattle", "dice", "kelp", "wrack", "eelgrass", "seaweed",
 ]
 
+# Mass nouns and plural stuff: "some oil", "some greens" (S04).
+mass = [
+    "provisions", "berries", "nuts", "fungi", "greens", "game", "wood", "oil", "grain",
+    "wheat", "barley", "rice", "flax", "hemp", "moss", "grass", "water", "wine", "ale",
+    "honey", "salt", "clay", "sand", "ash", "dust", "cloth", "bread", "cheese", "wool",
+    "linen", "leather", "kelp", "wrack", "eelgrass", "seaweed", "tinder", "fuel", "meat",
+    "fish", "herbs", "seeds", "rope", "twine", "pitch", "tallow", "wax",
+]
+
 # Names that are already plural, said without "a" ("Graves, dim and
 # close"; D11 samples).
 plural_only = [

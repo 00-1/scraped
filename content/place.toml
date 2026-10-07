@@ -74,3 +74,8 @@ example = true
 slot = "place.scene"
 text = "Here: {list parts}"
 example = true
+
+[[variant]]
+slot = "place.building"
+text = "{cap name} stands before you."
+example = true

@@ -96,7 +96,7 @@ impl Fact {
 }
 
 /// Variables whose values are rendered text.
-const RENDERED: [&str; 3] = ["name", "ways", "exits"];
+const RENDERED: [&str; 4] = ["name", "ways", "exits", "items"];
 
 /// What the player has been told about one thing: when, what it said,
 /// and whether it was said or only there to be noticed (a fact left out
@@ -1014,6 +1014,10 @@ impl Game {
         for &t in &things {
             by_kind.entry(self.thing(t).kind).or_default().push(t);
         }
+        // Loose things that could be carried lie in plain view: told
+        // together, all at once (S04), not one more per look.
+        let mut loose: Vec<Value> = Vec::new();
+        let mut loose_ids: Vec<String> = Vec::new();
         for (k, ts) in by_kind {
             if ts.len() >= 2 && response != Response::Closer {
                 let vars = ctx(&[
@@ -1033,7 +1037,12 @@ impl Game {
                 let name = self.thing_name(t);
                 let portable = self.thing(t).portable
                     || scraped_sim::items::kind(self.thing(t).kind).is_some();
-                let sal = if portable { 16.0 } else { 34.0 };
+                if portable {
+                    loose.push(Value::from(name));
+                    loose_ids.push(t.to_string());
+                    continue;
+                }
+                let sal = 34.0;
                 out.push(Fact::new(
                     "room.thing",
                     format!("thing:{t}"),
@@ -1045,6 +1054,18 @@ impl Game {
                     ]),
                 ));
             }
+        }
+        if !loose.is_empty() {
+            let one = loose.len() == 1;
+            out.push(
+                Fact::new(
+                    "room.items",
+                    format!("items:{structure}:{room}"),
+                    30.0,
+                    ctx(&[("items", Value::List(loose)), ("one", Value::Bool(one))]),
+                )
+                .meaning(loose_ids.join(",")),
+            );
         }
         for m in self.mechanisms_here() {
             let name = self.mech_name(m);
@@ -1081,7 +1102,8 @@ fn order(slot: &str) -> u8 {
         "place.district" | "place.layout" => 1,
         "place.scene" => 2,
         "land.feature" => 4,
-        "place.standout" | "place.group" | "room.group" | "room.thing" | "place.thing" => 1,
+        "place.standout" | "place.group" | "room.group" | "room.thing" | "room.items"
+        | "place.thing" => 1,
         "great.site" => 2,
         "room.ways" => 3,
         "land.ground" | "land.edge" | "ground.wet" => 4,
