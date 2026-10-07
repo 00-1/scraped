@@ -313,6 +313,7 @@ Sixteen rows of targets are met together on 50 seeds; eight are not. Each of tho
 | D10 | [The slow realisation](milestones/D10-slow-realisation.md) | Ordinary tools, accidental discovery, evidence to notice, rewarding play without writing, a non-writing way to leave |
 | D11 | [Problems only writing solves](milestones/D11-writing-payoff.md) | Late-game places and composition puzzles that reward real fluency, layered constraints, the great inscriptions as destinations |
 | D12 | [Integration and tuning](milestones/D12-integration.md) | All clients and tools updated, fairness re-checked, targets met together, performance, a playtest pack and content plan for Jb |
+| S04 | [Playing by hand](milestones/S04-playing-by-hand.md) | After D12, before Jb's playtest: a bot that types like a person, parser and wording bugs from playing by hand, cued deadly spells, learnable counter words |
 
 Order of priority is deliberate: first the instruments and quiet text (D01–D02), so every later addition is measured and adds to what can be found rather than to what is read; then the world, outside and in (D03–D06); then what it says (D07–D08); then the magic and how it's discovered (D09–D10); then the late-game payoff (D11).
 

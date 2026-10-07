@@ -10,6 +10,8 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 **None: the depth roadmap is complete.** D01–D12, S01–S03 and C01 are done (`docs/DEPTH.md`). What comes next is Jb's playtest (`docs/PLAYTEST.md`) and content (`docs/CONTENT-PLAN.md`); wait for his steer before starting new design work, and meanwhile fix bugs he reports. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
+**Now: S04 — Playing by hand** (`docs/milestones/S04-playing-by-hand.md`): parser and wording bugs found by playing v0.2.0 by hand, a bot that types like a person, and three survival and fairness fixes. Do it, release, then go back to waiting for Jb's playtest.
+
 Since C01, saves are snapshots and releases follow `docs/VERSIONING.md`: run `scraped-lang saves check` after a change to rules or generation, and prefer changes that need only a minor bump.
 
 Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs/DESIGN.md`: "Writing is background, at first" and "Say little; let the player dig". They apply to every depth milestone and override anything older that conflicts with them. A depth milestone is done when its numeric targets are met and its sample transcripts read well, not when its checklist is ticked.
@@ -54,7 +56,7 @@ Before starting, read `docs/DEPTH.md` and the two principles at the top of `docs
 - Public items get short doc comments explaining *why*, not just *what*.
 - Commit in small, coherent steps with clear messages.
 - Check in proportion. On every commit: `fmt`, `clippy`, `cargo test --release` (fast). Before a milestone's last commit, or when a change touches what they cover: the slow bot tests (`cargo test --release -p scraped-game --test depth -- --ignored`), `tools/build.sh` and the browser smokes. Iterate on bots with 3 seeds; run 10 once at the end.
-- Don't chase a numeric target past two or three focused attempts: report it as not met, with why, and move on.
+- Don't chase a numeric target past two or three focused attempts: report it as not met, with why, and move on. Never lower a bot test's threshold until you've found whether the drop comes from the game or the bot; if it's the game, fix the game.
 - Write each fact once: the LOG says what was done and what's open; `docs/DEPTH.md` holds the numbers; sample NOTES say only what the transcripts show.
 - When finishing a session, update the checklist in the milestone spec and add a short entry to `docs/LOG.md`: date, what was done, open questions, new content slots added, and approximate usage cost if known.
 

@@ -785,3 +785,7 @@ A patch release of the D10 build for Jb's first play (`saves check --against v0.
 ## 2026-10-06 — v0.2.0
 
 A minor release of the D11 and D12 build (`saves check --against v0.1.1`: older saves load and carry on), with a 0.2.0 corpus save. Released through `.github/RELEASE`.
+
+## 2026-10-07 — S04 added (review)
+
+Reviewed D11–D12 and played v0.2.0 by hand on seed 42. The depth is there, but a person typing ordinary commands hits parser and wording bugs the bots never meet: room contents revealed one per `look`, no `take all`, examining a building walks you in, "You see no the sinkhole here", "1 hours", an empty name after `go back`, lost in daylight, related signs still with no findable base, cleaning that speaks of scraping. The D11 review fixes (uncued deadly spells, learnable counter words, no lowering bot bars) were never merged. Added `docs/milestones/S04-playing-by-hand.md` with all of these and a hand-player bot, to do before Jb's playtest.
