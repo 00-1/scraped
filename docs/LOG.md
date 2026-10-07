@@ -789,3 +789,52 @@ A minor release of the D11 and D12 build (`saves check --against v0.1.1`: older 
 ## 2026-10-07 — S04 added (review)
 
 Reviewed D11–D12 and played v0.2.0 by hand on seed 42. The depth is there, but a person typing ordinary commands hits parser and wording bugs the bots never meet: room contents revealed one per `look`, no `take all`, examining a building walks you in, "You see no the sinkhole here", "1 hours", an empty name after `go back`, lost in daylight, related signs still with no findable base, cleaning that speaks of scraping. The D11 review fixes (uncued deadly spells, learnable counter words, no lowering bot bars) were never merged. Added `docs/milestones/S04-playing-by-hand.md` with all of these and a hand-player bot, to do before Jb's playtest.
+
+## 2026-10-07 — S04 done, v0.3.0
+
+**Playing by hand:** a third bot, the hand player, plays as the explorer but types like a person (`x`, `get`, `pick up the …`, `enter the …`, `go in`, `leave`, `take all`, `look at the walls`, `go to` outside things from indoors). It fails on 0% of its commands on seeds 1, 42 and 9001 over 24 h, with no holes in any response (`samples S04 --bot hand` writes `docs/samples/S04/failures.md`; a CI bot test holds it under 5%, and checks the hand player's and explorer's text for the fixed slips). Fixed:
+- Loose things in a room come as one group.
+- `take all [kind]` and `drop all` work.
+- Plurals act on each matching thing.
+- Examining a building from outside describes it and doesn't move you.
+- `go in` and `enter` with no target work outdoors.
+- Going to something outside from indoors takes you out first (from the entrance) or says you're inside.
+- Errors say it's too dark instead of "You see no …" in the dark.
+- Errors no longer repeat the player's article.
+- Counts read "one hour".
+- Mass nouns take "some" ("a clay jar" through the new `a2` helper).
+- Verbs are quoted back as typed.
+- `go back` no longer renders an empty name.
+- The sun steers by day under trees.
+- Related signs name a base only where it can be found, describe the sign on its own otherwise, and never repeat a part.
+- Cleaning no longer speaks of scraping.
+
+From the D11 review:
+- Spells that take heat or light or draw beasts are left uncast at the start town and near the start. The explorer test fails on a death under a spell never cued there; there are none.
+- Every word that undoes a ward or a held door is told three more times in ordinary buildings. A `counter_words` fairness goal checks five readable texts, two open from the start.
+- The bots were re-measured on seeds 1–10 with the cause of each failure in `docs/DEPTH.md`: all of them are the bots'.
+- The explorer survives on 8 of 10 (7 before; the bar is raised to 8). The scholar reads the deepest text on 4 of 10.
+
+Fairness: 41 of seeds 1–50 fair as made, none without a fair world.
+
+Released as v0.3.0, a minor bump (`saves check --against v0.2.0`; the worlds changed), with a 0.3.0 corpus save.
+
+**Not done:** most texts in the start town run past three pages; recorded as a DESIGN-Q rather than adding a new kind of short text. The scholar's own failures (going back lit to a dark room, going round in circles) are left in the bot.
+
+**Open questions:** "Playing by hand (S04)" in DECISIONS.
+
+**New content slots:**
+- `room.items`
+- `place.building`
+- `say.take_none`
+- `say.indoors`
+- `say.too_dark`
+- `clean.scoured`
+
+Changed:
+- `travel.not_there` gains `back`.
+- `travel.indoors`'s verb is as typed.
+- Example text uses `count`, `plural` and `a2`.
+
+**Next:** Jb's playtest.
+

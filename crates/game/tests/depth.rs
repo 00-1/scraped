@@ -57,12 +57,9 @@ fn the_explorer_survives_three_days() {
         .filter(|(_, r)| r.died.is_none())
         .map(|(s, _)| *s)
         .collect();
-    // Since D09 the explorer survives on 7 of 10 (8 before): on seeds 1,
-    // 3 and 4 it shelters in houses an old cast keeps cold, and goes in and
-    // out of them until the cold takes it. Since D10 it stops to clean what
-    // it reads, and seed 6 runs out of food and warmth on the land: 6 of
-    // 10. Reported in docs/DEPTH.md.
-    assert!(alive.len() >= 6, "survived three days: {alive:?}");
+    // S04: 8 of 10. Seeds 1 and 4 die of cold with no spell where they
+    // die: the bot sits out hunger and cold under a roof (docs/DEPTH.md).
+    assert!(alive.len() >= 8, "survived three days: {alive:?}");
 }
 
 #[test]

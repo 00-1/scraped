@@ -51,13 +51,13 @@ The bots slipped across D07–D10: explorer survival from 9 of 10 to 6, the scho
 
 ## Checklist
 
-- [ ] Hand-player bot, failure report, under 5%, in CI
-- [ ] Room contents grouped; `take all`
-- [ ] Examine never moves you; going to outside things from indoors
-- [ ] Articles, numbers, mass nouns, empty variables
-- [ ] Steering by sun and star
-- [ ] Related signs: findable base or none; no repeated parts
-- [ ] Cleaning messages don't name scraping
-- [ ] Long first texts checked
-- [ ] Uncued deadly spells; learnable counter words; bot causes recorded
-- [ ] Release; HANDOFF; LOG
+- [x] Hand-player bot, failure report, under 5%, in CI
+- [x] Room contents grouped; `take all`
+- [x] Examine never moves you; going to outside things from indoors
+- [x] Articles, numbers, mass nouns, empty variables
+- [x] Steering by sun and star
+- [x] Related signs: findable base or none; no repeated parts
+- [x] Cleaning messages don't name scraping
+- [x] Long first texts checked
+- [x] Uncued deadly spells; learnable counter words; bot causes recorded
+- [x] Release; HANDOFF; LOG

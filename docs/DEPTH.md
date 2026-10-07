@@ -277,6 +277,25 @@ Sixteen rows of targets are met together on 50 seeds; eight are not. Each of tho
 
 **Performance:** a new world takes 0.7–0.8 s to generate natively, 0.05–0.4 s more to lay out, and 0.3–0.9 s for the fairness check: 1.5–2 s in all on a desktop core. In the browser the first world shows after 4.8 s, and after 15 s with the CPU slowed four times (a stand-in for a mid-range phone); each command then takes 0.05 s (0.13 s slowed). The Android app runs the engine natively, so a phone should open a new world in roughly 5–8 s.
 
+### After S04 (seeds 1–10; the hand player on 1, 42 and 9001)
+
+| Measure | Before | S04 | Target |
+|---|---|---|---|
+| Hand player's commands the parser could not follow (24 h) | – | 0% on 1, 42 and 9001 | under 5% |
+| Explorer survives three days | 7 of 10 | 8 of 10 | 8 of 10 |
+| Explorer deaths under a spell never cued there | – | 0 | 0 |
+| Scholar reads the deepest text (90 days) | 4 of 10 | 4 of 10 (5, 7, 8, 9) | 8 asked |
+| Worlds fair as made (standard, 1–50) | 41 | 41 (none without a fair world) | |
+
+Causes of each remaining failure (S04 3.3):
+
+- **Explorer, seeds 1 and 4 (cold): the bot.** No spell acts where it dies. On seed 1 its fire burns out on the land with no food or wood, and it sleeps and waits hungry in a dark, cold house instead of foraging or gathering by day. On seed 4 it goes in and out of the same house until the cold takes it. (Seed 3's death was the game: a frost spell lay over the fields by the start. Deadly spells near the start are now left uncast, and seed 3 lives.)
+- **Scholar, seeds 2, 3 and 4: the bot.** It stands in the deepest text's room with the first lens, and ends the season carrying the loupe, a lamp and oil, but having once found that room too dark, it never goes back to it lit.
+- **Scholar, seeds 1 and 6: the bot.** It spends most of the season going round in circles in one building (seed 1: 50,000 of 60,000 steps) and never finds the loupe.
+- **Scholar, seed 10: the bot.** It has not found the loupe after 90 days. The solvability check reaches it on every seed (the `deepest` goal), so it is in the world to be found.
+
+Held doors are no longer a cause: every counter word is now met in five readable texts, two open from the start (`counter_words` fairness goal).
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
