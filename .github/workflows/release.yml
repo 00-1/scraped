@@ -160,7 +160,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: android
-          path: android/dist/scraped-again.apk
+          path: android/dist/*.apk
 
   publish:
     needs: [which, binaries, android]
@@ -189,3 +189,4 @@ jobs:
             artifacts/*.zip
             artifacts/browser/play.html
             artifacts/android/scraped-again.apk
+            artifacts/android/scraped-again-arm64.apk

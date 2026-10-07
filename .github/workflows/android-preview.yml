@@ -48,6 +48,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="android-preview-${{ github.run_number }}"
-          gh release create "$tag" android/dist/scraped-again.apk --target "$GITHUB_SHA" \
+          gh release create "$tag" android/dist/scraped-again.apk android/dist/scraped-again-arm64.apk --target "$GITHUB_SHA" \
             --prerelease --title "Android preview ${{ github.run_number }}" \
-            --notes "A test build of the Android app (not a game release). Install scraped-again.apk on Android 8 or newer."
+            --notes "A test build of the Android app (not a game release). Install scraped-again-arm64.apk on any recent phone (64-bit ARM, Android 8 or newer; small enough to share in a chat app), or scraped-again.apk on older 32-bit phones and emulators."

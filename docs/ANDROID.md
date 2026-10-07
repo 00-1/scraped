@@ -5,7 +5,8 @@ no spoilers, no tools, just the worlds you play and your notebooks.
 
 ## Installing
 
-Download `scraped-again.apk` (the CI's `scraped-again-apk` artifact, or a
+Download `scraped-again-arm64.apk` (any recent phone) or `scraped-again.apk`
+(old 32-bit phones too) from the CI's `scraped-again-apk` artifact, or a
 release), open it on the phone, and allow your browser or file manager to
 install apps when Android asks. To update, install a newer APK over it; it
 must be signed with the same key (see *Signing* below), or Android will
@@ -113,7 +114,7 @@ relay service, which doesn't exist yet.
 android/build.sh
 ```
 
-This writes `android/dist/scraped-again.apk`. It needs:
+This writes `android/dist/scraped-again.apk` (every architecture) and `android/dist/scraped-again-arm64.apk` (64-bit ARM phones only, a third of the native code: the one to share). It needs:
 
 - Rust with the Android targets (`aarch64-linux-android`,
   `armv7-linux-androideabi`, `x86_64-linux-android`) and `cargo-ndk`.
