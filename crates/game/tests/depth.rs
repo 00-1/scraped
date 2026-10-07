@@ -81,3 +81,49 @@ fn a_bot_run_is_deterministic() {
     assert_eq!(a.commands, b.commands);
     assert_eq!(a.texts, b.texts);
 }
+
+/// Phrases from the bugs S04 fixed; none may come back.
+const S04_SLIPS: [&str; 8] = [
+    "no the ",
+    "no a ",
+    " 1 hours",
+    " 1 minutes",
+    "a greens",
+    "an oil",
+    "to scrape",
+    "You see no all",
+];
+
+/// S04: a player typing like a person (`x`, `get`, `take all`, `enter the
+/// …`) seldom fights the parser, and nothing they're told has a hole in it.
+#[test]
+#[ignore = "slow in debug; CI runs it in release"]
+fn the_hand_player_is_understood() {
+    let p = pack();
+    for seed in [1, 42, 9001] {
+        for kind in ["hand", "explorer"] {
+            let r = play(&p, seed, kind, 24.0, 20_000);
+            if kind == "hand" {
+                let n = r.commands.len().max(1);
+                assert!(
+                    r.failures.len() * 20 < n,
+                    "seed {seed}: {} of {n} commands failed: {:?}",
+                    r.failures.len(),
+                    r.failures
+                );
+                assert!(r.blanks.is_empty(), "seed {seed}: holes {:?}", r.blanks);
+            }
+            for t in &r.texts {
+                for line in t.lines() {
+                    let hole = ["  ", " .", " ,", "()"]
+                        .iter()
+                        .any(|h| line.trim().contains(h));
+                    assert!(!hole, "seed {seed} {kind}: a hole in {line:?}");
+                }
+                for slip in S04_SLIPS {
+                    assert!(!t.contains(slip), "seed {seed} {kind}: {slip:?} in {t:?}");
+                }
+            }
+        }
+    }
+}
