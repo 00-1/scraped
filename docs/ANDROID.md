@@ -7,7 +7,7 @@ no spoilers, no tools, just the worlds you play and your notebooks.
 
 Download `scraped-again-arm64.apk` (any recent phone) or `scraped-again.apk`
 (old 32-bit phones too) from the CI's `scraped-again-apk` artifact, or a
-release), open it on the phone, and allow your browser or file manager to
+release, open it on the phone, and allow your browser or file manager to
 install apps when Android asks. To update, install a newer APK over it; it
 must be signed with the same key (see *Signing* below), or Android will
 refuse and you must uninstall first. Uninstalling deletes your worlds
