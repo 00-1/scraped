@@ -2358,6 +2358,9 @@ pub struct BotRun {
     /// where), and responses with a hole where a word should be.
     pub failures: Vec<(String, String, String)>,
     pub blanks: Vec<(String, String)>,
+    /// S04: a death under a life-threatening spell never cued where it
+    /// struck (the cause, and where).
+    pub uncued_death: Option<String>,
     /// Sealed places (D11) found shut, and those gone into.
     pub sealed_met: usize,
     pub sealed_opened: usize,
@@ -2498,6 +2501,8 @@ pub fn play_with(
     // The hand player (S04) is the explorer, typing like a person.
     let hand = kind == "hand";
     let mut bot = DepthBot::new(if hand { "explorer" } else { kind }, seed);
+    // Places where a spell's work was felt (S04).
+    let mut cued: BTreeSet<String> = BTreeSet::new();
     let mut extra: Option<String> = None;
     let mut outdoors: Vec<String> = Vec::new();
     let start = g.state.minutes;
@@ -2515,6 +2520,7 @@ pub fn play_with(
         read_deepest: false,
         failures: Vec::new(),
         blanks: Vec::new(),
+        uncued_death: None,
         sealed_met: 0,
         sealed_opened: 0,
         read_great: false,
@@ -2619,6 +2625,12 @@ pub fn play_with(
             run.rooms.insert(format!("{}{lit}", out.state.place));
         }
         run.texts.push(out.text.clone());
+        if g.renders[taken.min(g.renders.len())..]
+            .iter()
+            .any(|r| matches!(r.trace.slot.as_str(), "air.uncanny" | "spell.cue"))
+        {
+            cued.insert(g.spell_place());
+        }
         let before_novel = run.novelty.len();
         run.facts.push(count_facts(&g.renders[taken..], &out.text));
         if matches!(run.kinds.last(), Some(&"arrival" | &"travel")) && g.state.dead.is_none() {
@@ -2663,6 +2675,11 @@ pub fn play_with(
     }
     run.hours = f64::from(g.state.minutes - start) / 60.0;
     run.died = g.state.dead.as_ref().map(|d| d.cause.clone());
+    if let Some(d) = &g.state.dead {
+        if g.deadly_spell_here(&d.cause) && !cued.contains(&g.spell_place()) {
+            run.uncued_death = Some(format!("{} at {}", d.cause, d.place)); // DEBUG-TEXT
+        }
+    }
     run.buildings = g.state.visited.len();
     run.texts_read = g.state.read.len();
     let deep = &g.site.writing.deep;

@@ -261,3 +261,36 @@ fn impressions_never_repeat_a_part() {
         }
     }
 }
+
+/// S04 item 11: what share of the start town's texts run past three pages.
+/// Most do (seed 1: 23 of 29; 42: 21 of 27; 9001: 26 of 45), so the first
+/// text met is usually long.
+// DESIGN-Q: add short everyday texts (owner's marks, tallies, labels) near
+// the start, or leave the start as it is? Recorded in docs/DECISIONS.md.
+// Until then, hold that a few short ones are there to begin on.
+#[test]
+fn the_start_town_has_some_short_texts() {
+    for seed in [1, 42, 9001] {
+        let mut g = Game::new(seed, pack());
+        g.forced_light = true;
+        g.start();
+        let town = g.site.settlement;
+        let start = g.site.start();
+        let pages: Vec<usize> = (0..g.site.things.len())
+            .filter(|&t| !g.site.things[t].texts.is_empty())
+            .filter(|&t| {
+                let th = &g.site.things[t];
+                let in_town = matches!(th.home, Place::Room { structure, .. }
+                    if g.site.world.structures[structure].settlement == Some(town));
+                in_town || th.pos.dist(start) < 400.0
+            })
+            .map(|t| g.signs(t).len().div_ceil(crate::PAGE))
+            .collect();
+        let short = pages.iter().filter(|&&p| p <= 3).count();
+        assert!(
+            short >= 5,
+            "seed {seed}: {short} short texts of {}",
+            pages.len()
+        );
+    }
+}

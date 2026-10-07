@@ -641,6 +641,22 @@ const INSCRIBABLE: &[&str] = &[
     "gravestone",
 ];
 
+/// How far beyond its reach a deadly spell must stop short of the start
+/// (S04), in metres.
+pub const START_CLEAR: f64 = 500.0;
+
+/// Whether a spell can threaten a life (S04): it takes the heat or light
+/// from a place, or draws beasts.
+// DESIGN-Q: cold, dark and beasts drawn count; bad air has no quality of
+// its own yet (the air's spells stir or still it, which is not deadly).
+pub fn deadly(c: &Claim) -> bool {
+    match c.property {
+        Property::Heat | Property::Light => c.amount < 0 && c.class != Class::Thing,
+        Property::Lure => c.amount > 0 && c.class == Class::Animal,
+        _ => false,
+    }
+}
+
 impl Writing {
     /// Surfaces from history, plus a few latent potent inscriptions away
     /// from the start.
@@ -659,6 +675,19 @@ impl Writing {
         // died, fled or thought better of it, and they wait for whoever
         // scrapes or cleans them off.
         // DESIGN-Q: one everyday spell in three lies latent.
+        // S04: and none that can threaten a life acts on the start town or
+        // reaches near the start: it waits there, uncast.
+        let start_pos = Pos::of_cell(
+            w.history.settlements[start].cell.ux(),
+            w.history.settlements[start].cell.uy(),
+        );
+        let at_start = |t: &Text| {
+            claim_of(w, land, t, t.id).is_some_and(|c| {
+                deadly(&c)
+                    && (w.structures[c.structure].settlement == Some(start)
+                        || c.pos.dist(start_pos) <= c.range + START_CLEAR)
+            })
+        };
         for t in &w.texts {
             let everyday = matches!(
                 t.genre,
@@ -668,6 +697,7 @@ impl Writing {
             );
             if t.kind == Kind::Potent
                 && !(everyday && hash(&[w.seed, 0x1a7f, t.id as u64]).is_multiple_of(3))
+                && !at_start(t)
             {
                 out.scraped.insert(t.id);
             }
@@ -678,10 +708,6 @@ impl Writing {
         // their surface. Nothing is placed beside a tool (D10).
         let era = (w.languages.len() as u32).saturating_sub(1);
         let year = w.history.eras.last().map_or(0, |e| e.end);
-        let start_pos = Pos::of_cell(
-            w.history.settlements[start].cell.ux(),
-            w.history.settlements[start].cell.uy(),
-        );
         let add = |out: &mut Writing,
                    structure: usize,
                    room: usize,
@@ -1121,6 +1147,83 @@ impl Writing {
                 clue,
                 inside,
             });
+        }
+        // S04: the counter words can be learnt. Each word that undoes a
+        // ward or a held door is told three times more, open from the start, on
+        // bare walls of ordinary buildings: a sealed place's near it, a
+        // held door's near the start.
+        // DESIGN-Q: three more accounts each, as "a man opened the <noun>".
+        let held: BTreeSet<String> = w
+            .texts
+            .iter()
+            .filter_map(claim_parts)
+            .filter(|(verb, _, negative)| verb == "open" && *negative)
+            .map(|(_, noun, _)| noun)
+            .filter(|n| !NOUNS.contains(&n.as_str()))
+            .collect();
+        let written: BTreeSet<(usize, Option<usize>, Option<usize>)> = w
+            .texts
+            .iter()
+            .chain(self.extra.iter())
+            .chain(self.sealed_texts.iter())
+            .map(|t| (t.structure, t.room, t.feature))
+            .collect();
+        let bare_wall = |s: usize| -> Option<(usize, usize)> {
+            let st = &w.structures[s];
+            fixtures.reachable_rooms(w, s).into_iter().find_map(|r| {
+                st.interior.rooms[r]
+                    .features
+                    .iter()
+                    .enumerate()
+                    .position(|(f, x)| {
+                        INSCRIBABLE.contains(&x.kind) && !written.contains(&(s, Some(r), Some(f)))
+                    })
+                    .map(|f| (r, f))
+            })
+        };
+        let mut used: BTreeSet<usize> = BTreeSet::new();
+        let wants: Vec<(Sentence, Pos)> = (0..chosen.len())
+            .map(|k| (account(k), land.structure_pos[chosen[k]]))
+            .chain(held.iter().map(|n| {
+                let mut c = Clause::plain("open", NounPhrase::concept("man"))
+                    .with_object(NounPhrase::concept(n));
+                c.tense = Tense::Past;
+                (Sentence::Clause(c), start_pos)
+            }))
+            .collect();
+        for (meaning, near) in wants {
+            let mut spots: Vec<(i64, usize, (usize, usize))> = w
+                .structures
+                .iter()
+                .filter(|st| {
+                    !chosen.contains(&st.id)
+                        && !busy.contains(&st.id)
+                        && st.condition != Condition::Buried
+                        && land
+                            .route(w, start_pos, land.structure_pos[st.id])
+                            .is_some()
+                })
+                .filter_map(|st| {
+                    bare_wall(st.id).map(|rf| (land.structure_pos[st.id].dist2(near), st.id, rf))
+                })
+                .collect();
+            spots.sort_unstable();
+            for (_, s, (r, f)) in spots
+                .into_iter()
+                .filter(|x| !used.contains(&x.1))
+                .take(3)
+                .collect::<Vec<_>>()
+            {
+                used.insert(s);
+                let material = w.structures[s].interior.rooms[r].features[f].material;
+                push(
+                    self,
+                    Text {
+                        meaning: meaning.clone(),
+                        ..base(s, Some(r), Some(f), material)
+                    },
+                );
+            }
         }
     }
 

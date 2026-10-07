@@ -29,6 +29,7 @@ pub const GOALS: &[&str] = &[
     "latent",
     "first_write",
     "powers",
+    "counter_words",
     "great",
     "deepest",
     "leaving",
@@ -187,6 +188,11 @@ fn potent(s: &Sentence) -> bool {
 }
 
 /// Checks a site's world for fairness.
+/// Readable texts a counter word must be met in (S04), and how many of
+/// them must be open from the start.
+pub const COUNTER_TEXTS: usize = 5;
+pub const COUNTER_EARLY: usize = 2;
+
 pub fn check(site: &Site, preset: &str) -> Report {
     let w = &site.world;
     let newest = (w.languages.len() as u32).saturating_sub(1);
@@ -387,6 +393,8 @@ pub fn check(site: &Site, preset: &str) -> Report {
             learn(&mut known, id);
         }
     }
+    // What can be learnt before any sealed place opens.
+    let early = known.clone();
     let mut sealed_missing: Vec<String> = Vec::new();
     if writing.sealed.is_empty() {
         sealed_missing.push("no sealed place".into());
@@ -415,6 +423,40 @@ pub fn check(site: &Site, preset: &str) -> Report {
             learn(&mut known, i);
         }
     }
+    // S04: the words that undo a ward or a held door can be learnt. Each
+    // is met in five readable texts in all, two of them open from the
+    // start, before the first place it gates.
+    // DESIGN-Q: five texts, two before the first place, as proposed.
+    let mut counters: BTreeSet<&str> = BTreeSet::new();
+    for c in &live {
+        if c.property == scraped_sim::writing::Property::Openness
+            && c.amount < 0
+            && reach.structure(c.structure)
+        {
+            counters.insert("open");
+            counters.insert(c.subject.as_str());
+        }
+    }
+    for x in &writing.sealed {
+        counters.extend(["open", x.noun]);
+        if x.degree >= 3 {
+            counters.insert("greatly");
+        }
+    }
+    let count_in =
+        |m: &BTreeMap<String, BTreeSet<usize>>, r: &str| m.get(r).map_or(0, BTreeSet::len);
+    let unlearnable: Vec<String> = counters
+        .iter()
+        .filter(|r| count_in(&known, r) < COUNTER_TEXTS || count_in(&early, r) < COUNTER_EARLY)
+        .map(|r| {
+            format!(
+                "{r} met in {} texts ({} from the start)",
+                count_in(&known, r),
+                count_in(&early, r)
+            )
+        })
+        .collect();
+    goal("counter_words", unlearnable);
     // A great inscription, and the first scraper.
     let great = site.greats.iter().any(|g| reach.text(g.text));
     goal(

@@ -44,8 +44,18 @@ const SEEDS: std::ops::RangeInclusive<u64> = 1..=10;
 #[ignore = "slow in debug; CI runs it in release"]
 fn the_explorer_survives_three_days() {
     let p = pack();
-    let alive: Vec<u64> = SEEDS
-        .filter(|&s| play(&p, s, "explorer", 72.0, 20_000).died.is_none())
+    let runs: Vec<_> = SEEDS
+        .map(|s| (s, play(&p, s, "explorer", 72.0, 20_000)))
+        .collect();
+    // S04: no death in the first three days comes from a spell the player
+    // was never cued about.
+    for (s, r) in &runs {
+        assert!(r.uncued_death.is_none(), "seed {s}: {:?}", r.uncued_death);
+    }
+    let alive: Vec<u64> = runs
+        .iter()
+        .filter(|(_, r)| r.died.is_none())
+        .map(|(s, _)| *s)
         .collect();
     // Since D09 the explorer survives on 7 of 10 (8 before): on seeds 1,
     // 3 and 4 it shelters in houses an old cast keeps cold, and goes in and

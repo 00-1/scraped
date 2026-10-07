@@ -175,15 +175,20 @@ fn every_historic_writing_event_leaves_a_trace_and_an_effect() {
                 .iter()
                 .find(|t| t.event == Some(e.id))
                 .unwrap_or_else(|| panic!("seed {seed}: writing event {} left no text", e.id));
-            assert!(
-                g.state.scraped.contains(&text.id),
-                "seed {seed}: history's cast is not scraped"
-            );
             let claim = g
                 .site
                 .writing
                 .claim(w, &g.site.land, text.id)
                 .unwrap_or_else(|| panic!("seed {seed}: event {} makes a vague claim", e.id));
+            // S04: a deadly one at the start waits there, uncast.
+            let held_back = scraped_sim::writing::deadly(&claim)
+                && (w.structures[claim.structure].settlement == Some(g.site.settlement)
+                    || claim.pos.dist(g.site.start())
+                        <= claim.range + scraped_sim::writing::START_CLEAR);
+            assert!(
+                held_back || g.state.scraped.contains(&text.id),
+                "seed {seed}: history's cast is not scraped"
+            );
             // Something perceptible lies within its reach.
             let touched = match claim.class {
                 Class::Land => true,
@@ -293,5 +298,28 @@ fn every_live_spell_is_perceptible_where_it_acts() {
             }
         }
         assert!(unseen.is_empty(), "seed {seed}: {unseen:?}");
+    }
+}
+
+/// S04: no spell that can threaten life lies on the starting area or on
+/// the shelters nearest the start (the start town's buildings).
+#[test]
+fn no_deadly_spell_lies_at_the_start() {
+    for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 42, 9001] {
+        let mut g = Game::new(seed, pack());
+        g.start();
+        let start = g.site.start();
+        let town = g.site.settlement;
+        let bad: Vec<String> = g
+            .claims
+            .iter()
+            .filter(|c| scraped_sim::writing::deadly(c))
+            .filter(|c| {
+                g.site.world.structures[c.structure].settlement == Some(town)
+                    || c.pos.dist(start) <= c.range + scraped_sim::writing::START_CLEAR
+            })
+            .map(|c| format!("{} {} {} on {}", c.verb, c.subject, c.amount, c.structure))
+            .collect();
+        assert!(bad.is_empty(), "seed {seed}: {bad:?}");
     }
 }

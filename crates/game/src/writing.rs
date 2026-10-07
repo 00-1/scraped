@@ -586,6 +586,30 @@ impl Game {
         }
     }
 
+    /// Where a spell's cue belongs (S04): the building, or the square
+    /// kilometre out of doors.
+    pub fn spell_place(&self) -> String {
+        match self.state.place {
+            Place::Room { structure, .. } => format!("s{structure}"), // DEBUG-TEXT
+            Place::Outside => {
+                let (x, y) = self.state.pos.cell();
+                format!("c{}:{}", x / 3, y / 3) // DEBUG-TEXT
+            }
+        }
+    }
+
+    /// Whether a spell here bears on a death of this cause (S04): cold
+    /// under writing that takes the heat; anything else under any spell
+    /// whose work can be felt here.
+    pub fn deadly_spell_here(&self, cause: &str) -> bool {
+        if cause == "cold" {
+            return self.uncanny() == "frost";
+        }
+        let mut facts = Vec::new();
+        self.spell_cues(&mut facts);
+        !facts.is_empty()
+    }
+
     /// Whether writing holds the current building's doors: +1 open, -1 shut.
     /// The ward stone of a sealed place (D11): the thing out of doors that
     /// carries its ward.
