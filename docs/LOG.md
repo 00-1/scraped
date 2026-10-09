@@ -838,3 +838,23 @@ Changed:
 
 **Next:** Jb's playtest.
 
+## 2026-10-09 — Short first texts, v0.4.0
+
+Jb answered S04's first question: yes, the first texts should be short.
+- Cutting the old texts down didn't work: a page is 16 signs, about two words, so even one sentence of a decree runs to six pages.
+- Instead, 24 short everyday texts (an owner's name, or "<goods>, <count>") are written on bare surfaces of the start town's buildings, nearest the way in, one building at a time.
+- Jars, bins, casks, shelves, tables, chests, basins, hearths, ovens, kilns, vats and sarcophagi can now carry them, as well as walls.
+- They are numbered with the sealed places' texts, so no older id moves.
+- At least half of what can be read in the start town now fits in three pages (seed 1: 23 of 46; 42: 31 of 52; 9001: 42 of 70). A test holds it.
+- Stacks of old layers still read long.
+
+The new texts changed the explorer's paths: it survived on 7 of 10.
+- Seed 10 died of thirst because the bot never went for water it wasn't standing by. It now heads for the nearest river, stream or lake within about a kilometre when thirsty.
+- Back to 8 of 10. Seeds 4 and 6 die of cold going in and out of the same house, the bot's known loop.
+
+Released as v0.4.0, a minor bump (`saves check --against v0.3.0`; the start town gained texts).
+
+**Open questions:** counter words (five texts, two from the start) and deadly spells (cold, dark, beasts drawn) stay on their defaults; Jb isn't sure yet.
+
+**New content slots:** none.
+

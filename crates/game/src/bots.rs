@@ -1031,6 +1031,18 @@ impl DepthBot {
                         }
                     }
                 }
+                // Fresh water further off: head for the nearest.
+                let fresh = g
+                    .water_near(4)
+                    .into_iter()
+                    .filter(|(k, _, b)| matches!(*k, "river" | "stream" | "lake") && b.is_some())
+                    .min_by(|a, b| a.1.total_cmp(&b.1));
+                if let Some((_, _, Some(b))) = fresh {
+                    let c = format!("head {}", BEARINGS[b]);
+                    if self.worth(g, s, &c) {
+                        return Some(c);
+                    }
+                }
             } else {
                 return Some(self.towards_entrance(&s.place));
             }

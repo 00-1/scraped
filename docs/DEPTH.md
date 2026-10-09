@@ -289,7 +289,8 @@ Sixteen rows of targets are met together on 50 seeds; eight are not. Each of tho
 
 Causes of each remaining failure (S04 3.3):
 
-- **Explorer, seeds 1 and 4 (cold): the bot.** No spell acts where it dies. On seed 1 its fire burns out on the land with no food or wood, and it sleeps and waits hungry in a dark, cold house instead of foraging or gathering by day. On seed 4 it goes in and out of the same house until the cold takes it. (Seed 3's death was the game: a frost spell lay over the fields by the start. Deadly spells near the start are now left uncast, and seed 3 lives.)
+- **After the short first texts (v0.4.0):** the explorer survives on 8 of 10 again (seed 1 now lives; 4 and 6 die of cold going in and out of one house, the bot's loop). Seed 10 died of thirst while the bot never went for water it wasn't standing by; it now heads for the nearest fresh water when thirsty.
+- **Explorer, seeds 1 and 4 (cold, at S04): the bot.** No spell acts where it dies. On seed 1 its fire burns out on the land with no food or wood, and it sleeps and waits hungry in a dark, cold house instead of foraging or gathering by day. On seed 4 it goes in and out of the same house until the cold takes it. (Seed 3's death was the game: a frost spell lay over the fields by the start. Deadly spells near the start are now left uncast, and seed 3 lives.)
 - **Scholar, seeds 2, 3 and 4: the bot.** It stands in the deepest text's room with the first lens, and ends the season carrying the loupe, a lamp and oil, but having once found that room too dark, it never goes back to it lit.
 - **Scholar, seeds 1 and 6: the bot.** It spends most of the season going round in circles in one building (seed 1: 50,000 of 60,000 steps) and never finds the loupe.
 - **Scholar, seed 10: the bot.** It has not found the loupe after 90 days. The solvability check reaches it on every seed (the `deepest` goal), so it is in the world to be found.
