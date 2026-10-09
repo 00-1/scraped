@@ -858,3 +858,6 @@ Released as v0.4.0, a minor bump (`saves check --against v0.3.0`; the start town
 
 **New content slots:** none.
 
+## 2026-10-09 — S05 added (review)
+
+Replayed seed 42 by hand on v0.4.0. S04's fixes mostly hold (examining doesn't move you, `take all`, grouped items, counts, mass nouns, `go back`, steering by day). Still wrong in play: related signs cut off ("with a curl, with") and naming unfindable bases; loose things in the observatory's lower hall never shown; `go in` after examining asks among eight buildings; choices joined with "and"; missing articles; a 170-sign clay jar; and the first three texts on the natural route run 10, 32 and 11 pages. The hand player reported 0% failures while these showed. Added `docs/milestones/S05-reading-in-play.md`.
