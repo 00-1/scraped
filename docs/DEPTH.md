@@ -297,6 +297,15 @@ Causes of each remaining failure (S04 3.3):
 
 Held doors are no longer a cause: every counter word is now met in five readable texts, two open from the start (`counter_words` fairness goal).
 
+### After S05 (seeds 1, 42 and 9001)
+
+| Measure | S04 | S05 | Target |
+|---|---|---|---|
+| Hand player's commands not followed (24 h; now counting "Which do you mean") | 0% | 0.7%, 0%, 0.5% | under 5% |
+| Slips in the player build's text (hand commands and the seed 42 fixture) | not checked | 0 | 0 |
+| First three texts read over three pages (explorer and hand player) | 10, 32, 11 pages on seed 42 | none, but seed 1's third: two spells, 5 pages | none |
+| Related signs naming a base more than one sign matches | many | 0 | 0 |
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.

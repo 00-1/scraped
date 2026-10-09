@@ -861,3 +861,29 @@ Released as v0.4.0, a minor bump (`saves check --against v0.3.0`; the start town
 ## 2026-10-09 — S05 added (review)
 
 Replayed seed 42 by hand on v0.4.0. S04's fixes mostly hold (examining doesn't move you, `take all`, grouped items, counts, mass nouns, `go back`, steering by day). Still wrong in play: related signs cut off ("with a curl, with") and naming unfindable bases; loose things in the observatory's lower hall never shown; `go in` after examining asks among eight buildings; choices joined with "and"; missing articles; a 170-sign clay jar; and the first three texts on the natural route run 10, 32 and 11 pages. The hand player reported 0% failures while these showed. Added `docs/milestones/S05-reading-in-play.md`.
+
+## 2026-10-09 — S05 done
+
+**Reading in play:**
+- **Checks on the real text.** The slip checks now read the released player build's output. The hand player's commands on seeds 1, 42 and 9001, and a seed 42 fixture from the review's replay (`tests/fixtures/s05-seed42.txt`), go through `scraped-player`. `scraped-lang slips` flags any hole, empty item, line cut off on a word that needs another, or choices joined with "and". `tools/smoke/slips.sh` runs it in CI.
+- **The hand player reads closely, page after page, and goes in right after examining a building.** Any "Which do you mean" now counts against it.
+- **The checks found a bug the engine-level checks couldn't:** typing `exit` to leave a building quit the player program. `exit` now leaves; `quit` or `q` end play.
+
+Fixed:
+- A related sign says "like" only when its base matches one sign (no other sign's look is it or begins with it) and something is added. Otherwise it is told on its own, with each part's place spelled out if it would read like another sign. Never cut off. Tested over every sign of every era on seeds 1, 42 and 9001.
+- Loose things in a room come in the first description.
+- `go in` goes into the building just examined, or the one stood at.
+- Choices are offered with "or" (new `list_or` helper).
+- Scene parts and sounds take their articles (new `alist` helper; "a river").
+- A text too long for its thing moves to a wall or the like in the same building: a jar or box carries a label (24 signs), a table or chest a few lines (three pages), a kiln or vat its instructions (80).
+- In the start town, what is met first (outside, the rooms by the door and the one just inside) carries three pages at most per surface; the rest goes deeper in. The short everyday texts take the space freed.
+- Ledgers prefer tablets and walls to jars.
+- The moves live in the writing layer, so worlds generate as before.
+- The first three texts the explorer and hand player read fit in three pages on seeds 1, 42 and 9001. The exception is seed 1's third: a wall carrying two spells, which stay where they were cast.
+
+**Not done:** spells stacked on a small thing (two charms on a jar, about 60 signs) stay as cast. Buildings with no wall or the like (market halls, wayside shrines, workshops) keep long texts on their tables and niches.
+
+**Open questions:** "Reading in play (S05)" in DECISIONS.
+
+**New content slots:** none. New template helpers `list_or` and `alist`; `say.which`, `place.scene` and `sense.sound` examples use them.
+

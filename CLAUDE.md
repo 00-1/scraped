@@ -8,9 +8,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 ## Current milestone
 
-**None: the depth roadmap is complete.** D01–D12, S01–S04 and C01 are done (`docs/DEPTH.md`). What comes next is Jb's playtest (`docs/PLAYTEST.md`) and content (`docs/CONTENT-PLAN.md`); wait for his steer before starting new design work, and meanwhile fix bugs he reports. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
-
-**Now: S05 — Reading in play** (`docs/milestones/S05-reading-in-play.md`): bugs a hand replay of v0.4.0 still showed (related signs cut off, long texts first, hidden room items, `go in`), and slip checks run on the player build. Do it, release, then go back to waiting for Jb's playtest.
+**None: the depth roadmap is complete.** D01–D12, S01–S05 and C01 are done (`docs/DEPTH.md`). What comes next is Jb's playtest (`docs/PLAYTEST.md`) and content (`docs/CONTENT-PLAN.md`); wait for his steer before starting new design work, and meanwhile fix bugs he reports. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
 Since C01, saves are snapshots and releases follow `docs/VERSIONING.md`: run `scraped-lang saves check` after a change to rules or generation, and prefer changes that need only a minor bump.
 

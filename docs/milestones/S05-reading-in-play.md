@@ -34,10 +34,10 @@ The S04 hand player reported 0% failures, yet about 60 hand-typed commands hit s
 
 ## Checklist
 
-- [ ] Slip checks run on the player build; hand player reads closely and uses `go in`; seed 42 fixture
-- [ ] Related signs: "like" only with a base that matches one sign; never cut off
-- [ ] Loose things always shown by `look around`
-- [ ] `go in` defaults to the building in front of you
-- [ ] Choices joined with "or"; missing articles
-- [ ] Text length fits its surface; short texts met first
-- [ ] Release; HANDOFF; LOG
+- [x] Slip checks run on the player build; hand player reads closely and uses `go in`; seed 42 fixture
+- [x] Related signs: "like" only with a base that matches one sign; never cut off
+- [x] Loose things always shown by `look around`
+- [x] `go in` defaults to the building in front of you
+- [x] Choices joined with "or"; missing articles
+- [x] Text length fits its surface; short texts met first
+- [x] Release; HANDOFF; LOG

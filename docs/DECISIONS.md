@@ -415,3 +415,15 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Mass nouns | "some" for provisions, berries, oil, wood and the like (`mass` in `plurals.toml`); a material before a kind takes the kind's article (`a2`: "a clay jar") | `crates/content/data/plurals.toml`, `render.rs` | content |
 | Plurals as targets | "look at the walls" acts on each matching thing in view, up to four | `crates/game/src/lib.rs` (`with_target`) | now |
 
+## Reading in play (S05)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How much a thing carries | Jars, bins, casks, boxes, bowls, pots and urns 24 signs; tables, chests, shelves, niches, altars, hearths, basins and benches 48 (three pages); ovens, kilns and vats 80 (their instructions); walls, steles, tablets, lintels, gates, door-slabs, parapets, gravestones, statues and sarcophagi any length. The rest goes to such a surface in the same building, the same room first | `crates/sim/src/writing.rs` (`fit_surfaces`) | now |
+| Spells on small things | Stay where they were cast, even past the measure (moving one would change what it does) | `fit_surfaces` | now |
+| Buildings with no wall | A long text stays where it is (market halls, wayside shrines, workshops) | `fit_surfaces` | now |
+| What is met first | In the start town, a building's outside, its rooms that lead outdoors and the one just inside: three pages per surface; the rest to the furthest room with a wall | `fit_surfaces` | now |
+| "like" in sign impressions | Only with a base that is one sign's alone (its sound, a resemblance no other has, or a look no other sign's is or begins with) and something added; else told on its own | `crates/lang/src/slots.rs` (`impression_texts`) | content |
+| `go in` | The building just examined, else the one stood at (within 30 m, nearest), else which | `crates/game/src/lib.rs` | now |
+| `exit` | Leaves a building; `quit` or `q` ends play | `crates/play/src/lib.rs` | now |
+
