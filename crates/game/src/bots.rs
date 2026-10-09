@@ -2128,15 +2128,23 @@ fn hand_extra(
             .any(|r| r.trace.slot == slot)
     };
     let inside = out.state.place != "outside";
+    // S05: in right after looking a building over; reading on, closely,
+    // page after page.
+    if !inside && said("place.building") && h < 70 {
+        return Some("go in".into());
+    }
+    if said("read.whole") && h < 60 {
+        return Some("read closely".into());
+    }
+    if said("read.glyph") && g.state.reading.is_some() && h < 70 {
+        return Some("read on".into());
+    }
     if inside && said("room.items") && h < 40 {
         return Some("take all".into());
     }
     if inside && out.state.place.ends_with(" room 0") && h < 8 && !outdoors.is_empty() {
         let l = &outdoors[(hash(&[seed, 0x4a50, step]) % outdoors.len() as u64) as usize];
         return Some(format!("go to the {l}"));
-    }
-    if !inside && !out.state.exits.is_empty() && (16..22).contains(&h) {
-        return Some("go in".into());
     }
     // Alike things here: looked at all together, by a plural.
     let mut kinds: BTreeMap<&str, usize> = BTreeMap::new();
@@ -2173,6 +2181,9 @@ fn hand_check(g: &Game, taken: usize, cmd: &str, out: &Output, from: &str, run: 
         "say.need_object",
         "travel.no_edge",
         "travel.unseen",
+        // S05: the hand player names what it means; a question back is
+        // the parser not following.
+        "say.which",
     ];
     let rs = &g.renders[taken.min(g.renders.len())..];
     if rs.iter().any(|r| FAILS.contains(&r.trace.slot.as_str())) {
@@ -2183,11 +2194,39 @@ fn hand_check(g: &Game, taken: usize, cmd: &str, out: &Output, from: &str, run: 
         ));
     }
     for line in out.text.lines() {
-        let l = line.trim();
-        if l.contains("  ") || l.contains(" .") || l.contains(" ,") || l.contains("()") {
-            run.blanks.push((cmd.to_string(), l.to_string()));
+        if let Some(slip) = slip(line) {
+            run.blanks
+                .push((cmd.to_string(), format!("{slip}: {}", line.trim())));
         }
     }
+}
+
+/// What is wrong with a line of what the player was told, if anything
+/// (S04, S05): a hole where a word should be, an empty list item, a line
+/// cut off on a word that needs another, or choices joined with "and".
+pub fn slip(line: &str) -> Option<&'static str> {
+    let l = line.trim();
+    if l.contains("  ") || l.contains(" .") || l.contains(" ,") || l.contains("()") {
+        return Some("hole");
+    }
+    let body = l.trim_end_matches(['.', ',', ';', ':', '!', '?']);
+    if l.contains(", ,")
+        || l.contains(": .")
+        || (!body.is_empty() && body.chars().all(|c| c.is_ascii_digit()))
+    {
+        return Some("empty item");
+    }
+    let last = body.rsplit(' ').next().unwrap_or("");
+    if matches!(
+        last,
+        "with" | "and" | "of" | "the" | "a" | "an" | "or" | "like"
+    ) {
+        return Some("cut off");
+    }
+    if l.starts_with("Which do you mean") && !l.contains(" or ") {
+        return Some("choices with and");
+    }
+    None
 }
 
 /// `claim_glyphs`, said "greatly".
@@ -2373,6 +2412,9 @@ pub struct BotRun {
     /// S04: a death under a life-threatening spell never cued where it
     /// struck (the cause, and where).
     pub uncued_death: Option<String>,
+    /// S05: the things read, in the order first read, with how many pages
+    /// each runs to.
+    pub reads: Vec<(usize, usize)>,
     /// Sealed places (D11) found shut, and those gone into.
     pub sealed_met: usize,
     pub sealed_opened: usize,
@@ -2533,6 +2575,7 @@ pub fn play_with(
         failures: Vec::new(),
         blanks: Vec::new(),
         uncued_death: None,
+        reads: Vec::new(),
         sealed_met: 0,
         sealed_opened: 0,
         read_great: false,
@@ -2637,6 +2680,12 @@ pub fn play_with(
             run.rooms.insert(format!("{}{lit}", out.state.place));
         }
         run.texts.push(out.text.clone());
+        if let Some(r) = &g.state.reading {
+            if !run.reads.iter().any(|x| x.0 == r.thing) {
+                let pages = g.signs(r.thing).len().div_ceil(crate::PAGE);
+                run.reads.push((r.thing, pages));
+            }
+        }
         if g.renders[taken.min(g.renders.len())..]
             .iter()
             .any(|r| matches!(r.trace.slot.as_str(), "air.uncanny" | "spell.cue"))

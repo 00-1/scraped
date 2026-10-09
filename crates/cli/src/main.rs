@@ -290,6 +290,7 @@ fn main() -> ExitCode {
         Some("depth") => Some(depth::depth),
         Some("bots") => Some(depth::bots),
         Some("samples") => Some(depth::samples),
+        Some("slips") => Some(depth::slips),
         Some("saves") => Some(saves::run),
         Some("replay") => Some(replay::run),
         _ => None,

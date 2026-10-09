@@ -134,3 +134,68 @@ fn the_hand_player_is_understood() {
         }
     }
 }
+
+/// S05: the first three texts the explorer and the hand player read each
+/// fit in three pages, unless all that is on it is spells history cast
+/// there (they stay where they were cast).
+#[test]
+#[ignore = "slow in debug; CI runs it in release"]
+fn the_first_texts_read_are_short() {
+    let p = pack();
+    for seed in [1, 42, 9001] {
+        let g = scraped_game::Game::new(seed, p.clone());
+        for kind in ["explorer", "hand"] {
+            let r = play(&p, seed, kind, 8.0, 20_000);
+            assert!(r.reads.len() >= 3, "seed {seed} {kind}: read {:?}", r.reads);
+            for &(t, pages) in r.reads.iter().take(3) {
+                let spells = g.site.things[t].texts.iter().all(|id| {
+                    g.site.writing.text(&g.site.world, *id).kind
+                        == scraped_lang::corpus::Kind::Potent
+                });
+                assert!(
+                    pages <= 3 || spells,
+                    "seed {seed} {kind}: a {} of {pages} pages read early",
+                    g.site.things[t].kind
+                );
+            }
+        }
+    }
+}
+
+/// S05: a hand replay of seed 42 (v0.4.0) plays clean: no slips, `go in`
+/// after examining goes into that building, loose things come with the
+/// first look, choices are offered with "or", sounds take an article.
+#[test]
+fn the_seed_42_hand_replay_plays_clean() {
+    let p = pack();
+    let mut g = scraped_game::Game::new(42, p);
+    g.start();
+    let cmds = include_str!("../../../tests/fixtures/s05-seed42.txt");
+    let mut all = String::new();
+    for (i, cmd) in cmds.lines().enumerate() {
+        let o = g.step(cmd);
+        for line in o.text.lines() {
+            assert!(
+                scraped_game::bots::slip(line).is_none(),
+                "after `{cmd}`: {line:?}"
+            );
+        }
+        // `go in`, right after examining the observatory: in, and the
+        // loose things there told at once.
+        if i == 2 {
+            assert!(o.state.place.starts_with("structure"), "go in: {}", o.text);
+            assert!(
+                o.text.contains("knife"),
+                "first look in the hall: {}",
+                o.text
+            );
+        }
+        all.push_str(&o.text);
+        all.push('\n');
+    }
+    assert!(
+        all.contains("Which do you mean") && !all.contains("temple and the"),
+        "{all}"
+    );
+    assert!(!all.contains("Faintly, river"), "{all}");
+}

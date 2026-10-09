@@ -1,0 +1,114 @@
+look
+look around
+look up
+wait
+examine 1 stone inscription
+read 1 stone inscription
+read closely
+read on
+read closely
+look at the inscriptions
+operate well
+x inscription
+go to the worn temple
+take all
+look closer
+listen
+x stone stele
+read stone stele
+read closely
+clean stone stele
+examine the stone basin
+read the stone basin
+read closely
+clean stone basin
+out
+go 1 worn house
+take all
+look closer
+listen
+smell
+x stone hearth
+read stone hearth
+read closely
+go to the hilltop rock pillar
+look
+look around
+smell
+head north
+look
+listen
+smell
+look up
+look closer
+go plain hermitage
+look
+look around
+look down
+go into the damaged hermitage
+look closer
+x stone bench
+look at the stone niche
+read stone niche
+read closely
+open 1 amphora
+leave
+enter the to the rapids
+look
+look around
+listen
+smell
+look closer
+wait
+enter the hilltop rock pillar
+drink
+head southeast
+head south
+look
+go to the to the rock pillar
+drink
+head south
+drink
+head southeast
+drink
+enter the small town
+eat
+look at the inscriptions
+forage
+look up
+gather
+go 1 intact house
+eat
+sleep
+drink
+out
+drink
+eat
+forage
+look
+look around
+listen
+look down
+look up
+go to the worn storehouse
+eat
+listen
+x clay jar
+read the clay jar
+clean clay jar
+read closely
+read on
+read on
+read on
+x weight
+x clay wall
+read the clay wall
+read closely
+read on
+read on
+more
+read on
+read on
+leave
+eat
+fish

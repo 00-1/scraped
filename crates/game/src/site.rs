@@ -258,6 +258,11 @@ impl Site {
                 })
             })
             .collect();
+        // What each surface carries comes from the writing layer, where
+        // texts may have moved to a surface that fits them (S05).
+        for th in things.iter_mut().take(feature_of.len()) {
+            th.texts.clear();
+        }
         for (si, s) in writing.surfaces.iter().enumerate() {
             if let Some(t) = feature_of
                 .iter()

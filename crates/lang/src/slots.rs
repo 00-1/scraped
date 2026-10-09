@@ -395,7 +395,8 @@ pub fn impression_texts(
                     // each part lies, word for word.
                     let mut plain: Vec<String> = Vec::new();
                     for p in t.parts.iter().chain(t.added.iter()) {
-                        let w = [p.part, p.place, p.facing]
+                        let part = scraped_content::english::article(p.part);
+                        let w = [part.as_str(), p.place, p.facing]
                             .into_iter()
                             .filter(|w| !w.is_empty() && *w != "none")
                             .collect::<Vec<_>>()

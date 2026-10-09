@@ -816,6 +816,25 @@ impl Game {
     /// Renders a description; variants may vary from turn to turn.
     /// The command as the player typed it, to quote back ("to head north",
     /// not "to head"; S04).
+    /// The building whose door the player stands at (S05): within 30 m,
+    /// and nearer than any other.
+    fn building_at_hand(&self, buildings: &[Target]) -> Option<Target> {
+        let mut near: Vec<(f64, Target)> = buildings
+            .iter()
+            .filter_map(|&b| match b {
+                Target::Structure(s) => {
+                    Some((self.site.land.structure_pos[s].dist(self.state.pos), b))
+                }
+                _ => None,
+            })
+            .collect();
+        near.sort_by(|a, b| a.0.total_cmp(&b.0));
+        match near.as_slice() {
+            [(d, b), rest @ ..] if *d <= 30.0 && rest.first().is_none_or(|r| r.0 > *d) => Some(*b),
+            _ => None,
+        }
+    }
+
     pub(crate) fn typed(&self, verb: &str) -> String {
         self.log
             .last()
@@ -1506,9 +1525,13 @@ impl Game {
         }
         let resolved = match resolve(words, &cands, self.state.it.as_ref()) {
             _ if bare_in && buildings.len() == 1 => Resolution::One(buildings[0]),
-            // The building just looked at or gone to (S05).
+            // The building just looked at (S05).
             _ if bare_in && self.state.it.is_some_and(|it| buildings.contains(&it)) => {
                 Resolution::One(self.state.it.expect("checked"))
+            }
+            // The one stood before: come to by name, its door at hand.
+            _ if bare_in && self.building_at_hand(&buildings).is_some() => {
+                Resolution::One(self.building_at_hand(&buildings).expect("checked"))
             }
             _ if bare_in && buildings.len() > 1 => Resolution::Many(buildings.clone()),
             Resolution::None if any_one && !bare.is_empty() => {

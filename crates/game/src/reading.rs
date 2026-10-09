@@ -126,7 +126,7 @@ impl Game {
 
     /// The signs of a thing in reading order: era, index in its script,
     /// and whether it is lost.
-    pub(crate) fn signs(&self, thing: usize) -> Vec<(u32, usize, bool)> {
+    pub fn signs(&self, thing: usize) -> Vec<(u32, usize, bool)> {
         self.marks(thing)
             .into_iter()
             .filter_map(|m| match m {

@@ -269,6 +269,10 @@ fn hand_report(p: &Pack, dir: &std::path::Path, hours: f64) -> Result<String, St
     let mut out = String::new();
     for seed in SAMPLE_SEEDS {
         let r = play(p, seed, "hand", hours, 20_000);
+        // The commands, for checking the player build's text (S05).
+        let cmds = dir.join(format!("commands-{seed}.txt"));
+        std::fs::write(&cmds, r.commands.join("\n") + "\n")
+            .map_err(|e| format!("cannot write {}: {e}", cmds.display()))?;
         let share = r.failures.len() as f64 * 100.0 / r.commands.len().max(1) as f64;
         md.push_str(&format!(
             "\n## Seed {seed}\n\n{} commands, {:.1} hours: {} failed ({share:.1}%), {} responses with a hole.\n\n", // DEBUG-TEXT
@@ -295,4 +299,46 @@ fn hand_report(p: &Pack, dir: &std::path::Path, hours: f64) -> Result<String, St
     std::fs::write(&path, md).map_err(|e| format!("cannot write {}: {e}", path.display()))?;
     out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
     Ok(out)
+}
+
+/// `scraped-lang slips`: reads a transcript of the player program from
+/// stdin and reports every line with a slip in it (S05): a hole, an empty
+/// item, a line cut off on a word that needs another, choices joined with
+/// "and". Wrapped lines are joined first; a numbered sign or a new reply
+/// starts a new line. Fails if there is any.
+pub fn slips(_args: &[String]) -> Result<String, String> {
+    use std::io::Read;
+    let mut text = String::new();
+    std::io::stdin()
+        .read_to_string(&mut text)
+        .map_err(|e| e.to_string())?;
+    let mut lines: Vec<String> = Vec::new();
+    let mut open = false;
+    for raw in text.lines() {
+        let l = raw.strip_prefix("> ").unwrap_or(raw).trim_end();
+        let starts = raw.starts_with("> ")
+            || l.split_once(". ")
+                .is_some_and(|(n, _)| !n.is_empty() && n.chars().all(|c| c.is_ascii_digit()));
+        if l.trim().is_empty() {
+            open = false;
+            continue;
+        }
+        if open && !starts {
+            let last = lines.last_mut().expect("open");
+            last.push(' ');
+            last.push_str(l.trim());
+        } else {
+            lines.push(l.trim().to_string());
+        }
+        open = true;
+    }
+    let bad: Vec<String> = lines
+        .iter()
+        .filter_map(|l| scraped_game::bots::slip(l).map(|s| format!("{s}: {l}")))
+        .collect();
+    if bad.is_empty() {
+        Ok(format!("{} lines, no slips\n", lines.len())) // DEBUG-TEXT
+    } else {
+        Err(bad.join("\n"))
+    }
 }

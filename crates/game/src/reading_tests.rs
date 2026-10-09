@@ -365,3 +365,65 @@ fn related_signs_name_a_base_only_one_sign_matches() {
         }
     }
 }
+
+/// S05: a surface's writing fits the thing it is on: a label on a jar or
+/// box (24 signs), a few lines on a table or chest (three pages), beyond
+/// spells history cast there, wherever the building has a wall or the
+/// like to take the rest.
+#[test]
+fn writing_fits_the_thing_it_is_on() {
+    const LONG: [&str; 10] = [
+        "wall",
+        "stele",
+        "tablet",
+        "lintel",
+        "gate",
+        "door-slab",
+        "parapet",
+        "gravestone",
+        "statue",
+        "sarcophagus",
+    ];
+    for seed in [1, 42, 9001] {
+        let mut g = Game::new(seed, crate::composing_tests::pack());
+        g.forced_light = true;
+        g.start();
+        for t in 0..g.site.things.len() {
+            let kind = g.site.things[t].kind;
+            let cap = match kind {
+                "jar" | "bin" | "cask" | "box" | "bowl" | "pot" | "urn" => 24,
+                "table" | "chest" | "shelf" | "niche" | "altar" | "hearth" | "basin" | "bench" => {
+                    crate::PAGE * 3
+                }
+                _ => continue,
+            };
+            let Place::Room { structure, .. } = g.site.things[t].home else {
+                continue;
+            };
+            let st = &g.site.world.structures[structure];
+            if !st
+                .interior
+                .rooms
+                .iter()
+                .flat_map(|r| r.features.iter())
+                .any(|f| LONG.contains(&f.kind))
+            {
+                continue; // nowhere else to put it (DESIGN-Q)
+            }
+            let not_spells: usize = g
+                .layers_seen(t)
+                .iter()
+                .filter(|(id, _)| g.text(*id).kind != scraped_lang::corpus::Kind::Potent)
+                .map(|(id, _)| {
+                    let tx = g.text(*id);
+                    let r = g.site.world.renderer(tx.era);
+                    r.glyphs(&r.render(&tx.meaning)).iter().flatten().count()
+                })
+                .sum();
+            assert!(
+                not_spells <= cap,
+                "seed {seed}: a {kind} with {not_spells} signs"
+            );
+        }
+    }
+}

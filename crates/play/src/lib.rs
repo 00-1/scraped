@@ -180,7 +180,8 @@ impl Session {
     pub fn line(&mut self, input: &str) -> Output {
         let words: Vec<&str> = input.split_whitespace().collect();
         let out = match words.as_slice() {
-            ["quit"] | ["q"] | ["exit"] => {
+            // "exit" is leaving a building (S05): only these end play.
+            ["quit"] | ["q"] => {
                 self.done = true;
                 self.wrap_output(String::new())
             }

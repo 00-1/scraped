@@ -1,0 +1,203 @@
+look
+look around
+look down
+look closer
+look at 1 stone inscription
+operate well
+go into the worn temple
+listen
+look down
+touch
+x stone stele
+read the stone stele
+read closely
+clean stone stele
+read closely
+x stone basin
+read stone basin
+read closely
+clean stone basin
+go out
+go into the intact house
+smell
+examine the stone hearth
+read the stone hearth
+examine plaster wall
+read plaster wall
+read closely
+read on
+read on
+read on
+x wood
+pick up the wood
+examine the dice
+x bowl
+exit
+go to the ruined storehouse
+take all
+touch
+examine the clay wall
+read clay wall
+read closely
+read closely
+read closely
+read closely
+more
+read on
+east
+listen
+x wood table
+read wood table
+read closely
+clean wood table
+west
+leave
+go damaged cemetery
+listen
+look down
+x 1 stone gravestone
+read 1 stone gravestone
+clean 1 stone gravestone
+exit
+go damaged wall
+go to the lowland ancient tree
+go into the worn tower
+listen
+smell
+x clay wall
+read the clay wall
+read closely
+clean clay wall
+x wall
+x wall
+go to the plain hermitage
+look
+look around
+enter the to the reed bed
+look
+look around
+look up
+go 1 intact tomb
+listen
+touch
+examine the stone door-slab
+read the stone door-slab
+read closely
+read on
+read on
+examine the sign 1
+x beaker
+look at the rattle
+examine the beaker
+out
+go to the worn processional way
+listen
+go to the plain grove
+x inscription
+go to the worn fountain house
+take all
+touch
+look at the stone fountain
+look at the stone basin
+x fountain
+read stone basin
+leave
+go intact catacombs
+look closer
+listen
+smell
+examine the stone door-slab
+read the stone door-slab
+x shield boss
+go into the western arch south
+look closer
+smell
+examine mirror
+north
+go to the long mountain
+look
+listen
+look at the gatehouses
+x inscription
+look at the tombs
+look at the towers
+look at the inscriptions
+look at the walls
+enter the damaged gatehouse
+look closer
+examine the wood gate
+read wood gate
+read closely
+examine stone wall
+read stone wall
+read closely
+read closely
+read on
+read on
+read on
+examine torch
+drop clay jar
+look at the clay jar
+read the clay jar
+read closely
+read on
+go out
+look at the inscriptions
+go worn temple
+x clay calendar stone
+north
+x stele
+open north
+north
+look up
+examine the clay wall
+read clay wall
+read closely
+read on
+clean clay wall
+x stone statue
+read stone statue
+operate brazier
+north
+look closer
+x stone altar
+read stone altar
+examine clay wall
+drink
+south
+drink
+south
+go to the lone ancient tree
+drink
+head west
+drink
+head northwest
+drink
+go into the small town
+go intact house
+take all
+go to the worn signal station
+go into the worn signal station
+sleep
+go to the small town
+eat
+exit
+look up
+enter the worn signal station
+sleep
+drink
+leave
+drink
+x inscription
+head northeast
+drink
+head south
+drink
+head south
+enter the small town
+look
+look around
+wait
+go intact house
+wait 1 hour
+wait 1 hour

@@ -1,0 +1,148 @@
+look
+look up
+look closer
+examine 1 stone inscription
+look at the inscriptions
+operate well
+look at the inscriptions
+go into the intact temple
+look closer
+listen
+smell
+look at the stone stele
+read stone stele
+look at the stone basin
+read stone basin
+read closely
+examine the torch
+get torch
+examine the clay calendar stone
+x candelabrum
+x map
+x candelabrum
+read the map
+north
+touch
+x clay wall
+read clay wall
+clean clay wall
+south
+exit
+go 1 intact house
+look closer
+listen
+look up
+examine the stone hearth
+read the stone hearth
+read closely
+read on
+look at the plaster wall
+read the plaster wall
+read closely
+read on
+read on
+read closely
+read on
+read on
+read on
+read on
+read closely
+look at the sign 1
+go out
+go worn storehouse
+look closer
+look at the clay jar
+read the clay jar
+read closely
+read on
+look at the clay wall
+read clay wall
+read closely
+read closely
+read on
+read on
+read on
+read on
+read on
+read on
+read closely
+exit
+look at the inscriptions
+go damaged cemetery
+take all
+look closer
+smell
+look at 1 stone gravestone
+read 1 stone gravestone
+clean 1 stone gravestone
+x gravestone
+read closely
+read on
+read closely
+read on
+leave
+enter the worn granary
+look closer
+smell
+x wood bin
+read the wood bin
+read closely
+examine clay jar
+read clay jar
+read closely
+go to the lone burial mound
+x inscription
+clean clay jar
+look
+listen
+look closer
+wait
+x inscription
+go into the worn brewery
+smell
+examine wood vat
+read the wood vat
+read closely
+read on
+more
+more
+examine clay jar
+go to the riverside standing stones
+look
+look around
+go into the to the terraces
+enter the plain town
+x inscription
+go worn kiln
+look closer
+x shelf
+listen
+x wood potter's wheel
+examine wood shelf
+examine firesteel
+go to the upland cairn
+drink
+head southeast
+drink
+head southwest
+drink
+head southwest
+drink
+head northeast
+drink
+gather
+enter the lakeside worn wayside shrine
+gather
+eat
+forage
+go into the worn wayside shrine
+eat
+sleep
+drink
+exit
+drink
+eat
+go into the worn wayside shrine
+eat
+wait 1 hour
+wait 1 hour

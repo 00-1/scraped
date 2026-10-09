@@ -504,6 +504,11 @@ pub struct Writing {
     /// what is written inside. Their ids start at `SEALED_BASE`, so a
     /// player's own texts keep their ids from older builds.
     pub sealed_texts: Vec<Text>,
+    /// World texts moved to a surface that fits them (S05): too long for
+    /// the jar or table history put them on, or long and in a start-town
+    /// entrance room. The world keeps them where it made them; this is
+    /// where play finds them.
+    pub relocated: BTreeMap<usize, Text>,
 }
 
 /// Where the sealed places' texts are numbered from (D11): above any
@@ -629,6 +634,20 @@ pub fn reach(m: Material) -> f64 {
 }
 
 /// Features that take an inscription well.
+/// Surfaces that take writing of any length (S05).
+const LONG: &[&str] = &[
+    "wall",
+    "stele",
+    "tablet",
+    "lintel",
+    "gate",
+    "door-slab",
+    "parapet",
+    "gravestone",
+    "statue",
+    "sarcophagus",
+];
+
 /// Things that carry an owner's mark or a count, besides inscribable
 /// surfaces (S04).
 const LABELLED: &[&str] = &[
@@ -689,6 +708,7 @@ impl Writing {
         legacy: Option<&Sentence>,
     ) -> Self {
         let mut out = Writing::default();
+        out.fit_surfaces(w, fixtures, start);
         let n = w.texts.len();
         // History's potent writing was cast: it lies scraped, and acts. Some
         // everyday spells were written and never cast (D10): their writers
@@ -821,12 +841,21 @@ impl Writing {
                     continue;
                 };
                 let rooms = fixtures.reachable_rooms(w, st.id);
+                // A tablet or wall before a shelf, a jar last (S05: a jar
+                // carries a label, not a ledger).
+                let rank = |k: &str| {
+                    ["tablet", "wall", "shelf", "jar"]
+                        .iter()
+                        .position(|x| *x == k)
+                };
                 let Some((room, feature)) = rooms.iter().find_map(|&ri| {
                     st.interior.rooms[ri]
                         .features
                         .iter()
-                        .position(|f| matches!(f.kind, "tablet" | "shelf" | "wall" | "jar"))
-                        .map(|f| (ri, f))
+                        .enumerate()
+                        .filter_map(|(i, f)| rank(f.kind).map(|r| (r, i)))
+                        .min()
+                        .map(|(_, f)| (ri, f))
                 }) else {
                     continue;
                 };
@@ -871,9 +900,8 @@ impl Writing {
         out.add_sealed(w, land, fixtures, start);
         out.add_everyday(w, fixtures, start);
         // Stack every text on its surface, oldest first.
-        let all = w
-            .texts
-            .iter()
+        let all = out
+            .world_texts(w)
             .chain(out.extra.iter())
             .chain(out.sealed_texts.iter());
         let mut surfaces: Vec<Surface> = Vec::new();
@@ -1182,9 +1210,8 @@ impl Writing {
             .map(|(_, noun, _)| noun)
             .filter(|n| !NOUNS.contains(&n.as_str()))
             .collect();
-        let written: BTreeSet<(usize, Option<usize>, Option<usize>)> = w
-            .texts
-            .iter()
+        let written: BTreeSet<(usize, Option<usize>, Option<usize>)> = self
+            .world_texts(w)
             .chain(self.extra.iter())
             .chain(self.sealed_texts.iter())
             .map(|t| (t.structure, t.room, t.feature))
@@ -1248,6 +1275,158 @@ impl Writing {
         }
     }
 
+    /// The world's texts where play finds them (S05).
+    pub fn world_texts<'a>(&'a self, w: &'a World) -> impl Iterator<Item = &'a Text> + 'a {
+        w.texts
+            .iter()
+            .map(move |t| self.relocated.get(&t.id).unwrap_or(t))
+    }
+
+    /// Moves texts to surfaces that fit them (S05). A text longer than its
+    /// thing can carry (a label on a jar or box, a few lines on a table or
+    /// chest) goes to a wall, stele or the like in the same room, or else
+    /// elsewhere in the building. In the start town, what is met first (a
+    /// building's outside, the rooms that lead outdoors and the one just
+    /// inside) carries three pages at most on each surface; the rest goes
+    /// to the furthest room with such a surface. Spells and the
+    /// root inscription stay where they were cast.
+    // DESIGN-Q: jars, bins, casks, boxes, bowls, pots and urns carry 24
+    // signs; tables, chests, shelves, niches, altars, hearths, basins and
+    // benches 48 (three pages); ovens, kilns and vats 80 (their
+    // instructions); walls, steles, tablets, lintels, gates, door-slabs,
+    // parapets, gravestones, statues and sarcophagi any length. Spells stay
+    // where they were cast, and in a building with no such surface a text
+    // stays where it is.
+    fn fit_surfaces(&mut self, w: &World, fixtures: &Fixtures, start: usize) {
+        const PAGES3: usize = 48;
+        let cap = |kind: &str| match kind {
+            "jar" | "bin" | "cask" | "box" | "bowl" | "pot" | "urn" => Some(24),
+            "table" | "chest" | "shelf" | "niche" | "altar" | "hearth" | "basin" | "bench" => {
+                Some(PAGES3)
+            }
+            // Work surfaces keep the instructions for them close.
+            "oven" | "kiln" | "vat" => Some(80),
+            _ => None,
+        };
+        let long_surface = |kind: &str| LONG.contains(&kind);
+        let signs = |t: &Text| {
+            let r = w.renderer(t.era);
+            r.glyphs(&r.render(&t.meaning))
+                .iter()
+                .filter(|g| g.is_some())
+                .count()
+        };
+        let root = w.history.root;
+        let fixed = |t: &Text| t.kind == Kind::Potent || t.event == Some(root);
+        // Where a long surface lies in a structure: (room, feature), the
+        // given room first, then the others in the order asked.
+        // A long surface in a structure, in the rooms given, in order, other
+        // than the one the text is on.
+        let spot_in = |s: usize, rooms: &[usize], not: (Option<usize>, Option<usize>)| {
+            let st = &w.structures[s];
+            rooms.iter().find_map(|&r| {
+                st.interior
+                    .rooms
+                    .get(r)?
+                    .features
+                    .iter()
+                    .enumerate()
+                    .position(|(f, x)| long_surface(x.kind) && (Some(r), Some(f)) != not)
+                    .map(|f| (r, f))
+            })
+        };
+        // Each surface's world texts, oldest first; the outside of a
+        // building is one surface.
+        type Key = (usize, Option<usize>, Option<usize>);
+        let mut stacks: BTreeMap<Key, Vec<&Text>> = BTreeMap::new();
+        for t in &w.texts {
+            stacks
+                .entry((t.structure, t.room, t.feature))
+                .or_default()
+                .push(t);
+        }
+        for ((s, room, feature), mut stack) in stacks {
+            stack.sort_by_key(|t| (t.year, t.id));
+            let st = &w.structures[s];
+            let in_town = st.settlement == Some(start);
+            // Outside, and rooms that lead outdoors, are met first.
+            let (kind, first) = match (room, feature) {
+                (Some(r), Some(f)) => {
+                    let Some(k) = st
+                        .interior
+                        .rooms
+                        .get(r)
+                        .and_then(|x| x.features.get(f))
+                        .map(|x| x.kind)
+                    else {
+                        continue;
+                    };
+                    // The rooms one comes to first: those that lead
+                    // outdoors and the one just inside.
+                    (k, st.interior.rooms[r].outside || r <= 1)
+                }
+                _ => ("outside", true),
+            };
+            let at_door = in_town && first;
+            let limit = match (cap(kind), at_door) {
+                (Some(c), true) => Some(c.min(PAGES3)),
+                (Some(c), false) => Some(c),
+                (None, true) => Some(PAGES3),
+                (None, false) => None,
+            };
+            let Some(limit) = limit else {
+                continue;
+            };
+            // What can't move counts first.
+            let mut kept: usize = stack.iter().filter(|t| fixed(t)).map(|t| signs(t)).sum();
+            for t in stack {
+                if fixed(t) {
+                    continue;
+                }
+                let n = signs(t);
+                if kept + n <= limit {
+                    kept += n;
+                    continue;
+                }
+                let n_rooms = st.interior.rooms.len();
+                let order: Vec<usize> = if at_door {
+                    // The furthest reachable room that does not lead out,
+                    // failing that any other.
+                    let reach = fixtures.reachable_rooms(w, s);
+                    let mut rooms: Vec<usize> = reach
+                        .iter()
+                        .copied()
+                        .filter(|&r| !st.interior.rooms[r].outside && r > 1)
+                        .collect();
+                    rooms.sort_unstable();
+                    rooms.reverse();
+                    rooms.extend(reach.iter().copied().filter(|&r| Some(r) != room));
+                    // Last, a wall here: at least the thing itself fits.
+                    rooms.extend(room);
+                    rooms
+                } else {
+                    room.into_iter()
+                        .chain((0..n_rooms).filter(|&r| Some(r) != room))
+                        .collect()
+                };
+                match spot_in(s, &order, (room, feature)) {
+                    Some((r, f)) => {
+                        self.relocated.insert(
+                            t.id,
+                            Text {
+                                room: Some(r),
+                                feature: Some(f),
+                                material: st.interior.rooms[r].features[f].material,
+                                ..t.clone()
+                            },
+                        );
+                    }
+                    None => kept += n,
+                }
+            }
+        }
+    }
+
     /// Short everyday writing in the starting town (S04, Jb): an owner's
     /// name, or a count of goods, on bare surfaces a player can reach, so
     /// the first texts met are short. Numbered with the sealed places'
@@ -1262,9 +1441,8 @@ impl Writing {
         const GOODS: [&str; 5] = ["oil", "wine", "grain", "salt", "fish"];
         let era = (w.languages.len() as u32).saturating_sub(1);
         let year = w.history.eras.last().map_or(0, |e| e.end);
-        let written: BTreeSet<(usize, Option<usize>, Option<usize>)> = w
-            .texts
-            .iter()
+        let written: BTreeSet<(usize, Option<usize>, Option<usize>)> = self
+            .world_texts(w)
             .chain(self.extra.iter())
             .chain(self.sealed_texts.iter())
             .map(|t| (t.structure, t.room, t.feature))
@@ -1425,7 +1603,7 @@ impl Writing {
         }
         let deepest = {
             let mut depth: BTreeMap<(usize, Option<usize>, Option<usize>), usize> = BTreeMap::new();
-            for t in w.texts.iter().chain(self.extra.iter()) {
+            for t in self.world_texts(w).chain(self.extra.iter()) {
                 *depth.entry((t.structure, t.room, t.feature)).or_default() += 1;
             }
             let own = depth.get(&(hs, hr, hf)).copied().unwrap_or(0);
@@ -1536,7 +1714,7 @@ impl Writing {
         if id >= SEALED_BASE {
             &self.sealed_texts[id - SEALED_BASE]
         } else if id < w.texts.len() {
-            &w.texts[id]
+            self.relocated.get(&id).unwrap_or(&w.texts[id])
         } else {
             &self.extra[id - w.texts.len()]
         }
