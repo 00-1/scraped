@@ -426,4 +426,4 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | "like" in sign impressions | Only with a base that is one sign's alone (its sound, a resemblance no other has, or a look no other sign's is or begins with) and something added; else told on its own | `crates/lang/src/slots.rs` (`impression_texts`) | content |
 | `go in` | The building just examined, else the one stood at (within 30 m, nearest), else which | `crates/game/src/lib.rs` | now |
 | `exit` | Leaves a building; `quit` or `q` ends play | `crates/play/src/lib.rs` | now |
-
+| Bare sounds and scene lists | Kept bare, by Jb's taste: "Faintly, river from the southeast", "Here: bones, bundle and bowl" (the `alist` helper exists if a variant wants articles) | `content/sense.toml`, `content/place.toml` | content |

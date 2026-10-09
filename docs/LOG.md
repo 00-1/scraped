@@ -874,7 +874,6 @@ Fixed:
 - Loose things in a room come in the first description.
 - `go in` goes into the building just examined, or the one stood at.
 - Choices are offered with "or" (new `list_or` helper).
-- Scene parts and sounds take their articles (new `alist` helper; "a river").
 - A text too long for its thing moves to a wall or the like in the same building: a jar or box carries a label (24 signs), a table or chest a few lines (three pages), a kiln or vat its instructions (80).
 - In the start town, what is met first (outside, the rooms by the door and the one just inside) carries three pages at most per surface; the rest goes deeper in. The short everyday texts take the space freed.
 - Ledgers prefer tablets and walls to jars.
@@ -885,5 +884,5 @@ Fixed:
 
 **Open questions:** "Reading in play (S05)" in DECISIONS.
 
-**New content slots:** none. New template helpers `list_or` and `alist`; `say.which`, `place.scene` and `sense.sound` examples use them.
+**New content slots:** none. New template helpers `list_or` and `alist`; `say.which`'s example uses `list_or`. "Faintly, river from the southeast" and "Here: bones, bundle and bowl" stay as they are: Jb likes them bare.
 

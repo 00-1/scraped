@@ -2,7 +2,7 @@ notes = "The senses: what listening, smelling, touching, tasting and looking up 
 
 [[variant]]
 slot = "sense.sound"
-text = "[if strength == 'faint']Faintly, [end][if source == 'call']a {call}[else]{a source}[end][if name != ''] ({name})[end][if bearing != 'here'] from the {bearing}[end]."
+text = "[if strength == 'faint']Faintly, [end][if source == 'call']a {call}[else]{source}[end][if name != ''] ({name})[end][if bearing != 'here'] from the {bearing}[end]."
 example = true
 
 [[variant]]

@@ -393,18 +393,35 @@ pub fn impression_texts(
                 } else {
                     // Told on its own it reads like another sign: say where
                     // each part lies, word for word.
-                    let mut plain: Vec<String> = Vec::new();
+                    // Alike parts are counted ("two curls"): a related
+                    // sign can be its base with one more of a part.
+                    let mut seen: Vec<((&str, &str, &str), u64)> = Vec::new();
                     for p in t.parts.iter().chain(t.added.iter()) {
-                        let part = scraped_content::english::article(p.part);
-                        let w = [part.as_str(), p.place, p.facing]
-                            .into_iter()
-                            .filter(|w| !w.is_empty() && *w != "none")
-                            .collect::<Vec<_>>()
-                            .join(" ");
-                        if !plain.contains(&w) {
-                            plain.push(w);
+                        let key = (p.part, p.place, p.facing);
+                        match seen.iter_mut().find(|(k, _)| *k == key) {
+                            Some((_, n)) => *n += 1,
+                            None => seen.push((key, 1)),
                         }
                     }
+                    let plain: Vec<String> = seen
+                        .iter()
+                        .map(|((part, place, facing), n)| {
+                            let part = if *n > 1 {
+                                format!(
+                                    "{} {}",
+                                    scraped_content::english::number(*n as i64),
+                                    scraped_content::english::plural_if(part, *n as i64)
+                                )
+                            } else {
+                                scraped_content::english::article(part)
+                            };
+                            [part.as_str(), place, facing]
+                                .into_iter()
+                                .filter(|w| !w.is_empty() && *w != "none")
+                                .collect::<Vec<_>>()
+                                .join(" ")
+                        })
+                        .collect();
                     on_own(r, plain)
                 }
             });

@@ -164,7 +164,7 @@ fn the_first_texts_read_are_short() {
 
 /// S05: a hand replay of seed 42 (v0.4.0) plays clean: no slips, `go in`
 /// after examining goes into that building, loose things come with the
-/// first look, choices are offered with "or", sounds take an article.
+/// first look, choices are offered with "or".
 #[test]
 fn the_seed_42_hand_replay_plays_clean() {
     let p = pack();
@@ -197,5 +197,4 @@ fn the_seed_42_hand_replay_plays_clean() {
         all.contains("Which do you mean") && !all.contains("temple and the"),
         "{all}"
     );
-    assert!(!all.contains("Faintly, river"), "{all}");
 }
