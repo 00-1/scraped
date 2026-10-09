@@ -886,3 +886,4 @@ Fixed:
 
 **New content slots:** none. New template helpers `list_or` and `alist`; `say.which`'s example uses `list_or`. "Faintly, river from the southeast" and "Here: bones, bundle and bowl" stay as they are: Jb likes them bare.
 
+Released as v0.5.0, a minor bump (`saves check --against v0.4.0`; worlds generate as before), with a 0.5.0 corpus save.
