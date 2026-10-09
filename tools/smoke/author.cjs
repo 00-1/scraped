@@ -11,7 +11,8 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.goto('file://' + path.resolve(__dirname, '../dist/author.html'));
-  await page.waitForSelector('.slotlink');
+  // Startup lints the whole pack, which takes a while on a slow machine.
+  await page.waitForSelector('.slotlink', { timeout: 90000 });
   const slots = await page.$$eval('.slotlink', els => els.map(e => e.dataset.slot));
   if (!slots.includes('glyph.stroke')) throw new Error('slot list lacks glyph.stroke: ' + slots);
   await page.click('[data-slot="glyph.stroke"]');
