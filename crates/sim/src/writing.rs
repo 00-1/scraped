@@ -629,6 +629,26 @@ pub fn reach(m: Material) -> f64 {
 }
 
 /// Features that take an inscription well.
+/// Things that carry an owner's mark or a count, besides inscribable
+/// surfaces (S04).
+const LABELLED: &[&str] = &[
+    "jar",
+    "bin",
+    "cask",
+    "shelf",
+    "table",
+    "chest",
+    "basin",
+    "hearth",
+    "oven",
+    "kiln",
+    "vat",
+    "sarcophagus",
+];
+
+/// Short everyday texts written in the start town (S04).
+const EVERYDAY: usize = 24;
+
 const INSCRIBABLE: &[&str] = &[
     "wall",
     "stele",
@@ -849,6 +869,7 @@ impl Writing {
             out.add_legacy(w, fixtures, start, m);
         }
         out.add_sealed(w, land, fixtures, start);
+        out.add_everyday(w, fixtures, start);
         // Stack every text on its surface, oldest first.
         let all = w
             .texts
@@ -1223,6 +1244,102 @@ impl Writing {
                         ..base(s, Some(r), Some(f), material)
                     },
                 );
+            }
+        }
+    }
+
+    /// Short everyday writing in the starting town (S04, Jb): an owner's
+    /// name, or a count of goods, on bare surfaces a player can reach, so
+    /// the first texts met are short. Numbered with the sealed places'
+    /// texts, so no older id moves.
+    // DESIGN-Q: 24 in the start town, one building at a time, on the bare
+    // surfaces nearest the way in (walls and the like, or jars, bins,
+    // casks, shelves, tables, chests, basins, hearths, ovens, kilns, vats
+    // and sarcophagi); half an owner's name (someone of
+    // the town in the newest era), half "<goods>, <count>" (oil, wine,
+    // grain, salt, fish).
+    fn add_everyday(&mut self, w: &World, fixtures: &Fixtures, start: usize) {
+        const GOODS: [&str; 5] = ["oil", "wine", "grain", "salt", "fish"];
+        let era = (w.languages.len() as u32).saturating_sub(1);
+        let year = w.history.eras.last().map_or(0, |e| e.end);
+        let written: BTreeSet<(usize, Option<usize>, Option<usize>)> = w
+            .texts
+            .iter()
+            .chain(self.extra.iter())
+            .chain(self.sealed_texts.iter())
+            .map(|t| (t.structure, t.room, t.feature))
+            .collect();
+        let townsfolk: Vec<usize> = w
+            .history
+            .people
+            .iter()
+            .filter(|p| p.settlement == start && p.era == era)
+            .map(|p| p.id)
+            .collect();
+        // Each building's bare surfaces, nearest the way in first; then one
+        // from each building in turn.
+        let mut lists: Vec<(usize, Vec<(usize, usize)>)> = Vec::new();
+        for st in w
+            .structures
+            .iter()
+            .filter(|st| st.settlement == Some(start))
+        {
+            let mut rooms = fixtures.reachable_rooms(w, st.id);
+            rooms.sort_unstable();
+            let mut bare = Vec::new();
+            for r in rooms {
+                for (f, x) in st.interior.rooms[r].features.iter().enumerate() {
+                    if (INSCRIBABLE.contains(&x.kind) || LABELLED.contains(&x.kind))
+                        && !written.contains(&(st.id, Some(r), Some(f)))
+                    {
+                        bare.push((r, f));
+                    }
+                }
+            }
+            bare.reverse();
+            lists.push((st.id, bare));
+        }
+        let mut spots: Vec<(usize, usize, usize)> = Vec::new();
+        while spots.len() < EVERYDAY && lists.iter().any(|l| !l.1.is_empty()) {
+            for (s, bare) in &mut lists {
+                if spots.len() < EVERYDAY {
+                    if let Some((r, f)) = bare.pop() {
+                        spots.push((*s, r, f));
+                    }
+                }
+            }
+        }
+        for (sid, r, f) in spots {
+            let st = &w.structures[sid];
+            {
+                let x = &st.interior.rooms[r].features[f];
+                let h = hash(&[w.seed, 0xe7e7, st.id as u64, r as u64, f as u64]);
+                let goods = |k: u64| {
+                    NounPhrase::concept(GOODS[(k % GOODS.len() as u64) as usize])
+                        .counted((1 + (k / 7) % 9) as u16)
+                };
+                let meaning = match townsfolk.len() {
+                    n if n > 0 && h.is_multiple_of(2) => Sentence::List(vec![NounPhrase::name(
+                        townsfolk[((h / 2) % n as u64) as usize],
+                    )]),
+                    _ => Sentence::List(vec![goods(h / 2)]),
+                };
+                let id = SEALED_BASE + self.sealed_texts.len();
+                self.sealed_texts.push(Text {
+                    id,
+                    era,
+                    year: year - 1,
+                    kind: Kind::Label,
+                    genre: scraped_world::texts::Genre::Label,
+                    arc: None,
+                    meaning,
+                    author: None,
+                    event: None,
+                    structure: st.id,
+                    room: Some(r),
+                    feature: Some(f),
+                    material: x.material,
+                });
             }
         }
     }

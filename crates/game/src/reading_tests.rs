@@ -262,14 +262,12 @@ fn impressions_never_repeat_a_part() {
     }
 }
 
-/// S04 item 11: what share of the start town's texts run past three pages.
-/// Most do (seed 1: 23 of 29; 42: 21 of 27; 9001: 26 of 45), so the first
-/// text met is usually long.
-// DESIGN-Q: add short everyday texts (owner's marks, tallies, labels) near
-// the start, or leave the start as it is? Recorded in docs/DECISIONS.md.
-// Until then, hold that a few short ones are there to begin on.
+/// S04 item 11: the first texts met are short. Most of the start town's
+/// history runs past three pages, so short everyday writing (owners'
+/// names, counts of goods) is added on its bare surfaces: at least half
+/// of what can be read there now fits in three pages.
 #[test]
-fn the_start_town_has_some_short_texts() {
+fn the_start_town_texts_are_mostly_short() {
     for seed in [1, 42, 9001] {
         let mut g = Game::new(seed, pack());
         g.forced_light = true;
