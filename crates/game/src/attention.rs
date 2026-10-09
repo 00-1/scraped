@@ -1061,7 +1061,9 @@ impl Game {
                 Fact::new(
                     "room.items",
                     format!("items:{structure}:{room}"),
-                    30.0,
+                    // Above fixed things (34): what can be picked up comes
+                    // in the first description (S05).
+                    40.0,
                     ctx(&[("items", Value::List(loose)), ("one", Value::Bool(one))]),
                 )
                 .meaning(loose_ids.join(",")),

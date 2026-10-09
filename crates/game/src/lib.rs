@@ -1506,6 +1506,10 @@ impl Game {
         }
         let resolved = match resolve(words, &cands, self.state.it.as_ref()) {
             _ if bare_in && buildings.len() == 1 => Resolution::One(buildings[0]),
+            // The building just looked at or gone to (S05).
+            _ if bare_in && self.state.it.is_some_and(|it| buildings.contains(&it)) => {
+                Resolution::One(self.state.it.expect("checked"))
+            }
             _ if bare_in && buildings.len() > 1 => Resolution::Many(buildings.clone()),
             Resolution::None if any_one && !bare.is_empty() => {
                 resolve(&bare, &cands, self.state.it.as_ref())

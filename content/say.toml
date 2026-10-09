@@ -77,7 +77,7 @@ example = true
 
 [[variant]]
 slot = "say.which"
-text = "Which do you mean: {list options}?"
+text = "Which do you mean: {list_or options}?"
 example = true
 
 [[variant]]

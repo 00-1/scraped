@@ -340,16 +340,34 @@ pub fn impression_texts(
                     .unwrap_or_default()
                     .to_string(),
             };
-            // The base must be one the player can find (S04): by its sound,
-            // a resemblance no other sign shares, or a look no other sign
-            // has. Otherwise the sign is told on its own: the base's look
-            // and every part, with no "like".
+            // The base must be one the player can find (S04, S05): by its
+            // sound, a resemblance no other sign shares, or a look that
+            // matches only that sign (no other sign's look is it or begins
+            // with it). Otherwise, or with nothing added, the sign is told
+            // on its own: every part, with no "like".
             let look_unique = !like.look.is_empty()
-                && texts.iter().flatten().filter(|x| **x == like.look).count() == 1;
+                && texts
+                    .iter()
+                    .flatten()
+                    .filter(|x| x.starts_with(like.look.as_str()))
+                    .count()
+                    == 1;
             let findable = !like.sound.is_empty() || !like.resembles.is_empty() || look_unique;
-            let alone = if t.like.is_some() && (!findable || added.is_empty()) {
-                let mut all = parts.clone();
-                all.extend(added.iter().cloned());
+            let related = t.like.is_some() && findable && !added.is_empty();
+            let as_like = |r: &mut Renderer| {
+                let c = impression_context(
+                    t,
+                    parts.iter().cloned().map(Value::from).collect(),
+                    Base {
+                        look: like.look.clone(),
+                        sound: like.sound.clone(),
+                        resembles: like.resembles.clone(),
+                    },
+                    added.iter().cloned().map(Value::from).collect(),
+                );
+                r.render("glyph.impression", &c)
+            };
+            let on_own = |r: &mut Renderer, all: Vec<String>| {
                 let own = Told {
                     like: None,
                     added: Vec::new(),
@@ -361,21 +379,34 @@ pub fn impression_texts(
                     Base::default(),
                     Vec::new(),
                 );
-                Some(r.render("glyph.impression", &c))
-                    // Told on its own it must still read like no other sign.
-                    .filter(|x| !texts.iter().flatten().any(|y| y == x))
-            } else {
-                None
-            };
-            texts[i] = Some(alone.unwrap_or_else(|| {
-                let c = impression_context(
-                    t,
-                    parts.into_iter().map(Value::from).collect(),
-                    like,
-                    added.into_iter().map(Value::from).collect(),
-                );
                 r.render("glyph.impression", &c)
-            }));
+            };
+            let taken = |x: &String| texts.iter().flatten().any(|y| y == x);
+            texts[i] = Some(if related {
+                as_like(r)
+            } else {
+                let mut all = parts.clone();
+                all.extend(added.iter().cloned());
+                let alone = on_own(r, all);
+                if !taken(&alone) || t.like.is_none() {
+                    alone
+                } else {
+                    // Told on its own it reads like another sign: say where
+                    // each part lies, word for word.
+                    let mut plain: Vec<String> = Vec::new();
+                    for p in t.parts.iter().chain(t.added.iter()) {
+                        let w = [p.part, p.place, p.facing]
+                            .into_iter()
+                            .filter(|w| !w.is_empty() && *w != "none")
+                            .collect::<Vec<_>>()
+                            .join(" ");
+                        if !plain.contains(&w) {
+                            plain.push(w);
+                        }
+                    }
+                    on_own(r, plain)
+                }
+            });
         }
     }
     texts.into_iter().map(Option::unwrap_or_default).collect()

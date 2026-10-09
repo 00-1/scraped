@@ -87,10 +87,19 @@ fn regular_plural(w: &str) -> String {
 
 /// "a", "a and b", "a, b and c".
 pub fn list(items: &[String]) -> String {
+    joined(items, "and")
+}
+
+/// "a, b or c": choices offered (S05).
+pub fn list_or(items: &[String]) -> String {
+    joined(items, "or")
+}
+
+fn joined(items: &[String], conj: &str) -> String {
     match items {
         [] => String::new(),
         [one] => one.clone(),
-        [init @ .., last] => format!("{} and {last}", init.join(", ")),
+        [init @ .., last] => format!("{} {conj} {last}", init.join(", ")),
     }
 }
 

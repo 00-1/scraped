@@ -90,6 +90,18 @@ pub const HELPERS: &[Helper] = &[
         usage: "{list x}: 'a, b and c'",
     },
     Helper {
+        name: "list_or",
+        arity: 1,
+        words: &[],
+        usage: "{list_or x}: 'a, b or c', for choices",
+    },
+    Helper {
+        name: "alist",
+        arity: 1,
+        words: &[],
+        usage: "{alist x}: 'a bone, a bundle and a bowl', each with its article",
+    },
+    Helper {
         name: "bearing",
         arity: 1,
         words: &[],
@@ -395,6 +407,21 @@ impl<'a> Renderer<'a> {
                     english::list(&items.iter().map(Value::text).collect::<Vec<_>>())
                 }
                 other => other.text(),
+            },
+            "list_or" => match &args[0] {
+                Value::List(items) => {
+                    english::list_or(&items.iter().map(Value::text).collect::<Vec<_>>())
+                }
+                other => other.text(),
+            },
+            "alist" => match &args[0] {
+                Value::List(items) => english::list(
+                    &items
+                        .iter()
+                        .map(|v| english::article(&v.text()))
+                        .collect::<Vec<_>>(),
+                ),
+                other => english::article(&other.text()),
             },
             "bearing" => english::bearing(num(&args[0])?),
             "distance" => english::distance(num(&args[0])?),

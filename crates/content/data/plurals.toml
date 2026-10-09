@@ -20,14 +20,15 @@ mass = [
     "wheat", "barley", "rice", "flax", "hemp", "moss", "grass", "water", "wine", "ale",
     "honey", "salt", "clay", "sand", "ash", "dust", "cloth", "bread", "cheese", "wool",
     "linen", "leather", "kelp", "wrack", "eelgrass", "seaweed", "tinder", "fuel", "meat",
-    "fish", "herbs", "seeds", "rope", "twine", "pitch", "tallow", "wax",
+    "fish", "herbs", "seeds", "rope", "twine", "pitch", "tallow", "wax", "rain", "thunder",
+    "smoke", "earth", "rot", "resin",
 ]
 
 # Names that are already plural, said without "a" ("Graves, dim and
 # close"; D11 samples).
 plural_only = [
     "graves", "cells", "stacks", "tunnels", "crystals", "stalactites", "farmyards",
-    "gardens", "mines", "workshops", "stairs", "remains", "bones",
+    "gardens", "mines", "workshops", "stairs", "remains", "bones", "flowers",
 ]
 
 [irregular]

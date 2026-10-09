@@ -292,3 +292,76 @@ fn the_start_town_texts_are_mostly_short() {
         );
     }
 }
+
+/// S05: in the reading view, "like X" names an X only one sign matches
+/// (by its look, by a resemblance no other sign shares, or by sound), and
+/// no sign's description is cut off or names a part twice. Over every era
+/// (so every page of every text) of seeds 1, 42 and 9001.
+#[test]
+fn related_signs_name_a_base_only_one_sign_matches() {
+    for seed in [1, 42, 9001] {
+        let mut g = Game::new(seed, crate::composing_tests::pack());
+        g.start();
+        for era in 0..g.site.world.languages.len() as u32 {
+            let n = g.site.world.languages[era as usize].script.glyphs.len();
+            let texts: Vec<String> = (0..n).map(|i| g.sign_impression(era, i)).collect();
+            for t in &texts {
+                let end = t.trim_end().trim_end_matches(',');
+                for dangling in [" with", " and", " of", " the", " a", ","] {
+                    assert!(
+                        !end.ends_with(dangling),
+                        "seed {seed} era {era}: cut off: {t:?}"
+                    );
+                }
+                let parts: Vec<&str> = t.split(", with ").skip(1).collect();
+                let unique: BTreeSet<&&str> = parts.iter().collect();
+                assert_eq!(
+                    unique.len(),
+                    parts.len(),
+                    "seed {seed}: a part twice: {t:?}"
+                );
+                let Some(rest) = t.strip_prefix("like ") else {
+                    continue;
+                };
+                if rest.starts_with("the «") {
+                    continue; // by its sound: heard, so found
+                }
+                if let Some(res) = rest
+                    .strip_prefix("the ")
+                    .and_then(|r| r.split(" sign").next())
+                {
+                    let with = texts
+                        .iter()
+                        .filter(|x| {
+                            !x.starts_with("like ")
+                                && x.contains(&format!(
+                                    " like {}",
+                                    scraped_content::english::article(res)
+                                ))
+                        })
+                        .count();
+                    assert_eq!(
+                        with, 1,
+                        "seed {seed} era {era}: {res} is not one sign's: {t:?}"
+                    );
+                    continue;
+                }
+                // By its look: exactly one sign reads as the base, and no
+                // other begins with it.
+                let base = texts
+                    .iter()
+                    .filter(|x| rest.starts_with(&format!("{x}, with ")))
+                    .max_by_key(|x| x.len())
+                    .unwrap_or_else(|| panic!("seed {seed} era {era}: no base for {t:?}"));
+                let matching = texts
+                    .iter()
+                    .filter(|x| x.starts_with(base.as_str()))
+                    .count();
+                assert_eq!(
+                    matching, 1,
+                    "seed {seed} era {era}: {base:?} matches {matching}: {t:?}"
+                );
+            }
+        }
+    }
+}
