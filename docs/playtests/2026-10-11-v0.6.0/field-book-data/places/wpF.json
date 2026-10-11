@@ -1,0 +1,16 @@
+{
+  "desc": "Most of a morning's walk east of the waterfall. The plain grassy town to the west (middle). Here and there: bare earth. You shiver.",
+  "exits": {
+    "north": "wpG",
+    "west": "lm-waterfall"
+  },
+  "name": "Bare earth, east of the falls",
+  "notes": "Probably near the windy grassland, but there the grassy town was \"far\", here \"middle\".",
+  "order": 12,
+  "status": "partial",
+  "statusNote": "Passed through.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 3.3,
+  "y": 3.6
+}

@@ -1,0 +1,21 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "box-curl+dot",
+        "horn",
+        "box-curl+loop",
+        "moon",
+        "hornbox",
+        "moon",
+        "box-curl+loop",
+        "horn"
+      ]
+    }
+  ],
+  "note": "8 signs, newest style, one group.",
+  "on": "forecourt stone basin",
+  "t": 13,
+  "where": "temple1"
+}

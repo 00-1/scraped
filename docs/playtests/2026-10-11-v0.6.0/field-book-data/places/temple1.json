@@ -1,0 +1,35 @@
+{
+  "desc": "A forecourt. A clay calendar stone, a candelabrum, a map and a torch lie here. A stone stele and a stone basin stand here. Ways out: a door north and the way out.",
+  "exits": {
+    "north": "temple2",
+    "out": "start"
+  },
+  "features": [
+    {
+      "dir": "north",
+      "located": true,
+      "name": "stone door north",
+      "state": "felt wrong at night"
+    },
+    {
+      "located": true,
+      "name": "stone stele",
+      "note": "38 signs, old style, complete, \"in a slanted hand\".",
+      "state": "inscribed"
+    },
+    {
+      "located": true,
+      "name": "stone basin",
+      "note": "8 signs, newest style.",
+      "state": "inscribed"
+    }
+  ],
+  "name": "Temple forecourt",
+  "order": 15,
+  "status": "done",
+  "statusNote": "Looked until nothing new; stele and basin transcribed. Map, calendar stone, candelabrum and torch left here (pack full).",
+  "terrain": "in the temple",
+  "visited": true,
+  "x": 0.3,
+  "y": -0.75
+}

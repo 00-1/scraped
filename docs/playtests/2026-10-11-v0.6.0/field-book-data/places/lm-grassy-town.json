@@ -1,0 +1,10 @@
+{
+  "desc": "Came into view SW of the grassland near the mound; seen west (far) from the windy grassland. Probably not the same as the plain town.",
+  "exits": {},
+  "name": "Plain grassy town",
+  "order": 26,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": -1.5,
+  "y": 3
+}

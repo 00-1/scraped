@@ -1,0 +1,938 @@
+<title>Scraped Again Field Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: survey-sheet map on drafting film (pan/zoom) with a field journal beside it; a separate Writing view for inscriptions. */
+:root {
+  --bg: #eceee9;
+  --sheet: #f7f8f5;
+  --panel: #ffffff;
+  --ink: #1c2530;
+  --muted: #5b6672;
+  --rule: #d5dad2;
+  --grid: #e1e5de;
+  --accent: #2c56c9;
+  --accent-soft: #dfe7fb;
+  --here: #d79a12;
+  --here-soft: #f6e3b4;
+  --stub: #8a95a0;
+  --water: #2a8bb8;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101419; --sheet: #151a20; --panel: #1b2129; --ink: #e3e7eb; --muted: #95a0ab;
+    --rule: #2a323c; --grid: #1f262e; --accent: #86a6ff; --accent-soft: #24304d; --here: #f0bf47; --here-soft: #4a3b12; --stub: #6c7884; --water: #5cb8e0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101419; --sheet: #151a20; --panel: #1b2129; --ink: #e3e7eb; --muted: #95a0ab;
+  --rule: #2a323c; --grid: #1f262e; --accent: #86a6ff; --accent-soft: #24304d; --here: #f0bf47; --here-soft: #4a3b12; --stub: #6c7884; --water: #5cb8e0;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.app { height: 100%; box-sizing: border-box; display: grid; grid-template-rows: auto 1fr; gap: 12px; padding-inline: 16px; padding-block: 12px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 1.7rem; letter-spacing: .01em; margin: 0; line-height: 1.1; text-wrap: balance; }
+h1 span { color: var(--muted); font-weight: 500; }
+.status { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button { font: 600 .9rem var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 6px 14px; border: 1px solid var(--rule); background: var(--panel); color: var(--muted); border-radius: 6px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-color: var(--ink); }
+.tabs button[data-tab="journal"] { display: none; }
+.main { min-height: 0; display: grid; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 12px; min-height: 0; }
+.main:not([data-tab="map"]):not([data-tab="journal"]) .field { display: none; }
+.main:not([data-tab="writing"]) .writing { display: none; }
+.main:not([data-tab="world"]) .world { display: none; }
+
+/* World */
+.world { min-height: 0; overflow-y: auto; }
+.world-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; align-items: start; }
+.wcard { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; min-width: 0; }
+.wcard .topic { font: 600 .75rem var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.wcard h3 { font: 700 1.3rem var(--display); margin: 2px 0 0; line-height: 1.2; text-wrap: balance; }
+.conf { font: 600 .68rem var(--display); letter-spacing: .08em; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; }
+.conf.low { color: var(--muted); }
+.conf.medium { color: var(--here); }
+.conf.high { color: var(--accent); }
+.conf.unknown { color: var(--muted); border-style: dashed; }
+.ev { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.ev li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 6px; font-size: .9rem; }
+.ev li b { font: 600 .8rem var(--mono); text-align: center; border-radius: 4px; line-height: 1.5; height: fit-content; }
+.ev li.for b { color: var(--accent); background: var(--accent-soft); }
+.ev li.against b { color: var(--here); background: var(--here-soft); }
+.ev li.neutral b { color: var(--muted); border: 1px solid var(--rule); }
+.ev small { display: block; font: .7rem var(--mono); color: var(--muted); }
+.wcard .q { margin: 10px 0 0; font-size: .85rem; color: var(--muted); }
+.wcard .q strong { color: var(--ink); font-weight: 600; }
+
+/* Map */
+.mapwrap { position: relative; min-height: 0; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--sheet); }
+#map { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+#map.dragging { cursor: grabbing; }
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.edge { stroke: var(--ink); stroke-width: 2; opacity: .55; }
+.wl { fill: none; stroke: var(--water); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: .45; }
+.waterline.stream .wl { stroke-width: 5; }
+.waterline.tentative .wl { stroke-dasharray: 18 10; }
+.wl-label { fill: var(--water); font: italic 500 13px var(--body); }
+.legend i.w { border: 0; height: 4px; background: var(--water); opacity: .6; vertical-align: 2px; }
+.stub { stroke: var(--stub); stroke-width: 2; stroke-dasharray: 4 4; }
+.stub-end { fill: var(--sheet); stroke: var(--stub); stroke-width: 1.5; }
+.stub-q { fill: var(--stub); font: 500 10px var(--mono); }
+.node rect { fill: var(--panel); stroke: var(--ink); stroke-width: 1.5; }
+.node.unvisited rect { stroke-dasharray: 5 3; stroke: var(--muted); }
+.node.here rect { fill: var(--here-soft); stroke: var(--here); stroke-width: 2.5; }
+.node.selected rect { stroke: var(--accent); stroke-width: 2.5; }
+.node { cursor: pointer; }
+.node .name { fill: var(--ink); font: 600 15px var(--display); letter-spacing: .01em; }
+.node .sub { fill: var(--muted); font: 400 9.5px var(--mono); }
+.node .vert { fill: var(--accent); font: 500 9.5px var(--mono); }
+.pin { fill: var(--here); }
+.pin-ring { fill: none; stroke: var(--here); stroke-width: 2; }
+.badge { stroke-width: 1.5; }
+.badge.done { fill: var(--accent); stroke: var(--accent); }
+.badge.revisit { fill: var(--here-soft); stroke: var(--here); }
+.badge.partial { fill: var(--panel); stroke: var(--muted); stroke-dasharray: 2 2; }
+.badge-t { font: 600 10px var(--mono); pointer-events: none; }
+.badge-t.done { fill: var(--panel); }
+.badge-t.revisit { fill: var(--here); }
+.badge-t.partial { fill: var(--muted); }
+.st { font: 600 .68rem var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; }
+.st.done { color: var(--accent); }
+.st.revisit { color: var(--here); }
+.st.partial { color: var(--muted); border-style: dashed; }
+.place-card .why { margin-top: 6px; font-size: .88rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .pin-ring { animation: ring 2.2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes ring { from { opacity: .7; transform: scale(.6); } to { opacity: 0; transform: scale(2.2); } }
+}
+.feat rect { fill: var(--sheet); stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.feat.located rect { stroke-dasharray: none; }
+.feat.gone { opacity: .5; }
+.feat-tie { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 4; opacity: .6; }
+.feat-name { fill: var(--ink); font: 500 10.5px var(--mono); }
+.feat-state { fill: var(--muted); font: 400 9px var(--mono); }
+.mapctl { position: absolute; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+.mapctl button { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); font: 600 1.1rem var(--mono); cursor: pointer; }
+.mapctl button.wide { font: 600 .7rem var(--display); letter-spacing: .06em; text-transform: uppercase; }
+.legend { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 4px 12px; flex-wrap: wrap; font: .7rem var(--mono); color: var(--muted); background: color-mix(in srgb, var(--sheet) 85%, transparent); padding: 4px 8px; border-radius: 6px; max-width: calc(100% - 80px); }
+.legend i { display: inline-block; width: 14px; height: 9px; border: 1.5px solid var(--ink); border-radius: 2px; vertical-align: -1px; margin-right: 4px; }
+.legend i.u { border-style: dashed; border-color: var(--muted); }
+.legend i.h { background: var(--here-soft); border-color: var(--here); }
+.legend i.f { border: 1.2px dashed var(--accent); border-radius: 5px; }
+.empty-map { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--muted); pointer-events: none; }
+.empty-map strong { display: block; font: 600 1.3rem var(--display); color: var(--ink); }
+
+/* Shared column styles */
+.col { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; padding-right: 2px; }
+section h2 { font: 600 .8rem var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 8px; }
+section h2 .count { font-family: var(--mono); letter-spacing: 0; text-transform: none; }
+.place-card { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; }
+.place-card h3 { font: 700 1.35rem var(--display); margin: 0; line-height: 1.15; }
+.tag { font: .72rem var(--mono); color: var(--muted); }
+.place-card p { margin: 8px 0 0; }
+.feats { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.feats li { font-size: .9rem; display: flex; justify-content: space-between; gap: 10px; }
+.feats li span:last-child { font: .72rem var(--mono); color: var(--muted); text-align: right; }
+.exits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.exit { font: .75rem var(--mono); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 9px; background: none; color: var(--ink); cursor: pointer; }
+.exit.open { border-style: dashed; color: var(--muted); cursor: default; }
+.linkbtn { font: .75rem var(--mono); color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+ul.list { list-style: none; margin: 0; padding: 0; }
+ul.list li { padding: 6px 0; border-bottom: 1px dashed var(--rule); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; }
+ul.list li:last-child { border-bottom: 0; }
+.li-title { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.li-meta { font: .72rem var(--mono); color: var(--muted); text-align: right; }
+.li-note { grid-column: 1 / -1; color: var(--muted); font-size: .9rem; overflow-wrap: anywhere; }
+.kind { font: 600 .68rem var(--display); letter-spacing: .08em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; align-self: start; }
+.kind.clue { color: var(--accent); }
+.kind.todo { color: var(--here); }
+.kind.player, .kind.writing { color: var(--muted); }
+.none { color: var(--muted); font-size: .9rem; margin: 0; }
+form.addnote { display: flex; gap: 6px; margin-top: 8px; }
+form.addnote input { flex: 1; min-width: 0; font: inherit; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); color: var(--ink); }
+form.addnote button { font: 600 .85rem var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--ink); background: var(--ink); color: var(--panel); cursor: pointer; }
+.formmsg { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+
+/* Writing */
+.writing { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; min-height: 0; }
+.ins { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; }
+.ins + .ins { margin-top: 10px; }
+.ins h3 { font: 700 1.25rem var(--display); margin: 0; }
+.ins > p { margin: 8px 0 0; font-size: .9rem; color: var(--muted); }
+.lines { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.gline { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px 10px; padding-left: 10px; border-left: 2px solid var(--rule); }
+.gline.cont { border-left-style: dashed; }
+.gline.cont::before { content: "page break"; font: .62rem var(--mono); color: var(--muted); width: 100%; margin-bottom: -2px; }
+.pair { display: flex; gap: 2px; }
+.rule { font: .65rem var(--mono); color: var(--accent); text-align: center; border-top: 1px solid var(--accent); padding-top: 2px; opacity: .8; }
+.mk { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.mk small { font: .6rem var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip { font: 500 .76rem var(--mono); padding: 3px 7px; border-radius: 5px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); cursor: pointer; white-space: nowrap; }
+.chip.worn { color: var(--muted); border-style: dashed; background: none; cursor: default; }
+.chip.hl { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.chip.restored { font-style: italic; color: var(--accent); border-color: var(--accent); }
+.chip.restored.likely { opacity: .85; }
+.chip.restored.guess { opacity: .65; }
+.chip.hl-r { background: var(--accent-soft); }
+.infobar { position: fixed; left: 16px; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); max-width: 640px; margin-inline: auto; display: flex; gap: 10px; align-items: flex-start; background: var(--panel); border: 1.5px solid var(--accent); border-radius: 10px; padding: 10px 12px; box-shadow: 0 6px 24px rgb(0 0 0 / .18); z-index: 5; }
+.infobar > div { min-width: 0; flex: 1; }
+.infobar strong { font: 600 1rem var(--display); display: block; overflow-wrap: anywhere; }
+.infobar p { margin: 2px 0 0; font-size: .88rem; color: var(--muted); overflow-wrap: anywhere; }
+.infobar button { flex: none; width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--rule); background: none; color: var(--ink); font-size: 1.2rem; cursor: pointer; }
+.main:not([data-tab="writing"]) ~ .infobar { display: none; }
+.writing .col:last-child { padding-bottom: 120px; }
+.restore-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font: .7rem var(--mono); color: var(--muted); margin: 0 0 8px; }
+.chip.second { border-bottom: 2px solid var(--muted); }
+.signs { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.signs td { padding: 5px 4px; border-bottom: 1px dashed var(--rule); vertical-align: top; }
+.signs td.n { font: .75rem var(--mono); color: var(--muted); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.signs tr.hl td { background: var(--accent-soft); }
+.signs .desc { color: var(--muted); font-size: .8rem; display: block; }
+.signs input { width: 100%; box-sizing: border-box; font: .8rem var(--body); padding: 3px 6px; border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); color: var(--ink); margin-top: 3px; }
+.seqs li .li-title { display: flex; flex-wrap: wrap; gap: 3px; font-weight: 400; }
+.help { font-size: .85rem; color: var(--muted); margin: 0 0 8px; }
+button:focus-visible, input:focus-visible, .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .tabs button[data-tab="journal"] { display: inline-block; }
+  .field { grid-template-columns: minmax(0, 1fr); }
+  .main[data-tab="map"] .field .journal { display: none; }
+  .main[data-tab="journal"] .field .mapwrap { display: none; }
+  .main:not([data-tab="writing"]) .writing { display: none; }
+  .main[data-tab="writing"] .writing { display: block; overflow-y: auto; min-height: 0; }
+  .writing .col { min-height: auto; overflow: visible; padding-right: 0; }
+  .writing .col + .col { margin-top: 18px; }
+  .signs td:first-child { min-width: 0; }
+  .signs .chip { white-space: normal; overflow-wrap: anywhere; }
+  h1 { font-size: 1.4rem; }
+}
+</style>
+
+<div class="app">
+  <header>
+    <h1>Scraped Again <span>field book</span></h1>
+    <div class="tabs" role="tablist">
+      <button id="tab-map" role="tab" aria-selected="true" data-tab="map">Map</button>
+      <button id="tab-journal" role="tab" aria-selected="false" data-tab="journal">Journal</button>
+      <button id="tab-writing" role="tab" aria-selected="false" data-tab="writing">Writing</button>
+      <button id="tab-world" role="tab" aria-selected="false" data-tab="world">World</button>
+    </div>
+    <div class="status" id="status">Connecting to the field book…</div>
+  </header>
+
+  <div class="main" id="main" data-tab="map">
+    <div class="field">
+      <div class="mapwrap">
+        <svg id="map" aria-label="Map of explored places">
+          <defs>
+            <pattern id="gridpat" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M30 0H0V30" fill="none" class="gridline"/>
+            </pattern>
+          </defs>
+          <g id="world">
+            <rect x="-6000" y="-6000" width="12000" height="12000" fill="url(#gridpat)"/>
+            <g id="water"></g>
+            <g id="edges"></g>
+            <g id="nodes"></g>
+          </g>
+        </svg>
+        <div class="empty-map" id="empty-map"><div><strong>No places mapped yet</strong>Claude adds each place here as you explore.</div></div>
+        <div class="legend"><span><i></i>visited</span><span><i class="u"></i>seen, not entered</span><span><i class="h"></i>you are here</span><span><i class="f"></i>feature, spot unknown</span><span><i class="w"></i>water (dashed = guessed)</span><span>✓ done</span><span>↺ come back</span><span>… not fully examined</span></div>
+        <div class="mapctl">
+          <button id="zoom-in" aria-label="Zoom in">+</button>
+          <button id="zoom-out" aria-label="Zoom out">−</button>
+          <button id="zoom-fit" class="wide" aria-label="Fit whole map">Fit</button>
+          <button id="zoom-here" class="wide" aria-label="Center on current place">Here</button>
+        </div>
+      </div>
+
+      <div class="col journal" id="journal">
+        <section>
+          <h2 id="place-heading">Current place</h2>
+          <div id="place-card"><p class="none">Waiting for the first entry.</p></div>
+        </section>
+        <section>
+          <h2>Carrying <span class="count" id="inv-count"></span></h2>
+          <ul class="list" id="inv"></ul>
+        </section>
+        <section>
+          <h2>Clues and to-dos <span class="count" id="notes-count"></span></h2>
+          <ul class="list" id="notes"></ul>
+          <form class="addnote" id="note-form">
+            <input id="note-text" placeholder="Add your own note" autocomplete="off" maxlength="400">
+            <button type="submit">Add</button>
+          </form>
+          <p class="formmsg" id="note-msg" hidden></p>
+        </section>
+        <section>
+          <h2>Things seen <span class="count" id="seen-count"></span></h2>
+          <ul class="list" id="seen"></ul>
+        </section>
+        <section>
+          <h2>Places <span class="count" id="places-count"></span></h2>
+          <ul class="list" id="places"></ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="writing">
+      <div class="col">
+        <section>
+          <h2>Scraped text to fill <span class="count" id="gap-count"></span></h2>
+          <p class="help">Worn signs per inscription, how many we've guessed, and where the text is.</p>
+          <ul class="list" id="gaps"></ul>
+        </section>
+        <section>
+          <h2>Inscriptions <span class="count" id="ins-count"></span></h2>
+          <p class="help">Each line is one group as the game spaced it. Signs are shown in pairs, with the second of each pair underlined. Tap a sign to highlight it everywhere. Blue italic signs with a "?" are our guesses for worn-away marks; tap one to see why.</p>
+          <div class="restore-key"><span><span class="chip restored strong">strong?</span> matches an exact repeat</span><span><span class="chip restored likely">likely?</span> fits a pattern</span><span><span class="chip restored guess">guess?</span> weak</span></div>
+          <div id="ins"></div>
+        </section>
+      </div>
+      <div class="col">
+        <section>
+          <h2>Working notes <span class="count" id="wnotes-count"></span></h2>
+          <ul class="list" id="wnotes"></ul>
+          <form class="addnote" id="wnote-form">
+            <input id="wnote-text" placeholder="Add an idea about the writing" autocomplete="off" maxlength="400">
+            <button type="submit">Add</button>
+          </form>
+          <p class="formmsg" id="wnote-msg" hidden></p>
+        </section>
+        <section>
+          <h2>Repeated runs <span class="count" id="seq-count"></span></h2>
+          <p class="help">Runs of two or three pairs that appear more than once, worn marks skipped. Groups split by a page break are joined.</p>
+          <ul class="list seqs" id="seqs"></ul>
+        </section>
+        <section>
+          <h2>Signs <span class="count" id="sign-count"></span></h2>
+          <table class="signs"><tbody id="signs"></tbody></table>
+        </section>
+      </div>
+    </div>
+    <div class="world">
+      <section>
+        <h2>What we think about the world <span class="count" id="world-count"></span></h2>
+        <p class="help">Our best guesses about season, weather, time and history, with the evidence for (+) and against (−) each one.</p>
+        <div class="world-grid" id="world-grid"><p class="none">No guesses yet.</p></div>
+      </section>
+    </div>
+  </div>
+  <div class="infobar" id="infobar" role="status" hidden>
+    <div><strong id="info-title"></strong><p id="info-body"></p></div>
+    <button id="info-close" type="button" aria-label="Close">×</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const G = 300, NW = 128, NH = 50, FR = 100;
+  const DIRS = { north:[0,-1], south:[0,1], east:[1,0], west:[-1,0], northeast:[1,-1], northwest:[-1,-1], southeast:[1,1], southwest:[-1,1] };
+  const SHORT = { north:'N', south:'S', east:'E', west:'W', northeast:'NE', northwest:'NW', southeast:'SE', southwest:'SW', up:'up', down:'down', in:'in', out:'out' };
+  const STATUS = { done: { mark: '✓', label: 'fully examined' }, revisit: { mark: '↺', label: 'examined, come back' }, partial: { mark: '…', label: 'not fully examined' } };
+  const NS = 'http://www.w3.org/2000/svg';
+  const WORN = '?';
+  const $ = id => document.getElementById(id);
+
+  const state = { places: new Map(), items: [], notes: [], inscriptions: [], signs: new Map(), world: [], lines: [], meta: {}, selected: null, sign: null, info: null };
+  let view = { tx: 0, ty: 0, k: 1 };
+  let didInitialView = false, pendingCenter = false;
+  let db = null;
+
+  const el = (tag, attrs = {}, text) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const clip = (s, n) => (s && s.length > n ? s.slice(0, n - 1) + '…' : s || '');
+  const center = p => [p.x * G, p.y * G];
+
+  // ---------- map ----------
+  function renderMap() {
+    const edges = $('edges'), nodes = $('nodes');
+    edges.replaceChildren(); nodes.replaceChildren();
+    // Rivers and streams: smoothed lines through rough points; dashed while tentative.
+    const water = $('water');
+    water.replaceChildren();
+    for (const ln of state.lines) {
+      const pts = (ln.points || []).map(([x, y]) => [x * G, y * G]);
+      if (pts.length < 2) continue;
+      let d = `M${pts[0][0]} ${pts[0][1]}`;
+      for (let i = 1; i < pts.length - 1; i++) {
+        const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+        d += ` Q${pts[i][0]} ${pts[i][1]} ${mx} ${my}`;
+      }
+      d += ` L${pts[pts.length - 1][0]} ${pts[pts.length - 1][1]}`;
+      const g = el('g', { class: 'waterline ' + (ln.kind || 'river') + (ln.tentative ? ' tentative' : '') });
+      g.append(el('title', {}, (ln.name || ln.kind || 'water') + (ln.tentative ? ' (tentative)' : '') + (ln.note ? ': ' + ln.note : '')));
+      g.append(el('path', { d, class: 'wl' }));
+      const mid = pts[Math.floor(pts.length / 2)];
+      g.append(el('text', { x: mid[0], y: mid[1] - 12, 'text-anchor': 'middle', class: 'wl-label' }, (ln.name || ln.kind) + (ln.tentative ? '?' : '')));
+      water.append(g);
+    }
+    $('empty-map').hidden = state.places.size > 0;
+    const drawn = new Set();
+    // A route through a feature (village → storehouse → storeroom) is drawn via the feature, not as a direct line.
+    for (const [id, p] of state.places) for (const f of p.features || []) if (f.leadsTo) drawn.add([id, f.leadsTo].sort().join('|'));
+    for (const [id, p] of state.places) {
+      const [cx, cy] = center(p);
+      for (const [dir, target] of Object.entries(p.exits || {})) {
+        const d = DIRS[dir];
+        const t = target && state.places.get(target);
+        if (t) {
+          const key = [id, target].sort().join('|');
+          if (drawn.has(key)) continue;
+          drawn.add(key);
+          const [tx, ty] = center(t);
+          edges.append(el('line', { x1: cx, y1: cy, x2: tx, y2: ty, class: 'edge' }));
+        } else if (d) {
+          const len = Math.hypot(d[0], d[1]);
+          const ux = d[0] / len, uy = d[1] / len;
+          const reach = Math.abs(ux) * (NW / 2) + Math.abs(uy) * (NH / 2) + 30;
+          const ex = cx + ux * reach, ey = cy + uy * reach;
+          edges.append(el('line', { x1: cx, y1: cy, x2: ex, y2: ey, class: 'stub' }));
+          edges.append(el('circle', { cx: ex, cy: ey, r: 8, class: 'stub-end' }));
+          edges.append(el('text', { x: ex, y: ey + 3.5, 'text-anchor': 'middle', class: 'stub-q' }, '?'));
+        }
+      }
+    }
+    // Features: placed in their direction when known, otherwise spread round the node and drawn dashed.
+    for (const [, p] of state.places) {
+      const feats = p.features || [];
+      if (!feats.length) continue;
+      const [cx, cy] = center(p);
+      // Unplaced features fill an inner ring, then an outer one; landmarks with a direction sit further out, by distance.
+      const angleTo = f => { const t = f.leadsTo && state.places.get(f.leadsTo); if (!t) return null; const [tx, ty] = center(t); return Math.atan2(ty - cy, tx - cx) * 180 / Math.PI; };
+      const reserved = feats.map(f => f.dir && DIRS[f.dir] ? Math.atan2(DIRS[f.dir][1], DIRS[f.dir][0]) * 180 / Math.PI : angleTo(f)).filter(a => a != null);
+      const near = a => reserved.some(r => Math.abs(((a - r + 540) % 360) - 180) < 35);
+      const inner = [-90, -30, 30, 90, 150, 210].filter(a => !near(a)), outer = [-60, 0, 60, 120, 180, 240].filter(a => !near(a));
+      let k = 0;
+      feats.forEach(f => {
+        const d = f.dir && DIRS[f.dir];
+        const via = angleTo(f);
+        let fx, fy;
+        if (via != null) {
+          const r = via * Math.PI / 180;
+          fx = cx + Math.cos(r) * (FR + 14) * 0.9; fy = cy + Math.sin(r) * (FR + 14) * 0.9;
+          const [tx, ty] = center(state.places.get(f.leadsTo));
+          edges.append(el('line', { x1: fx, y1: fy, x2: tx, y2: ty, class: 'edge' }));
+        } else if (d) {
+          const r = Math.atan2(d[1], d[0]);
+          const dist = /far/.test(f.state || '') ? 250 : /middle/.test(f.state || '') ? 205 : FR + 14;
+          fx = cx + Math.cos(r) * dist; fy = cy + Math.sin(r) * dist * (dist > FR + 14 ? 0.8 : (FR - 28) / (FR + 14));
+        } else {
+          const onInner = k < inner.length, ring = onInner ? inner : outer, scale = onInner ? 1 : 1.6;
+          const r = ring[(onInner ? k : k - inner.length) % ring.length] * Math.PI / 180;
+          fx = cx + Math.cos(r) * (FR + 14) * scale; fy = cy + Math.sin(r) * (FR - 28) * scale;
+          k++;
+        }
+        const label = clip(f.name, 18) + (f.count ? ' ×' + f.count : '');
+        const w = Math.max(54, label.length * 6.3 + 16);
+        const g = el('g', { class: 'feat' + (f.located || via != null ? ' located' : '') + (f.seen === false ? ' gone' : '') });
+        g.append(el('title', {}, [f.name, f.state, f.count ? 'count: ' + f.count : null, f.located ? null : 'exact location unknown', f.note].filter(Boolean).join(' · ')));
+        g.append(el('line', { x1: cx, y1: cy, x2: fx, y2: fy, class: 'feat-tie' }));
+        g.append(el('rect', { x: fx - w / 2, y: fy - 15, width: w, height: f.state ? 30 : 20, rx: 10 }));
+        g.append(el('text', { x: fx, y: fy - 1, 'text-anchor': 'middle', class: 'feat-name' }, label));
+        if (f.state) g.append(el('text', { x: fx, y: fy + 11, 'text-anchor': 'middle', class: 'feat-state' }, f.state));
+        edges.append(g);
+      });
+    }
+    for (const [id, p] of state.places) {
+      const [cx, cy] = center(p);
+      const cls = ['node'];
+      if (p.visited === false) cls.push('unvisited');
+      if (state.meta.here === id) cls.push('here');
+      if (state.selected === id && state.meta.here !== id) cls.push('selected');
+      const g = el('g', { class: cls.join(' '), 'data-id': id, tabindex: 0, role: 'button', 'aria-label': p.name });
+      g.append(el('title', {}, p.name + (p.terrain ? ' — ' + p.terrain : '')));
+      g.append(el('rect', { x: cx - NW / 2, y: cy - NH / 2, width: NW, height: NH, rx: 6 }));
+      g.append(el('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'name' }, clip(p.name, 17)));
+      const vert = Object.keys(p.exits || {}).filter(k => !DIRS[k]);
+      const sub = vert.length ? vert.map(k => (SHORT[k] || k) + (p.exits[k] ? '' : '?')).join(' · ') : clip(p.terrain || '', 22);
+      g.append(el('text', { x: cx, y: cy + 14, 'text-anchor': 'middle', class: vert.length ? 'vert' : 'sub' }, sub));
+      if (STATUS[p.status]) {
+        const bx = cx - NW / 2 + 2, by = cy - NH / 2 + 2;
+        g.append(el('circle', { cx: bx, cy: by, r: 9, class: 'badge ' + p.status }));
+        g.append(el('text', { x: bx, y: by + 3.5, 'text-anchor': 'middle', class: 'badge-t ' + p.status }, STATUS[p.status].mark));
+      }
+      if (state.meta.here === id) {
+        g.append(el('circle', { cx: cx + NW / 2 - 2, cy: cy - NH / 2 + 2, r: 9, class: 'pin-ring' }));
+        g.append(el('circle', { cx: cx + NW / 2 - 2, cy: cy - NH / 2 + 2, r: 5, class: 'pin' }));
+      }
+      nodes.append(g);
+    }
+    if (!didInitialView && state.places.size) { didInitialView = true; centerOn(state.meta.here); }
+  }
+
+  // ---------- pan & zoom ----------
+  const svg = $('map');
+  const apply = () => $('world').setAttribute('transform', `translate(${view.tx} ${view.ty}) scale(${view.k})`);
+  const clampK = k => Math.min(3, Math.max(0.2, k));
+  const rect = () => { const r = svg.getBoundingClientRect(); if (!r.width) pendingCenter = true; return r; };
+  function zoomAt(factor, sx, sy) {
+    const k = clampK(view.k * factor), f = k / view.k;
+    view.tx = sx - (sx - view.tx) * f; view.ty = sy - (sy - view.ty) * f; view.k = k; apply();
+  }
+  function centerOn(id) {
+    const p = state.places.get(id);
+    if (!p) return fit();
+    const r = rect(); if (!r.width) return;
+    const [x, y] = center(p);
+    view.tx = r.width / 2 - x * view.k; view.ty = r.height / 2 - y * view.k; apply();
+  }
+  function fit() {
+    const r = rect(); if (!r.width) return;
+    if (!state.places.size) { view = { tx: r.width / 2, ty: r.height / 2, k: 1 }; return apply(); }
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const p of state.places.values()) { const [x, y] = center(p); x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    x0 -= NW + FR; x1 += NW + FR; y0 -= NH + FR; y1 += NH + FR;
+    view.k = clampK(Math.min(r.width / (x1 - x0), r.height / (y1 - y0), 1.4));
+    view.tx = r.width / 2 - ((x0 + x1) / 2) * view.k; view.ty = r.height / 2 - ((y0 + y1) / 2) * view.k; apply();
+  }
+
+  const pointers = new Map();
+  let gesture = null;
+  const local = e => { const r = svg.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  function startGesture() {
+    const pts = [...pointers.values()];
+    if (pts.length === 1) gesture = { mode: 'pan', last: pts[0], moved: 0, target: gesture?.target };
+    else if (pts.length >= 2) {
+      const [a, b] = pts;
+      gesture = { mode: 'pinch', dist: Math.hypot(a[0] - b[0], a[1] - b[1]), mid: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], moved: 99 };
+    }
+  }
+  svg.addEventListener('pointerdown', e => {
+    svg.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, local(e));
+    const node = e.target.closest && e.target.closest('.node');
+    gesture = { target: pointers.size === 1 && node ? node.dataset.id : null };
+    startGesture();
+    svg.classList.add('dragging');
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!pointers.has(e.pointerId) || !gesture) return;
+    pointers.set(e.pointerId, local(e));
+    const pts = [...pointers.values()];
+    if (gesture.mode === 'pan' && pts.length === 1) {
+      const [x, y] = pts[0];
+      const dx = x - gesture.last[0], dy = y - gesture.last[1];
+      gesture.moved += Math.abs(dx) + Math.abs(dy);
+      gesture.last = [x, y];
+      view.tx += dx; view.ty += dy; apply();
+    } else if (gesture.mode === 'pinch' && pts.length >= 2) {
+      const [a, b] = pts;
+      const dist = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      view.tx += mid[0] - gesture.mid[0]; view.ty += mid[1] - gesture.mid[1];
+      if (gesture.dist > 0) zoomAt(dist / gesture.dist, mid[0], mid[1]); else apply();
+      gesture.dist = dist; gesture.mid = mid;
+    }
+  });
+  function endPointer(e) {
+    if (!pointers.has(e.pointerId)) return;
+    const wasTap = gesture && gesture.mode === 'pan' && gesture.moved < 8 && gesture.target && pointers.size === 1;
+    const tapped = gesture && gesture.target;
+    pointers.delete(e.pointerId);
+    if (wasTap && e.type === 'pointerup') select(tapped);
+    if (pointers.size) { gesture = { target: null }; startGesture(); }
+    else { gesture = null; svg.classList.remove('dragging'); }
+  }
+  svg.addEventListener('pointerup', endPointer);
+  svg.addEventListener('pointercancel', endPointer);
+  svg.addEventListener('wheel', e => {
+    e.preventDefault();
+    const [x, y] = local(e);
+    if (e.ctrlKey) zoomAt(Math.exp(-e.deltaY * 0.01), x, y);
+    else if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) { view.tx -= e.deltaX; apply(); }
+    else zoomAt(Math.exp(-e.deltaY * 0.0015), x, y);
+  }, { passive: false });
+  svg.addEventListener('keydown', e => {
+    const node = e.target.closest && e.target.closest('.node');
+    if (node && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(node.dataset.id); }
+  });
+  const mid = () => { const r = svg.getBoundingClientRect(); return [r.width / 2, r.height / 2]; };
+  $('zoom-in').onclick = () => zoomAt(1.3, ...mid());
+  $('zoom-out').onclick = () => zoomAt(1 / 1.3, ...mid());
+  $('zoom-fit').onclick = fit;
+  $('zoom-here').onclick = () => { state.selected = null; centerOn(state.meta.here); renderField(); };
+
+  function select(id) { state.selected = id === state.meta.here ? null : id; renderField(); }
+
+  // ---------- journal ----------
+  function renderPlace() {
+    const id = state.selected || state.meta.here;
+    const p = id && state.places.get(id);
+    const card = $('place-card');
+    $('place-heading').textContent = state.selected ? 'Selected place' : 'Current place';
+    card.replaceChildren();
+    if (!p) { card.append(h('p', 'none', state.places.size ? 'Tap a place on the map to see its details.' : 'Waiting for the first entry.')); return; }
+    const box = h('div', 'place-card');
+    box.append(h('h3', null, p.name));
+    const tags = [p.terrain, p.visited === false ? 'not entered yet' : null].filter(Boolean).join(' · ');
+    if (tags) box.append(h('div', 'tag', tags));
+    if (STATUS[p.status]) {
+      const row = h('div', 'why');
+      row.append(h('span', 'st ' + p.status, STATUS[p.status].mark + ' ' + STATUS[p.status].label));
+      if (p.statusNote) row.append(document.createTextNode(' ' + p.statusNote));
+      box.append(row);
+    }
+    if (p.desc) box.append(h('p', null, p.desc));
+    if (p.notes) { const n = h('p', null, p.notes); n.style.color = 'var(--muted)'; box.append(n); }
+    if ((p.features || []).length) {
+      const ul = h('ul', 'feats');
+      for (const f of p.features) {
+        const li = h('li');
+        li.append(h('span', null, f.name + (f.count ? ' ×' + f.count : '')));
+        li.append(h('span', null, [f.state, f.located ? (f.dir || 'located') : 'spot unknown'].filter(Boolean).join(' · ')));
+        if (f.note) li.title = f.note;
+        ul.append(li);
+      }
+      box.append(ul);
+    }
+    const ex = Object.entries(p.exits || {});
+    if (ex.length) {
+      const wrap = h('div', 'exits');
+      for (const [dir, target] of ex) {
+        const t = target && state.places.get(target);
+        const b = h('button', 'exit' + (t ? '' : ' open'), (SHORT[dir] || dir) + ' → ' + (t ? t.name : 'unexplored'));
+        b.type = 'button';
+        if (t) b.onclick = () => { select(target); centerOn(target); }; else b.disabled = true;
+        wrap.append(b);
+      }
+      box.append(wrap);
+    }
+    if (state.selected) {
+      const back = h('button', 'linkbtn', '← Back to where you are');
+      back.type = 'button'; back.style.marginTop = '8px';
+      back.onclick = () => { state.selected = null; centerOn(state.meta.here); renderField(); };
+      box.append(back);
+    }
+    card.append(box);
+  }
+  function fillList(ul, rows, empty, make) {
+    ul.replaceChildren();
+    if (!rows.length) { const li = h('li'); li.append(h('p', 'none', empty)); ul.append(li); return; }
+    for (const r of rows) ul.append(make(r));
+  }
+  function itemRow(it) {
+    const li = h('li');
+    li.append(h('span', 'li-title', it.name));
+    li.append(h('span', 'li-meta', it.carried ? '' : (state.places.get(it.where)?.name || it.where || '')));
+    if (it.notes) li.append(h('span', 'li-note', it.notes));
+    return li;
+  }
+  function noteRow(n) {
+    const li = h('li');
+    const t = h('span', 'li-title', n.text);
+    t.style.fontWeight = '400';
+    if (n.done) { t.style.textDecoration = 'line-through'; t.style.color = 'var(--muted)'; }
+    li.append(t);
+    li.append(h('span', 'kind ' + (n.kind || 'clue'), n.kind === 'player' ? 'you' : n.kind === 'writing' ? (n.by === 'player' ? 'you' : 'idea') : (n.kind || 'clue')));
+    return li;
+  }
+  const byNewest = (a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (b.t || 0) - (a.t || 0);
+  function renderJournal() {
+    renderPlace();
+    const inv = state.items.filter(i => i.carried), seen = state.items.filter(i => !i.carried);
+    $('inv-count').textContent = inv.length || '';
+    $('seen-count').textContent = seen.length || '';
+    fillList($('inv'), inv, 'Empty-handed so far.', itemRow);
+    fillList($('seen'), seen, 'Nothing noted yet.', itemRow);
+    const notes = state.notes.filter(n => n.kind !== 'writing').sort(byNewest);
+    $('notes-count').textContent = notes.length || '';
+    fillList($('notes'), notes, 'No clues yet.', noteRow);
+    const places = [...state.places.entries()].sort((a, b) => (a[1].order || 0) - (b[1].order || 0));
+    $('places-count').textContent = places.length || '';
+    fillList($('places'), places, 'None yet.', ([id, p]) => {
+      const li = h('li');
+      const b = h('button', 'linkbtn', p.name);
+      b.type = 'button'; b.style.font = '600 1rem var(--body)';
+      b.style.color = id === state.meta.here ? 'var(--here)' : 'var(--ink)';
+      b.onclick = () => { select(id); if (matchMedia('(max-width: 760px)').matches) setTab('map'); centerOn(id); };
+      li.append(b);
+      if (STATUS[p.status]) li.append(h('span', 'st ' + p.status, STATUS[p.status].mark + ' ' + STATUS[p.status].label));
+      else li.append(h('span', 'li-meta', p.visited === false ? 'seen, not visited' : (p.terrain || '')));
+      if (p.statusNote && p.status !== 'done') li.append(h('span', 'li-note', p.statusNote));
+      return li;
+    });
+    const m = state.meta;
+    $('status').textContent = [m.difficulty, m.turn != null ? 'move ' + m.turn : null, m.updated ? 'updated ' + new Date(m.updated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null].filter(Boolean).join(' · ') || 'Live';
+  }
+  function renderField() { renderMap(); renderJournal(); }
+
+  // ---------- writing ----------
+  function logicalGroups(it) {
+    // Join a group that starts on a new page onto the one before it.
+    const out = [];
+    let n = 1;
+    for (const g of it.groups || []) {
+      const marks = (g.signs || []).map(s => ({ s, n: n++ }));
+      if (g.cont && out.length) out[out.length - 1].push(...marks); else out.push(marks);
+    }
+    return out;
+  }
+  function renderWriting() {
+    const ins = [...state.inscriptions].sort((a, b) => (a.t || 0) - (b.t || 0));
+    $('ins-count').textContent = ins.length || '';
+    const box = $('ins');
+    box.replaceChildren();
+    if (!ins.length) box.append(h('p', 'none', 'No inscriptions transcribed yet.'));
+    const stats = new Map();
+    const bump = (s, second, where) => {
+      if (s === WORN) return;
+      const r = stats.get(s) || { n: 0, first: 0, second: 0, where: new Set() };
+      r.n++; second ? r.second++ : r.first++; r.where.add(where); stats.set(s, r);
+    };
+    let worn = 0, total = 0;
+    for (const it of ins) {
+      const card = h('div', 'ins');
+      card.append(h('h3', null, 'On ' + (it.on || 'something')));
+      const marks = (it.groups || []).reduce((n, g) => n + (g.signs || []).length, 0);
+      const wornHere = (it.groups || []).reduce((n, g) => n + (g.signs || []).filter(s => s === WORN).length, 0);
+      worn += wornHere; total += marks;
+      const where = state.places.get(it.where)?.name || it.where || '';
+      card.append(h('div', 'tag', [where, marks + ' marks', wornHere ? wornHere + ' worn away' : null, it.complete === false ? 'partial' : null].filter(Boolean).join(' · ')));
+      const lines = h('div', 'lines');
+      let n = 1;
+      for (const g of it.groups || []) {
+        if (g.rule) lines.append(h('div', 'rule', '— line break in the text —'));
+        const line = h('div', 'gline' + (g.cont ? ' cont' : ''));
+        const signs = g.signs || [];
+        for (let i = 0; i < signs.length; i += 2) {
+          const pair = h('span', 'pair');
+          for (let j = i; j < Math.min(i + 2, signs.length); j++) {
+            const s = signs[j];
+            const mk = h('span', 'mk');
+            mk.append(h('small', null, String(n)));
+            const rs = s === WORN ? (it.restored || {})[n] : null;
+            const chip = h('button', 'chip' + (s === WORN ? ' worn' : '') + (rs ? ' restored ' + (rs.conf || '') : '') + (j % 2 ? ' second' : '') + (s !== WORN && s === state.sign ? ' hl' : '') + (rs && rs.s === state.sign ? ' hl-r' : ''), s === WORN ? (rs ? rs.s + '?' : 'worn') : s);
+            chip.type = 'button';
+            const sd = state.signs.get(s);
+            chip.title = s === WORN ? (rs ? 'worn away; restored as ' + rs.s + ' (' + (rs.conf || 'guess') + ')' + (rs.why ? ': ' + rs.why : '') : 'worn away') : (sd?.desc || s) + (sd?.guess ? ' — guess: ' + sd.guess : '');
+            const num = n, on = it.on;
+            if (s !== WORN) chip.onclick = () => { const off = state.sign === s && state.info?.kind === 'sign'; state.sign = off ? null : s; state.info = off ? null : { kind: 'sign', s, n: num, on }; renderWriting(); };
+            else if (rs) chip.onclick = () => { state.sign = rs.s; state.info = { kind: 'restored', rs, n: num, on }; renderWriting(); };
+            else chip.onclick = () => { state.sign = null; state.info = { kind: 'worn', n: num, on }; renderWriting(); };
+            mk.append(chip);
+            pair.append(mk);
+            bump(s, j % 2 === 1, it.on);
+            n++;
+          }
+          line.append(pair);
+        }
+        lines.append(line);
+      }
+      card.append(lines);
+      if (it.note) card.append(h('p', null, it.note));
+      box.append(card);
+    }
+
+    // Scraped-text tracker
+    const gapRows = ins.map(it => {
+      const all = (it.groups || []).flatMap(g => g.signs || []);
+      const worn = all.filter(s => s === WORN).length;
+      const guessed = Object.keys(it.restored || {}).length;
+      return { it, worn, guessed, open: worn - guessed, total: all.length };
+    }).filter(r => r.worn > 0 || r.it.complete === false).sort((a, b) => b.open - a.open);
+    const openTotal = gapRows.reduce((n, r) => n + r.open, 0);
+    $('gap-count').textContent = gapRows.length ? openTotal + ' open' : '';
+    fillList($('gaps'), gapRows, 'Nothing scraped yet.', r => {
+      const li = h('li');
+      li.append(h('span', 'li-title', 'On ' + (r.it.on || 'something')));
+      li.append(h('span', 'li-meta', r.open + ' open'));
+      const where = r.it.withUs ? 'with us' : 'at ' + (state.places.get(r.it.where)?.name || r.it.where || '?');
+      li.append(h('span', 'li-note', [r.worn + ' worn of ' + r.total, r.guessed ? r.guessed + ' guessed' : null, r.it.complete === false ? 'not fully transcribed' : null, where].filter(Boolean).join(' · ')));
+      return li;
+    });
+
+    // Repeated runs of 2 or 3 pairs, aligned on pair boundaries.
+    const runs = new Map();
+    for (const it of ins) {
+      for (const g of logicalGroups(it)) {
+        for (const len of [6, 4]) {
+          for (let i = 0; i + len <= g.length; i += 2) {
+            const seg = g.slice(i, i + len);
+            if (seg.some(m => m.s === WORN)) continue;
+            const key = seg.map(m => m.s).join(' ');
+            const r = runs.get(key) || { signs: seg.map(m => m.s), at: [] };
+            r.at.push((it.on || '') + ' ' + seg[0].n);
+            runs.set(key, r);
+          }
+        }
+      }
+    }
+    let rep = [...runs.values()].filter(r => r.at.length > 1);
+    rep = rep.filter(r => r.signs.length === 6 || !rep.some(o => o.signs.length === 6 && o.at.length === r.at.length && o.signs.join(' ').includes(r.signs.join(' '))));
+    rep.sort((a, b) => b.at.length - a.at.length || b.signs.length - a.signs.length);
+    $('seq-count').textContent = rep.length || '';
+    fillList($('seqs'), rep, 'None found yet.', r => {
+      const li = h('li');
+      const t = h('span', 'li-title');
+      r.signs.forEach((s, j) => {
+        const c = h('button', 'chip' + (j % 2 ? ' second' : '') + (s === state.sign ? ' hl' : ''), s);
+        c.type = 'button'; c.onclick = () => { state.sign = state.sign === s ? null : s; renderWriting(); };
+        t.append(c);
+      });
+      li.append(t);
+      li.append(h('span', 'li-meta', '×' + r.at.length));
+      li.append(h('span', 'li-note', 'at ' + r.at.join(', ')));
+      return li;
+    });
+
+    // Sign table
+    const known = new Set([...stats.keys(), ...state.signs.keys()]);
+    const rows = [...known].map(s => ({ s, st: stats.get(s) || { n: 0, first: 0, second: 0, where: new Set() }, d: state.signs.get(s) || {} }))
+      .sort((a, b) => b.st.n - a.st.n || a.s.localeCompare(b.s));
+    $('sign-count').textContent = rows.length ? rows.length + ' signs · ' + total + ' marks · ' + worn + ' worn' : '';
+    const tb = $('signs');
+    tb.replaceChildren();
+    if (!rows.length) { const tr = h('tr'); const td = h('td', 'none', 'Signs appear here once an inscription is added.'); tr.append(td); tb.append(tr); }
+    for (const r of rows) {
+      const tr = h('tr', r.s === state.sign ? 'hl' : '');
+      const a = h('td');
+      const c = h('button', 'chip' + (r.s === state.sign ? ' hl' : ''), r.s);
+      c.type = 'button'; c.onclick = () => { state.sign = state.sign === r.s ? null : r.s; renderWriting(); };
+      a.append(c);
+      if (r.d.desc) a.append(h('span', 'desc', r.d.desc));
+      const inp = h('input');
+      inp.id = 'guess-' + r.s; inp.placeholder = 'meaning or sound?'; inp.value = r.d.guess || '';
+      inp.setAttribute('aria-label', 'Guess for ' + r.s);
+      if (!db) inp.disabled = true;
+      inp.addEventListener('change', async () => {
+        const guess = inp.value.trim();
+        try { await db.doc('signs/' + r.s).set({ ...(state.signs.get(r.s) || {}), guess }); }
+        catch { inp.style.borderColor = 'var(--here)'; inp.title = 'That guess did not save.'; }
+      });
+      a.append(inp);
+      const nCell = h('td', 'n');
+      nCell.textContent = '×' + r.st.n;
+      nCell.append(h('br'));
+      nCell.append(document.createTextNode(r.st.first + ' first · ' + r.st.second + ' second'));
+      tr.append(a, nCell);
+      tb.append(tr);
+    }
+
+    // Info bar: what the tapped sign is, or why a worn mark was restored.
+    const bar = $('infobar'), inf = state.info;
+    bar.hidden = !inf;
+    if (inf) {
+      const where = 'Mark ' + inf.n + ' on the ' + (inf.on || 'inscription');
+      let title, body;
+      if (inf.kind === 'restored') {
+        title = where + ': worn away, restored as ' + inf.rs.s;
+        body = 'Confidence: ' + (inf.rs.conf || 'guess') + '. ' + (inf.rs.why || '');
+      } else if (inf.kind === 'worn') {
+        title = where + ': worn away';
+        body = 'No guess yet. Nothing elsewhere repeats this spot clearly enough.';
+      } else {
+        const st = stats.get(inf.s), sd = state.signs.get(inf.s) || {};
+        title = where + ': ' + inf.s;
+        body = (sd.desc ? sd.desc[0].toUpperCase() + sd.desc.slice(1) + '. ' : '') + (st ? 'Seen ' + st.n + ' times (' + st.first + ' first in a pair, ' + st.second + ' second), on the ' + [...st.where].join(', ') + '.' : '') + (sd.guess ? ' Our guess: ' + sd.guess + '.' : '') + ' Every copy is highlighted.';
+      }
+      $('info-title').textContent = title;
+      $('info-body').textContent = body;
+    }
+
+    const wn = state.notes.filter(n => n.kind === 'writing').sort(byNewest);
+    $('wnotes-count').textContent = wn.length || '';
+    fillList($('wnotes'), wn, 'No ideas yet.', noteRow);
+  }
+
+  // ---------- world ----------
+  function renderWorld() {
+    const grid = $('world-grid');
+    const rows = [...state.world].sort((a, b) => (a.order || 0) - (b.order || 0));
+    $('world-count').textContent = rows.length || '';
+    grid.replaceChildren();
+    if (!rows.length) { grid.append(h('p', 'none', 'No guesses yet. Claude adds them as evidence turns up.')); return; }
+    for (const w of rows) {
+      const card = h('div', 'wcard');
+      const top = h('div', 'topic');
+      top.append(h('span', null, w.topic || ''));
+      const conf = w.confidence || 'unknown';
+      top.append(h('span', 'conf ' + conf, conf === 'unknown' ? 'no idea yet' : conf + ' confidence'));
+      card.append(top);
+      card.append(h('h3', null, w.guess || 'Unknown'));
+      const ev = w.evidence || [];
+      if (ev.length) {
+        const ul = h('ul', 'ev');
+        for (const e of ev) {
+          const li = h('li', e.dir || 'neutral');
+          li.append(h('b', null, e.dir === 'for' ? '+' : e.dir === 'against' ? '−' : '·'));
+          const t = h('span', null, e.text);
+          if (e.where) { const s = h('small', null, state.places.get(e.where)?.name || e.where); t.append(s); }
+          li.append(t);
+          ul.append(li);
+        }
+        card.append(ul);
+      }
+      if (w.next) { const q = h('p', 'q'); q.append(h('strong', null, 'To check: ')); q.append(document.createTextNode(w.next)); card.append(q); }
+      grid.append(card);
+    }
+  }
+
+  // ---------- tabs ----------
+  function setTab(tab) {
+    $('main').dataset.tab = tab;
+    for (const b of document.querySelectorAll('.tabs button')) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+    if ((tab === 'map' || tab === 'journal') && pendingCenter) requestAnimationFrame(() => { pendingCenter = false; centerOn(state.meta.here); });
+    try { localStorage.setItem('fieldbook-tab', tab); } catch {}
+  }
+  for (const b of document.querySelectorAll('.tabs button')) b.onclick = () => setTab(b.dataset.tab);
+  $('info-close').onclick = () => { state.info = null; state.sign = null; renderWriting(); };
+  try { const t = localStorage.getItem('fieldbook-tab'); if (t) setTab(t); } catch {}
+
+  fit();
+  renderField();
+  renderWriting();
+  renderWorld();
+
+  // ---------- live data ----------
+  function noteForm(formId, inputId, msgId, extra) {
+    $(formId).addEventListener('submit', async e => {
+      e.preventDefault();
+      const input = $(inputId), msg = $(msgId);
+      const text = input.value.trim();
+      if (!text) return;
+      try { await db.collection('notes').add({ text, t: Date.now(), ...extra }); input.value = ''; msg.hidden = true; }
+      catch (x) {
+        msg.hidden = false;
+        msg.textContent = x && x.code === 'invalid_argument' ? 'You can read this field book but not add to it.' : 'That note did not save. Try again in a moment.';
+      }
+    });
+  }
+  (async () => {
+    db = await window.claude?.use?.('db');
+    if (!db) { $('status').textContent = 'Offline view: open this page on claude.ai to see the live field book.'; $('note-form').hidden = true; $('wnote-form').hidden = true; return; }
+    $('status').textContent = 'Live';
+    const err = e => { $('status').textContent = 'Live updates paused (' + e.code + '). Reload to reconnect.'; };
+    db.collection('places').onSnapshot(s => { state.places = new Map(s.docs.map(d => [d.id, d.data()])); renderField(); renderWriting(); }, err);
+    db.collection('items').onSnapshot(s => { state.items = s.docs.map(d => ({ id: d.id, ...d.data() })); renderJournal(); }, err);
+    db.collection('notes').onSnapshot(s => { state.notes = s.docs.map(d => ({ id: d.id, ...d.data() })); renderJournal(); renderWriting(); }, err);
+    db.collection('lines').onSnapshot(s => { state.lines = s.docs.map(d => ({ id: d.id, ...d.data() })); renderMap(); }, err);
+    db.collection('world').onSnapshot(s => { state.world = s.docs.map(d => ({ id: d.id, ...d.data() })); renderWorld(); }, err);
+    db.collection('inscriptions').onSnapshot(s => { state.inscriptions = s.docs.map(d => ({ id: d.id, ...d.data() })); renderWriting(); }, err);
+    db.collection('signs').onSnapshot(s => {
+      state.signs = new Map(s.docs.map(d => [d.id, d.data()]));
+      if (!document.activeElement || !document.activeElement.id?.startsWith('guess-')) renderWriting();
+    }, err);
+    db.doc('meta/state').onSnapshot(s => {
+      const prevHere = state.meta.here;
+      state.meta = s.exists ? s.data() : {};
+      if (state.meta.here && state.meta.here !== prevHere && didInitialView) { state.selected = null; renderField(); centerOn(state.meta.here); }
+      else renderField();
+    }, err);
+    noteForm('note-form', 'note-text', 'note-msg', { kind: 'player' });
+    noteForm('wnote-form', 'wnote-text', 'wnote-msg', { kind: 'writing', by: 'player' });
+  })();
+})();
+</script>

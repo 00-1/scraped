@@ -1,0 +1,28 @@
+{
+  "confidence": "medium",
+  "evidence": [
+    {
+      "dir": "for",
+      "text": "\"The sky is clear, afternoon.\" At about move 85.",
+      "where": "mound"
+    },
+    {
+      "dir": "for",
+      "text": "The temple was pitch dark at about move 114, after four more \"morning's walks\": night had probably fallen.",
+      "where": "temple1"
+    },
+    {
+      "dir": "for",
+      "text": "\"You sleep half a day.\" Afterwards the chapel is \"dim\", not dark, like the storeroom in the afternoon.",
+      "where": "temple-w"
+    },
+    {
+      "dir": "neutral",
+      "text": "A long walk takes \"a short while\", a morning's walk \"a while\" or \"a good while\"."
+    }
+  ],
+  "guess": "Daytime again, after sleeping through the night",
+  "next": "Look outside to confirm daylight and see the sky.",
+  "order": 3,
+  "topic": "Time of day"
+}

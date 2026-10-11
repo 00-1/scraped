@@ -1,0 +1,23 @@
+{
+  "desc": "A further long walk northeast. Bare earth. The grazer to the northwest. The upland cairn to the north (middle). You notice blossom.",
+  "exits": {
+    "NE, far": "wpK",
+    "SW, far": "wpI"
+  },
+  "features": [
+    {
+      "dir": "northwest",
+      "located": true,
+      "name": "a grazer",
+      "note": "An animal. Food?"
+    }
+  ],
+  "name": "Blossom and a grazer",
+  "order": 35,
+  "status": "partial",
+  "statusNote": "One look.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 2.8,
+  "y": -2.8
+}

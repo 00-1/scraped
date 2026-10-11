@@ -1,0 +1,22 @@
+{
+  "confidence": "low",
+  "evidence": [
+    {
+      "dir": "for",
+      "text": "Temple calendar stone: \"One notch, early in spring, is cut deeper than the rest.\"",
+      "where": "temple1"
+    },
+    {
+      "dir": "for",
+      "text": "Spring signs everywhere: blossom, new leaves, young animals, lengthening days."
+    },
+    {
+      "dir": "neutral",
+      "text": "\"Frost out of season\": the weather is wrong for the time of year. Linked?"
+    }
+  ],
+  "guess": "A special day falls in early spring, which may be about now",
+  "next": "Find out what the deep notch marks: a festival, a rite at the altar, the day the stair opens?",
+  "order": 6,
+  "topic": "The calendar"
+}

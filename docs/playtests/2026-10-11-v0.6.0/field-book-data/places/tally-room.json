@@ -1,0 +1,22 @@
+{
+  "desc": "A tally-room, dim and close. A wood table stands here. Ways out: a door west. We dropped one lot of wood here to carry the hook.",
+  "exits": {
+    "west": "storeroom"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "wood table",
+      "note": "Ten signs in the horn/moon style.",
+      "state": "inscribed"
+    }
+  ],
+  "name": "Tally-room",
+  "order": 3,
+  "status": "done",
+  "statusNote": "Looked until nothing new. Table text complete (nothing worn). Tablet is with us. One lot of wood left here.",
+  "terrain": "in the storehouse",
+  "visited": true,
+  "x": 0.25,
+  "y": 0.75
+}

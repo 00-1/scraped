@@ -1,0 +1,10 @@
+{
+  "desc": "The temple's vellum map marks a cross to the northeast, by a boulder field. Distance unknown; drawn NE of the village as a rough guess.",
+  "exits": {},
+  "name": "X: cross by a boulder field",
+  "order": 29,
+  "terrain": "from the temple map",
+  "visited": false,
+  "x": 3,
+  "y": -2.5
+}

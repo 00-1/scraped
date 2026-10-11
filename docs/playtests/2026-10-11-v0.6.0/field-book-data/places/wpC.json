@@ -1,0 +1,26 @@
+{
+  "desc": "A long walk north of the burial mound, beyond the grassland. Reddish ash tree, in flower. Cracked ground. The plain town to the southwest (middle). The plain waystation to the east.",
+  "exits": {
+    "S, far": "mound",
+    "south": "wpD"
+  },
+  "features": [
+    {
+      "name": "reddish ash",
+      "state": "in flower"
+    },
+    {
+      "name": "cracked ground",
+      "state": "patches"
+    }
+  ],
+  "name": "Flowering ash",
+  "notes": "Travel stopped here because the plain waystation came into view to the east. Not the grassland near the mound, as we hoped: there the plain town was to the west.",
+  "order": 8,
+  "status": "partial",
+  "statusNote": "Passed through; never cycled looks.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 3,
+  "y": -1
+}

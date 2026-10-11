@@ -1,0 +1,28 @@
+{
+  "desc": "A short walk west of the stream. The river bars the way west and lies to the north. Your breath smokes in the bitter air.",
+  "exits": {
+    "NE, far": "start",
+    "east": "wpG"
+  },
+  "features": [
+    {
+      "dir": "north",
+      "located": true,
+      "name": "river"
+    },
+    {
+      "dir": "west",
+      "located": true,
+      "name": "river"
+    }
+  ],
+  "name": "River bend",
+  "notes": "Moved: \"go to plain town\" took most of a morning's walk northeast from here to the home village, so this is SW of home. Our earlier coordinates had drifted.",
+  "order": 14,
+  "status": "partial",
+  "statusNote": "Stopped by the river.",
+  "terrain": "riverbank",
+  "visited": true,
+  "x": -1.8,
+  "y": 2.1
+}

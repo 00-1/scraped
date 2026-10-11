@@ -1,0 +1,26 @@
+{
+  "desc": "A market-floor, dim and close. A coin and a weight lie here. A wood stall and a wood table stand here. Ways out: a door north and the way out.",
+  "exits": {
+    "north": "",
+    "out": "lm-worn-waystation"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "wood stall"
+    },
+    {
+      "located": true,
+      "name": "wood table",
+      "note": "The tally-room's wood table had writing."
+    }
+  ],
+  "name": "Market-floor",
+  "order": 40,
+  "status": "partial",
+  "statusNote": "Looked until nothing new. Stall, table, coin and weight not examined yet.",
+  "terrain": "in the market hall",
+  "visited": true,
+  "x": 4.7,
+  "y": -6.8
+}

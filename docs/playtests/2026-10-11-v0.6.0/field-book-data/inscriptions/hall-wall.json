@@ -1,0 +1,146 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "?",
+        "seed",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "seed",
+        "?",
+        "box-cross",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "seed",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "?"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "?",
+        "box-curl+dot",
+        "arrow",
+        "?",
+        "arrow",
+        "?",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-pointbelow",
+        "?"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree+loop",
+        "?"
+      ]
+    },
+    {
+      "rule": true,
+      "signs": [
+        "mbox-sweep",
+        "seed",
+        "box-curl+dot",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "seed",
+        "wave",
+        "wide",
+        "tree+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox",
+        "seed",
+        "tree+dot+loop",
+        "wide"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "fishhook",
+        "seed",
+        "mbox-saw",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "arrow",
+        "box-curl+dot",
+        "arrow",
+        "box-curl+dot",
+        "arrow",
+        "egg",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "egg",
+        "arrow",
+        "box-curl+dot",
+        "wide"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl+dot",
+        "arrow",
+        "tree+dot+loop",
+        "wide"
+      ]
+    }
+  ],
+  "note": "CLEANED of grime; the middle-style second half is now complete. The old first half is still about half lost: \"Some of these marks were scraped away; about half of them are lost.\" The cleaned text proved my earlier D4 guesses at 20–23 wrong (21–22 are box-curl+dot arrow), so I removed all guesses here. The guess at 47–48 (tree+dot+loop wide) was right.",
+  "on": "temple hall clay wall",
+  "t": 7,
+  "where": "temple2"
+}

@@ -1,0 +1,5 @@
+{
+  "kind": "clue",
+  "t": 17,
+  "text": "\"go to <place>\" only works for things in view. \"go back\" retraces our route one walk at a time (help lists: look, examine, listen, smell, touch, go, go back, take, drop, inventory, eat, drink, sleep, wait, dig, more, out, read, west)."
+}

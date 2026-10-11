@@ -1,0 +1,351 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "mbox-sweep",
+        "seed",
+        "?",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "seed",
+        "?",
+        "arrow",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "seed",
+        "?",
+        "box-cross",
+        "lamp",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-pointbelow",
+        "seed",
+        "fishhook",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "arrow",
+        "?",
+        "seed",
+        "tree",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "seed",
+        "?",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "egg",
+        "?",
+        "mbox-pointbelow",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "tree+loop",
+        "?"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl+dot",
+        "arrow",
+        "lamp",
+        "moon",
+        "lamp",
+        "horn",
+        "box-curl",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "horn",
+        "lean-low",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "tree+loop",
+        "arrow",
+        "box-curl",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "egg",
+        "horn",
+        "mbox-sweep",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "lean-low",
+        "horn",
+        "seed+arch",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "lean-low",
+        "horn",
+        "lamp",
+        "horn",
+        "box-curl",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "door+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "tree+loop",
+        "arrow",
+        "box-curl",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "horn",
+        "lean-low",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "lean-low",
+        "horn",
+        "seed+arch",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "tree+loop",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "horn",
+        "lean-low",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "door+loop",
+        "arrow",
+        "tree+dot+loop",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "egg",
+        "horn",
+        "egg",
+        "horn",
+        "mbox-sweep",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "door",
+        "moon",
+        "box-point",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow",
+        "door+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "moon",
+        "tree+dot+loop",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "tree+loop",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow",
+        "door+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "lean-low",
+        "horn",
+        "seed+arch",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "door",
+        "moon",
+        "box-point",
+        "moon",
+        "lean-low",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-sweep",
+        "horn",
+        "box-point",
+        "horn",
+        "door",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "lean-mid",
+        "arrow",
+        "mbox-saw",
+        "moon"
+      ]
+    }
+  ],
+  "note": "154 marks over 10 pages of 16. \"Some of these marks were scraped away on purpose.\" Nearly all the damage is in marks 1–48.",
+  "on": "clay wall",
+  "restored": {
+    "3": {
+      "conf": "likely",
+      "s": "box-point",
+      "why": "In old texts (mbox-sweep seed) is followed by (box-point seed) five times out of six."
+    },
+    "26": {
+      "conf": "guess",
+      "s": "box-cross",
+      "why": "In old texts tree is most often followed by box-cross."
+    },
+    "42": {
+      "conf": "likely",
+      "s": "seed",
+      "why": "In the seed/box-cross half, egg is always followed by seed (jar 3, tablet 33 and 45)."
+    },
+    "44": {
+      "conf": "likely",
+      "s": "seed",
+      "why": "mbox-pointbelow is followed by seed at wall 17-18."
+    },
+    "48": {
+      "conf": "guess",
+      "s": "arrow",
+      "why": "tree+loop usually pairs with arrow."
+    }
+  },
+  "t": 2,
+  "where": "storeroom"
+}

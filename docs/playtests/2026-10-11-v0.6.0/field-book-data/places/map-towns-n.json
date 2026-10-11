@@ -1,0 +1,10 @@
+{
+  "desc": "Temple map: two towns to the north, on the horizon. Very rough position.",
+  "exits": {},
+  "name": "2 towns (temple map)",
+  "order": 32,
+  "terrain": "from the temple map",
+  "visited": false,
+  "x": 0,
+  "y": -6
+}

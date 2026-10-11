@@ -1,0 +1,28 @@
+{
+  "desc": "A waterfall to the west. The river lies to the north and bars the way north. The coastal town to the southwest (middle). The grassy ancient tree to the northwest (middle). We drank twice and filled the jar.",
+  "exits": {
+    "east": "wpF"
+  },
+  "features": [
+    {
+      "dir": "west",
+      "located": true,
+      "name": "waterfall"
+    },
+    {
+      "dir": "north",
+      "located": true,
+      "name": "river",
+      "note": "\"The river bars your way north.\" Drinkable."
+    }
+  ],
+  "name": "Riverside waterfall",
+  "notes": "Reached with \"go to waterfall\". The waterfall itself is just to the west of where we stand.",
+  "order": 11,
+  "status": "partial",
+  "statusNote": "Only one look. The waterfall itself is unexamined.",
+  "terrain": "riverside",
+  "visited": true,
+  "x": 0,
+  "y": 3
+}

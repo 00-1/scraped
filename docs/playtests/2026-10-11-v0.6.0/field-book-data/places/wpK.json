@@ -1,0 +1,24 @@
+{
+  "desc": "A third long walk northeast. The rounded mountain to the northwest (middle). \"A light lies on the ash tree that nothing casts.\" Bare earth here and there.",
+  "exits": {
+    "SW, far": "wpJ",
+    "north": "lm-worn-waystation"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "ash tree",
+      "note": "\"A light lies on the ash tree that nothing casts.\" Examine: \"Something about it is wrong, and you can't say what.\"",
+      "state": "lit by nothing"
+    }
+  ],
+  "name": "The lit ash tree",
+  "notes": "Touch: \"feels ordinary, and still something is off.\" Listen: \"Faintly, a whistle from the north. Faintly, a whistle from the northeast.\" Smell: flowers. Dig: nothing. \"light torch\": no flame.",
+  "order": 36,
+  "status": "done",
+  "statusNote": "Looked, examined, touched, listened, smelled, dug. The light can't light a torch.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 4.2,
+  "y": -4.2
+}

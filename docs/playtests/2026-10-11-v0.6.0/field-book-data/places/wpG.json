@@ -1,0 +1,27 @@
+{
+  "desc": "Most of a morning's walk north of the bare earth east of the falls. Your breath smokes in the bitter air. Frost out of season. The stream lies to the east.",
+  "exits": {
+    "south": "wpF",
+    "west": "wpH"
+  },
+  "features": [
+    {
+      "dir": "east",
+      "located": true,
+      "name": "stream"
+    },
+    {
+      "name": "frost",
+      "state": "out of season"
+    }
+  ],
+  "name": "Bitter frost, by a stream",
+  "notes": "Moved along with the river bend. Coordinates very rough.",
+  "order": 13,
+  "status": "partial",
+  "statusNote": "One look.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": -0.8,
+  "y": 2.1
+}

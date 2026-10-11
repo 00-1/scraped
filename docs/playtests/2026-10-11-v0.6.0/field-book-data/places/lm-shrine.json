@@ -1,0 +1,10 @@
+{
+  "desc": "South (middle) of the worn waystation. Not mentioned at the lit ash tree, so its position is rough.",
+  "exits": {},
+  "name": "Damaged wayside shrine",
+  "order": 39,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": 4.2,
+  "y": -4
+}

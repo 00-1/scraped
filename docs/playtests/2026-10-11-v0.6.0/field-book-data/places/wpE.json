@@ -1,0 +1,15 @@
+{
+  "desc": "Most of a morning's walk south of the grassland near the mound. The plain grassy town to the west (far). Wind pulls at your clothes.",
+  "exits": {
+    "N, far": "wpA",
+    "west": "lm-waterfall"
+  },
+  "name": "Windy grassland",
+  "order": 10,
+  "status": "partial",
+  "statusNote": "Passed through.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 3,
+  "y": 3
+}

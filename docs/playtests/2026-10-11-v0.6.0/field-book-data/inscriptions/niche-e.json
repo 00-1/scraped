@@ -1,0 +1,25 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "box-curl+dot",
+        "moon",
+        "hornbox+dot",
+        "arrow",
+        "hornbox+dot",
+        "moon",
+        "lean-mid",
+        "arrow",
+        "hornbox+dot",
+        "horn",
+        "fishhook",
+        "arrow"
+      ]
+    }
+  ],
+  "note": "12 signs, none worn, newest horn/moon style.",
+  "on": "east chapel niche",
+  "t": 8,
+  "where": "temple-e"
+}

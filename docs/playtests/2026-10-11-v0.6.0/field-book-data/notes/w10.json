@@ -1,0 +1,5 @@
+{
+  "kind": "writing",
+  "t": 19,
+  "text": "Chapel wall = two versions of one text? The last group of part 1 is (mbox-sweep box-cross)(fishhook box-cross); the last group of part 2 is (mbox-sweep wide)(fishhook wide). Part 1 has (mbox-pointbelow arrow)(lamp box-cross)(lamp seed)(egg box-cross); part 2 has (box-curl+dot arrow)(lamp wide)(lamp seed)(egg wide). Second-sign box-cross consistently becomes \"wide\"; seed and arrow stay."
+}

@@ -1,0 +1,10 @@
+{
+  "desc": "North (middle) of the blossom-and-grazer spot.",
+  "exits": {},
+  "name": "Upland cairn",
+  "order": 37,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": 2.8,
+  "y": -4.8
+}

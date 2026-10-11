@@ -1,0 +1,31 @@
+{
+  "desc": "A long walk east of our village. An intact farming village of a few houses. The old town. Terraces to the east.",
+  "exits": {
+    "east": "wpA",
+    "west": "start"
+  },
+  "features": [
+    {
+      "count": "a few",
+      "name": "houses",
+      "state": "intact"
+    },
+    {
+      "name": "the old town"
+    },
+    {
+      "dir": "east",
+      "located": true,
+      "name": "terraces"
+    }
+  ],
+  "name": "Old-town village",
+  "notes": "Travel stopped here because the small plain town came into view to the northwest. Only looked once.",
+  "order": 4,
+  "status": "partial",
+  "statusNote": "One look only. The old town and terraces are unexamined.",
+  "terrain": "farming village",
+  "visited": true,
+  "x": 2,
+  "y": 0
+}

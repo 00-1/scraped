@@ -1,0 +1,46 @@
+{
+  "desc": "A long walk north of the lit ash tree. A worn market town of two houses. The worn temple and the damaged market hall each stand alone of their kind. The workshops. A light lies on an ash tree that nothing casts. Green shoots. Here: bones, pack and staff. The damaged wayside shrine to the south (middle).",
+  "exits": {
+    "market hall": "market1",
+    "south": "wpK"
+  },
+  "features": [
+    {
+      "count": "2",
+      "name": "houses",
+      "state": "worn"
+    },
+    {
+      "name": "temple",
+      "state": "worn"
+    },
+    {
+      "leadsTo": "market1",
+      "name": "market hall",
+      "state": "damaged"
+    },
+    {
+      "name": "the workshops",
+      "note": "Not enterable: \"You can't see any workshop from here.\" A general feature, like the home village's square."
+    },
+    {
+      "name": "lit ash tree"
+    },
+    {
+      "name": "bones, pack, staff",
+      "note": "Not examinable (\"You see no pack here\"), like the mound's grave goods."
+    },
+    {
+      "name": "green shoots"
+    }
+  ],
+  "name": "Worn waystation",
+  "notes": "Reached with \"go to waystation\". \"Bones, pack and staff\" reads like the remains of a traveller, listed like the mound's grave goods.",
+  "order": 38,
+  "status": "partial",
+  "statusNote": "Looked until it repeated. Temple, market hall, workshops, houses all unexplored.",
+  "terrain": "worn market town",
+  "visited": true,
+  "x": 4.2,
+  "y": -6.2
+}

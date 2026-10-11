@@ -1,0 +1,35 @@
+{
+  "desc": "A sanctum, dim and close. A flute, some oil and a torch lie here. A stone altar and a clay wall stand here. Ways out: an arch south and a stair down (closed).",
+  "exits": {
+    "down": "",
+    "south": "temple2"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "stair down",
+      "note": "\"A stair of clay, leading down, closed.\" \"The stair will not move.\"",
+      "state": "closed"
+    },
+    {
+      "located": true,
+      "name": "stone altar",
+      "note": "34 signs, old style, half scraped.",
+      "state": "inscribed"
+    },
+    {
+      "located": true,
+      "name": "clay wall",
+      "note": "584 signs over 37 pages. Old style; page 1 intact.",
+      "state": "inscribed"
+    }
+  ],
+  "name": "Temple sanctum",
+  "order": 17,
+  "status": "revisit",
+  "statusNote": "Looked until nothing new; altar and wall (all 584 signs) transcribed. Come back for the closed clay stair, and for the oil and flute (pack full).",
+  "terrain": "in the temple",
+  "visited": true,
+  "x": 0.3,
+  "y": -1.85
+}

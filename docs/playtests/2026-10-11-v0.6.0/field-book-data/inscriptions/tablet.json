@@ -1,0 +1,244 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "mbox-pointbelow",
+        "arrow",
+        "lamp",
+        "box-cross",
+        "lamp",
+        "seed",
+        "box-curl",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "seed",
+        "crook",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "box-cross",
+        "wave+curl",
+        "box-cross"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl",
+        "arrow",
+        "mbox-cross",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "seed",
+        "mbox-cross+loop",
+        "box-cross"
+      ]
+    },
+    {
+      "rule": true,
+      "signs": [
+        "egg",
+        "seed",
+        "egg",
+        "seed",
+        "mbox-sweep",
+        "box-cross",
+        "box-curl",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "egg",
+        "seed",
+        "mbox-sweep",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "box-cross",
+        "wave+curl",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow",
+        "mbox-cross",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "egg",
+        "seed",
+        "mbox-sweep",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "crook",
+        "seed",
+        "mbox-cross+loop",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "box-point",
+        "seed",
+        "mbox-cross",
+        "arrow",
+        "box-curl",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow",
+        "mbox-cross",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "box-cross"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree+loop",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "box-cross",
+        "wave+curl",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow",
+        "mbox-cross",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "seed",
+        "mbox-cross+loop",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree",
+        "seed",
+        "box-curl",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "box-cross",
+        "mbox-sweep",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "box-cross",
+        "wave+curl",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "seed",
+        "crook",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-cross+loop",
+        "arrow",
+        "tree+loop",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "egg",
+        "arrow",
+        "box-curl+dot",
+        "box-cross",
+        "tree+loop",
+        "seed",
+        "tree",
+        "box-cross",
+        "tree",
+        "seed",
+        "hornbox",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-cross",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "wave+curl",
+        "arrow",
+        "box-curl",
+        "box-cross"
+      ]
+    }
+  ],
+  "note": "CLEANED (\"Dust hides some of the signs\"; \"clean tablet\" rubbed it off). All 118 signs readable. \"The signs stand in columns\": a ledger or list. It is mostly the dropped words over and over: D1 ×4, D2 ×4, D4 ×3, D3 ×2, (tree seed)(crook seed) ×2.",
+  "on": "clay tablet",
+  "t": 3,
+  "where": "tally-room",
+  "withUs": true
+}
