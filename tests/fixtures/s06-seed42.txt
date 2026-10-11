@@ -1,0 +1,13 @@
+look
+go worn temple
+look
+examine door
+look closer at door
+look closely door
+look closely at stele
+look closely stele
+read stele closely
+read on
+examine sign 1
+help
+go out

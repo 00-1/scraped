@@ -35,6 +35,9 @@ pub const GOALS: &[&str] = &[
     "leaving",
     "edge",
     "sealed",
+    "flame",
+    "tracing",
+    "cues",
 ];
 
 /// Concepts that must be attested in both the oldest and the newest era's
@@ -524,6 +527,103 @@ pub fn check(site: &Site, preset: &str) -> Report {
             .collect(),
     );
     goal("sealed", sealed_missing);
+    // S06: nothing play leaves waiting forever. A flame, a way to trace
+    // marks, and the cause of every strangeness felt where a player can go.
+    let flame = reach.item("firesteel");
+    goal(
+        "flame",
+        need(flame, "no firesteel reachable").into_iter().collect(),
+    );
+    // DESIGN-Q: clay from a bank within a few hundred paces of a river,
+    // stream or lake (a pressing); or bark and wood for charcoal where
+    // land is wooded, with a flame (a rubbing).
+    let near_start = |want: &dyn Fn(usize, usize) -> bool, reach: &mut Reach| {
+        let (cx, cy) = reach.start.cell();
+        let mut found: Vec<(i64, Pos)> = Vec::new();
+        for dy in -24i64..=24 {
+            for dx in -24i64..=24 {
+                let (x, y) = (cx as i64 + dx, cy as i64 + dy);
+                let size = w.terrain.biome.size as i64;
+                if x < 0 || y < 0 || x >= size || y >= size {
+                    continue;
+                }
+                if want(x as usize, y as usize) {
+                    found.push((dx * dx + dy * dy, Pos::of_cell(x as usize, y as usize)));
+                }
+            }
+        }
+        found.sort_by_key(|f| (f.0, f.1.x, f.1.y));
+        found
+            .into_iter()
+            .take(4)
+            .any(|(_, at)| site.land.route(w, reach.start, at).is_some())
+    };
+    let banks: Vec<usize> = ["river", "stream", "lakeshore"]
+        .iter()
+        .filter_map(|k| scraped_sim::outdoors::EDGES.iter().position(|e| e == k))
+        .collect();
+    let clay = near_start(
+        &|x, y| banks.iter().any(|&e| site.land.has_edge(x, y, e)),
+        &mut reach,
+    );
+    let wooded = near_start(
+        &|x, y| {
+            use scraped_world::terrain::Biome;
+            matches!(
+                w.terrain.biome.get(x, y),
+                Biome::Forest | Biome::Pine | Biome::Scrub | Biome::Shore
+            )
+        },
+        &mut reach,
+    );
+    goal(
+        "tracing",
+        need(
+            clay || (flame && wooded),
+            "no clay bank, nor wooded land with a flame, reachable",
+        )
+        .into_iter()
+        .collect(),
+    );
+    let mut causes = Vec::new();
+    for c in writing.live_claims(w, &site.land, &writing.scraped) {
+        let asleep = site
+            .dormant
+            .iter()
+            .any(|&t| site.things[t].texts.contains(&c.text));
+        if asleep {
+            continue;
+        }
+        let felt = if c.class.indoors() {
+            reach.structure(c.structure)
+        } else {
+            site.land.route(w, reach.start, c.pos).is_some()
+        };
+        // The cause is where the game put it: on the thing that bears it.
+        let on = site
+            .things
+            .iter()
+            .find(|t| t.texts.contains(&c.text))
+            .map(|t| (t.home, t.pos));
+        let there = match on {
+            Some((crate::site::Place::Room { structure, room }, _)) => {
+                reach.structure(structure)
+                    && site
+                        .fixtures
+                        .rooms_ever_reached(w, structure)
+                        .contains(&room)
+            }
+            Some((crate::site::Place::Outside, pos)) => {
+                site.land.route(w, reach.start, pos).is_some()
+            }
+            None => reach.text(c.text),
+        };
+        if felt && !there {
+            causes.push(format!("text {} felt but out of reach", c.text));
+        }
+    }
+    causes.dedup();
+    goal("cues", causes);
     // Ambiguity: roots of the newest era that write the same as another.
     let lang = &w.languages[newest as usize];
     let mut forms: BTreeMap<String, usize> = BTreeMap::new();

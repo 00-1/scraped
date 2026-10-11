@@ -54,6 +54,22 @@ fn crafted_worlds_fail_where_they_should() {
     let mut s = Site::create(1, "standard", None);
     s.greats.clear();
     assert_eq!(failing(&s), ["great"]);
+    // S06: no firesteel anywhere.
+    let mut s = Site::create(1, "standard", None);
+    s.fixtures.items.retain(|p| p.kind != "firesteel");
+    assert_eq!(failing(&s), ["flame"]);
+    // S06: a spell felt in the open whose wall is out of reach, and not
+    // put to sleep: its cause can't be found.
+    let mut s = Site::create(1, "standard", None);
+    let live = s.writing.live_claims(&s.world, &s.land, &s.writing.scraped);
+    let woken = s.dormant.iter().copied().find(|&t| {
+        live.iter()
+            .any(|c| !c.class.indoors() && s.things[t].texts.contains(&c.text))
+    });
+    if let Some(t) = woken {
+        s.dormant.remove(&t);
+        assert_eq!(failing(&s), ["cues"]);
+    }
 }
 
 #[test]

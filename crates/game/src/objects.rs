@@ -346,12 +346,26 @@ impl Game {
                 (d, b, h.settlements[s].abandoned.is_some())
             })
             .collect();
-        let mut places = Vec::new();
+        // Towns the same way and as far are drawn together, counted
+        // (S06): never the same phrase twice.
+        let mut groups: Vec<(&'static str, &'static str, i64, bool)> = Vec::new();
         for (d, b, gone) in seen {
+            let band = distance_band(d);
+            match groups.iter_mut().find(|g| g.0 == b && g.1 == band) {
+                Some(g) => {
+                    g.2 += 1;
+                    g.3 &= gone;
+                }
+                None => groups.push((b, band, 1, gone)),
+            }
+        }
+        let mut places = Vec::new();
+        for (b, band, n, gone) in groups {
             let c = ctx(&[
                 ("what", Value::from("town")),
                 ("bearing", Value::from(b)),
-                ("distance", Value::from(distance_band(d))),
+                ("distance", Value::from(band)),
+                ("count", Value::Number(n)),
                 ("gone", Value::Bool(gone)),
             ]);
             places.push(Value::from(self.say("map.place", c)));

@@ -657,9 +657,17 @@ impl Game {
             marks: BTreeSet::new(),
             rooms_seen: BTreeSet::new(),
         };
-        let claims = site
+        let asleep: BTreeSet<usize> = site
+            .dormant
+            .iter()
+            .flat_map(|&t| site.things[t].texts.iter().copied())
+            .collect();
+        let claims: Vec<Claim> = site
             .writing
-            .live_claims(&site.world, &site.land, &state.scraped);
+            .live_claims(&site.world, &site.land, &state.scraped)
+            .into_iter()
+            .filter(|c| !asleep.contains(&c.text))
+            .collect();
         let mut g = Game {
             site,
             registry: slots::registry_for(&pack),
@@ -887,6 +895,29 @@ impl Game {
     /// The renders kept so far (see `keep_renders`).
     pub fn renders(&self) -> &[Rendered] {
         &self.renders
+    }
+
+    /// The seal pressed at the foot of the marks last looked at (S06).
+    fn the_seal_at_the_foot(&mut self) -> Option<Output> {
+        let thing = self.state.last_read.filter(|&t| self.at_hand(t))?;
+        let real = self.here().into_iter().any(|t| {
+            t != thing && (self.thing(t).kind.contains("seal") || self.kind_of(t) == "seal")
+        });
+        let top = self.layers_seen(thing).last().map(|l| l.0)?;
+        if real || reading::form(self.text(top).genre) != "sealed" {
+            return None;
+        }
+        self.pass(1);
+        let name = self.thing_name(thing);
+        let material = label(&self.thing(thing).material);
+        let t = self.say(
+            "read.seal",
+            ctx(&[
+                ("thing", Value::from(name)),
+                ("material", Value::from(material)),
+            ]),
+        );
+        Some(self.output(vec![t], None))
     }
 
     /// A door, stair or opening looked at or touched (S06).
@@ -1550,6 +1581,18 @@ impl Game {
             self.reading_now = true;
             let more = self.page();
             return self.output(vec![first.text, more.text], None);
+        }
+        // The seal at the foot of marks just looked at (S06): named only in
+        // the reading, but there to examine, unless a real seal lies here.
+        if matches!(cmd.verb.as_str(), "examine" | "touch")
+            && cmd
+                .words
+                .last()
+                .is_some_and(|w| w == "seal" || w == "seals")
+        {
+            if let Some(o) = self.the_seal_at_the_foot() {
+                return o;
+            }
         }
         self.breathe();
         let was_reading = std::mem::take(&mut self.reading_now);

@@ -2133,8 +2133,38 @@ fn hand_extra(
     if !inside && said("place.building") && h < 70 {
         return Some("go in".into());
     }
+    // S06: the seal at the foot of a letter, looked at; a text read
+    // closely by name; a door looked at.
+    let last = g.state.last_read.filter(|&t| g.at_hand(t));
+    let sealed = last.is_some_and(|t| {
+        g.layers_seen(t)
+            .last()
+            .is_some_and(|l| crate::reading::form(g.text(l.0).genre) == "sealed")
+    });
+    if said("read.whole") && sealed && h < 50 {
+        return Some("examine seal".into());
+    }
     if said("read.whole") && h < 60 {
-        return Some("read closely".into());
+        let name = last.map(|t| g.thing(t).kind.to_string());
+        return Some(match name {
+            Some(k) if h < 20 => format!("read the {k} closely"),
+            Some(k) if h < 30 => format!("look closely at the {k}"),
+            _ => "read closely".into(),
+        });
+    }
+    if inside && (44..48).contains(&h) {
+        let door = out.state.exits.iter().find_map(|e| {
+            ["door", "stair", "stairs", "opening", "arch"]
+                .into_iter()
+                .find(|w| e.split_whitespace().any(|x| x == *w))
+        });
+        if let Some(d) = door {
+            return Some(if h < 46 {
+                format!("examine the {d}")
+            } else {
+                format!("look closer at the {d}")
+            });
+        }
     }
     if said("read.glyph") && g.state.reading.is_some() && h < 70 {
         return Some("read on".into());

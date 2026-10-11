@@ -182,6 +182,7 @@ const BASE_KINDS: &[&str] = &[
     "parapet",
     "beam",
     "carving",
+    "block",
     "torch",
     "lamp",
     "oil",

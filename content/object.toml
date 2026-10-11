@@ -67,7 +67,7 @@ example = true
 
 [[variant]]
 slot = "map.place"
-text = "a town to the {bearing}"
+text = "{count count town} to the {bearing} ({distance})"
 example = true
 
 [[variant]]

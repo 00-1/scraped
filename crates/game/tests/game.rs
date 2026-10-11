@@ -135,7 +135,9 @@ fn reading_comes_in_layers() {
             g.start();
             g.step("go temple");
             let glance = g.step("read stele").text;
-            (!glance.contains("not reading") && glance.contains("signs")).then(|| {
+            (!glance.contains("not reading")
+                && (glance.contains("signs") || glance.contains("marks")))
+            .then(|| {
                 let mut g = Game::new(seed, p.clone());
                 g.start();
                 g.step("go temple");

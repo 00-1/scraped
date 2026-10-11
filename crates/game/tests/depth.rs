@@ -253,3 +253,34 @@ fn no_modern_units_and_no_writing_in_the_first_hour() {
         }
     }
 }
+
+/// S06: the playtest's commands, replayed on seed 42 (the transcript
+/// itself is not in the repo; these are the commands S06 lists). None is
+/// misunderstood, a door looked at is described, and nothing has a hole.
+#[test]
+fn the_s06_playtest_commands_are_understood() {
+    let p = pack();
+    let mut g = scraped_game::Game::new(42, p);
+    g.start();
+    let cmds = include_str!("../../../tests/fixtures/s06-seed42.txt");
+    for cmd in cmds.lines() {
+        let o = g.step(cmd);
+        for line in o.text.lines() {
+            assert!(
+                scraped_game::bots::slip(line).is_none(),
+                "after `{cmd}`: {line:?}"
+            );
+        }
+        for bad in ["You see no", "closely here"] {
+            assert!(!o.text.contains(bad), "after `{cmd}`: {}", o.text);
+        }
+        // A door looked at is described, not named as a way out.
+        if cmd.contains("door") {
+            assert!(
+                o.text.contains("door of") && !o.text.contains("a door north"),
+                "after `{cmd}`: {}",
+                o.text
+            );
+        }
+    }
+}

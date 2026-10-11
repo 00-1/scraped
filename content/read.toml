@@ -67,7 +67,7 @@ example = true
 
 [[variant]]
 slot = "trace.no_tool"
-text = "You've nothing to take the marks with."
+text = "You have nothing to copy these onto."
 example = true
 
 [[variant]]
@@ -109,3 +109,9 @@ example = true
 slot = "read.grime"
 text = "{cap cover} hides some of the {plural noun 2}."
 example = true
+
+[[variant]]
+slot = "read.seal"
+text = "At the foot of the marks on {thing}, a round seal is pressed into the {material}."
+example = true
+

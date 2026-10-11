@@ -121,3 +121,55 @@ fn every_cue_can_be_followed_up() {
     }
     assert!(followed > 0, "no cue was met to follow up");
 }
+
+/// S06: the seal named at the foot of a letter, contract or decree can be
+/// looked at, where no real seal lies.
+#[test]
+fn the_seal_named_in_the_reading_can_be_examined() {
+    let mut found = 0;
+    for seed in [1, 42, 9001] {
+        let mut g = Game::new(seed, pack());
+        g.start();
+        let sealed = (0..g.site.things.len()).find(|&t| {
+            g.layers_seen(t)
+                .last()
+                .is_some_and(|l| crate::reading::form(g.text(l.0).genre) == "sealed")
+        });
+        let Some(t) = sealed else { continue };
+        g.state.place = g.site.things[t].home;
+        g.state.pos = g.site.things[t].pos;
+        g.state.last_read = Some(t);
+        let o = g.step("examine seal").text;
+        assert!(o.contains("seal"), "seed {seed}: {o}");
+        found += 1;
+    }
+    assert!(found > 0, "no sealed text on seeds 1, 42, 9001");
+}
+
+/// S06: an old map never names the same bearing and distance twice.
+#[test]
+fn an_old_map_draws_each_place_once() {
+    let mut maps = 0;
+    for seed in [1, 42, 9001, 7, 12] {
+        let mut g = Game::new(seed, pack());
+        g.start();
+        for t in 0..g.site.things.len() {
+            let is_map = g.site.things[t]
+                .object
+                .is_some_and(|o| g.site.world.objects[o].map.is_some());
+            if !is_map {
+                continue;
+            }
+            maps += 1;
+            let text = g.read_map(t).text;
+            let mut seen = std::collections::HashSet::new();
+            for part in text.split([',', ';', '.']) {
+                let p = part.trim().trim_start_matches("and ").to_string();
+                if p.contains(" to the ") {
+                    assert!(seen.insert(p.clone()), "seed {seed}: twice {p:?} in {text}");
+                }
+            }
+        }
+    }
+    assert!(maps > 0, "no old maps found");
+}

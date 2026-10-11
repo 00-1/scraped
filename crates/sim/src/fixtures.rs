@@ -771,6 +771,16 @@ impl Fixtures {
     /// means (no rubble, no water, barred doors only with a pry bar),
     /// nearest first.
     pub fn reachable_rooms(&self, w: &World, structure: usize) -> Vec<usize> {
+        self.rooms_open_to(w, structure, false)
+    }
+
+    /// Rooms a player could ever come to (S06): locked doors open with
+    /// their keys; rubble, collapse and flood still bar the way.
+    pub fn rooms_ever_reached(&self, w: &World, structure: usize) -> Vec<usize> {
+        self.rooms_open_to(w, structure, true)
+    }
+
+    fn rooms_open_to(&self, w: &World, structure: usize, keys: bool) -> Vec<usize> {
         let st = &w.structures[structure];
         let rooms = &st.interior.rooms;
         if rooms.is_empty() || rooms[0].collapsed {
@@ -803,10 +813,10 @@ impl Fixtures {
                 let l = &st.interior.links[li];
                 // Locked doors (D05) count as shut: nothing the player
                 // must find lies behind one.
-                let locked = w
-                    .locks
-                    .iter()
-                    .any(|k| k.structure == structure && k.link == li);
+                let locked = !keys
+                    && w.locks
+                        .iter()
+                        .any(|k| k.structure == structure && k.link == li);
                 if (l.state == PassageState::Blocked && !self.cleared.contains(&(structure, li)))
                     || locked
                     || rooms[other].collapsed

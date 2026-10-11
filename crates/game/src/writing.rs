@@ -260,6 +260,10 @@ impl Game {
             if self.thing(t).texts.is_empty() && !self.state.written.iter().any(|w| w.thing == t) {
                 continue;
             }
+            // Out of every reach, it lies dormant (S06).
+            if self.site.dormant.contains(&t) {
+                continue;
+            }
             let layers = self.layers(t);
             if let Some(live) = live_of(&layers, &self.state.scraped) {
                 if let Some(mut c) =

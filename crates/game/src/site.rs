@@ -1,6 +1,8 @@
 //! The playable site: the starting settlement's buildings, rooms and things,
 //! taken from the generated world, and the variables descriptions need.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use scraped_content::{Context, Value};
 use scraped_world::history::Settlement;
 use scraped_world::structures::{Condition, Exit, Material, PassageState, Structure};
@@ -82,6 +84,11 @@ pub struct Site {
     /// Where the land ends (D10): a place on the world's rim a walker can
     /// reach from the start, beyond which a player may go and leave.
     pub edge: Option<Pos>,
+    /// Things no one can ever come to (S06): in a buried building, or a
+    /// room rubble, collapse or flood bars. Their writing lies dormant, so
+    /// nothing is felt whose cause can't be found.
+    // DESIGN-Q: writing out of every reach does not act.
+    pub dormant: BTreeSet<usize>,
 }
 
 /// One way out of a room.
@@ -272,6 +279,29 @@ impl Site {
                 things[t].texts = s.layers.clone();
             }
         }
+        // A carving whose marks all went elsewhere is a plain block of
+        // stone (S06): nothing is called a carving that bears no marks.
+        for th in things.iter_mut().take(feature_of.len()) {
+            if th.kind == "carving" && th.texts.is_empty() {
+                th.kind = "block";
+            }
+        }
+        let mut ever: BTreeMap<usize, Vec<usize>> = BTreeMap::new();
+        let mut dormant = BTreeSet::new();
+        for (i, th) in things.iter().enumerate() {
+            if let Place::Room { structure, room } = th.home {
+                let rooms = ever.entry(structure).or_insert_with(|| {
+                    if world.structures[structure].condition == Condition::Buried {
+                        Vec::new()
+                    } else {
+                        fixtures.rooms_ever_reached(&world, structure)
+                    }
+                });
+                if !rooms.contains(&room) {
+                    dormant.insert(i);
+                }
+            }
+        }
         let edge = world_edge(&world, &land, settlement);
         Site {
             world,
@@ -284,6 +314,7 @@ impl Site {
             regions,
             greats,
             edge,
+            dormant,
         }
     }
 

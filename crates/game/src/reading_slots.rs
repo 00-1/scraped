@@ -137,6 +137,11 @@ pub fn slots() -> Vec<SlotDef> {
             .var("form", e(&crate::reading::FORMS), "How it is laid out, as the eye sees before reading (D08): numbers in columns (a ledger), entries one under another (an annal, a list of judgements), a seal pressed at the foot (a letter, a contract, a decree), a bare list, short verses (a hymn, a curse), or running lines.")
             .max_len(220)
             .sampler(s_whole),
+        SlotDef::new("read.seal", "The player examines the seal pressed at the foot of the marks just looked at (S06): what it looks like, pressed into the surface. Never what it means.")
+            .var("thing", VarType::Text, "What the marks are on.")
+            .var("material", VarType::Text, "What that is made of.")
+            .max_len(200)
+            .sampler(s_seal),
         SlotDef::new("trace.no_tool", "The player tries to trace a mark (or a whole surface of them) with nothing to take marks with: no soft clay to press into them, no charcoal and bark or cloth for a rubbing. Never name the tools; the player works out what would do.")
             .max_len(200)
             .sampler(s_none),
@@ -183,4 +188,11 @@ pub fn slots() -> Vec<SlotDef> {
 
 fn s_none(_: u64) -> Vec<Context> {
     vec![Context::new()]
+}
+
+fn s_seal(_: u64) -> Vec<Context> {
+    vec![crate::site::ctx(&[
+        ("thing", Value::from("a clay tablet")),
+        ("material", Value::from("clay")),
+    ])]
 }

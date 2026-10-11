@@ -188,6 +188,7 @@ fn s_place(_: u64) -> Vec<Context> {
                     "distance",
                     Value::from(["near", "short", "middle", "far"][i]),
                 ),
+                ("count", Value::Number(1 + (i as i64 % 2))),
                 ("gone", Value::Bool(i == 2)),
             ])
         })
@@ -301,8 +302,9 @@ pub fn slots() -> Vec<SlotDef> {
             .var("border", e(BORDERS), "The border style of its era.")
             .max_len(400)
             .sampler(s_map),
-        SlotDef::new("map.place", "One town drawn on an old map: which way and how far from the map's centre. A phrase.")
+        SlotDef::new("map.place", "Towns drawn on an old map the same way and as far from its centre: how many, which way, how far. A phrase; never the same one twice on a map (S06).")
             .var("what", e(&["town"]), "What is drawn.")
+            .var("count", VarType::Number, "How many towns are drawn that way and that far.")
             .var("bearing", e(&[&["here"][..], &scraped_sim::outdoors::BEARINGS].concat()), "Which way.")
             .var("distance", e(&["near", "short", "middle", "far", "horizon"]), "How far.")
             .var("gone", VarType::Bool, "Whether it has since been abandoned (the writer knows; the map doesn't).")
