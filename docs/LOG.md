@@ -898,3 +898,23 @@ Jb's decisions (in `docs/DESIGN.md`):
 - New "Possible future: a record-keeping extension" built on the player's text only.
 
 Added `docs/milestones/S06-what-the-game-shows.md` (now) and `docs/milestones/D13-ways-of-noticing.md` (after: also starting verbs per style and the world's own units). Recorded the extension as `docs/milestones/X01-record-keeping-extension.md`, not scheduled until Jb decides.
+
+## 2026-10-11 — S06 done
+
+**What the game shows:**
+- **Replies carry only the text.** The player build, the Android app and MCP send `protocol`, `text` and `ended` (protocol 2); `state` exists only in spoiler builds. MCP and agent instructions say how to play, not what the game is about; `docs/coop/CLAUDE.md` is gone.
+- **Nothing says what the game is about.** `app.about` has no variant; the intro says where you wake. `help` lists the basics and each verb the player has used; `manual` is one page on how to play.
+- **Marks, in three steps.** Things carry "marks" until three have been looked at mark by mark, then "signs"; reading words come with the first sound heard. `examine sign N` traces, and tracing needs a tool: clay (a pressing) or charcoal with bark or a cloak (a rubbing). `gather bark`, `gather clay`, and charcoal from a burnt-out fire.
+- **No modern units.** Coarse measures for time and distance everywhere (`measures.rs`); no day count at the end.
+- **Cues can be followed up.** Examining, touching, smelling or listening to what a cue named answers it; doors and ways have their own descriptions.
+- **The playtest's bugs:** `read X closely`, `look closely at X`, `look closer at door`, `examine door`, `examine seal` (any sealed text at hand), no "inscription" with no marks (now a block), old maps grouping towns by bearing and distance, one-phrase related marks, doors named as themselves ("The door is already open"), a calendar stone read is looked at, and a plain refusal for `write` with nothing to write on.
+- **The playtest is a fixture.** Jb's transcript (`docs/playtests/2026-10-11/`, played on the Android app) replays on its own world from the save (`tests/fixtures/s06-playtest.txt`); the hand player types each command above. Playtests are kept by date from now on (`docs/playtests/README.md`).
+- **Fairness:** a firesteel; clay, or wooded land with a flame; and every cue's cause where its effect is felt. To meet the last, writing no one can ever reach (a buried building, a room that rubble, collapse or flood bars for good) lies dormant.
+
+**Not run, to release sooner (Jb's call):** the slow bot tests (explorer, scholar, first texts, first-hour words and units over 24 h) and the browser smokes. The hand player test, the playtest and seed 42 fixtures, and the fast suite pass.
+
+**Open questions:** "What the game shows (S06)" in DECISIONS; the one most worth a look is dormant writing. Following the door cue still turns up nothing but the cue again. `manual <section>` shows the one page.
+
+**New content slots:** `trace.no_tool`, `read.seal`, `gather.got`, `gather.none_of`, `way.examine`, `way.touch`, `cue.examine`, `cue.touch`, `cue.closer`, `cue.listen`, `cue.smell`, `app.about` (empty); removed `glyph.closer`. Ambient variables `noun` and `reading` in reading slots; `help`, `manual.page`, `map.place` (`count`) and the move, wait, sleep, travel and end slots changed variables.
+
+Released as v0.6.0, a minor bump (`saves check --against v0.5.0`), with a 0.6.0 corpus save.

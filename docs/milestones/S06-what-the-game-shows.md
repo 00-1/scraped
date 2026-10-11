@@ -93,12 +93,12 @@ Jb is happy with a slow build, as long as nothing is left waiting forever. The f
 
 ## Checklist
 
-- [ ] JSON and MCP carry only the text; clients show nothing more
-- [ ] No "about" anywhere; agent docs reduced to mechanics and fair play
-- [ ] `help` lists basics plus verbs used; manual is how to play
-- [ ] Marks not writing; three steps; tracing needs a tool; `read` late
-- [ ] No modern units; no day counter
-- [ ] Cues followed up; everything a cue names is examinable
-- [ ] Playtest bugs; transcript fixture
-- [ ] Fairness: flame, tracing tool, cue causes
-- [ ] Release; HANDOFF; LOG; then D13
+- [x] JSON and MCP carry only the text; clients show nothing more
+- [x] No "about" anywhere; agent docs reduced to mechanics and fair play
+- [x] `help` lists basics plus verbs used; manual is how to play
+- [x] Marks not writing; three steps; tracing needs a tool; `read` late
+- [x] No modern units; no day counter
+- [x] Cues followed up; everything a cue names is examinable
+- [x] Playtest bugs; transcript fixture
+- [x] Fairness: flame, tracing tool, cue causes
+- [x] Release; HANDOFF; LOG; then D13
