@@ -161,7 +161,74 @@ pub fn category_of_verb(verb: &str) -> Option<&'static str> {
     })
 }
 
+/// The two categories each kind of old spell shows itself in (D13), so
+/// every style has its own way to the slow realisation.
+// DESIGN-Q: which categories each quality is noticed in.
+pub fn evidence_of(quality: &str) -> [&'static str; 2] {
+    match quality {
+        "heat" => ["buildings", "land"],
+        "light" => ["land", "things"],
+        "wetness" => ["land", "smells"],
+        "flow" => ["land", "sounds"],
+        "sound" => ["sounds", "life"],
+        "growth" => ["life", "smells"],
+        "lure" | "calm" => ["life", "sounds"],
+        "weight" | "binding" => ["things", "buildings"],
+        "visibility" | "rising" => ["things", "land"],
+        "keeping" => ["things", "smells"],
+        _ => ["buildings", "sounds"],
+    }
+}
+
 impl Game {
+    /// Quiet signs of the spells acting here (D13), one per category each
+    /// kind of spell shows in; a keen player notices them first.
+    pub(crate) fn spell_signs(&self, out: &mut Vec<crate::attention::Fact>) {
+        use scraped_sim::writing::Class;
+        let env = self.env();
+        let (at, inside, place_key) = match self.state.place {
+            crate::site::Place::Room { structure, .. } => (
+                self.site.land.structure_pos[structure],
+                true,
+                format!("s{structure}"), // DEBUG-TEXT: a key
+            ),
+            crate::site::Place::Outside => {
+                let (x, y) = self.state.pos.cell();
+                (self.state.pos, false, format!("c{x}:{y}")) // DEBUG-TEXT: a key
+            }
+        };
+        let mut seen: Vec<(Class, &str)> = Vec::new();
+        for c in &self.claims {
+            if c.class == Class::Person
+                || c.class.indoors() != inside
+                || c.pos.dist(at) > c.range
+                || !c.acts(&env.when)
+            {
+                continue;
+            }
+            let q = c.property.name();
+            if seen.contains(&(c.class, q)) {
+                continue;
+            }
+            seen.push((c.class, q));
+            let strength = c.amount.abs().min(3);
+            for cat in evidence_of(q) {
+                out.push(crate::attention::Fact::new(
+                    "spell.sign",
+                    format!("sign:{place_key}:{cat}:{}:{q}", c.class.name()), // DEBUG-TEXT: a key
+                    14.0 + 4.0 * f64::from(strength),
+                    ctx(&[
+                        ("category", Value::from(cat)),
+                        ("quality", Value::from(q)),
+                        ("rising", Value::Bool(c.amount > 0)),
+                        ("thing", Value::from(c.subject.replace('_', " "))),
+                        ("indoors", Value::Bool(inside)),
+                    ]),
+                ));
+            }
+        }
+    }
+
     /// How keen the player is on a category now.
     pub(crate) fn keenness(&self, category: &str) -> f64 {
         self.noticing().keenness(category, self.state.minutes)
@@ -180,9 +247,15 @@ impl Game {
         self.state.noticing.entry(self.who.clone()).or_default()
     }
 
-    /// A fact's weight for this player: its category's keenness.
-    pub(crate) fn keen_weight(&self, slot: &str) -> f64 {
-        category_of_slot(slot).map_or(1.0, |c| self.keenness(c))
+    /// A fact's weight for this player: its category's keenness. A sign
+    /// of a spell is noticed only by someone keen on its category.
+    pub(crate) fn keen_weight(&self, f: &crate::attention::Fact) -> f64 {
+        if f.slot == "spell.sign" {
+            let cat = f.vars.get("category").map(Value::text).unwrap_or_default();
+            let k = self.keenness(&cat);
+            return if k > 1.05 { k } else { 0.0 };
+        }
+        category_of_slot(f.slot).map_or(1.0, |c| self.keenness(c))
     }
 
     /// Records a followed command as attention; says so, once, when a
@@ -251,6 +324,39 @@ fn s_sharpened(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_sign(_: u64) -> Vec<Context> {
+    [
+        ("sounds", "flow", true, "water"),
+        ("life", "lure", false, "deer"),
+        ("buildings", "heat", false, "house"),
+        ("smells", "growth", true, "barley"),
+    ]
+    .iter()
+    .map(|(c, q, r, t)| {
+        ctx(&[
+            ("category", Value::from(*c)),
+            ("quality", Value::from(*q)),
+            ("rising", Value::Bool(*r)),
+            ("thing", Value::from(*t)),
+            ("indoors", Value::Bool(false)),
+        ])
+    })
+    .collect()
+}
+
+fn s_clock(_: u64) -> Vec<Context> {
+    [(3, 10, true), (12, 12, true), (1, 8, false)]
+        .iter()
+        .map(|(p, o, s)| {
+            ctx(&[
+                ("part", Value::Number(*p)),
+                ("of", Value::Number(*o)),
+                ("shown", Value::Bool(*s)),
+            ])
+        })
+        .collect()
+}
+
 fn s_offer(_: u64) -> Vec<Context> {
     vec![Context::new()]
 }
@@ -271,5 +377,25 @@ pub fn slots() -> Vec<SlotDef> {
             .min_variants(0)
             .max_len(160)
             .sampler(s_sharpened),
+        SlotDef::new("clock.sundial", "A sundial looked at (D13): a stone face marked off in the world's own parts of the daylight, and where the shadow falls among them. Say which line it falls on, counted from the morning side, never an hour. With no sun (night, cloud, fog), there is no shadow.")
+            .var("part", VarType::Number, "The line the shadow falls on, from 1 (morning side).")
+            .var("of", VarType::Number, "How many lines the face has.")
+            .var("shown", VarType::Bool, "Whether there is a shadow at all.")
+            .max_len(200)
+            .sampler(s_clock),
+        SlotDef::new("clock.water", "A water clock looked at (D13): a vessel that drips through the day and night, its inside marked off in the world's own parts of the day, and where the water stands among them. Say which mark, never an hour.")
+            .var("part", VarType::Number, "The mark the water stands at, from 1.")
+            .var("of", VarType::Number, "How many marks there are.")
+            .var("shown", VarType::Bool, "Always true.")
+            .max_len(200)
+            .sampler(s_clock),
+        SlotDef::new("spell.sign", "A quiet sign, in one kind of noticing, that something here is not as it should be (D13): an old spell pushing one quality of a kind of thing, noticed only by someone keen on that kind of thing. In that category's terms: a sound (sounds), a smell (smells), how plants or beasts behave (life), the stone, joints and wear (buildings), the ground, water or sky (land), an object (things). The strangeness, never its cause: never mention writing, spells, words or magic, and never say what was asked for.")
+            .var("category", VarType::Enum { values: CATEGORIES.iter().map(|c| c.to_string()).collect() }, "The kind of noticing it shows in.")
+            .var("quality", VarType::Text, "What the spell pushes: heat, light, wetness, flow, sound, growth, lure, calm, weight, visibility, binding, keeping, rising, openness, stability.")
+            .var("rising", VarType::Bool, "More of it (true) or less.")
+            .var("thing", VarType::Text, "The kind of thing it acts on, in plain English ('door', 'deer', 'water').")
+            .var("indoors", VarType::Bool, "Indoors or out.")
+            .max_len(200)
+            .sampler(s_sign),
     ]
 }

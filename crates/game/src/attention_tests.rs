@@ -78,7 +78,14 @@ fn a_second_look_says_less() {
         let first = g.step("look").text;
         let second = g.step("look").text;
         let third = g.step("look").text;
-        let sentences = |t: &str| t.matches(['.', '!', '?']).count();
+        // The description only, not a verb suggested after it (D13).
+        let sentences = |t: &str| {
+            t.split("\n\n")
+                .next()
+                .unwrap_or("")
+                .matches(['.', '!', '?'])
+                .count()
+        };
         assert!(
             sentences(&third) <= sentences(&first) && sentences(&third) <= 2,
             "seed {seed}: {first:?} then {second:?} then {third:?}"

@@ -128,6 +128,53 @@ impl Game {
 
     /// `examine the calendar stone`: its marks, and the one notch cut
     /// deeper than the rest, at the day its temple's door opens.
+    /// A sundial or water clock looked at (D13): which of the world's
+    /// parts of the day it shows. A sundial needs the sun; a water clock
+    /// runs on. Never converted to hours.
+    // DESIGN-Q: daylight runs 6 to 18 for the dial; the water clock marks
+    // the whole day in twice the dial's parts.
+    pub(crate) fn examine_clock(&mut self, t: usize) -> Option<Output> {
+        let kind = self.thing(t).kind;
+        if kind != "sundial" && kind != "water clock" {
+            return None;
+        }
+        self.pass(1);
+        let parts = scraped_sim::writing::Measures::of(&self.site.world).day_parts;
+        let m = self.state.minutes % 1440;
+        let (slot, part, of, shown) = if kind == "sundial" {
+            // The sun on its face: in the open or a court open to the
+            // sky, by daylight, with no cloud over it.
+            let weather = self.conditions().0;
+            let open = match self.state.place {
+                Place::Outside => true,
+                Place::Room { structure, room } => {
+                    self.site.structure(structure).interior.rooms[room].h == 0
+                }
+            };
+            let lit = self
+                .env()
+                .local(self.spot(), self.state.minutes, false)
+                .light
+                == "daylight";
+            let sun = open
+                && lit
+                && (360..1080).contains(&m)
+                && !matches!(weather, "fog" | "rain" | "storm" | "snow" | "overcast");
+            let part = ((m.saturating_sub(360)) * parts / 720 + 1).min(parts);
+            ("clock.sundial", part, parts, sun)
+        } else {
+            let of = parts * 2;
+            ("clock.water", (m * of / 1440 + 1).min(of), of, true)
+        };
+        let c = ctx(&[
+            ("part", Value::Number(i64::from(part))),
+            ("of", Value::Number(i64::from(of))),
+            ("shown", Value::Bool(shown)),
+        ]);
+        let tx = self.say(slot, c);
+        Some(self.output(vec![tx], None))
+    }
+
     pub(crate) fn examine_calendar(&mut self, t: usize) -> Option<Output> {
         let Place::Room { structure, .. } = self.thing(t).home else {
             return None;

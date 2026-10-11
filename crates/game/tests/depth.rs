@@ -327,3 +327,49 @@ fn the_first_playtest_replays_clean() {
         }
     }
 }
+
+/// D13: each style's share of unasked facts from its own category, against
+/// the plain explorer's; and whether it meets a spell's sign in its own
+/// category before reading a spell's marks. Prints the table for
+/// docs/DEPTH.md; `D13_SEEDS` sets how many seeds (default 3).
+#[test]
+#[ignore = "slow; prints the D13 numbers"]
+fn d13_styles_notice_differently() {
+    let p = pack();
+    let n: u64 = std::env::var("D13_SEEDS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(3);
+    let own = |s: &str| match s {
+        "scribe" => "marks",
+        "forager" => "life",
+        "mason" => "buildings",
+        _ => "land",
+    };
+    let share = |r: &scraped_game::bots::BotRun, cat: &str| {
+        let all: u32 = r.unasked.values().sum();
+        f64::from(r.unasked.get(cat).copied().unwrap_or(0)) / f64::from(all.max(1))
+    };
+    let base: Vec<_> = (1..=n)
+        .map(|s| play(&p, s, "explorer", 10.0, 20_000))
+        .collect();
+    for style in scraped_game::bots::STYLE_BOTS {
+        let cat = own(style);
+        let neutral = base.iter().map(|r| share(r, cat)).sum::<f64>() / n as f64;
+        let mut mine = 0.0;
+        let mut first = 0;
+        for seed in 1..=n {
+            let r = play(&p, seed, style, 10.0, 20_000);
+            mine += share(&r, cat) / n as f64;
+            let sign = r.first_sign.get(cat).copied();
+            if sign.is_some_and(|h| r.first_marks.is_none_or(|m| h <= m)) {
+                first += 1;
+            }
+            println!(
+                "{style} seed {seed}: unasked {:?}, sign {:?}, marks {:?}",
+                r.unasked, r.first_sign, r.first_marks
+            );
+        }
+        println!("{style}: {cat} share {mine:.2} vs neutral {neutral:.2}; own sign first on {first} of {n}");
+    }
+}

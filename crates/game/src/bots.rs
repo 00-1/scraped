@@ -2485,6 +2485,48 @@ pub struct BotRun {
     /// D10: responses in the first hour that bring writing forward
     /// (scraping, writing, a release, a great inscription).
     pub pointers_first_hour: u32,
+    /// D13: facts that arrived unasked (in arrivals and travel), by
+    /// category.
+    pub unasked: BTreeMap<String, u32>,
+    /// D13: the first sign of a spell in each category, by hour.
+    pub first_sign: BTreeMap<String, f64>,
+    /// D13: the first time a spell's own marks were read, by hour.
+    pub first_marks: Option<f64>,
+}
+
+/// The style bots (D13): the explorer, with a style chosen at the start,
+/// giving its own category deliberate attention now and then.
+pub const STYLE_BOTS: [&str; 4] = ["scribe", "forager", "mason", "wayfarer"];
+
+/// What a style bot does instead of the explorer's step, about a quarter
+/// of the time.
+// DESIGN-Q: a quarter of steps go to the style's own attention.
+fn style_step(g: &Game, style: &str, seed: u64, step: u64) -> Option<String> {
+    let h = hash(&[seed, 0x57e1, step]) % 100;
+    if h >= 25 {
+        return None;
+    }
+    let outside = g.state.place == Place::Outside;
+    let marked = g
+        .here()
+        .into_iter()
+        .find(|&t| !g.thing(t).texts.is_empty())
+        .map(|t| g.thing(t).kind);
+    Some(match style {
+        "scribe" => match marked {
+            Some(k) if h.is_multiple_of(2) => format!("read {k}"),
+            Some(k) => format!("look closer at {k}"),
+            None => "look closer".into(),
+        },
+        "forager" if outside && h.is_multiple_of(3) => "forage".into(),
+        "forager" if h.is_multiple_of(2) => "smell".into(),
+        "forager" => "listen".into(),
+        "mason" if h.is_multiple_of(2) => "touch".into(),
+        "mason" => "look closer".into(),
+        "wayfarer" if outside && h.is_multiple_of(2) => "look around".into(),
+        "wayfarer" => "look up".into(),
+        _ => return None,
+    })
 }
 
 /// The family a command's verb belongs to, for the verb mix (S01).
@@ -2586,7 +2628,14 @@ pub fn play_with(
     }
     // The hand player (S04) is the explorer, typing like a person.
     let hand = kind == "hand";
-    let mut bot = DepthBot::new(if hand { "explorer" } else { kind }, seed);
+    let mut bot = DepthBot::new(
+        if hand || STYLE_BOTS.contains(&kind) {
+            "explorer"
+        } else {
+            kind
+        },
+        seed,
+    );
     // Places where a spell's work was felt (S04).
     let mut cued: BTreeSet<String> = BTreeSet::new();
     let mut extra: Option<String> = None;
@@ -2627,7 +2676,16 @@ pub fn play_with(
         renders: Vec::new(),
         first_release: None,
         pointers_first_hour: 0,
+        unasked: BTreeMap::new(),
+        first_sign: BTreeMap::new(),
+        first_marks: None,
     };
+    // A style bot answers the offer first (D13); the others say nothing to
+    // it and simply play.
+    let style = STYLE_BOTS.iter().copied().find(|s| *s == kind);
+    if let Some(s) = style {
+        out = g.step(s);
+    }
     let scraped_at_start = g.state.scraped.clone();
     let mut seen: BTreeSet<String> = BTreeSet::new();
     let mut kinds_seen: BTreeSet<String> = BTreeSet::new();
@@ -2679,10 +2737,14 @@ pub fn play_with(
         if g.state.dead.is_some() || f64::from(g.state.minutes - start) >= hours * 60.0 {
             break;
         }
+        let step = run.commands.len() as u64;
         let cmd = match extra.take() {
             Some(c) => c,
-            None if hand => hand_phrase(&bot.next(&g, &out), seed, run.commands.len() as u64),
-            None => bot.next(&g, &out),
+            None if hand => hand_phrase(&bot.next(&g, &out), seed, step),
+            None => match style.and_then(|s| style_step(&g, s, seed, step)) {
+                Some(c) => c,
+                None => bot.next(&g, &out),
+            },
         };
         let before = g.state.place;
         let pos = g.state.pos;
@@ -2725,6 +2787,31 @@ pub fn play_with(
             .any(|r| matches!(r.trace.slot.as_str(), "air.uncanny" | "spell.cue"))
         {
             cued.insert(g.spell_place());
+        }
+        // D13: what arrived unasked, by category; the first sign of a
+        // spell in each; the first spell's marks read.
+        let hour_now = f64::from(g.state.minutes - start) / 60.0;
+        let unasked = matches!(run.kinds.last(), Some(&"arrival" | &"travel"));
+        for r in &g.renders[taken.min(g.renders.len())..] {
+            let slot = r.trace.slot.as_str();
+            if slot == "spell.sign" {
+                let cat = r.vars.get("category").map(Value::text).unwrap_or_default();
+                run.first_sign.entry(cat).or_insert(hour_now);
+            } else if unasked {
+                if let Some(c) = crate::noticing::category_of_slot(slot) {
+                    *run.unasked.entry(c.to_string()).or_default() += 1;
+                }
+            }
+        }
+        if run.first_marks.is_none()
+            && g.state.reading.as_ref().is_some_and(|r| {
+                g.thing(r.thing)
+                    .texts
+                    .iter()
+                    .any(|&t| g.text(t).kind == scraped_lang::corpus::Kind::Potent)
+            })
+        {
+            run.first_marks = Some(hour_now);
         }
         let before_novel = run.novelty.len();
         run.facts.push(count_facts(&g.renders[taken..], &out.text));

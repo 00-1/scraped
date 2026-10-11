@@ -15,3 +15,23 @@ example = true
 slot = "notice.sharpened"
 text = "You find yourself noticing more of it now."
 example = true
+
+[[variant]]
+slot = "suggest.verb"
+text = "You could {words}."
+example = true
+
+[[variant]]
+slot = "spell.sign"
+text = "[if category == 'sounds']The {thing} sounds wrong here.[else][if category == 'smells']The smell of the {thing} is wrong here.[else][if category == 'life']The {thing} behaves oddly here.[else][if category == 'buildings']Something in the stone here is not right.[else][if category == 'land']The {thing} lies oddly here.[else]Something about the {thing} is off.[end][end][end][end][end]"
+example = true
+
+[[variant]]
+slot = "clock.sundial"
+text = "[if shown]Lines are cut across the face, {of} of them. The shadow lies on line {part}, counting from the morning side.[else]Lines are cut across the face, {of} of them. There is no shadow to read.[end]"
+example = true
+
+[[variant]]
+slot = "clock.water"
+text = "Water drips from it into a basin marked inside with {of} rings. It stands at ring {part}."
+example = true

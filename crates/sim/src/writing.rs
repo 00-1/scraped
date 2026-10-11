@@ -668,6 +668,31 @@ const LABELLED: &[&str] = &[
 /// Short everyday texts written in the start town (S04).
 const EVERYDAY: usize = 24;
 
+/// Milestones in the start town (D13): how far the nearest towns are.
+// DESIGN-Q: three, on the bare surfaces nearest the ways in.
+const MILESTONES: usize = 3;
+
+/// The world's own measures (D13), fixed by its seed: what a "road" (the
+/// long measure, counted on milestones) is in metres, and how many parts
+/// its sundials and water clocks divide the day into. The game never
+/// converts them; a player who works one out can measure with it.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Measures {
+    pub road: f64,
+    pub day_parts: u32,
+}
+
+impl Measures {
+    // DESIGN-Q: a road of 1200 to 1800 m; the daylight in 8, 10 or 12 parts.
+    pub fn of(w: &World) -> Self {
+        let h = hash(&[w.seed, 0x0417]);
+        Measures {
+            road: 1200.0 + 100.0 * (h % 7) as f64,
+            day_parts: [8, 10, 12][((h / 7) % 3) as usize],
+        }
+    }
+}
+
 const INSCRIBABLE: &[&str] = &[
     "wall",
     "stele",
@@ -1478,16 +1503,33 @@ impl Writing {
             lists.push((st.id, bare));
         }
         let mut spots: Vec<(usize, usize, usize)> = Vec::new();
-        while spots.len() < EVERYDAY && lists.iter().any(|l| !l.1.is_empty()) {
+        // The milestones first (D13), nearest the ways in, then the
+        // everyday labels.
+        let want = EVERYDAY + MILESTONES;
+        while spots.len() < want && lists.iter().any(|l| !l.1.is_empty()) {
             for (s, bare) in &mut lists {
-                if spots.len() < EVERYDAY {
+                if spots.len() < want {
                     if let Some((r, f)) = bare.pop() {
                         spots.push((*s, r, f));
                     }
                 }
             }
         }
-        for (sid, r, f) in spots {
+        let lang = &w.languages[era as usize];
+        // The nearest other towns, for the milestones: how far, in the
+        // world's own long measure.
+        let at = |c: scraped_world::history::Cell| Pos::of_cell(c.ux(), c.uy());
+        let home = at(w.history.settlements[start].cell);
+        let mut towns: Vec<f64> = w
+            .history
+            .settlements
+            .iter()
+            .filter(|s| s.id != start && s.abandoned.is_none())
+            .map(|s| at(s.cell).dist(home))
+            .collect();
+        towns.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+        let road = Measures::of(w).road;
+        for (i, (sid, r, f)) in spots.into_iter().enumerate() {
             let st = &w.structures[sid];
             {
                 let x = &st.interior.rooms[r].features[f];
@@ -1496,11 +1538,38 @@ impl Writing {
                     NounPhrase::concept(GOODS[(k % GOODS.len() as u64) as usize])
                         .counted((1 + (k / 7) % 9) as u16)
                 };
-                let meaning = match townsfolk.len() {
-                    n if n > 0 && h.is_multiple_of(2) => Sentence::List(vec![NounPhrase::name(
-                        townsfolk[((h / 2) % n as u64) as usize],
-                    )]),
-                    _ => Sentence::List(vec![goods(h / 2)]),
+                // A goods label weighs its goods where the language has a
+                // word for the measure (D13).
+                let weighed = |k: u64| {
+                    if lang.lexicon.has("weight") && (k / 3).is_multiple_of(2) {
+                        Sentence::List(vec![
+                            NounPhrase::concept(GOODS[(k % GOODS.len() as u64) as usize]),
+                            NounPhrase::concept("weight").counted((1 + (k / 7) % 9) as u16),
+                        ])
+                    } else {
+                        Sentence::List(vec![goods(k)])
+                    }
+                };
+                let meaning = if i < MILESTONES {
+                    // A milestone: a town, and how many roads to it.
+                    let d = towns.get(i).copied().unwrap_or(0.0);
+                    let n = ((d / road) + 0.5) as u16;
+                    if n == 0 || !lang.lexicon.has("road") {
+                        continue;
+                    }
+                    Sentence::List(vec![
+                        NounPhrase::concept("city"),
+                        NounPhrase::concept("road").counted(n.min(999)),
+                    ])
+                } else {
+                    match townsfolk.len() {
+                        n if n > 0 && h.is_multiple_of(2) => {
+                            Sentence::List(vec![NounPhrase::name(
+                                townsfolk[((h / 2) % n as u64) as usize],
+                            )])
+                        }
+                        _ => weighed(h / 2),
+                    }
                 };
                 let id = SEALED_BASE + self.sealed_texts.len();
                 self.sealed_texts.push(Text {

@@ -65,6 +65,7 @@ pub mod slots;
 #[cfg(test)]
 mod storylet_tests;
 pub mod storylets;
+pub mod suggest;
 #[cfg(test)]
 mod survival;
 pub mod trajectory;
@@ -309,6 +310,9 @@ pub struct State {
     /// ("" when one person plays alone).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub noticing: BTreeMap<String, noticing::Noticing>,
+    /// Verbs suggested so far, and for what (D13).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub suggested: BTreeMap<String, suggest::Suggested>,
     /// Surfaces cleaned of moss, soot or dust (D10).
     #[serde(default)]
     pub cleaned: BTreeSet<usize>,
@@ -652,6 +656,7 @@ impl Game {
             used: BTreeSet::new(),
             studied: BTreeSet::new(),
             noticing: Default::default(),
+            suggested: BTreeMap::new(),
             cues: Vec::new(),
             cleaned: BTreeSet::new(),
             written: Vec::new(),
@@ -1362,6 +1367,25 @@ impl Game {
         }
     }
 
+    /// Adds a part to a response already made, keeping its truth, its
+    /// renders and the transcript in step.
+    fn append(&mut self, out: &mut Output, t: String) {
+        if t.is_empty() {
+            return;
+        }
+        out.text = if out.text.is_empty() {
+            t
+        } else {
+            format!("{}\n\n{t}", out.text)
+        };
+        if let Some(last) = self.transcript.last_mut() {
+            last.1 = out.text.clone();
+        }
+        if self.trace && cfg!(feature = "spoilers") {
+            out.renders = self.renders.clone();
+        }
+    }
+
     fn output(&mut self, parts: Vec<String>, truth: Option<Json>) -> Output {
         let mut parts = parts;
         self.run_storylets();
@@ -1486,11 +1510,11 @@ impl Game {
                     ("rising", Value::Bool(cue.rising)),
                 ]),
             );
-            out = if failed {
-                self.output(vec![t], None)
+            if failed {
+                out = self.output(vec![t], None);
             } else {
-                self.output(vec![out.text, t], None)
-            };
+                self.append(&mut out, t);
+            }
         }
         let followed = !out.text.is_empty()
             && self.renders[mark.min(self.renders.len())..]
@@ -1499,11 +1523,21 @@ impl Game {
         self.remember_cues(mark);
         if !failed {
             if let Some(t) = self.habit(&verb) {
-                out = self.output(vec![out.text, t], None);
+                self.append(&mut out, t);
             }
         }
         if (!failed || followed) && !matches!(verb.as_str(), "help" | "manual") {
             self.state.used.insert(verb);
+        }
+        // A verb this situation suggests (D13), at most one.
+        if !failed && self.state.dead.is_none() {
+            let said: Vec<String> = self.renders[mark.min(self.renders.len())..]
+                .iter()
+                .map(|r| r.trace.slot.clone())
+                .collect();
+            if let Some(t) = self.suggest(&said) {
+                self.append(&mut out, t);
+            }
         }
         out
     }
@@ -2116,6 +2150,9 @@ impl Game {
             return self.touch(Some(target));
         }
         if let ("examine", Target::Thing(i)) = (verb, target) {
+            if let Some(o) = self.examine_clock(i) {
+                return o;
+            }
             if self.thing(i).kind == "calendar stone" {
                 if let Some(o) = self.examine_calendar(i) {
                     return o;
@@ -2299,7 +2336,10 @@ impl Game {
             ("read", Target::Thing(i))
                 if self.thing(i).texts.is_empty()
                     && (self.thing(i).object.is_some()
-                        || self.thing(i).kind == "calendar stone") =>
+                        || matches!(
+                            self.thing(i).kind,
+                            "calendar stone" | "sundial" | "water clock"
+                        )) =>
             {
                 self.act("examine", target)
             }

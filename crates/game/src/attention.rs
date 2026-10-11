@@ -280,8 +280,10 @@ impl Game {
             .saturating_sub(std::mem::take(&mut self.said_already))
             .max(1);
         let now = self.state.minutes;
+        // What no one here is keen enough to notice goes unnoticed (D13).
         let mut scored: Vec<(f64, bool, Fact)> = facts
             .into_iter()
+            .filter(|f| self.keen_weight(f) > 0.0)
             .map(|f| {
                 let sig = f.signature();
                 let (score, fresh) = match self.state.told.get(&f.key) {
@@ -295,7 +297,7 @@ impl Game {
                     Some(_) => (f.salience * 0.6, false),
                 };
                 // What this player is keen on weighs more (D13).
-                (score * self.keen_weight(f.slot), fresh, f)
+                (score * self.keen_weight(&f), fresh, f)
             })
             .collect();
         // Where the player set out for is weighed first, within the budget.
@@ -802,6 +804,7 @@ impl Game {
             ));
         }
         self.spell_cues(out);
+        self.spell_signs(out);
         let uncanny = self.uncanny();
         if uncanny != "none" {
             out.push(Fact::new(
