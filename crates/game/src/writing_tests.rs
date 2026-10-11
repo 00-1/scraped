@@ -36,7 +36,9 @@ fn at_latent(seed: u64) -> Option<(Game, usize, usize)> {
     let knife = g.site.things.iter().position(|t| t.kind == "knife")?;
     g.state.carried.push(knife);
     for t in 0..g.site.things.len() {
-        if !matches!(g.site.things[t].home, Place::Room { .. }) || g.site.things[t].texts.is_empty()
+        if !matches!(g.site.things[t].home, Place::Room { .. })
+            || g.site.things[t].texts.is_empty()
+            || g.site.dormant.contains(&t)
         {
             continue;
         }

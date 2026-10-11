@@ -58,6 +58,7 @@ pub(crate) fn at_blank_surface(seed: u64) -> Option<(Game, usize)> {
             return false;
         };
         th.texts.is_empty()
+            && !g.site.dormant.contains(&t)
             && !th.portable
             && matches!(th.kind, "wall" | "stele" | "altar" | "niche")
             && g.site.structure(structure).interior.rooms[room].level >= 0
