@@ -93,6 +93,19 @@ use scraped_sim::writing::Claim;
 use site::{ctx, label, Place, Site, Thing, Way};
 
 /// Verbs that are compass points or up and down.
+/// A cue told to the player (S06): where, what it named, and what kind of
+/// strangeness it was.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CueSeen {
+    pub place: String,
+    pub thing: String,
+    pub quality: String,
+    pub rising: bool,
+}
+
+/// Cues remembered, newest last (S06).
+const CUES_KEPT: usize = 24;
+
 /// Surfaces studied closely before marks are called signs (S06).
 pub const STUDIED_FOR_SIGNS: usize = 3;
 
@@ -281,6 +294,10 @@ pub struct State {
     /// `help` lists beside the basics.
     #[serde(default)]
     pub used: BTreeSet<String>,
+    /// Strangeness the player has been told of, where (S06): what each
+    /// cue named, so following it up gives more.
+    #[serde(default)]
+    pub cues: Vec<CueSeen>,
     /// Surfaces whose marks the player has studied closely (S06): marks
     /// are called signs once there are enough.
     #[serde(default)]
@@ -466,6 +483,8 @@ pub struct Game {
     impression_cache: BTreeMap<u32, (usize, Vec<String>)>,
     /// Whether the last command was reading, so `look closer` reads on.
     reading_now: bool,
+    /// The next examining is a closer look ("look closer at X", S06).
+    closer_next: bool,
     /// A scrape done by cleaning with a tool: told as cleaning (S04).
     cleaning: bool,
     /// Facts already said in this response before the description (a move
@@ -622,6 +641,7 @@ impl Game {
             found: BTreeSet::new(),
             used: BTreeSet::new(),
             studied: BTreeSet::new(),
+            cues: Vec::new(),
             cleaned: BTreeSet::new(),
             written: Vec::new(),
             encountered: BTreeMap::new(),
@@ -653,6 +673,7 @@ impl Game {
             glyph_cache: BTreeMap::new(),
             impression_cache: BTreeMap::new(),
             reading_now: false,
+            closer_next: false,
             cleaning: false,
             listening: false,
             attentive: false,
@@ -866,6 +887,37 @@ impl Game {
     /// The renders kept so far (see `keep_renders`).
     pub fn renders(&self) -> &[Rendered] {
         &self.renders
+    }
+
+    /// A door, stair or opening looked at or touched (S06).
+    fn way_up_close(&mut self, w: &Way, touch: bool) -> Output {
+        self.pass(1);
+        let mut c = self.site.way_vars(w);
+        let material = match self.state.place {
+            Place::Room { structure, room } => {
+                let fs = &self.site.structure(structure).interior.rooms[room].features;
+                fs.iter()
+                    .find(|f| f.kind == "wall")
+                    .or(fs.first())
+                    .map_or("stone".to_string(), |f| label(&f.material))
+            }
+            Place::Outside => "stone".to_string(),
+        };
+        let spot = self.spot();
+        let local = self
+            .env()
+            .local(spot, self.state.minutes, self.carried_light());
+        c.insert("material".into(), Value::from(material));
+        c.insert(
+            "temperature".into(),
+            Value::from(attention::temperature_band(local.temperature)),
+        );
+        c.insert(
+            "held".into(),
+            Value::Bool(self.doors_held().is_some_and(|h| h < 0)),
+        );
+        let t = self.say(if touch { "way.touch" } else { "way.examine" }, c);
+        self.output(vec![t], None)
     }
 
     /// The words the game uses for marks just now (S06): "mark" until the
@@ -1353,14 +1405,106 @@ impl Game {
         // A verb the game followed goes into the player's guide (S06).
         let mark = self.renders.len();
         let verb = cmd.verb.clone();
-        let out = self.command(cmd);
+        // Following up a cue (S06): the thing it named, by name.
+        let follow = self.cue_followed(&cmd);
+        let mut out = self.command(cmd);
         let failed = self.renders[mark.min(self.renders.len())..]
             .iter()
             .any(|r| NOT_FOLLOWED.contains(&r.trace.slot.as_str()));
-        if !failed && !matches!(verb.as_str(), "help" | "manual") {
+        if let Some((slot, cue)) = follow {
+            let t = self.say(
+                slot,
+                ctx(&[
+                    ("thing", Value::from(cue.thing.as_str())),
+                    ("quality", Value::from(cue.quality.as_str())),
+                    ("rising", Value::Bool(cue.rising)),
+                ]),
+            );
+            out = if failed {
+                self.output(vec![t], None)
+            } else {
+                self.output(vec![out.text, t], None)
+            };
+        }
+        let followed = out.text.len() > 0
+            && self.renders[mark.min(self.renders.len())..]
+                .iter()
+                .any(|r| r.trace.slot.starts_with("cue."));
+        self.remember_cues(mark);
+        if (!failed || followed) && !matches!(verb.as_str(), "help" | "manual") {
             self.state.used.insert(verb);
         }
         out
+    }
+
+    /// The cue a command follows up, if it names what a cue named here
+    /// (S06), and the slot that answers.
+    fn cue_followed(&self, cmd: &Command) -> Option<(&'static str, CueSeen)> {
+        let slot = match cmd.verb.as_str() {
+            "examine"
+                if self.closer_next || self.log.last().is_some_and(|l| l.contains("clos")) =>
+            {
+                "cue.closer"
+            }
+            "examine" | "look" => "cue.examine",
+            "touch" => "cue.touch",
+            "listen" => "cue.listen",
+            "smell" => "cue.smell",
+            "look_closer" if !cmd.words.is_empty() => "cue.closer",
+            _ => return None,
+        };
+        let words: Vec<&str> = cmd
+            .words
+            .iter()
+            .map(String::as_str)
+            .filter(|w| !matches!(*w, "at" | "the" | "to" | "a" | "an" | "on" | "into"))
+            .collect();
+        let last = *words.last()?;
+        let here = self.spell_place();
+        self.state
+            .cues
+            .iter()
+            .rev()
+            .find(|c| {
+                c.place == here && {
+                    let t = c.thing.as_str();
+                    let tw = t.rsplit(' ').next().unwrap_or(t);
+                    tw == last || format!("{tw}s") == last || t == words.join(" ")
+                }
+            })
+            .map(|c| (slot, c.clone()))
+    }
+
+    /// Keeps what the cues just told named (S06).
+    fn remember_cues(&mut self, mark: usize) {
+        let here = self.spell_place();
+        let new: Vec<CueSeen> = self.renders[mark.min(self.renders.len())..]
+            .iter()
+            .filter_map(|r| match r.trace.slot.as_str() {
+                "spell.cue" => Some(CueSeen {
+                    place: here.clone(),
+                    thing: r.vars.get("thing").map(Value::text).unwrap_or_default(),
+                    quality: r.vars.get("quality").map(Value::text).unwrap_or_default(),
+                    rising: matches!(r.vars.get("rising"), Some(Value::Bool(true))),
+                }),
+                "air.uncanny" => Some(CueSeen {
+                    place: here.clone(),
+                    thing: "air".to_string(),
+                    quality: "heat".to_string(),
+                    rising: r.vars.get("kind").map(Value::text).as_deref() == Some("warmth"),
+                }),
+                _ => None,
+            })
+            .filter(|c| !c.thing.is_empty())
+            .collect();
+        for c in new {
+            self.state.cues.retain(|o| o != &c);
+            self.state.cues.push(c);
+        }
+        let n = self.state.cues.len();
+        if n > CUES_KEPT {
+            self.state.cues.drain(..n - CUES_KEPT);
+        }
     }
 
     fn pass(&mut self, minutes: u32) {
@@ -1377,6 +1521,35 @@ impl Game {
                 .is_some_and(|l| l.trim().eq_ignore_ascii_case("enter"))
         {
             cmd.words = vec!["in".to_string()];
+        }
+        // "look closer at the door", "look closely at X", "look closely X"
+        // (S06): a closer look at that thing, not at the room.
+        self.closer_next = false;
+        if cmd.verb == "look_closer" && !cmd.words.is_empty() {
+            cmd.verb = "examine".to_string();
+            while matches!(
+                cmd.words.first().map(String::as_str),
+                Some("at" | "into" | "on" | "in")
+            ) {
+                cmd.words.remove(0);
+            }
+            self.closer_next = !cmd.words.is_empty();
+        }
+        // "read the stele closely" (S06): read it, then study it closely.
+        if cmd.verb == "read"
+            && matches!(
+                cmd.words.last().map(String::as_str),
+                Some("closely" | "carefully" | "closer")
+            )
+        {
+            cmd.words.pop();
+            let first = self.command(cmd);
+            if self.state.reading.is_none() {
+                return first;
+            }
+            self.reading_now = true;
+            let more = self.page();
+            return self.output(vec![first.text, more.text], None);
         }
         self.breathe();
         let was_reading = std::mem::take(&mut self.reading_now);
@@ -1849,6 +2022,13 @@ impl Game {
             ("go" | "examine" | "look", Target::Room(r)) => return self.go_room(r),
             _ => {}
         }
+        // A way out examined or touched (S06): the door itself, described,
+        // not its name.
+        if let (Target::Way(link), "examine" | "look" | "touch") = (target, verb) {
+            if let Some(w) = self.ways().into_iter().find(|w| w.link == link) {
+                return self.way_up_close(&w, verb == "touch");
+            }
+        }
         if verb == "touch" {
             return self.touch(Some(target));
         }
@@ -1861,7 +2041,8 @@ impl Game {
             if self.thing(i).object.is_some() {
                 // The first look, then closer ones (D05).
                 let key = format!("examined:{i}");
-                let closer = self.state.told.contains_key(&key);
+                let closer =
+                    self.state.told.contains_key(&key) || std::mem::take(&mut self.closer_next);
                 self.state.told.insert(
                     key,
                     attention::Told {

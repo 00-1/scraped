@@ -140,6 +140,26 @@ fn s_none(_: u64) -> Vec<Context> {
 /// Every slot of great interiors.
 pub fn slots() -> Vec<SlotDef> {
     vec![
+        SlotDef::new("way.examine", "A way out of a room looked at (S06): the door, stair or opening itself, not just its name. Its kind, which way it leads, what state it is in, what it is made of. If something holds it that the player can't see, show only what can be seen.")
+            .var("direction", VarType::Text, "Which way it leads (north, up…).")
+            .var("passage", VarType::Text, "What it is: a door, an arch, a stair, an opening…")
+            .var("state", VarType::Text, "open, closed, stuck, barred, collapsed…")
+            .var("along", VarType::Text, "Where along its wall, when several face one way, else ''.")
+            .var("material", VarType::Text, "What the building is made of.")
+            .var("temperature", VarType::Text, "How the air feels here.")
+            .var("held", VarType::Bool, "Whether old writing holds the building's doors shut. Never say so; at most that it won't give.")
+            .max_len(260)
+            .sampler(s_way_up_close),
+        SlotDef::new("way.touch", "A way out of a room touched (S06): how the door or its frame feels under the hand, and whether it gives. Never say why it won't.")
+            .var("direction", VarType::Text, "Which way it leads.")
+            .var("passage", VarType::Text, "What it is.")
+            .var("state", VarType::Text, "Its state.")
+            .var("along", VarType::Text, "Where along its wall.")
+            .var("material", VarType::Text, "What the building is made of.")
+            .var("temperature", VarType::Text, "How the air feels here.")
+            .var("held", VarType::Bool, "Whether old writing holds it shut.")
+            .max_len(260)
+            .sampler(s_way_up_close),
         SlotDef::new("move.report", "Which way the player went inside and how far, honestly, so they can draw a map ('North through the door, some 12 metres.'). Said before the next room. In the dark, only the direction is felt: no distance.")
             .var("direction", e(INSIDE_DIRECTIONS), "Which way.")
             .var("passage", e(PASSAGES), "What they went through.")
@@ -212,5 +232,28 @@ pub fn slots() -> Vec<SlotDef> {
             .var("landmark", e(&crate::quiet_slots::LANDMARKS), "What makes it one to know again: vast, lofty, lone; empty for most.")
             .max_len(60)
             .sampler(s_name),
+    ]
+}
+
+fn s_way_up_close(_: u64) -> Vec<Context> {
+    vec![
+        ctx(&[
+            ("direction", Value::from("north")),
+            ("passage", Value::from("door")),
+            ("state", Value::from("closed")),
+            ("along", Value::from("")),
+            ("material", Value::from("stone")),
+            ("temperature", Value::from("cool")),
+            ("held", Value::Bool(false)),
+        ]),
+        ctx(&[
+            ("direction", Value::from("down")),
+            ("passage", Value::from("stair")),
+            ("state", Value::from("open")),
+            ("along", Value::from("")),
+            ("material", Value::from("brick")),
+            ("temperature", Value::from("cold")),
+            ("held", Value::Bool(true)),
+        ]),
     ]
 }

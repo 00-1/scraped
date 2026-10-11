@@ -54,3 +54,14 @@ example = true
 slot = "move.rope"
 text = "You make the rope fast and climb, hand over hand."
 example = true
+
+[[variant]]
+slot = "way.examine"
+text = "{cap a passage} of {material}, leading {direction}, {state}."
+example = true
+
+[[variant]]
+slot = "way.touch"
+text = "The {passage} is {temperature} under your hand[if held], and it will not give[end]."
+example = true
+

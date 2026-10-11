@@ -736,6 +736,36 @@ pub fn slots() -> Vec<SlotDef> {
             .var("indoors", VarType::Bool, "Inside a building.")
             .max_len(140)
             .sampler(s_uncanny),
+        SlotDef::new("cue.examine", "The player examines the thing a cue named (S06: following up strangeness): something here was not as it should be. Always about that thing, and always gives something, even if all it says is that something feels wrong for no reason the character can name. Never mention writing, spells, words or magic; never say what was asked for or why.")
+            .var("thing", VarType::Text, "The thing the cue named, in plain English ('door', 'jar', 'air').")
+            .var("quality", VarType::Text, "The kind of strangeness: heat, light, wetness, flow, sound, growth, lure, calm, weight, visibility, binding, keeping, rising.")
+            .var("rising", VarType::Bool, "Which way it goes: warmer, brighter, louder… (true) or the reverse.")
+            .max_len(260)
+            .sampler(s_cue_follow),
+        SlotDef::new("cue.touch", "The player touches the thing a cue named (S06: following up strangeness): something here was not as it should be. Always about that thing, and always gives something, even if all it says is that something feels wrong for no reason the character can name. Never mention writing, spells, words or magic; never say what was asked for or why.")
+            .var("thing", VarType::Text, "The thing the cue named, in plain English ('door', 'jar', 'air').")
+            .var("quality", VarType::Text, "The kind of strangeness: heat, light, wetness, flow, sound, growth, lure, calm, weight, visibility, binding, keeping, rising.")
+            .var("rising", VarType::Bool, "Which way it goes: warmer, brighter, louder… (true) or the reverse.")
+            .max_len(260)
+            .sampler(s_cue_follow),
+        SlotDef::new("cue.closer", "The player looks closer at the thing a cue named (S06: following up strangeness): something here was not as it should be. Always about that thing, and always gives something, even if all it says is that something feels wrong for no reason the character can name. Never mention writing, spells, words or magic; never say what was asked for or why.")
+            .var("thing", VarType::Text, "The thing the cue named, in plain English ('door', 'jar', 'air').")
+            .var("quality", VarType::Text, "The kind of strangeness: heat, light, wetness, flow, sound, growth, lure, calm, weight, visibility, binding, keeping, rising.")
+            .var("rising", VarType::Bool, "Which way it goes: warmer, brighter, louder… (true) or the reverse.")
+            .max_len(260)
+            .sampler(s_cue_follow),
+        SlotDef::new("cue.listen", "The player listens at the thing a cue named (S06: following up strangeness): something here was not as it should be. Always about that thing, and always gives something, even if all it says is that something feels wrong for no reason the character can name. Never mention writing, spells, words or magic; never say what was asked for or why.")
+            .var("thing", VarType::Text, "The thing the cue named, in plain English ('door', 'jar', 'air').")
+            .var("quality", VarType::Text, "The kind of strangeness: heat, light, wetness, flow, sound, growth, lure, calm, weight, visibility, binding, keeping, rising.")
+            .var("rising", VarType::Bool, "Which way it goes: warmer, brighter, louder… (true) or the reverse.")
+            .max_len(260)
+            .sampler(s_cue_follow),
+        SlotDef::new("cue.smell", "The player smells the thing a cue named (S06: following up strangeness): something here was not as it should be. Always about that thing, and always gives something, even if all it says is that something feels wrong for no reason the character can name. Never mention writing, spells, words or magic; never say what was asked for or why.")
+            .var("thing", VarType::Text, "The thing the cue named, in plain English ('door', 'jar', 'air').")
+            .var("quality", VarType::Text, "The kind of strangeness: heat, light, wetness, flow, sound, growth, lure, calm, weight, visibility, binding, keeping, rising.")
+            .var("rising", VarType::Bool, "Which way it goes: warmer, brighter, louder… (true) or the reverse.")
+            .max_len(260)
+            .sampler(s_cue_follow),
         SlotDef::new("spell.cue", "Something here is not as it should be, felt or seen: the evidence of old writing pushing one quality of a thing (a lamp-less room lit at night, a jar cold to the touch, birds that never land here, a door you can't see the frame of until you touch it, water running uphill). The strangeness of the place, never its cause: never mention writing, spells, words or magic, and never say what was asked for. Light, heat, doors and falling stone have their own slots.")
             .var("quality", e(&QUALITIES), "What is pushed: light, wetness, flow, sound, growth, lure (animals drawn or kept off), calm (animals calm or restless), weight, visibility (hidden or revealed), binding (held fast or loosed), keeping (kept fresh, or spoiling), rising (rising against the fall, or sinking).")
             .var("rising", VarType::Bool, "Brighter, wetter, flowing, louder, growing, drawing animals, calmer, heavier, revealed, held fast, kept, rising (true) or the reverse.")
@@ -870,4 +900,22 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(140)
             .sampler(s_age),
     ]
+}
+
+fn s_cue_follow(_: u64) -> Vec<Context> {
+    [
+        ("door", "heat", false),
+        ("jar", "keeping", true),
+        ("air", "heat", true),
+        ("reindeer", "lure", false),
+    ]
+    .iter()
+    .map(|(t, q, r)| {
+        ctx(&[
+            ("thing", Value::from(*t)),
+            ("quality", Value::from(*q)),
+            ("rising", Value::Bool(*r)),
+        ])
+    })
+    .collect()
 }

@@ -1,0 +1,26 @@
+notes = "Following up strangeness (S06): what examining, touching, looking closer at, listening at or smelling the thing a cue named gives."
+
+[[variant]]
+slot = "cue.examine"
+text = "You look the {thing} over. Something about it is wrong, and you can't say what."
+example = true
+
+[[variant]]
+slot = "cue.touch"
+text = "[if quality == 'heat'][if rising]The {thing} is warmer than it should be.[else]The {thing} is colder than it should be.[end][else]Under your hand the {thing} feels ordinary, and still something is off.[end]"
+example = true
+
+[[variant]]
+slot = "cue.closer"
+text = "Up close the {thing} is only a {thing}. The wrongness stays."
+example = true
+
+[[variant]]
+slot = "cue.listen"
+text = "[if quality == 'sound']The {thing} is [if rising]louder[else]quieter[end] than it should be.[else]Nothing you can hear explains the {thing}.[end]"
+example = true
+
+[[variant]]
+slot = "cue.smell"
+text = "The {thing} smells of nothing that would explain it."
+example = true

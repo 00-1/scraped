@@ -18,7 +18,7 @@ object = "none"
 
 [[verb]]
 id = "look_closer"
-words = ["look closer", "look more closely", "look carefully", "l closer", "search", "search here", "look about here"]
+words = ["look closer", "look closely", "look more closely", "look carefully", "l closer", "search", "search here", "look about here"]
 object = "none"
 
 [[verb]]

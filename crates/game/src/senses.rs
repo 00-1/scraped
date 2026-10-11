@@ -790,7 +790,7 @@ impl Game {
     /// A second look at a thing finds what the first glance missed.
     pub(crate) fn examine_closer(&mut self, t: usize) -> Option<Output> {
         let key = format!("examined:{t}");
-        let before = self.state.told.contains_key(&key);
+        let before = self.state.told.contains_key(&key) || std::mem::take(&mut self.closer_next);
         self.state.told.insert(
             key,
             crate::attention::Told {
