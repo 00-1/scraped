@@ -1,6 +1,6 @@
-# D14 — Ways of playing
+# D15 — Ways of playing
 
-**When:** after S07. **Size:** one milestone, possibly two. Keep each arc small at first and deepen later.
+**When:** after D14 (Finding your way). **Size:** one milestone, possibly two. Keep each arc small at first and deepen later.
 
 **Goal (Jb, 2026-10-11):** several ways of playing are satisfying in their own right, and never need to progress with writing at all. Each play style from D13 gets its own payoffs, small and large, and its own way for a run to feel complete. Writing stays one path among several, not the only one with a destination.
 
@@ -26,7 +26,7 @@ Each arc has three things:
    - Large payoffs: running a great building's works; opening its sealed heart by mechanism, not writing; repairing a roof, bridge or well so a place can be used; mapping a great interior whole.
    - Ending (proposed): restoration. A building made sound and lived in again, or a great interior fully explored.
 3. **Wayfarer: the land and the way out.**
-   - Mastery: steering by sun and the still star; landmarks, routes, fords and passes; weather read ahead. The world's own units (D13) let them measure.
+   - Mastery: finding your way (D14): steering by sun and the still star; landmarks, routes, fords and passes; weather read ahead. The world's own units (D13) let them measure.
    - Large payoffs: finding every town on an old map; a hidden valley or pass; a summit view that shows the land whole; long journeys made safely.
    - Ending (exists, D10): the world's rim, reached on foot. Make the journey there a real arc, with landmarks on the way, not just a walk.
 4. **Scribe: the marks.** The arc the game already has, through decipherment to writing.
@@ -49,7 +49,7 @@ Each arc has three things:
 
 - Arc goals in the fairness checker.
 - Bots per style that never scrape, study or write.
-- Samples: `docs/samples/D14/`, a condensed run per style on seed 42, with a short note on each arc's shape.
+- Samples: `docs/samples/D15/`, a condensed run per style on seed 42, with a short note on each arc's shape.
 
 ## Checklist
 

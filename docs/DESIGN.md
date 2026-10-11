@@ -27,7 +27,7 @@ What this means in practice:
 - **Tools are ordinary first.** What can scrape is first a knife, a chisel, a pumice stone, used to cut, pry or clean. What can magnify is first a lens for starting fires and reading small marks. Their deeper use is discovered, not announced.
 - **Small payoffs, often.** Alongside the slow build, the world is scattered with small, quick puzzles solved with ordinary actions and the senses (a jammed lid, a hollow wall, a loose stone), each giving something. Play is rewarded along the way, not only at the end of long threads (Jb, 2026-10-11).
 - **A run without writing is still a run.** A player who never learns the mechanic can still explore, survive, map, solve mechanisms, piece together the history, and end their time in the world in a meaningful way.
-- **Several ways of playing, each with its own payoffs** (Jb, 2026-10-11). Each play style has its own arc of small payoffs, growing mastery, large payoffs and a satisfying end, and several of them never progress with writing at all. Writing is one path among several (D14).
+- **Several ways of playing, each with its own payoffs** (Jb, 2026-10-11). Each play style has its own arc of small payoffs, growing mastery, large payoffs and a satisfying end, and several of them never progress with writing at all. Writing is one path among several (D15).
 
 ## Say little; let the player dig
 
@@ -120,6 +120,18 @@ Decided by Jb (2026-10-11).
 ### Pieces of writing on one thing
 
 Decided by Jb (2026-10-11). Where a thing carries more than one piece of writing (layers, or separate texts), each is studied on its own ("study the fainter marks"), and the first glance says there is more than one and how they look different (fainter, another hand, cut differently). Never a bare separator in a list. Nothing says they're different languages or eras: that's for the player to work out.
+
+### Finding your way
+
+Decided by Jb (2026-10-11). Finding your way outdoors is confusing at first and masterable: the confusion comes from the world (fog, forest, night, open country), never from noise.
+
+- **Head a way and stop at what's interesting.** Heading in a direction carries on until something interesting is met (a place, a feature, a path, something seen), as now. If something visible lies that way, heading there is the default, and arriving is the stop.
+- **Places outdoors are stable** and recognisable by their most distinctive features, always noticed first. A return is recognised.
+- **Landmarks are consistent** from each place and shift as you move, so a patient player can triangulate. Paths (roads, rivers, ridges, shores) are easy to follow; open country is where you get lost.
+- **Drift has causes:** no sun or star, fog, forest, no landmark in view. With them you hold your course. The character can feel unsure.
+- **The character remembers the way they came** (`go back` retraces it) and recognises places, but keeps no map. Mapping is the player's.
+
+Details and gates: `docs/milestones/D14-finding-your-way.md`.
 
 ### Measures as a body knows them
 
