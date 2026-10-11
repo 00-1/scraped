@@ -1,0 +1,10 @@
+{
+  "desc": "Northwest of the home village, middle distance.",
+  "exits": {},
+  "name": "High mountain",
+  "order": 24,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": -2,
+  "y": -2
+}

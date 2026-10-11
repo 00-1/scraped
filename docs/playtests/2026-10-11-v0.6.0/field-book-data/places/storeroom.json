@@ -1,0 +1,24 @@
+{
+  "desc": "A storeroom, dim and close. The air is cool. Ways out: a door east and the way out. We took everything loose: jar, token, wood, two provisions.",
+  "exits": {
+    "east": "tally-room",
+    "out": "start"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "clay wall",
+      "note": "154 marks, many deliberately scraped away.",
+      "state": "inscribed"
+    }
+  ],
+  "name": "Storeroom",
+  "notes": "Placed below the village for drawing only; its real position is unknown. Third look: \"The air is cool.\"",
+  "order": 2,
+  "status": "revisit",
+  "statusNote": "Looked until nothing new and took everything. Come back to the wall's 154 marks once we can fill the worn ones.",
+  "terrain": "in the storehouse",
+  "visited": true,
+  "x": -0.25,
+  "y": 0.75
+}

@@ -918,3 +918,15 @@ Added `docs/milestones/S06-what-the-game-shows.md` (now) and `docs/milestones/D1
 **New content slots:** `trace.no_tool`, `read.seal`, `gather.got`, `gather.none_of`, `way.examine`, `way.touch`, `cue.examine`, `cue.touch`, `cue.closer`, `cue.listen`, `cue.smell`, `app.about` (empty); removed `glyph.closer`. Ambient variables `noun` and `reading` in reading slots; `help`, `manual.page`, `map.place` (`count`) and the move, wait, sleep, travel and end slots changed variables.
 
 Released as v0.6.0, a minor bump (`saves check --against v0.5.0`), with a 0.6.0 corpus save.
+
+## 2026-10-11 — Jb's second playtest; S07 added
+
+Jb played v0.6.0 with an AI partner (about 370 commands; `docs/playtests/2026-10-11-v0.6.0/`). Replies carried only text, and the start no longer pointed at writing. The partner's decipherment worked well (a text written twice, dropped words that fill a scraped tablet, an old-to-new chain), and Jb reasoned about the season and the world from evidence. What dragged: cycling `look` 5–10 times a room, facts repeated, a temple of 22- and 37-page walls, `go back` walking back and forth, things named that couldn't be examined, and natural verbs not understood (put, unlock, play, pray).
+
+Jb's decisions while playing, now in `docs/DESIGN.md`:
+- "Noticing once, itemising at will": looking as a progression, say it once, recognition on return, obvious next steps suggested.
+- "Doing several things at once": groups, chains with one reply per step, a sweep.
+- "Pieces of writing on one thing": each studied separately.
+
+Added `docs/milestones/S07-from-the-second-playtest.md`, after D13.
+

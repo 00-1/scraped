@@ -1,0 +1,36 @@
+{
+  "desc": "A hall, dim and close. A clay wall, a stone statue and the brazier stand here. Ways out: a door south, an arch north, an arch east and an arch west. The air is cool.",
+  "exits": {
+    "east": "temple-e",
+    "north": "temple-n",
+    "south": "temple1",
+    "west": "temple-w"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "brazier",
+      "state": "cold"
+    },
+    {
+      "located": true,
+      "name": "stone statue",
+      "note": "\"A stone statue.\" Nothing more."
+    },
+    {
+      "located": true,
+      "name": "clay wall",
+      "note": "68 signs, mostly scraped.",
+      "state": "inscribed"
+    }
+  ],
+  "name": "Temple hall",
+  "notes": "In daylight the \"something about the door is not as it should be\" message stopped appearing.",
+  "order": 16,
+  "status": "partial",
+  "statusNote": "Looked until nothing new; torch taken. Brazier is cold.",
+  "terrain": "in the temple",
+  "visited": true,
+  "x": 0.3,
+  "y": -1.3
+}

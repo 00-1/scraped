@@ -1,0 +1,10 @@
+{
+  "desc": "Southwest of the waterfall, middle distance. Coastal, so the sea is that way.",
+  "exits": {},
+  "name": "Coastal town",
+  "order": 27,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": -2,
+  "y": 5
+}

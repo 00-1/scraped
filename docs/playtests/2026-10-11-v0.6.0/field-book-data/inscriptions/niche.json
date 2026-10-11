@@ -1,0 +1,62 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "?",
+        "?",
+        "mbox-sweep",
+        "?",
+        "box-curl",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "?",
+        "door+dot",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "tree+dot+loop",
+        "arrow"
+      ]
+    }
+  ],
+  "note": "14 signs, 7 worn. Horn/moon style, like the table and the second half of the wall.",
+  "on": "stone niche",
+  "restored": {
+    "1": {
+      "conf": "guess",
+      "s": "egg",
+      "why": "Wall 65-68 reads egg horn, mbox-sweep horn."
+    },
+    "2": {
+      "conf": "guess",
+      "s": "horn",
+      "why": "Wall 65-68 reads egg horn, mbox-sweep horn."
+    },
+    "4": {
+      "conf": "likely",
+      "s": "horn",
+      "why": "In the horn/moon texts, mbox-sweep is followed by horn twice (wall 67, 145) and moon once (111)."
+    },
+    "8": {
+      "conf": "strong",
+      "s": "arrow",
+      "why": "Group 2 (box-curl ? door+dot ?) matches box-curl arrow door+dot arrow, intact three times on the wall (79, 119, 131)."
+    },
+    "10": {
+      "conf": "strong",
+      "s": "arrow",
+      "why": "Same phrase: box-curl arrow door+dot arrow."
+    }
+  },
+  "t": 5,
+  "where": "temple-w"
+}

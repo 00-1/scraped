@@ -96,6 +96,29 @@ Open for Jb: how a style is chosen (a menu, something in the fiction, or no choi
 - **Agents get what humans get,** plus a short fair-play note (don't cheat). No extra house rules or advice.
 - **The JSON carries nothing the text doesn't say.** No hidden lists, ids, exact clock, load figures or fields that reveal commands. An agent and a person see the same world.
 
+### Noticing once, itemising at will
+
+Decided by Jb (2026-10-11), from the second playtest.
+
+- **You notice something for the first time only once.** Passive noticing (arrivals, `look`, things that catch the eye) says each fact once, then only what's new or changed. The transcript is the record; the game doesn't repeat itself unasked.
+- **Looking is a progression, not a shuffle.** The first `look` is a first glance at the whole and its standout; each later look goes further, in a fixed order, never repeating; when nothing is left it says so ("nothing more catches your eye") rather than looping. It starts afresh when the place changes (light, weather, something moved, a return after a while).
+- **Itemising is deliberate and always available.** Examining something again, studying marks again, or taking stock of a place (`take stock`, `what's here`) lists or repeats what you ask for, in full, at any time.
+- **Recognition, not first sight.** Coming back, things already noticed are worded as known ("the stele still stands by the door"); new or changed things as first sight. After a short absence, only recognition and changes; after a long one the place may be described again, in the voice of recognition. Places you know are recognised from afar by what you know them as.
+- **Obvious next steps are suggested.** If the next thing to do would be obvious to a person standing there, the game suggests it (one at a time, in Jb's words; see "What the character knows to try").
+
+### Doing several things at once
+
+Decided by Jb (2026-10-11).
+
+- **Groups and chains.** `all` and plurals work for every verb (`examine all`, `touch the walls`); commands can be chained (`clean the wall and study it`, `examine the stele, the basin and the map`), with `it` for the last thing named. Each step runs in order and costs its own time.
+- **One reply per step.** A chain shows each step as its own message, headed by its command, as if typed by hand: it saves typing, not reading.
+- **Chains stop when something happens:** a sound, a danger, a failure, something newly noticed. The game says where it stopped.
+- **A sweep:** `search the room` runs the obvious inspection (look, examine each thing, the senses), skipping what you already know, and stops at the first new thing; repeating it carries on; when nothing's left it says so. Keenness sets its order.
+
+### Pieces of writing on one thing
+
+Decided by Jb (2026-10-11). Where a thing carries more than one piece of writing (layers, or separate texts), each is studied on its own ("study the fainter marks"), and the first glance says there is more than one and how they look different (fainter, another hand, cut differently). Never a bare separator in a list. Nothing says they're different languages or eras: that's for the player to work out.
+
 ### Measures as a body knows them
 
 - **No modern units.** There are no hours, minutes, metres or kilometres in this world, and the character has no instruments.

@@ -1,0 +1,29 @@
+{
+  "desc": "A long walk south of the grassland. Reddish oak, in flower. New leaves. Here and there: bare earth. The plain town to the northwest (middle).",
+  "exits": {
+    "north": "wpA",
+    "to mound": "mound"
+  },
+  "features": [
+    {
+      "name": "reddish oak",
+      "state": "in flower"
+    },
+    {
+      "name": "new leaves"
+    },
+    {
+      "name": "bare earth",
+      "state": "patches"
+    }
+  ],
+  "name": "Flowering oaks",
+  "notes": "Travel stopped here because the riverside waterfall came into view to the southwest. We overshot the mound, then reached it with \"go to burial mound\".",
+  "order": 6,
+  "status": "partial",
+  "statusNote": "Two looks only.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 3,
+  "y": 2
+}

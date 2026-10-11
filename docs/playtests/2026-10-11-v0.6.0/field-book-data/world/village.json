@@ -1,0 +1,28 @@
+{
+  "confidence": "low",
+  "evidence": [
+    {
+      "dir": "for",
+      "text": "\"An intact farming village of a few houses\", but no people have been mentioned anywhere.",
+      "where": "start"
+    },
+    {
+      "dir": "for",
+      "text": "Food and records were left behind in the storehouse.",
+      "where": "storeroom"
+    },
+    {
+      "dir": "against",
+      "text": "Young animals are about, so someone may be tending them.",
+      "where": "start"
+    },
+    {
+      "dir": "neutral",
+      "text": "The storehouse is \"worn\" while the houses and temple are \"intact\"."
+    }
+  ],
+  "guess": "Intact but nobody is around",
+  "next": "Try the houses and the square. Does anyone appear?",
+  "order": 4,
+  "topic": "The village"
+}

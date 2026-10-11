@@ -1,0 +1,22 @@
+{
+  "desc": "A short walk east of the old-town village. A burial mound to the south (a short walk). The plain town to the west (middle). New leaves.",
+  "exits": {
+    "S, far": "wpE",
+    "south": "mound",
+    "west": "village2"
+  },
+  "features": [
+    {
+      "name": "new leaves"
+    }
+  ],
+  "name": "Grassland near the mound",
+  "notes": "Travel first stopped here because the plain grassy town came into view to the southwest. \"go back\" from the mound brought us here in a short walk north.",
+  "order": 5,
+  "status": "partial",
+  "statusNote": "Passed through; never cycled looks.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 3,
+  "y": 0
+}

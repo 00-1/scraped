@@ -1,0 +1,737 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "?",
+        "seed",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "box-curl",
+        "?",
+        "mbox-sweep",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "?",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "box-point",
+        "seed",
+        "hornbox",
+        "?",
+        "?",
+        "?"
+      ]
+    },
+    {
+      "signs": [
+        "?",
+        "?",
+        "?",
+        "box-cross"
+      ]
+    },
+    {
+      "rule": true,
+      "signs": [
+        "hornbox+dot",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-sweep",
+        "wide",
+        "fishhook",
+        "arrow",
+        "box-curl+dot",
+        "arrow",
+        "hornbox+dot",
+        "wide",
+        "door+dot",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl+dot",
+        "wide",
+        "tree+dot",
+        "wide",
+        "seed+arch",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-point",
+        "arrow",
+        "hornbox+dot",
+        "wide",
+        "box-curl+dot",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "wide",
+        "mbox-saw",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "seed",
+        "mbox-sweep",
+        "wide",
+        "fishhook",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl+dot",
+        "arrow",
+        "hornbox+dot",
+        "wide",
+        "door+dot",
+        "wide",
+        "door",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "lamp",
+        "wide",
+        "egg",
+        "seed",
+        "wave",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "door+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "wide",
+        "wave",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "seed",
+        "crook",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "seed",
+        "seed+arch",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "door+loop",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl+dot",
+        "seed",
+        "door+dot",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "egg",
+        "arrow",
+        "fishhook",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "wide",
+        "box-point",
+        "arrow",
+        "wave",
+        "arrow",
+        "door+loop",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "crook",
+        "seed",
+        "lamp",
+        "seed",
+        "egg",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-sweep",
+        "arrow",
+        "mbox-sweep",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-sweep",
+        "arrow",
+        "lamp",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl+dot",
+        "wide"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree+dot+loop",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "wide",
+        "box-point",
+        "arrow",
+        "wave",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "seed",
+        "lamp",
+        "seed",
+        "egg",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl+dot",
+        "wide"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "hornbox+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-sweep",
+        "wide",
+        "mbox-saw",
+        "arrow",
+        "tree+dot+loop",
+        "wide",
+        "box-point",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "seed",
+        "box-curl+dot",
+        "wide",
+        "lamp",
+        "wide"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl+dot",
+        "wide",
+        "tree+dot+loop",
+        "seed",
+        "door",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl+dot",
+        "arrow",
+        "lamp",
+        "wide",
+        "lamp",
+        "seed",
+        "egg",
+        "wide"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-sweep",
+        "wide"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "fishhook",
+        "wide"
+      ]
+    },
+    {
+      "rule": true,
+      "signs": [
+        "door",
+        "moon",
+        "lean-mid",
+        "moon",
+        "seed+arch",
+        "arrow",
+        "box-curl",
+        "moon",
+        "hornbox",
+        "horn",
+        "tree+dot+loop",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl+loop",
+        "moon",
+        "box-curl+dot",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "horn",
+        "hornbox+dot",
+        "arrow",
+        "box-point",
+        "moon",
+        "fishhook",
+        "horn",
+        "egg",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-saw",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "arrow",
+        "box-curl+dot",
+        "horn",
+        "box-curl",
+        "moon",
+        "hornbox",
+        "horn",
+        "tree+dot+loop",
+        "moon",
+        "door",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "lamp",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "egg",
+        "horn",
+        "lean-mid",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow",
+        "door+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "moon",
+        "mbox-sweep",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "door+loop",
+        "arrow",
+        "box-curl+dot",
+        "horn"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "door+dot",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl+dot",
+        "horn",
+        "box-curl+dot",
+        "moon",
+        "egg",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-sweep",
+        "arrow",
+        "lamp",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "door",
+        "moon",
+        "box-point",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "hornbox+dot",
+        "horn",
+        "lean-mid",
+        "moon",
+        "hornbox+dot",
+        "arrow",
+        "door",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "arrow",
+        "mbox-saw",
+        "horn",
+        "box-point",
+        "arrow",
+        "box-curl",
+        "horn"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-sweep",
+        "arrow",
+        "mbox-sweep",
+        "arrow",
+        "mbox-saw",
+        "moon",
+        "door+loop",
+        "moon",
+        "box-curl+dot",
+        "moon",
+        "door+loop",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "arrow",
+        "hornbox+dot",
+        "moon"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "door+dot",
+        "arrow",
+        "egg",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "moon",
+        "mbox-saw",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox+dot",
+        "arrow",
+        "box-curl+dot",
+        "horn",
+        "box-curl",
+        "moon",
+        "hornbox",
+        "horn"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree+dot+loop",
+        "moon",
+        "door",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "lamp",
+        "moon",
+        "egg",
+        "horn",
+        "lean-mid",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl",
+        "arrow",
+        "door+dot",
+        "arrow"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "horn"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "lean-low",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "tree+loop",
+        "arrow",
+        "box-curl",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "tree",
+        "horn",
+        "lean-low",
+        "horn"
+      ]
+    },
+    {
+      "signs": [
+        "lean-low",
+        "horn",
+        "seed+arch",
+        "moon"
+      ]
+    },
+    {
+      "signs": [
+        "door+loop",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl+dot",
+        "horn",
+        "door+dot",
+        "horn"
+      ]
+    }
+  ],
+  "note": "340 signs in THREE parts split by —. Part 1 (1–30): old seed/box-cross style, almost all scraped. Part 2 (31–178): middle style (seed / wide / arrow), complete. Part 3 (179–340): newest horn/moon style, complete.",
+  "on": "east chapel clay wall",
+  "restored": {
+    "1": {
+      "conf": "guess",
+      "s": "hornbox+dot",
+      "why": "The middle version on this same wall opens (hornbox+dot seed)(mbox-sweep wide); its old form would be (hornbox+dot seed)(mbox-sweep box-cross). Sign 2 = seed fits."
+    },
+    "3": {
+      "conf": "guess",
+      "s": "mbox-sweep",
+      "why": "Old form of the middle opening, (hornbox+dot seed)(mbox-sweep box-cross)."
+    },
+    "4": {
+      "conf": "guess",
+      "s": "box-cross",
+      "why": "Old form of the middle opening."
+    },
+    "15": {
+      "conf": "likely",
+      "s": "tree",
+      "why": "15–24 is the chapel's old opening word Z: tree box-cross, mbox-sweep box-cross, mbox-sweep seed, box-point seed, hornbox seed. The surviving box-point, seed, hornbox at 21–23 sit exactly where Z puts them."
+    },
+    "16": {
+      "conf": "likely",
+      "s": "box-cross",
+      "why": "Word Z (see 15)."
+    },
+    "17": {
+      "conf": "likely",
+      "s": "mbox-sweep",
+      "why": "Word Z (see 15)."
+    },
+    "18": {
+      "conf": "likely",
+      "s": "box-cross",
+      "why": "Word Z (see 15)."
+    },
+    "19": {
+      "conf": "likely",
+      "s": "mbox-sweep",
+      "why": "19–26 (? ?)(box-point seed)(hornbox ?) fits the chapel's old opening word, which ends (mbox-sweep seed)(box-point seed)(hornbox seed)."
+    },
+    "20": {
+      "conf": "likely",
+      "s": "seed",
+      "why": "Same opening word: mbox-sweep seed, box-point seed, hornbox seed."
+    },
+    "24": {
+      "conf": "likely",
+      "s": "seed",
+      "why": "Same opening word: hornbox seed. Hornbox is followed by seed in every old text."
+    },
+    "25": {
+      "conf": "likely",
+      "s": "mbox-cross",
+      "why": "On the chapel wall, Z's second appearance continues (mbox-cross seed)."
+    },
+    "26": {
+      "conf": "likely",
+      "s": "seed",
+      "why": "Z continued: mbox-cross seed."
+    },
+    "27": {
+      "conf": "likely",
+      "s": "box-curl+dot",
+      "why": "On the chapel wall, the word after Z is (box-curl+dot box-cross)(tree box-cross); the surviving box-cross at 30 fits."
+    },
+    "28": {
+      "conf": "likely",
+      "s": "box-cross",
+      "why": "(box-curl+dot box-cross)(tree box-cross), as on the chapel wall."
+    },
+    "29": {
+      "conf": "likely",
+      "s": "tree",
+      "why": "(box-curl+dot box-cross)(tree box-cross), as on the chapel wall."
+    }
+  },
+  "t": 9,
+  "where": "temple-e"
+}

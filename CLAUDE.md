@@ -10,7 +10,7 @@ A text-only, procedurally generated exploration/survival game about deciphering 
 
 **None: the depth roadmap is complete.** D01–D12, S01–S05 and C01 are done (`docs/DEPTH.md`). What comes next is Jb's playtest (`docs/PLAYTEST.md`) and content (`docs/CONTENT-PLAN.md`); wait for his steer before starting new design work, and meanwhile fix bugs he reports. The first roadmap (M01–M14, `docs/ROADMAP.md`) is complete. See `docs/HANDOFF.md` for where things stand.
 
-S06 (What the game shows) is done and released as v0.6.0. **Now: D13 — Ways of noticing** (`docs/milestones/D13-ways-of-noticing.md`), built on "Noticing and knowing" in `docs/DESIGN.md`. X01 waits for Jb.
+S06 (What the game shows) is done and released as v0.6.0. **Now: D13 — Ways of noticing** (`docs/milestones/D13-ways-of-noticing.md`), built on "Noticing and knowing" in `docs/DESIGN.md`. Then **S07 — From the second playtest** (`docs/milestones/S07-from-the-second-playtest.md`). X01 waits for Jb.
 
 Since C01, saves are snapshots and releases follow `docs/VERSIONING.md`: run `scraped-lang saves check` after a change to rules or generation, and prefer changes that need only a minor bump.
 

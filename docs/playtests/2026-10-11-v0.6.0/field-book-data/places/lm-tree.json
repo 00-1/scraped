@@ -1,0 +1,10 @@
+{
+  "desc": "Northwest of the waterfall, middle distance. Across the river.",
+  "exits": {},
+  "name": "Grassy ancient tree",
+  "order": 28,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": -2,
+  "y": 1.2
+}

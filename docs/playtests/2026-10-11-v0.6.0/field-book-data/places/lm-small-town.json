@@ -1,0 +1,10 @@
+{
+  "desc": "Came into view to the northwest of the old-town village. Could be the plain town seen from a different angle.",
+  "exits": {},
+  "name": "Small plain town",
+  "order": 21,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": 1,
+  "y": -1
+}

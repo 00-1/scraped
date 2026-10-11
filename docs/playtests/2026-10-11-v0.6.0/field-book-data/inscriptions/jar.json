@@ -1,0 +1,41 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "box-curl+dot",
+        "seed",
+        "egg",
+        "seed",
+        "wave+curl",
+        "box-cross",
+        "crook",
+        "box-cross",
+        "mbox-sweep",
+        "seed",
+        "box-point",
+        "seed",
+        "mbox-cross",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "crook",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree",
+        "seed"
+      ]
+    }
+  ],
+  "note": "\"About two lines, in a heavy hand. A few shapes keep coming back.\" Page break after mark 16.",
+  "on": "clay jar",
+  "t": 1,
+  "where": "storeroom",
+  "withUs": true
+}

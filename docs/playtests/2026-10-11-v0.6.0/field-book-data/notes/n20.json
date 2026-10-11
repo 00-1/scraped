@@ -1,0 +1,5 @@
+{
+  "kind": "clue",
+  "t": 21,
+  "text": "\"go back\" right after a blocked move printed nothing at all. It may not work after a failed move, or after \"go to\"."
+}

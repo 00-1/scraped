@@ -1,0 +1,73 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "egg",
+        "seed",
+        "box-curl",
+        "box-cross",
+        "box-point",
+        "box-cross",
+        "box-point",
+        "box-cross",
+        "fishhook",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "box-curl+dot",
+        "box-cross",
+        "tree",
+        "box-cross",
+        "mbox-cross+loop",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "mbox-cross",
+        "arrow",
+        "mbox-sweep",
+        "arrow",
+        "box-curl+dot",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-pointbelow",
+        "box-cross",
+        "mbox-cross",
+        "box-cross",
+        "egg",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "tree+loop",
+        "seed",
+        "mbox-cross",
+        "box-cross"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "box-curl",
+        "arrow",
+        "tree",
+        "box-cross",
+        "box-curl+dot",
+        "arrow"
+      ]
+    }
+  ],
+  "note": "38 signs, none worn, old style, \"in a slanted hand\". Group 2 (box-curl+dot box-cross)(tree box-cross)(mbox-cross+loop seed) is the word that follows the opening name on the chapel wall. Here it follows a different opening word, (egg seed)(box-curl box-cross)(box-point box-cross)(box-point box-cross)(fishhook seed): perhaps another name or title.",
+  "on": "forecourt stone stele",
+  "t": 12,
+  "where": "temple1"
+}
