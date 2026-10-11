@@ -25,6 +25,7 @@ What this means in practice:
 - **The strangeness comes first, unexplained.** Old spells shape the world everywhere, and at first they are indistinguishable from the world's other oddities. Their cause is something the player may work out later, from patterns in their own notes.
 - **Discovery is gradual and the player's own.** The realisation that writing acts should emerge from evidence (a strange place always has scraped writing nearby; cleaning a stone to read it changed something), not from a scripted moment. Different players should realise at different times, and some may never.
 - **Tools are ordinary first.** What can scrape is first a knife, a chisel, a pumice stone, used to cut, pry or clean. What can magnify is first a lens for starting fires and reading small marks. Their deeper use is discovered, not announced.
+- **Small payoffs, often.** Alongside the slow build, the world is scattered with small, quick puzzles solved with ordinary actions and the senses (a jammed lid, a hollow wall, a loose stone), each giving something. Play is rewarded along the way, not only at the end of long threads (Jb, 2026-10-11).
 - **A run without writing is still a run.** A player who never learns the mechanic can still explore, survive, map, solve mechanisms, piece together the history, and end their time in the world in a meaningful way.
 
 ## Say little; let the player dig

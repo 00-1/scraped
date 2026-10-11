@@ -928,5 +928,7 @@ Jb's decisions while playing, now in `docs/DESIGN.md`:
 - "Doing several things at once": groups, chains with one reply per step, a sweep.
 - "Pieces of writing on one thing": each studied separately.
 
+Jb also asked for small, quick payoffs scattered through the world (two playtests with none yet); in DESIGN.md ("Writing is background, at first") and S07 section 7.
+
 Added `docs/milestones/S07-from-the-second-playtest.md`, after D13.
 

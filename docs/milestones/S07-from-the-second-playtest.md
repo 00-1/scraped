@@ -81,7 +81,33 @@ Which of these do something in the world beyond the answer is a DESIGN-Q for Jb.
 - **`help` listed "west"** as a verb. Directions belong under "go".
 - **The MCP `save` returned about 196,000 characters**, too large for an agent's tool output. The MCP server should write the save to a file and return its path, or return a compact form. Check the snapshot size too.
 
-## 7. Notes, no action
+## 7. Small, quick payoffs scattered around
+
+Jb (2026-10-11): two playtests, hundreds of moves, and no payoff yet. The bigger ones (fire, the map's cross, calendar doors, emblem keys) are fine as they are, a slow build he'd have got to. What's missing is **small, quick payoffs scattered through the world**, so play is rewarded often along the way.
+
+- **Small and self-contained:** solved in a few actions, in one place, with ordinary verbs and the senses. No writing needed, and nothing to carry from far away.
+- **Kinds** (proposed; DESIGN-Q, Jb to add or cut):
+  - a stuck drawer or jammed lid that a hook or bar opens;
+  - a hidden catch found by touching or looking closer;
+  - a loose stone hiding a hollow;
+  - a wall that sounds hollow when tapped or listened at;
+  - a sealed jar to pry open;
+  - a curtain or hanging hiding a recess;
+  - something dropped through a grate, reached with a hook;
+  - a well bucket or rope to haul up;
+  - a counterweight or lever that lifts a slab;
+  - a nest or a high shelf to reach;
+  - a fruit tree to shake;
+  - an animal that follows if fed;
+  - a view from a height that shows something new on the land.
+- **Noticed through keenness:** each has a cue in its category (D13): a draught, a hollow sound, a smell, fresh scratches, a bird going in and out. So different styles find different ones first.
+- **Each gives something:** food, a tool, light, a small object with an emblem, a short text, a new place, a view. Sometimes it's a piece of a bigger thread (an emblem key, a map, a firesteel).
+- **Scattered and dense enough:** at least one within a short walk of the start, and about one per few buildings or rooms elsewhere. Made by generation, varied by place and history.
+- **Through slots:** cues, attempts and results are Jb's words, with one example variant each.
+- **Targets:** the explorer and the style bots find a first payoff early in the first hour on most seeds, and the gap between payoffs stays short (roughly one per hour of play). Report the measured times.
+- **Fairness:** each payoff is solvable with what's reachable from where it is.
+
+## 8. Notes, no action
 
 - **The decipherment works.** The partner found, among other things, a text written twice, words dropped from one version that fill a scraped tablet, and an old-to-new chain on one wall. It said the game never contradicted a real pattern, and that cleaning let it test its guesses.
 - **Jb reasoned about the world from evidence:** the season (flowers, new leaves, lengthening days, frost out of season), the calendar notch, the cross on the map, the emblems. The field book grew a "world" tab for it. This is evidence for X01.
@@ -89,7 +115,7 @@ Which of these do something in the world beyond the answer is a DESIGN-Q for Jb.
 
 ## Done when
 
-- Sections 1–6 built and tested, with the second playtest's transcript as a fixture.
+- Sections 1–7 built and tested, with the second playtest's transcript as a fixture.
 - Release; HANDOFF; LOG; DECISIONS for the DESIGN-Qs. Then back to waiting for Jb.
 
 ## Checklist
@@ -99,5 +125,6 @@ Which of these do something in the world beyond the answer is a DESIGN-Q for Jb.
 - [ ] Groups, chains, the sweep, studying fully
 - [ ] Pieces of writing studied separately
 - [ ] Obvious next steps added to D13's table; verbs understood with in-world answers
+- [ ] Small, quick payoffs scattered around; cues by category; targets measured
 - [ ] Playtest bugs (go back, site summaries, bracketed names, parser, stacking, late body messages, touch, travel wording, overshoot, help, MCP save size)
 - [ ] Fixture; release; HANDOFF; LOG
