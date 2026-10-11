@@ -2,7 +2,7 @@ notes = "Reading: the frame around a text, each glyph, and paging."
 
 [[variant]]
 slot = "read.frame"
-text = "On {thing}, {count glyphs sign}[if pages > 1] (page {page} of {pages})[end]:"
+text = "On {thing}, {count glyphs noun}[if pages > 1] (page {page} of {pages})[end]:"
 example = true
 
 [[variant]]
@@ -12,7 +12,7 @@ example = true
 
 [[variant]]
 slot = "read.more"
-text = "(Read on for more.)"
+text = "(There is more.)"
 example = true
 
 [[variant]]
@@ -22,17 +22,17 @@ example = true
 
 [[variant]]
 slot = "read.nothing"
-text = "There is no writing on {thing}."
+text = "There are no marks on {thing}."
 example = true
 
 [[variant]]
 slot = "read.no_more"
-text = "You are not reading anything."
+text = "You aren't looking at any marks."
 example = true
 
 [[variant]]
 slot = "read.dark"
-text = "It is too dark to read {thing}."
+text = "It is too dark to make out the marks on {thing}."
 example = true
 
 [[variant]]
@@ -42,7 +42,7 @@ example = true
 
 [[variant]]
 slot = "read.scraped"
-text = "This writing was scraped; {lost} of its signs are lost."
+text = "Some of these marks were scraped away; {lost} of them are lost."
 example = true
 
 [[variant]]
@@ -62,22 +62,22 @@ example = true
 
 [[variant]]
 slot = "read.whole"
-text = "On {thing}, {count glyphs sign} in {count words group}, about {count lines line}, in a {hand} hand.[if form == 'sealed'] A seal is pressed at the foot.[end][if form == 'columns'] The signs stand in columns.[end][if recurring] A few shapes keep coming back.[end]"
+text = "On {thing}, {count glyphs noun} in {count words group}, about {count lines line}, in a {hand} hand.[if form == 'sealed'] A seal is pressed at the foot.[end][if form == 'columns'] The {plural noun 2} stand in columns.[end][if recurring] A few shapes keep coming back.[end]"
 example = true
 
 [[variant]]
-slot = "glyph.closer"
-text = "Sign {number}: {impression}. [if distinctive]{cap distinctive} catches the eye[else]Nothing about it stands out[end][if heard]; the sign that sounded «{sound}»[end]."
+slot = "trace.no_tool"
+text = "You've nothing to take the marks with."
 example = true
 
 [[variant]]
 slot = "sign.name"
-text = "sign {number}"
+text = "{noun} {number}"
 example = true
 
 [[variant]]
 slot = "trace.frame"
-text = "You trace [if from == to]sign {from}[else]signs {from} to {to}[end] of {thing}, stroke by stroke ({duration minutes}):"
+text = "You take [if from == to]{noun} {from}[else]{plural noun 2} {from} to {to}[end] of {thing}[if with == 'pressing'], pressing clay into it[else], rubbing charcoal over it[end] ({duration minutes}):"
 example = true
 
 [[variant]]
@@ -92,7 +92,7 @@ example = true
 
 [[variant]]
 slot = "trace.more"
-text = "({count remaining sign} left to trace.)"
+text = "({count remaining noun} left.)"
 example = true
 
 [[variant]]
@@ -107,5 +107,5 @@ example = true
 
 [[variant]]
 slot = "read.grime"
-text = "{cap cover} hides some of the signs."
+text = "{cap cover} hides some of the {plural noun 2}."
 example = true

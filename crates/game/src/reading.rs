@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 
 use scraped_content::{Context, Renderer, Value};
 use scraped_lang::script::GlyphKey;
-use scraped_lang::slots::{impression_texts, part_phrase, LangHooks};
+use scraped_lang::slots::{impression_texts, LangHooks};
 use scraped_sim::outdoors::label;
 use serde_json::json;
 
@@ -60,7 +60,14 @@ impl Game {
     /// A sign as it looks at a glance, through `glyph.impression`. Stable:
     /// the same sign always gives the same impression.
     pub(crate) fn sign_impression(&mut self, era: u32, index: usize) -> String {
-        let heard_here = self.state.heard.iter().filter(|h| h.0 == era).count();
+        // What changes the impressions: sounds heard, and the word for
+        // marks (S06).
+        let heard_here = self.state.heard.iter().filter(|h| h.0 == era).count()
+            + if self.state.studied.len() >= crate::STUDIED_FOR_SIGNS {
+                1 << 20
+            } else {
+                0
+            };
         if let Some(t) = self
             .impression_cache
             .get(&era)
@@ -73,7 +80,9 @@ impl Game {
         let lang = &self.site.world.languages[era as usize];
         let hooks = LangHooks { lang };
         let seed = self.seed() ^ (u64::from(era) << 40 | 0x1e55);
+        let ambient = self.ambient();
         let mut r = Renderer::new(&self.registry, &self.pack, seed, &hooks);
+        r.ambient = ambient;
         let heard = |j: usize| {
             self.state
                 .heard
@@ -316,6 +325,8 @@ impl Game {
             return self.output(vec![t], None);
         };
         self.reading_now = true;
+        // Studied closely (S06): enough of these, and marks are signs.
+        self.state.studied.insert(thing);
         let marks = self.marks(thing);
         let count = marks
             .iter()
@@ -423,7 +434,8 @@ impl Game {
             .map(|n| {
                 let num = n.to_string();
                 let th = format!("{n}th");
-                let mut extra: Vec<&str> = vec![&num, &th, "glyph", "character", "letter"];
+                let mut extra: Vec<&str> =
+                    vec![&num, &th, "mark", "shape", "glyph", "character", "letter"];
                 if let Some(o) = ORDINALS.get(n - 1) {
                     extra.push(o);
                 }
@@ -435,108 +447,38 @@ impl Game {
             .collect()
     }
 
-    /// `examine the fourth sign`: a fuller impression of one sign, still
-    /// how it looks (its proportions, its most distinctive part, what it
-    /// resembles, how it is cut), not how it is built.
+    /// `examine the fourth sign`: one mark, exactly, is tracing it (S06):
+    /// there is no separate fuller impression.
     pub(crate) fn examine_sign(&mut self, n: usize) -> Output {
-        let Some(thing) = self.state.last_read else {
-            let t = self.say("read.no_more", Context::new());
-            return self.output(vec![t], None);
-        };
-        if self.is_dark() {
-            let t = self.say("read.dark", ctx(&[("thing", Value::from(""))]));
-            return self.output(vec![t], None);
-        }
-        self.pass(1);
-        let signs = self.signs(thing);
-        let Some(&(era, index, lost)) = signs.get(n - 1) else {
-            let t = self.say("read.no_more", Context::new());
-            return self.output(vec![t], None);
-        };
-        if lost {
-            let t = self.stable(
-                "read.lost",
-                ctx(&[("number", Value::Number(n as i64))]),
-                3_000_000 + n as u64,
-            );
-            return self.output(vec![t], None);
-        }
-        let impression = self.sign_impression(era, index);
-        let imps = scraped_lang::impression::impressions(
-            &self.site.world.languages[era as usize].script,
-            self.preset == "archaeologist",
-        );
-        let imp = imps[index].clone();
-        let shape = &imp.shape;
-        // Its most distinctive part, told with which way it faces.
-        let distinctive = {
-            let lang = &self.site.world.languages[era as usize];
-            let hooks = LangHooks { lang };
-            let seed = self.seed() ^ (u64::from(era) << 40 | index as u64 | 0xd157 << 16);
-            let mut r = Renderer::new(&self.registry, &self.pack, seed, &hooks);
-            imp.shape
-                .parts
-                .first()
-                .map(|p| part_phrase(&mut r, p))
-                .unwrap_or_default()
-        };
-        let top = self.text_of_sign(thing, n);
-        let hand = self.hand(top);
-        let sound = if self.heard(era, index) {
-            self.sign_sound(era, index).unwrap_or_default()
-        } else {
-            String::new()
-        };
-        let c = ctx(&[
-            ("number", Value::Number(n as i64)),
-            ("impression", Value::from(impression)),
-            ("proportion", Value::from(shape.proportion)),
-            ("curve", Value::from(shape.curve)),
-            ("busy", Value::from(shape.busy)),
-            ("symmetry", Value::from(shape.symmetry)),
-            ("pieces", Value::Number(shape.pieces as i64)),
-            ("holes", Value::Number(shape.holes as i64)),
-            ("resembles", Value::from(shape.resembles)),
-            ("distinctive", Value::from(distinctive)),
-            ("hand", Value::from(hand)),
-            ("heard", Value::Bool(!sound.is_empty())),
-            ("sound", Value::from(sound)),
-        ]);
-        let t = self.say("glyph.closer", c);
-        self.output(vec![t], None)
+        self.trace(Target::Sign(n))
     }
 
-    /// The text a sign (by position) belongs to.
-    fn text_of_sign(&self, thing: usize, n: usize) -> usize {
-        let seen = self.layers_seen(thing);
-        // Which piece: count the breaks before sign n.
-        let mut piece = 0;
-        let mut k = 0;
-        for m in self.marks(thing) {
-            match m {
-                Mark::Glyph { .. } => {
-                    k += 1;
-                    if k == n {
-                        break;
-                    }
-                }
-                Mark::Break => piece += 1,
-                Mark::Gap => {}
-            }
+    /// What the player can take marks with (S06): soft clay pressed into
+    /// cut marks (no light needed), or charcoal rubbed on bark or cloth.
+    // DESIGN-Q: a cloak is the cloth; every mark counts as cut or
+    // scratched, so clay always takes it.
+    pub(crate) fn tracing_tool(&self) -> Option<&'static str> {
+        let has = |k: &str| self.state.carried.iter().any(|&t| self.kind_of(t) == k);
+        if has("clay") {
+            Some("pressing")
+        } else if has("charcoal") && (has("bark") || has("cloak")) {
+            Some("rubbing")
+        } else {
+            None
         }
-        seen.get(piece)
-            .or(seen.last())
-            .map_or(self.thing(thing).texts[0], |l| l.0)
     }
 
     /// `trace the fourth sign` / `trace the stele` (`copy`, `make a
     /// rubbing of`): the exact strokes, the only way to get them. A task
     /// in itself: minutes a sign, good light, a sign still legible. A whole
     /// text is traced a few signs at a go, carrying on where it left off.
-    /// What is traced is told once; the game doesn't keep it.
-    // DESIGN-Q: tracing could use materials (charcoal, a cloth or paper
-    // for rubbings) where the world has them; for now it needs none.
+    /// What is traced is told once; the game doesn't keep it. It needs a
+    /// tracing tool (S06), and light unless it is a pressing.
     pub(crate) fn trace(&mut self, target: Target) -> Output {
+        let Some(with) = self.tracing_tool() else {
+            let t = self.say("trace.no_tool", Context::new());
+            return self.output(vec![t], None);
+        };
         let (thing, from, to) = match target {
             Target::Sign(n) => match self.state.last_read {
                 Some(t) => (t, n, n),
@@ -565,7 +507,7 @@ impl Game {
             }
         };
         let name = self.thing_name(thing);
-        if self.is_dark() || !self.light_to_trace() {
+        if with != "pressing" && (self.is_dark() || !self.light_to_trace()) {
             let t = self.say("trace.dark", ctx(&[("thing", Value::from(name))]));
             return self.output(vec![t], None);
         }
@@ -594,6 +536,7 @@ impl Game {
             "trace.frame",
             ctx(&[
                 ("thing", Value::from(name)),
+                ("with", Value::from(with)),
                 ("from", Value::Number(from as i64)),
                 ("to", Value::Number(to as i64)),
                 ("glyphs", Value::Number(signs.len() as i64)),

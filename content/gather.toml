@@ -9,3 +9,13 @@ example = true
 slot = "gather.none"
 text = "There is no wood here."
 example = true
+
+[[variant]]
+slot = "gather.got"
+text = "You gather some {kind}."
+example = true
+
+[[variant]]
+slot = "gather.none_of"
+text = "There is no {kind} to be had here."
+example = true

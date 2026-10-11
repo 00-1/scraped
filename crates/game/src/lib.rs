@@ -92,6 +92,9 @@ use scraped_sim::writing::Claim;
 use site::{ctx, label, Place, Site, Thing, Way};
 
 /// Verbs that are compass points or up and down.
+/// Surfaces studied closely before marks are called signs (S06).
+pub const STUDIED_FOR_SIGNS: usize = 3;
+
 /// What `help` always lists (S06): looking, the senses, moving, going
 /// back, taking and dropping, eating, drinking, sleeping, waiting.
 // DESIGN-Q: these, as the parser's own command words.
@@ -277,6 +280,10 @@ pub struct State {
     /// `help` lists beside the basics.
     #[serde(default)]
     pub used: BTreeSet<String>,
+    /// Surfaces whose marks the player has studied closely (S06): marks
+    /// are called signs once there are enough.
+    #[serde(default)]
+    pub studied: BTreeSet<usize>,
     /// Surfaces cleaned of moss, soot or dust (D10).
     #[serde(default)]
     pub cleaned: BTreeSet<usize>,
@@ -613,6 +620,7 @@ impl Game {
             scraped: site.writing.scraped.clone(),
             found: BTreeSet::new(),
             used: BTreeSet::new(),
+            studied: BTreeSet::new(),
             cleaned: BTreeSet::new(),
             written: Vec::new(),
             encountered: BTreeMap::new(),
@@ -813,7 +821,9 @@ impl Game {
     fn renderer_say(&mut self, slot: &str, c: &Context, seed: u64, keep_memory: bool) -> String {
         let lang = &self.site.world.languages[0];
         let hooks = LangHooks { lang };
+        let ambient = self.ambient();
         let mut r = Renderer::new(&self.registry, &self.pack, seed, &hooks);
+        r.ambient = ambient;
         if keep_memory {
             r.set_memory(std::mem::take(&mut self.memory));
         }
@@ -855,6 +865,19 @@ impl Game {
     /// The renders kept so far (see `keep_renders`).
     pub fn renders(&self) -> &[Rendered] {
         &self.renders
+    }
+
+    /// The words the game uses for marks just now (S06): "mark" until the
+    /// character has studied marks closely on several surfaces, then
+    /// "sign"; and whether reading has begun (a mark's sound heard).
+    // DESIGN-Q: three surfaces studied closely; reading begins with the
+    // first sound heard.
+    pub(crate) fn ambient(&self) -> Context {
+        let signs = self.state.studied.len() >= STUDIED_FOR_SIGNS;
+        ctx(&[
+            ("noun", Value::from(if signs { "sign" } else { "mark" })),
+            ("reading", Value::Bool(!self.state.heard.is_empty())),
+        ])
     }
 
     /// The building whose door the player stands at (S05): within 30 m,
@@ -1456,7 +1479,7 @@ impl Game {
             "forage" => self.forage(),
             "fish" => self.fish(),
             "snare" => self.snare(),
-            "gather" => self.gather(),
+            "gather" => self.gather(&cmd.words),
             "make" => self.make(&cmd.words),
             "feed" => self.feed_fire(),
             "shout" => self.shout(),

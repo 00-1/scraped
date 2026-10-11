@@ -213,7 +213,7 @@ fn careful(seed: u64, days: u32) -> (Option<String>, u32) {
             .filter(|&&t| g.thing(t).kind == "wood")
             .count();
         if wood < 2 {
-            g.gather();
+            g.gather(&[]);
         }
         g.forage();
         g.take_notes();

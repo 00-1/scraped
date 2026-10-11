@@ -139,6 +139,10 @@ pub struct SlotDef {
     pub max_len: usize,
     #[serde(skip)]
     pub sampler: Option<Sampler>,
+    /// Variables the game fills in for every render of the slot, with the
+    /// value samples use (S06: whether marks are yet called signs).
+    #[serde(skip)]
+    pub ambient: Vec<(String, Value)>,
 }
 
 impl SlotDef {
@@ -153,7 +157,16 @@ impl SlotDef {
             required: true,
             max_len: 200,
             sampler: None,
+            ambient: Vec::new(),
         }
+    }
+
+    /// A variable the game fills in itself, wherever the slot is said, with
+    /// the value samples use.
+    pub fn ambient(self, name: &str, ty: VarType, description: &str, sample: Value) -> Self {
+        let mut s = self.var(name, ty, description);
+        s.ambient.push((name.to_string(), sample));
+        s
     }
 
     pub fn var(mut self, name: &str, ty: VarType, description: &str) -> Self {
@@ -208,7 +221,14 @@ impl SlotDef {
         };
         seeds
             .iter()
-            .flat_map(|&s| f(s).into_iter().map(move |c| (s, readable(&c))))
+            .flat_map(|&s| {
+                f(s).into_iter().map(move |mut c| {
+                    for (k, v) in &self.ambient {
+                        c.entry(k.clone()).or_insert_with(|| v.clone());
+                    }
+                    (s, readable(&c))
+                })
+            })
             .collect()
     }
 }

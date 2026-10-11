@@ -181,6 +181,25 @@ pub const ITEMS: &[ItemKind] = &[
         id: "scroll",
         ..BASE
     },
+    // S06: what marks are taken with. Charcoal and something to rub it on
+    // (bark, or the cloth of a cloak) give a rubbing in good light; soft
+    // clay pressed into cut marks needs no light.
+    ItemKind {
+        id: "charcoal",
+        tool: Some("rubbing"),
+        ..BASE
+    },
+    ItemKind {
+        id: "bark",
+        tool: Some("sheet"),
+        ..BASE
+    },
+    ItemKind {
+        id: "clay",
+        weight: 2,
+        tool: Some("pressing"),
+        ..BASE
+    },
 ];
 
 /// How far a scraping tool reaches: 1 a door or room, 2 a site, 3 a

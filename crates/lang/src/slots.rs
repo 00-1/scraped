@@ -345,7 +345,10 @@ pub fn impression_texts(
             // matches only that sign (no other sign's look is it or begins
             // with it). Otherwise, or with nothing added, the sign is told
             // on its own: every part, with no "like".
+            // A base whose own look says "like…" would double it (S06):
+            // "like a tall sign like a tree, with…" never reads as one.
             let look_unique = !like.look.is_empty()
+                && !like.look.contains(" like ")
                 && texts
                     .iter()
                     .flatten()

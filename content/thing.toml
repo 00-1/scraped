@@ -7,10 +7,10 @@ example = true
 
 [[variant]]
 slot = "thing.examine"
-text = "{cap a2 material kind}.[if written] Marks are cut into it: writing. You could read it.[end]"
+text = "{cap a2 material kind}.[if written] Marks are cut into it.[end]"
 example = true
 
 [[variant]]
 slot = "thing.closer"
-text = "Looking closer: {a size} {material} {kind}[if written], marked with writing[end]."
+text = "Looking closer: {a size} {material} {kind}[if written], marked[end]."
 example = true

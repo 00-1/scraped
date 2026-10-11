@@ -551,7 +551,7 @@ fn world_edge(w: &World, land: &Land, start: usize) -> Option<Pos> {
 /// What an item is mostly made of, for descriptions.
 pub fn item_material(kind: &str) -> Material {
     match kind {
-        "torch" | "wood" | "berries" => Material::Wood,
+        "torch" | "wood" | "berries" | "bark" | "charcoal" => Material::Wood,
         "lamp" | "firesteel" | "pry_bar" | "knife" | "penknife" | "mason_chisel" | "graver"
         | "stylus" | "lens" | "loupe" => Material::Metal,
         "pumice" => Material::Stone,

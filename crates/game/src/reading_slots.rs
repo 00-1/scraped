@@ -3,7 +3,6 @@
 //! name as the player refers to it.
 
 use scraped_content::{Context, SlotDef, Value, VarType};
-use scraped_lang::impression::{BUSY, CURVES, PROPORTIONS, RESEMBLANCES, SYMMETRY};
 
 use crate::site::ctx;
 use crate::slots::{materials, WRITING};
@@ -37,47 +36,6 @@ fn s_whole(_: u64) -> Vec<Context> {
                     "form",
                     Value::from(crate::reading::FORMS[i % crate::reading::FORMS.len()]),
                 ),
-            ])
-        })
-        .collect()
-}
-
-fn s_closer(_: u64) -> Vec<Context> {
-    (0..6)
-        .map(|i| {
-            let heard = i % 3 == 1;
-            ctx(&[
-                ("number", Value::Number(1 + 3 * i as i64)),
-                (
-                    "impression",
-                    Value::from(
-                        [
-                            "a tall, curved sign like a crook",
-                            "a squarish, curved sign like an eye",
-                            "like a tall, curved sign like a crook, with a dot below",
-                        ][i % 3],
-                    ),
-                ),
-                (
-                    "proportion",
-                    Value::from(PROPORTIONS[i % PROPORTIONS.len()]),
-                ),
-                ("curve", Value::from(CURVES[i % CURVES.len()])),
-                ("busy", Value::from(BUSY[1 + i % 3])),
-                ("symmetry", Value::from(SYMMETRY[1 + i % 4])),
-                ("pieces", Value::Number(1 + i as i64 % 3)),
-                ("holes", Value::Number(i as i64 % 2)),
-                (
-                    "resembles",
-                    Value::from(RESEMBLANCES[i % RESEMBLANCES.len()]),
-                ),
-                (
-                    "distinctive",
-                    Value::from(["a curl above", "a dot inside"][i % 2]),
-                ),
-                ("hand", Value::from(HANDS[i % HANDS.len()])),
-                ("heard", Value::Bool(heard)),
-                ("sound", Value::from(if heard { "ka" } else { "" })),
             ])
         })
         .collect()
@@ -176,22 +134,9 @@ pub fn slots() -> Vec<SlotDef> {
             .var("form", e(&crate::reading::FORMS), "How it is laid out, as the eye sees before reading (D08): numbers in columns (a ledger), entries one under another (an annal, a list of judgements), a seal pressed at the foot (a letter, a contract, a decree), a bare list, short verses (a hymn, a curse), or running lines.")
             .max_len(220)
             .sampler(s_whole),
-        SlotDef::new("glyph.closer", "The player examines one sign of a text closely: a fuller impression than a close reading gives (its proportions, its most distinctive part, what it resembles, how it is cut), still how it looks, never how it is built stroke by stroke (tracing gives that). If its sound has been heard, it can say so.")
-            .var("number", VarType::Number, "The sign's position in the text, from 1.")
-            .var("impression", VarType::Text, "The sign at a glance, from glyph.impression.")
-            .var("proportion", e(PROPORTIONS), "Its proportions.")
-            .var("curve", e(CURVES), "Curved, angular or both.")
-            .var("busy", e(&BUSY[1..]), "Spare or busy: how much is cut.")
-            .var("symmetry", e(&SYMMETRY[1..]), "Which way it is symmetric.")
-            .var("pieces", VarType::Number, "How many separate pieces it falls into.")
-            .var("holes", VarType::Number, "How many enclosed spaces it has.")
-            .var("resembles", e(RESEMBLANCES), "What it looks like ('' if nothing).")
-            .var("distinctive", VarType::Text, "The part of it that stands out most, from glyph.part (with which way it faces).")
-            .var("hand", e(HANDS), "The hand it is written in.")
-            .var("heard", VarType::Bool, "Whether the player has heard its sound.")
-            .var("sound", VarType::Text, "Its sound, romanised, if heard.")
-            .max_len(260)
-            .sampler(s_closer),
+        SlotDef::new("trace.no_tool", "The player tries to trace a mark (or a whole surface of them) with nothing to take marks with: no soft clay to press into them, no charcoal and bark or cloth for a rubbing. Never name the tools; the player works out what would do.")
+            .max_len(200)
+            .sampler(s_none),
         SlotDef::new("sign.name", "A sign of the text being read, as the player refers to it ('sign 4', 'the fourth sign'). Must contain the number.")
             .var("number", VarType::Number, "Its position in the text, from 1.")
             .max_len(30)
@@ -231,4 +176,8 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(100)
             .sampler(s_thing),
     ]
+}
+
+fn s_none(_: u64) -> Vec<Context> {
+    vec![Context::new()]
 }

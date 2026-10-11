@@ -1314,6 +1314,13 @@ fn s_app(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_gather_kind(_: u64) -> Vec<Context> {
+    ["bark", "clay"]
+        .iter()
+        .map(|k| ctx(&[("kind", Value::from(*k)), ("biome", Value::from("forest"))]))
+        .collect()
+}
+
 fn s_help(_: u64) -> Vec<Context> {
     let basics: Vec<Value> = crate::HELP_BASICS.iter().map(|v| Value::from(*v)).collect();
     let mut more = basics.clone();
@@ -1781,6 +1788,8 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_found),
         SlotDef::new("forage.none", "An hour's foraging finds nothing.").var("biome", e(BIOMES), "Where.").sampler(s_biome),
         SlotDef::new("gather.found", "The player gathers a bundle of firewood.").var("biome", e(BIOMES), "Where.").sampler(s_biome),
+        SlotDef::new("gather.got", "The player gathers bark from the trees, or digs soft clay from a bank, and carries it.").var("kind", e(&["bark", "clay"]), "What.").sampler(s_gather_kind),
+        SlotDef::new("gather.none_of", "There is none of what the player wants to gather here: no trees for bark, or no bank for clay.").var("kind", e(&["bark", "clay"]), "What.").var("biome", e(BIOMES), "Where.").sampler(s_gather_kind),
         SlotDef::new("gather.none", "There is no wood to gather here (open, bare or frozen land).").var("biome", e(BIOMES), "Where.").sampler(s_biome),
         SlotDef::new("body.change", "A need changes: the player grows thirsty, starts shivering, warms up again, is hurt, heals, dries off. Said once, when the state changes. Coarse, felt, never numbers.")
             .var("need", e(NEEDS), "Which need.")
@@ -2273,6 +2282,30 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(crate::object_slots::slots());
     all.extend(crate::life_slots::slots());
     all.extend(crate::sky_slots::slots());
+    // S06: marks are marks until the character could tell they are
+    // writing, and reading comes late; every slot about them is told which.
+    for s in &mut all {
+        let id = s.id.as_str();
+        if id.starts_with("read.")
+            || id.starts_with("trace.")
+            || id.starts_with("sign.")
+            || matches!(id, "glyph.impression" | "thing.examine" | "thing.closer")
+        {
+            *s = std::mem::replace(s, SlotDef::new("", ""))
+                .ambient(
+                    "noun",
+                    e(&["mark", "sign"]),
+                    "What the marks are called: 'mark' until the character has studied marks closely on several surfaces, then 'sign'. Use it for the word ({count n noun}, {plural noun 2}).",
+                    Value::from("mark"),
+                )
+                .ambient(
+                    "reading",
+                    VarType::Bool,
+                    "Whether reading has begun (a mark's sound has been heard). Until then speak of looking and studying, never of reading.",
+                    Value::Bool(false),
+                );
+        }
+    }
     let mut seen = std::collections::BTreeSet::new();
     for s in pack.storylets() {
         if seen.insert(s.id.clone()) {

@@ -63,19 +63,32 @@ fn impressions_are_stable_and_tell_signs_apart() {
     }
 }
 
+/// S06: one mark, exactly, is tracing it. Examining a mark and tracing it
+/// are the same step, and it needs something to take the marks with.
 #[test]
-fn one_sign_examined_gives_a_fuller_impression() {
+fn examining_a_mark_is_tracing_it_and_needs_a_tool() {
     let (mut g, thing) = by_writing(42);
     g.act("read", Target::Thing(thing));
     let o = g.step("examine the fourth sign");
-    assert!(slots(&o).contains(&"glyph.closer"), "{}", o.text);
-    let o = g.step("look at sign 2");
-    assert!(slots(&o).contains(&"glyph.closer"), "{}", o.text);
+    assert!(slots(&o).contains(&"trace.no_tool"), "{}", o.text);
+    assert!(!slots(&o).contains(&"glyph.describe"));
+    g.make_item("charcoal", true);
+    let o = g.step("trace mark 2");
+    assert!(
+        slots(&o).contains(&"trace.no_tool"),
+        "charcoal alone: {}",
+        o.text
+    );
+    g.make_item("bark", true);
+    let o = g.step("examine sign 2");
+    assert!(slots(&o).contains(&"trace.sign"), "{}", o.text);
 }
 
 #[test]
 fn tracing_takes_time_and_light_and_gives_the_strokes() {
     let (mut g, thing) = by_writing(42);
+    g.make_item("charcoal", true);
+    g.make_item("bark", true);
     g.act("read", Target::Thing(thing));
     let before = g.state.minutes;
     let o = g.step("trace the fourth sign");
@@ -89,13 +102,15 @@ fn tracing_takes_time_and_light_and_gives_the_strokes() {
     let first = g.state.tracing;
     g.step(&format!("trace the {name}"));
     assert_ne!(g.state.tracing, first);
-    // In the dark, no tracing.
+    // In the dark, no rubbing; a pressing in clay needs no light.
     g.forced_light = false;
     g.forced = Some(("clear", "night"));
-    let dark = g.is_dark();
-    if dark {
+    if g.is_dark() {
         let o = g.step("trace sign 2");
         assert!(!slots(&o).contains(&"trace.sign"), "{}", o.text);
+        g.make_item("clay", true);
+        let o = g.step("trace sign 2");
+        assert!(slots(&o).contains(&"trace.sign"), "pressing: {}", o.text);
     }
 }
 

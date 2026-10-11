@@ -167,6 +167,9 @@ pub struct Renderer<'a> {
     /// Every slot rendered so far, outermost last.
     pub trace: Vec<Trace>,
     open: Vec<Trace>,
+    /// The game's values for slots' ambient variables (S06), used where a
+    /// slot declares one and the caller didn't give it.
+    pub ambient: Context,
 }
 
 /// A problem met while rendering. Rendering still produces text: the error
@@ -185,6 +188,7 @@ impl<'a> Renderer<'a> {
             depth: 0,
             trace: Vec::new(),
             open: Vec::new(),
+            ambient: Context::new(),
         }
     }
 
@@ -220,7 +224,13 @@ impl<'a> Renderer<'a> {
             text: String::new(),
             depth: self.depth,
         });
-        let ctx = crate::slot::readable(ctx);
+        let mut ctx = crate::slot::readable(ctx);
+        if let Some(def) = self.registry.get(slot) {
+            for (k, v) in &def.ambient {
+                let v = self.ambient.get(k).unwrap_or(v);
+                ctx.entry(k.clone()).or_insert_with(|| v.clone());
+            }
+        }
         let out = self.render_inner(slot, &ctx);
         let mut t = self.open.pop().expect("opened above");
         t.text = match &out {

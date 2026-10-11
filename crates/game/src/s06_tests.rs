@@ -32,3 +32,33 @@ fn help_lists_the_basics_and_what_was_used() {
     g.step("frobnicate the moon");
     assert!(!g.step("help").text.contains("frobnicate"));
 }
+
+/// S06: tracing matches the impression. A mark the impression calls a
+/// round, closed thing (an egg, an eye, a wheel) traces with something
+/// round (a ring or an arc), on every script of seeds 1, 42 and 9001.
+#[test]
+fn traced_form_matches_the_impression() {
+    use scraped_lang::script::Stroke;
+    // Round things: a knot, shield or key may close with crossing bars.
+    const CLOSED: [&str; 3] = ["eye", "wheel", "egg"];
+    for seed in [1, 42, 9001] {
+        let g = Game::new(seed, pack());
+        for lang in &g.site.world.languages {
+            let imps = scraped_lang::impression::impressions(&lang.script, false);
+            for (i, (_, glyph)) in lang.script.glyphs.iter().enumerate() {
+                let res = imps[i].shape.resembles;
+                if CLOSED.contains(&res) {
+                    let closes = glyph
+                        .marks
+                        .iter()
+                        .any(|m| matches!(m.stroke, Stroke::Ring | Stroke::Arc));
+                    assert!(
+                        closes,
+                        "seed {seed}: a {res} that traces as {}",
+                        glyph.describe()
+                    );
+                }
+            }
+        }
+    }
+}

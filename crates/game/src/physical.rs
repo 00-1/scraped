@@ -149,7 +149,7 @@ impl Game {
         self.extra.truncate(self.state.made.len());
     }
 
-    fn kind_of(&self, t: usize) -> &'static str {
+    pub(crate) fn kind_of(&self, t: usize) -> &'static str {
         self.thing(t).kind
     }
 
@@ -257,6 +257,8 @@ impl Game {
                     let where_ = self.fire_kind(f.at);
                     let t = self.say("fire.out", ctx(&[("where", Value::from(where_))]));
                     self.notes.push(t);
+                    // A fire burnt out leaves charcoal (S06).
+                    self.make_item("charcoal", false);
                 }
             }
             // Torches and lamps burn down.
@@ -1042,11 +1044,42 @@ impl Game {
         )
     }
 
-    pub(crate) fn gather(&mut self) -> Output {
+    pub(crate) fn gather(&mut self, words: &[String]) -> Output {
         if self.state.place != Place::Outside {
             return self.outdoors_needed("gather");
         }
         let biome = label(&self.biome_here());
+        // Bark from the trees, soft clay from a bank (S06): what marks can
+        // be taken on, or pressed into.
+        // DESIGN-Q: bark where wood can be gathered; clay within a few
+        // hundred paces of a river, stream or lake.
+        let what = words
+            .iter()
+            .find(|w| matches!(w.as_str(), "bark" | "clay"))
+            .map(String::as_str);
+        if let Some(kind) = what {
+            let here = if kind == "bark" {
+                self.wooded()
+            } else {
+                self.water_near(1).iter().any(|(k, d, _)| {
+                    matches!(*k, "river" | "stream" | "lakeshore" | "lake") && *d <= 300.0
+                })
+            };
+            if !here {
+                let t = self.say(
+                    "gather.none_of",
+                    ctx(&[("kind", Value::from(kind)), ("biome", Value::from(biome))]),
+                );
+                return self.output(vec![t], None);
+            }
+            if self.weight() + items::kind(kind).map_or(1, |k| k.weight) > CARRY {
+                return self.too_heavy(kind);
+            }
+            self.advance(20, Activity::Walking);
+            self.make_item(kind, true);
+            let t = self.say("gather.got", ctx(&[("kind", Value::from(kind))]));
+            return self.output(vec![t], None);
+        }
         if !self.wooded() {
             let t = self.say("gather.none", ctx(&[("biome", Value::from(biome))]));
             return self.output(vec![t], None);
