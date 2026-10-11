@@ -1,0 +1,10 @@
+{
+  "desc": "Came into view to the east of the flowering ash. Distance unknown.",
+  "exits": {},
+  "name": "Plain waystation",
+  "order": 22,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": 5,
+  "y": -1
+}

@@ -1,0 +1,43 @@
+{
+  "confidence": "high",
+  "evidence": [
+    {
+      "dir": "for",
+      "text": "\"Reddish oak, in flower\" and \"Reddish ash tree, in flower.\"",
+      "where": "wpB"
+    },
+    {
+      "dir": "for",
+      "text": "\"You notice new leaves.\"",
+      "where": "wpB"
+    },
+    {
+      "dir": "for",
+      "text": "\"Purple anemone, in flower.\" An early-spring flower.",
+      "where": "mound"
+    },
+    {
+      "dir": "for",
+      "text": "\"You notice lengthening days.\" Days lengthen after midwinter, so this fits spring.",
+      "where": "wpD"
+    },
+    {
+      "dir": "for",
+      "text": "Young animals at the village and at the mound.",
+      "where": "start"
+    },
+    {
+      "dir": "neutral",
+      "text": "\"Frost out of season.\" The game itself says frost is unusual now: a cold snap in spring.",
+      "where": "wpD"
+    },
+    {
+      "dir": "neutral",
+      "text": "Cracked mud and bare earth: a dry spell, or just turned fields?"
+    }
+  ],
+  "guess": "Spring",
+  "next": "Does the out-of-season frost matter (crops, the village's troubles)? Watch for it spreading.",
+  "order": 1,
+  "topic": "Season"
+}

@@ -1,0 +1,21 @@
+{
+  "desc": "Most of a morning's walk south of the flowering ash. The plain town to the northwest (middle). Here and there: frost out of season. You notice lengthening days.",
+  "exits": {
+    "north": "wpC"
+  },
+  "features": [
+    {
+      "name": "frost",
+      "state": "out of season"
+    }
+  ],
+  "name": "Out-of-season frost",
+  "notes": "By distance this lands about where the flowering oaks are, and both see the plain town NW (middle). May be the same spot described differently.",
+  "order": 9,
+  "status": "partial",
+  "statusNote": "Three looks; still turning up new things.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 3.6,
+  "y": 2.2
+}

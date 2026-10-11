@@ -919,6 +919,23 @@ Added `docs/milestones/S06-what-the-game-shows.md` (now) and `docs/milestones/D1
 
 Released as v0.6.0, a minor bump (`saves check --against v0.5.0`), with a 0.6.0 corpus save.
 
+## 2026-10-11 — Jb's second playtest; S07 added
+
+Jb played v0.6.0 with an AI partner (about 370 commands; `docs/playtests/2026-10-11-v0.6.0/`). Replies carried only text, and the start no longer pointed at writing. The partner's decipherment worked well (a text written twice, dropped words that fill a scraped tablet, an old-to-new chain), and Jb reasoned about the season and the world from evidence. What dragged: cycling `look` 5–10 times a room, facts repeated, a temple of 22- and 37-page walls, `go back` walking back and forth, things named that couldn't be examined, and natural verbs not understood (put, unlock, play, pray).
+
+Jb's decisions while playing, now in `docs/DESIGN.md`:
+- "Noticing once, itemising at will": looking as a progression, say it once, recognition on return, obvious next steps suggested.
+- "Doing several things at once": groups, chains with one reply per step, a sweep.
+- "Pieces of writing on one thing": each studied separately.
+
+Jb also asked for small, quick payoffs scattered through the world (two playtests with none yet); in DESIGN.md ("Writing is background, at first") and S07 section 7.
+
+Added `docs/milestones/S07-from-the-second-playtest.md`, after D13.
+
+Jb also asked that the other play styles have their own payoffs, with several satisfying ways of playing that never progress with writing. Added `docs/milestones/D15-ways-of-playing.md` (after D14): arcs for forager, mason and wayfarer, each with small payoffs, mastery, large payoffs and an ending, all proposed for Jb to decide.
+
+Wayfinding needs its own pass (Jb): confusing until mastered, not confusing from noise. Heading a way and stopping at what's interesting stays; if something is visible that way, head to it. Added "Finding your way" to DESIGN.md and `docs/milestones/D14-finding-your-way.md`, after S07 and before D15. Order: D13, S07, D14, D15. X01 waits for Jb.
+
 ## 2026-10-11 — D13 done
 
 **Ways of noticing:**

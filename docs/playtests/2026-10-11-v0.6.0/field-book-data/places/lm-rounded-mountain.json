@@ -1,0 +1,10 @@
+{
+  "desc": "NE (far) from home; N (far) from a long walk NE; NW (middle) from three long walks NE.",
+  "exits": {},
+  "name": "Rounded mountain",
+  "order": 25,
+  "terrain": "seen, not visited",
+  "visited": false,
+  "x": 3,
+  "y": -6.5
+}

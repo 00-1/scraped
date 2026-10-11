@@ -1,0 +1,23 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "door+loop",
+        "horn",
+        "box-curl+dot",
+        "moon",
+        "box-point",
+        "horn",
+        "egg",
+        "horn",
+        "tree+dot+loop",
+        "arrow"
+      ]
+    }
+  ],
+  "note": "Ten signs, one group, none worn. Written in the horn/moon style, like the second half of the wall.",
+  "on": "wood table",
+  "t": 4,
+  "where": "tally-room"
+}

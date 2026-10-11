@@ -1,0 +1,15 @@
+{
+  "desc": "A long walk northeast of the village. The rounded mountain to the north (far). Bare earth here and there.",
+  "exits": {
+    "NE, far": "wpJ",
+    "SW, far": "start"
+  },
+  "name": "Bare earth NE of home",
+  "order": 34,
+  "status": "partial",
+  "statusNote": "Passed through.",
+  "terrain": "open ground",
+  "visited": true,
+  "x": 1.4,
+  "y": -1.4
+}

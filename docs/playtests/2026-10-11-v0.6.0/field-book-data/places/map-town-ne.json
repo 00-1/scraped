@@ -1,0 +1,10 @@
+{
+  "desc": "Temple map: one town to the northeast (far). Very rough position. The cross by the boulder field is also NE.",
+  "exits": {},
+  "name": "Town (temple map)",
+  "order": 31,
+  "terrain": "from the temple map",
+  "visited": false,
+  "x": 4.5,
+  "y": -4.5
+}

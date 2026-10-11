@@ -1,0 +1,31 @@
+{
+  "desc": "A burial mound, in granite. It looks very old. Here: pots, beads and bronze. Purple anemone, in flower. Young animals. The sky is clear, afternoon. The air is cool. Here and there: bare earth. The plain town to the west (middle).",
+  "exits": {
+    "N, far": "wpC",
+    "back": "wpB",
+    "north": "wpA",
+    "south": "wpB"
+  },
+  "features": [
+    {
+      "name": "pots, beads, bronze",
+      "note": "Mentioned but not examinable; dig found nothing."
+    },
+    {
+      "name": "purple anemone",
+      "state": "in flower"
+    },
+    {
+      "name": "young animals"
+    }
+  ],
+  "name": "Burial mound",
+  "notes": "A short walk south of the grassland (from \"go back\"). \"go north\" from here walked a long way, past the grassland, to the flowering ash. Dig found nothing; no marks.",
+  "order": 7,
+  "status": "revisit",
+  "statusNote": "Looked until nothing new; no writing; dig found nothing. Come back if we find a way to reach the pots, beads and bronze.",
+  "terrain": "granite mound",
+  "visited": true,
+  "x": 3,
+  "y": 1
+}

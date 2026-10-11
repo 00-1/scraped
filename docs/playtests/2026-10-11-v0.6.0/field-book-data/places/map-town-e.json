@@ -1,0 +1,10 @@
+{
+  "desc": "Temple map: one town to the east, on the horizon. Further than the old-town village, a long walk east.",
+  "exits": {},
+  "name": "Town (temple map)",
+  "order": 33,
+  "terrain": "from the temple map",
+  "visited": false,
+  "x": 6,
+  "y": 0
+}

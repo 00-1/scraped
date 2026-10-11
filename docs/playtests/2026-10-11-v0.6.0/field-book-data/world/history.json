@@ -1,0 +1,40 @@
+{
+  "confidence": "medium",
+  "evidence": [
+    {
+      "dir": "for",
+      "text": "The chapel wall gives the same text twice: the old version, then a rewrite with updated spelling, 3 words replaced and 4 words dropped.",
+      "where": "temple-w"
+    },
+    {
+      "dir": "for",
+      "text": "The scraped tablet is full of exactly the 4 dropped words.",
+      "where": "tally-room"
+    },
+    {
+      "dir": "for",
+      "text": "Storeroom wall: \"Some of these marks were scraped away on purpose.\" The damage is all in the old-style part.",
+      "where": "storeroom"
+    },
+    {
+      "dir": "for",
+      "text": "The newer horn/moon texts (table, niche, wall's second half) are barely damaged."
+    },
+    {
+      "dir": "neutral",
+      "text": "The replaced words open the text and recur, like names. Maybe a god or ruler swapped for another."
+    },
+    {
+      "dir": "neutral",
+      "text": "A hand in a beaded border marks the token and the pitcher: an owner or authority."
+    },
+    {
+      "dir": "neutral",
+      "text": "The temple door feels \"wrong\" everywhere inside the temple."
+    }
+  ],
+  "guess": "An official rewrite removed certain words, and the old records were scraped to match",
+  "next": "What do the dropped and replaced words mean? Watch for them on new inscriptions, objects, and the temple's closed stair.",
+  "order": 5,
+  "topic": "History"
+}

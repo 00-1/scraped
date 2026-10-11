@@ -25,7 +25,9 @@ What this means in practice:
 - **The strangeness comes first, unexplained.** Old spells shape the world everywhere, and at first they are indistinguishable from the world's other oddities. Their cause is something the player may work out later, from patterns in their own notes.
 - **Discovery is gradual and the player's own.** The realisation that writing acts should emerge from evidence (a strange place always has scraped writing nearby; cleaning a stone to read it changed something), not from a scripted moment. Different players should realise at different times, and some may never.
 - **Tools are ordinary first.** What can scrape is first a knife, a chisel, a pumice stone, used to cut, pry or clean. What can magnify is first a lens for starting fires and reading small marks. Their deeper use is discovered, not announced.
+- **Small payoffs, often.** Alongside the slow build, the world is scattered with small, quick puzzles solved with ordinary actions and the senses (a jammed lid, a hollow wall, a loose stone), each giving something. Play is rewarded along the way, not only at the end of long threads (Jb, 2026-10-11).
 - **A run without writing is still a run.** A player who never learns the mechanic can still explore, survive, map, solve mechanisms, piece together the history, and end their time in the world in a meaningful way.
+- **Several ways of playing, each with its own payoffs** (Jb, 2026-10-11). Each play style has its own arc of small payoffs, growing mastery, large payoffs and a satisfying end, and several of them never progress with writing at all. Writing is one path among several (D15).
 
 ## Say little; let the player dig
 
@@ -95,6 +97,41 @@ Open for Jb: how a style is chosen (a menu, something in the fiction, or no choi
 - **The manual is how to play,** not what the game holds: how to talk to the game, go places, save. No sections on reading, writing or what's to be found.
 - **Agents get what humans get,** plus a short fair-play note (don't cheat). No extra house rules or advice.
 - **The JSON carries nothing the text doesn't say.** No hidden lists, ids, exact clock, load figures or fields that reveal commands. An agent and a person see the same world.
+
+### Noticing once, itemising at will
+
+Decided by Jb (2026-10-11), from the second playtest.
+
+- **You notice something for the first time only once.** Passive noticing (arrivals, `look`, things that catch the eye) says each fact once, then only what's new or changed. The transcript is the record; the game doesn't repeat itself unasked.
+- **Looking is a progression, not a shuffle.** The first `look` is a first glance at the whole and its standout; each later look goes further, in a fixed order, never repeating; when nothing is left it says so ("nothing more catches your eye") rather than looping. It starts afresh when the place changes (light, weather, something moved, a return after a while).
+- **Itemising is deliberate and always available.** Examining something again, studying marks again, or taking stock of a place (`take stock`, `what's here`) lists or repeats what you ask for, in full, at any time.
+- **Recognition, not first sight.** Coming back, things already noticed are worded as known ("the stele still stands by the door"); new or changed things as first sight. After a short absence, only recognition and changes; after a long one the place may be described again, in the voice of recognition. Places you know are recognised from afar by what you know them as.
+- **Obvious next steps are suggested.** If the next thing to do would be obvious to a person standing there, the game suggests it (one at a time, in Jb's words; see "What the character knows to try").
+
+### Doing several things at once
+
+Decided by Jb (2026-10-11).
+
+- **Groups and chains.** `all` and plurals work for every verb (`examine all`, `touch the walls`); commands can be chained (`clean the wall and study it`, `examine the stele, the basin and the map`), with `it` for the last thing named. Each step runs in order and costs its own time.
+- **One reply per step.** A chain shows each step as its own message, headed by its command, as if typed by hand: it saves typing, not reading.
+- **Chains stop when something happens:** a sound, a danger, a failure, something newly noticed. The game says where it stopped.
+- **A sweep:** `search the room` runs the obvious inspection (look, examine each thing, the senses), skipping what you already know, and stops at the first new thing; repeating it carries on; when nothing's left it says so. Keenness sets its order.
+
+### Pieces of writing on one thing
+
+Decided by Jb (2026-10-11). Where a thing carries more than one piece of writing (layers, or separate texts), each is studied on its own ("study the fainter marks"), and the first glance says there is more than one and how they look different (fainter, another hand, cut differently). Never a bare separator in a list. Nothing says they're different languages or eras: that's for the player to work out.
+
+### Finding your way
+
+Decided by Jb (2026-10-11). Finding your way outdoors is confusing at first and masterable: the confusion comes from the world (fog, forest, night, open country), never from noise.
+
+- **Head a way and stop at what's interesting.** Heading in a direction carries on until something interesting is met (a place, a feature, a path, something seen), as now. If something visible lies that way, heading there is the default, and arriving is the stop.
+- **Places outdoors are stable** and recognisable by their most distinctive features, always noticed first. A return is recognised.
+- **Landmarks are consistent** from each place and shift as you move, so a patient player can triangulate. Paths (roads, rivers, ridges, shores) are easy to follow; open country is where you get lost.
+- **Drift has causes:** no sun or star, fog, forest, no landmark in view. With them you hold your course. The character can feel unsure.
+- **The character remembers the way they came** (`go back` retraces it) and recognises places, but keeps no map. Mapping is the player's.
+
+Details and gates: `docs/milestones/D14-finding-your-way.md`.
 
 ### Measures as a body knows them
 

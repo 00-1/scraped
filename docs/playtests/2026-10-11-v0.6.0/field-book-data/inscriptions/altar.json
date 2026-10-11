@@ -1,0 +1,81 @@
+{
+  "complete": true,
+  "groups": [
+    {
+      "signs": [
+        "mbox-sweep",
+        "seed",
+        "mbox-pointbelow",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-sweep",
+        "box-cross",
+        "hornbox+dot",
+        "seed",
+        "tree+loop",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "tree+loop",
+        "seed",
+        "mbox-cross",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "hornbox",
+        "seed"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree+loop",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "seed",
+        "box-curl",
+        "seed"
+      ]
+    },
+    {
+      "signs": [
+        "fishhook",
+        "box-cross",
+        "egg",
+        "arrow",
+        "box-curl",
+        "box-cross",
+        "egg",
+        "box-cross"
+      ]
+    },
+    {
+      "signs": [
+        "mbox-pointbelow",
+        "arrow"
+      ]
+    },
+    {
+      "cont": true,
+      "signs": [
+        "tree+loop",
+        "box-cross"
+      ]
+    }
+  ],
+  "note": "CLEANED (\"Grime hides some of the signs\"; \"clean altar\"). All 34 signs readable. Old style, \"in a careful hand\", seven groups, about three lines.",
+  "on": "sanctum stone altar",
+  "t": 10,
+  "where": "temple-n"
+}

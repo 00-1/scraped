@@ -6,7 +6,7 @@
 
 ## Start from the playtests
 
-Playtests show how players actually collect and organise evidence: what they record, how they label marks and texts, how they draw maps, and what they wish the game did for them. Keep each playtest's notes in `docs/playtests/<date>/`, next to its transcript. Before designing anything here, read them. The first is `docs/playtests/2026-10-11/field-notes.html`: a pannable map with object cards, texts as grouped sign labels, a sign list with guesses and where each was seen, and open questions. Shape the extension's records on what players built for themselves.
+Playtests show how players actually collect and organise evidence: what they record, how they label marks and texts, how they draw maps, and what they wish the game did for them. Keep each playtest's notes in `docs/playtests/<date>/`, next to its transcript. Before designing anything here, read them. The first is `docs/playtests/2026-10-11/field-notes.html`: a pannable map with object cards, texts as grouped sign labels, a sign list with guesses and where each was seen, and open questions. The second, `docs/playtests/2026-10-11-v0.6.0/field-book.html` and its data, adds a "world" tab of guesses from quoted evidence (season, weather, time, history). Shape the extension's records on what players built for themselves.
 
 ## Scope (when started)
 

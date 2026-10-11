@@ -1,0 +1,28 @@
+{
+  "desc": "A chapel, dim and close. A figurine and a torch lie here. A stone niche and a clay wall stand here. Ways out: an arch west.",
+  "exits": {
+    "west": "temple2"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "stone niche",
+      "note": "12 signs, none worn, newest style.",
+      "state": "inscribed"
+    },
+    {
+      "located": true,
+      "name": "clay wall",
+      "note": "340 signs in three parts.",
+      "state": "inscribed"
+    }
+  ],
+  "name": "Temple east chapel",
+  "order": 18,
+  "status": "done",
+  "statusNote": "Looked until nothing new; niche (12 signs) and wall (340 signs) transcribed. Figurine and second torch left here (pack full).",
+  "terrain": "in the temple",
+  "visited": true,
+  "x": 0.8,
+  "y": -1.3
+}

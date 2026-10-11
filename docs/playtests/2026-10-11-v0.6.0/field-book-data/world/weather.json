@@ -1,0 +1,33 @@
+{
+  "confidence": "medium",
+  "evidence": [
+    {
+      "dir": "for",
+      "text": "\"The sky is clear, afternoon.\"",
+      "where": "mound"
+    },
+    {
+      "dir": "for",
+      "text": "\"The air is cold\" and \"Wind pulls at your clothes\" in the village.",
+      "where": "start"
+    },
+    {
+      "dir": "for",
+      "text": "\"The air is cool\" at the mound.",
+      "where": "mound"
+    },
+    {
+      "dir": "for",
+      "text": "Bare earth, cracked mud and cracked ground \"here and there\".",
+      "where": "start"
+    },
+    {
+      "dir": "neutral",
+      "text": "A riverside waterfall to the southwest, so there is running water nearby."
+    }
+  ],
+  "guess": "Clear, cool to cold, windy and dry",
+  "next": "Watch for rain, clouds or a change in wind.",
+  "order": 2,
+  "topic": "Weather and climate"
+}

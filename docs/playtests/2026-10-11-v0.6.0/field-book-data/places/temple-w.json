@@ -1,0 +1,29 @@
+{
+  "desc": "A chapel, dim and close. A stone niche and a clay wall stand here. Ways out: an arch east.",
+  "exits": {
+    "east": "temple2"
+  },
+  "features": [
+    {
+      "located": true,
+      "name": "stone niche",
+      "note": "14 signs, half worn.",
+      "state": "inscribed"
+    },
+    {
+      "located": true,
+      "name": "clay wall",
+      "note": "288 signs, none worn, two sections.",
+      "state": "inscribed"
+    }
+  ],
+  "name": "Temple chapel",
+  "notes": "Pitch dark before we slept; \"dim\" after sleeping half a day. So it was night, not magic.",
+  "order": 19,
+  "status": "done",
+  "statusNote": "Looked until nothing new; niche (14 signs) and wall (288 signs) transcribed.",
+  "terrain": "in the temple",
+  "visited": true,
+  "x": -0.2,
+  "y": -1.3
+}

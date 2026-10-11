@@ -1,0 +1,49 @@
+{
+  "desc": "An intact farming village of a few houses on flat grassland. The road runs here; there is a square. Young animals about. Wind; cold air. Cracked ground here and there. Very likely this is the \"plain town\" seen at middle distance from everywhere east and south of here.",
+  "exits": {
+    "NE, far": "wpI",
+    "east": "village2",
+    "in": "storeroom",
+    "temple": "temple1"
+  },
+  "features": [
+    {
+      "count": "a few",
+      "name": "houses",
+      "state": "intact"
+    },
+    {
+      "leadsTo": "temple1",
+      "name": "temple",
+      "state": "intact"
+    },
+    {
+      "leadsTo": "storeroom",
+      "name": "storehouse",
+      "state": "worn"
+    },
+    {
+      "name": "the square"
+    },
+    {
+      "name": "the road",
+      "note": "Direction unknown."
+    },
+    {
+      "name": "young animals"
+    },
+    {
+      "name": "cracked ground",
+      "state": "patches"
+    }
+  ],
+  "name": "Grassland village",
+  "notes": "\"go to plain town\" brought us here, and the looks went straight to repeating the temple, as they did when we left. Map scale: short walk = 1 square, long = 2, a morning's walk = 3; all rough.",
+  "order": 1,
+  "status": "partial",
+  "statusNote": "Houses, square and road unexamined. Temple entered but dark.",
+  "terrain": "grassland",
+  "visited": true,
+  "x": 0,
+  "y": 0
+}
