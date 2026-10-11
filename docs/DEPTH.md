@@ -306,6 +306,18 @@ Held doors are no longer a cause: every counter word is now met in five readable
 | First three texts read over three pages (explorer and hand player) | 10, 32, 11 pages on seed 42 | none, but seed 1's third: two spells, 5 pages | none |
 | Related signs naming a base more than one sign matches | many | 0 | 0 |
 
+### After D13 (style bots, seeds 1–3, 10 hours)
+
+| Measure | Explorer | Style | Target |
+|---|---|---|---|
+| Scribe: unasked facts about marks | 2% | 1% | twice the explorer's |
+| Forager: unasked facts about living things | 0% | 1% | twice |
+| Mason: unasked facts about buildings | 60% | 62% | twice (not possible above 50%) |
+| Wayfarer: unasked facts about land and sky | 35% | 32% | twice |
+| A spell's sign in the style's own category before a spell's marks are read | | 0 of 3 for each style | 7 of 10 |
+
+Not met after three attempts (weighing by keenness; one keen fact past the budget; marked things and animal signs in passing). Every arrival says its anchors first (the place, what stands out, the ways out), which are buildings and land, so keenness decides only the last one or two facts. And the bots read a spell's own marks in their first hour, while a sign in another category needs a spell acting where they stand. `cargo test --release -p scraped-game --test depth d13 -- --ignored --nocapture` prints the table (`D13_SEEDS` sets the seeds).
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
@@ -345,6 +357,7 @@ Held doors are no longer a cause: every counter word is now met in five readable
 | S04 | [Playing by hand](milestones/S04-playing-by-hand.md) | After D12, before Jb's playtest: a bot that types like a person, parser and wording bugs from playing by hand, cued deadly spells, learnable counter words |
 | S05 | [Reading in play](milestones/S05-reading-in-play.md) | After S04: checks on the player build's real text, related signs that can be found, text length that fits its surface, short texts met first |
 | S06 | [What the game shows](milestones/S06-what-the-game-shows.md) | From Jb's first playtest: nothing in the JSON beyond the text, no statement of what the game is about, help and manual, marks in three steps, no modern units, cues that can be followed up |
+| D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what is noticed unasked, suggested verbs, signs of spells in every kind of noticing, the world's own measures |
 | D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what the character notices unasked; verbs suggested by situations; evidence of old spells in every category |
 | X01 | [Record-keeping extension](milestones/X01-record-keeping-extension.md) | Not scheduled; waits for Jb. An optional companion that records from the player's text only, with text markup clients can show or hide |
 

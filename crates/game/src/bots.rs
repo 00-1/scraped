@@ -2685,6 +2685,10 @@ pub fn play_with(
     let style = STYLE_BOTS.iter().copied().find(|s| *s == kind);
     if let Some(s) = style {
         out = g.step(s);
+        run.commands.push(s.to_string());
+        run.texts.push(out.text.clone());
+        run.kinds.push("other");
+        run.at.push(0.0);
     }
     let scraped_at_start = g.state.scraped.clone();
     let mut seen: BTreeSet<String> = BTreeSet::new();

@@ -41,10 +41,10 @@ Build on the proposed defaults, mark `// DESIGN-Q:`, list them in the LOG:
 
 ## Checklist
 
-- [ ] Keenness, habit, styles with starting verbs (gates as DESIGN-Q)
-- [ ] The world's own units; milestones, sundials, water clocks
-- [ ] Suggested verbs, table and slots
-- [ ] Evidence of spells in every category
-- [ ] Four style bots and metrics
-- [ ] Targets met or reported
-- [ ] Samples; LOG; DECISIONS
+- [x] Keenness, habit, styles with starting verbs (gates as DESIGN-Q)
+- [x] The world's own units; milestones, sundials, water clocks
+- [x] Suggested verbs, table and slots
+- [x] Evidence of spells in every category
+- [x] Four style bots and metrics
+- [x] Targets met or reported
+- [x] Samples; LOG; DECISIONS

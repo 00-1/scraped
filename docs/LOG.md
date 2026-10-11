@@ -918,3 +918,21 @@ Added `docs/milestones/S06-what-the-game-shows.md` (now) and `docs/milestones/D1
 **New content slots:** `trace.no_tool`, `read.seal`, `gather.got`, `gather.none_of`, `way.examine`, `way.touch`, `cue.examine`, `cue.touch`, `cue.closer`, `cue.listen`, `cue.smell`, `app.about` (empty); removed `glyph.closer`. Ambient variables `noun` and `reading` in reading slots; `help`, `manual.page`, `map.place` (`count`) and the move, wait, sleep, travel and end slots changed variables.
 
 Released as v0.6.0, a minor bump (`saves check --against v0.5.0`), with a 0.6.0 corpus save.
+
+## 2026-10-11 — D13 done
+
+**Ways of noticing:**
+- **Styles.** After the opening the game offers a style (`style.offer`, may stay empty). The first command answers it: scribe, forager, mason, wayfarer or none. Anything else starts play with no style. A style's verbs join `help` from the start. Each player in a shared world keeps their own.
+- **Keenness and habit.** There are seven categories: marks, sounds, smells, life, buildings, land, things. Facts are weighed by keenness. A keen category catches one fresh fact past the budget. Keen ears and noses catch a sound or smell unasked, and a keen forager sees animal signs in passing. Deliberate attention raises keenness and neglect fades it. Kept in the save; tested for determinism, save and load, and two players.
+- **Suggested verbs.** Every parser verb has situations (by the slots just said) that suggest it. There is at most one suggestion a response, twice per place. None once used; scraping and writing only once done; reading only once a mark's sound is known. Keen categories suggest sooner.
+- **Evidence in every category.** Each kind of spell shows a quiet sign (`spell.sign`) in two categories, noticed only by someone keen on them.
+- **The world's measures.** Three milestones near the start town's ways in count "roads" to the nearest towns. Goods labels weigh their goods where the language has "weight". The world's sundials (in the sun) and water clocks tell its own parts of the day. All are fixed by the seed and never converted.
+- **Four style bots** with metrics. `samples D13 --bot styles` writes an hour of each on seed 42.
+
+**Targets not met** (three attempts; numbers in DEPTH): each style's share of unasked facts in its category is about the explorer's, not twice. No style meets a spell's sign in its own category before reading a spell's marks. Arrivals always say their anchors first, and the bots read spells' marks within the first hour. Raising them would mean letting keenness change how much is said, which is Jb's call.
+
+**Open questions:** "Ways of noticing (D13)" in DECISIONS: the style offer, keenness numbers, the verb and slot categories, suggestion rules, evidence categories, the measures. The biggest one: should keenness say more, not just reorder?
+
+**New content slots:** `style.offer` (may be empty), `style.chosen`, `notice.sharpened` (may be empty), `suggest.verb`, `spell.sign`, `clock.sundial`, `clock.water`; `room.thing` and `place.thing` gained `marked`.
+
+Released as v0.7.0, a minor bump (`saves check --against v0.6.0`), with a 0.7.0 corpus save.
