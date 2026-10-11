@@ -1,0 +1,17 @@
+# Ways of noticing (D13): the style offered at the start, the style chosen,
+# and a kind of noticing sharpening through habit.
+
+[[variant]]
+slot = "style.offer"
+text = "Before this, were you a scribe, a forager, a mason or a wayfarer? Or none of these."
+example = true
+
+[[variant]]
+slot = "style.chosen"
+text = "[if style == 'scribe']Your eye goes to marks and their shapes.[else][if style == 'forager']Your eye goes to what grows and moves.[else][if style == 'mason']Your eye goes to stone, joints and wear.[else][if style == 'wayfarer']Your eye goes to the lie of the land and the sky.[else]You'll see what you see.[end][end][end][end]"
+example = true
+
+[[variant]]
+slot = "notice.sharpened"
+text = "You find yourself noticing more of it now."
+example = true

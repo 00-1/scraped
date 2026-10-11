@@ -86,6 +86,7 @@ impl WorldFile {
 
     /// Plays one move on `g` (loaded from this file), recording it.
     pub fn play(&mut self, g: &mut Game, who: &str, at: u64, command: &str) -> String {
+        g.who = who.to_string();
         let text = g.step(command).text;
         self.moves.push(Move {
             who: who.to_string(),

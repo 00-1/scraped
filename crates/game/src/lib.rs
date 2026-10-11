@@ -34,6 +34,9 @@ mod life_slots;
 mod life_tests;
 pub mod mapper;
 pub mod measures;
+pub mod noticing;
+#[cfg(test)]
+mod noticing_tests;
 mod object_slots;
 #[cfg(test)]
 mod object_tests;
@@ -302,6 +305,10 @@ pub struct State {
     /// are called signs once there are enough.
     #[serde(default)]
     pub studied: BTreeSet<usize>,
+    /// Each player's style and habits of attention (D13), by who plays
+    /// ("" when one person plays alone).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub noticing: BTreeMap<String, noticing::Noticing>,
     /// Surfaces cleaned of moss, soot or dust (D10).
     #[serde(default)]
     pub cleaned: BTreeSet<usize>,
@@ -542,6 +549,9 @@ pub struct Game {
     /// `keep_renders` is set), with their variables.
     renders: Vec<Rendered>,
     pub keep_renders: bool,
+    /// Who is playing now, in a shared world (D13: each keeps their own
+    /// noticing); "" alone.
+    pub who: String,
     /// Bots that measure the late game rather than survival keep the
     /// body well after every command. Never set in play. // DEBUG-TEXT
     pub sustain: bool,
@@ -641,6 +651,7 @@ impl Game {
             found: BTreeSet::new(),
             used: BTreeSet::new(),
             studied: BTreeSet::new(),
+            noticing: Default::default(),
             cues: Vec::new(),
             cleaned: BTreeSet::new(),
             written: Vec::new(),
@@ -711,6 +722,7 @@ impl Game {
             trace: false,
             renders: Vec::new(),
             keep_renders: false,
+            who: String::new(),
             sustain: false,
             last_link: None,
             forced_light: false,
@@ -747,6 +759,11 @@ impl Game {
         }
         let look = self.look();
         intro.push(look);
+        // What kind of person they were (D13), if Jb has written it.
+        let offer = self.say("style.offer", Context::new());
+        if !offer.is_empty() {
+            intro.push(offer);
+        }
         self.output(intro, None)
     }
 
@@ -1416,6 +1433,10 @@ impl Game {
         if self.state.dead.is_some() {
             return self.ended();
         }
+        // The first command may answer the style offered at the start (D13).
+        if let Some(o) = self.choose_style(input) {
+            return o;
+        }
         let parsed = parser::parse(input);
         // While a "which one?" question is open, anything that is not a
         // command is taken as the answer.
@@ -1476,6 +1497,11 @@ impl Game {
                 .iter()
                 .any(|r| r.trace.slot.starts_with("cue."));
         self.remember_cues(mark);
+        if !failed {
+            if let Some(t) = self.habit(&verb) {
+                out = self.output(vec![out.text, t], None);
+            }
+        }
         if (!failed || followed) && !matches!(verb.as_str(), "help" | "manual") {
             self.state.used.insert(verb);
         }

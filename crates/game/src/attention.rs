@@ -294,7 +294,8 @@ impl Game {
                     Some(t) if now < t.minutes + 360 => (f.salience * 0.25, false),
                     Some(_) => (f.salience * 0.6, false),
                 };
-                (score, fresh, f)
+                // What this player is keen on weighs more (D13).
+                (score * self.keen_weight(f.slot), fresh, f)
             })
             .collect();
         // Where the player set out for is weighed first, within the budget.
@@ -737,6 +738,7 @@ impl Game {
     /// What the skin and the air say: temperature, wind, wet, and
     /// strangeness.
     pub(crate) fn felt_facts(&mut self, out: &mut Vec<Fact>) {
+        self.keen_sense_facts(out);
         let spot = self.spot();
         let local = self
             .env()

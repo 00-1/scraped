@@ -423,6 +423,50 @@ impl Game {
         self.output(vec![parts.join(" ")], None)
     }
 
+    /// What a keen ear or nose catches unasked (D13): the strongest sound
+    /// or smell here, when the player is keener on it than anyone.
+    pub(crate) fn keen_sense_facts(&mut self, out: &mut Vec<crate::attention::Fact>) {
+        let indoors = self.indoors();
+        if self.keenness("sounds") > 1.05 {
+            if let Some(s) = self.sounds().into_iter().next() {
+                let bearing = s.from.map_or("here", |b| BEARINGS[b]);
+                let c = ctx(&[
+                    ("source", Value::from(s.what)),
+                    ("name", Value::from(s.name)),
+                    ("strength", Value::from(strength_band(s.strength))),
+                    ("bearing", Value::from(bearing)),
+                    ("indoors", Value::Bool(indoors)),
+                    ("call", Value::from(s.call.map_or("", |c| c.0))),
+                    ("role", Value::from(s.call.map_or("", |c| c.1))),
+                    ("size", Value::from(s.call.map_or("", |c| c.2))),
+                ]);
+                out.push(crate::attention::Fact::new(
+                    "sense.sound",
+                    format!("sound:{}:{bearing}", s.what),
+                    10.0 + 20.0 * s.strength,
+                    c,
+                ));
+            }
+        }
+        if self.keenness("smells") > 1.05 {
+            if let Some(s) = self.smells().into_iter().next() {
+                let bearing = s.from.map_or("here", |b| BEARINGS[b]);
+                let c = ctx(&[
+                    ("source", Value::from(s.what)),
+                    ("strength", Value::from(strength_band(s.strength))),
+                    ("bearing", Value::from(bearing)),
+                    ("indoors", Value::Bool(indoors)),
+                ]);
+                out.push(crate::attention::Fact::new(
+                    "sense.smell",
+                    format!("smell:{}:{bearing}", s.what),
+                    10.0 + 20.0 * s.strength,
+                    c,
+                ));
+            }
+        }
+    }
+
     /// `smell`: up to two smells, strongest first.
     pub(crate) fn smell(&mut self) -> Output {
         self.pass(1);
