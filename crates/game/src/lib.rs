@@ -344,7 +344,14 @@ pub struct Travelled {
 pub struct Output {
     /// Exactly what a human player sees.
     pub text: String,
+    /// A summary of the state, for bots and developer tools. The player
+    /// build never sends it (S06): a reply carries the text and nothing
+    /// the text doesn't say.
+    #[cfg_attr(not(feature = "spoilers"), serde(skip_serializing))]
     pub state: Summary,
+    /// Whether the run has ended, for clients that offer a new one.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub ended: bool,
     /// Ground truth (only filled when asked for: spoilers).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub truth: Option<Json>,
@@ -1225,6 +1232,7 @@ impl Game {
         }
         Output {
             text,
+            ended: state.dead.is_some(),
             state,
             truth: if self.spoiling() { truth } else { None },
             renders: if self.trace && cfg!(feature = "spoilers") {

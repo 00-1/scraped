@@ -225,7 +225,11 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let look = game.step("look");
             GAME.with(|g| *g.borrow_mut() = Some(game));
             Ok(
-                json!({ "text": format!("{text}\n\n{}", look.text), "state": look.state, "truth": look.truth }),
+                {
+                    let mut v = json!(look);
+                    v["text"] = json!(format!("{text}\n\n{}", look.text));
+                    v
+                },
             )
         }
         // Shared worlds (C01), for the app: the world file is the record;
@@ -241,7 +245,10 @@ fn dispatch(req: &Value) -> Result<Value, String> {
             let look = game.step_quiet();
             let code = game.seed_code();
             GAME.with(|g| *g.borrow_mut() = Some(game));
-            Ok(json!({ "text": text, "state": look.state, "code": code }))
+            let mut v = json!(look);
+            v["text"] = json!(text);
+            v["code"] = json!(code);
+            Ok(v)
         }
         "world_play" => {
             let mut file: WorldFile = field(req, "file")?;
@@ -258,7 +265,9 @@ fn dispatch(req: &Value) -> Result<Value, String> {
                         text: o.text.clone(),
                     });
                     file.store(game);
-                    Ok(json!({ "file": file, "text": o.text, "state": o.state }))
+                    let mut v = json!(o);
+                    v["file"] = json!(file);
+                    Ok(v)
                 }
                 None => Err("no game started".to_string()),
             })

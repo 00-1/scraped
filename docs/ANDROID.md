@@ -101,8 +101,8 @@ curl -H "Authorization: Bearer YOUR_KEY" http://192.168.1.23:8765/read
 curl -H "Authorization: Bearer YOUR_KEY" --data "read stele" http://192.168.1.23:8765/act
 ```
 
-*New key* stops every existing connection. For co-op house rules, see
-`docs/coop/CLAUDE.md`.
+*New key* stops every existing connection. Agents get the fair-play note
+(`docs/coop/FAIR-PLAY.md`) and nothing more.
 
 The address only works on your local network. An agent in the cloud (for
 example Claude on claude.ai) can't reach a phone directly; that would need a

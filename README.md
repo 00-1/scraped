@@ -1,6 +1,6 @@
 # Scraped Again
 
-A text-only game about deciphering a lost, procedurally generated language in a world where writing has power — and scraping it away releases that power.
+A text-only, procedurally generated game. Nothing a player or an agent sees says what it is about (S06); the design is in `docs/DESIGN.md`.
 
 - Design: [`docs/DESIGN.md`](docs/DESIGN.md)
 - Roadmap and milestones: [`docs/ROADMAP.md`](docs/ROADMAP.md)
@@ -91,8 +91,9 @@ finer tools (a penknife, a mason's chisel, a graver) reach farther, up to the
 great inscriptions. At the world's rim, `go beyond` leaves it.
 
 Agents can play too: `--json` (see [`docs/PROTOCOL.md`](docs/PROTOCOL.md)),
-or the MCP server `scraped-mcp`, with house rules for playing alongside a
-person in [`docs/coop/CLAUDE.md`](docs/coop/CLAUDE.md).
+or the MCP server `scraped-mcp`. Agents get what people get, plus the
+fair-play note in [`docs/coop/FAIR-PLAY.md`](docs/coop/FAIR-PLAY.md); taking
+turns in a shared world is in [`docs/coop/PLAYING.md`](docs/coop/PLAYING.md).
 
 ### Worlds
 

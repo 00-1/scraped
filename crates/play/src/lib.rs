@@ -270,11 +270,14 @@ impl Session {
 
 /// The JSON-lines protocol's version. Bump it when a response changes
 /// shape in a way agents must notice (see docs/PROTOCOL.md).
-pub const PROTOCOL: u32 = 1;
+pub const PROTOCOL: u32 = 2;
 
 /// One protocol response line.
 pub fn protocol_line(o: &Output) -> String {
-    let mut v = json!({ "protocol": PROTOCOL, "text": o.text, "state": o.state });
+    // The text and nothing more in the player build (S06); developer
+    // builds also carry the state summary.
+    let mut v = serde_json::to_value(o).expect("output serialises");
+    v["protocol"] = json!(PROTOCOL);
     if let Some(t) = &o.truth {
         v["truth"] = t.clone();
     }

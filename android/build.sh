@@ -19,6 +19,10 @@ cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o android/app/src/main/jniLibs 
   build --release -p scraped-android
 # Only the app's own library: cargo-ndk also copies the web crate's.
 rm -f android/app/src/main/jniLibs/*/libscraped_web.so
+# The app is a player build (S06): no spoiler fields compiled in.
+for so in android/app/src/main/jniLibs/*/libscraped_android.so; do
+  if grep -a -q 'salience' "$so"; then echo "spoiler fields in $so" >&2; exit 1; fi
+done
 
 cd android
 ./gradlew --no-daemon -q assembleRelease "$@"

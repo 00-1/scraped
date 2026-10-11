@@ -20,6 +20,10 @@ try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(
   if (await page.inputValue('#input') !== 'look') throw new Error('history recall failed');
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelectorAll('#log article').length >= 3);
+  // The browser player's engine sends the text and nothing more (S06).
+  const keys = await page.evaluate(() => Object.keys(api({ cmd: 'play', line: 'look around' })));
+  const extra = keys.filter(k => !['protocol', 'text', 'ended', 'code', 'file'].includes(k));
+  if (extra.length) throw new Error('a reply carries more than the text: ' + extra.join(', '));
   // Alt+M opens the menu; Tab moves through it; Escape closes it.
   await page.keyboard.press('Alt+m');
   await page.waitForSelector('dialog[open]');

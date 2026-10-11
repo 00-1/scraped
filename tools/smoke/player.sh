@@ -12,6 +12,18 @@ if "$bin" --spoil </dev/null >/dev/null 2>&1; then fail "--spoil accepted"; fi
 out=$(printf 'look\nread\nhelp\n' | "$bin" --json --seed 42)
 echo "$out" | head -1 | grep -q '"fair_play"' || fail "no fair-play note in the first reply"
 if echo "$out" | grep -q '"truth"'; then fail "ground truth in a reply"; fi
+# The text and nothing more (S06): every reply's keys are among the allowed
+# few, and nothing in it but the text names the world.
+long=$(printf 'look\nlook around\nlisten\ngo in\nlook\ntake all\ninventory\nstatus\nhelp\nout\nwait\n' | "$bin" --json --seed 42)
+printf "%s\n" "$long" | python3 -c '
+import json, sys
+allowed = {"protocol", "text", "ended", "fair_play", "code", "file"}
+for n, line in enumerate(sys.stdin):
+    v = json.loads(line)
+    extra = set(v) - allowed
+    if extra:
+        sys.exit("reply %d carries %s" % (n, sorted(extra)))
+' || fail "a reply carries more than the text"
 # Spoiler internals (the facts the attention model weighed) and authoring
 # notes must not be in the binary at all.
 if strings "$bin" | grep -q 'salience'; then fail "spoiler fields compiled in"; fi

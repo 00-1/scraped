@@ -155,7 +155,7 @@ function send(line) {
   state.history.push(line); state.back = 0;
   show(line, r.text);
   store("play.current", JSON.stringify(api({ cmd: "play_save" })));
-  if (r.state && r.state.dead && !state.ended) {
+  if (r.ended && !state.ended) {
     state.ended = api({ cmd: "play_end" });
     if ($("legacyOn").checked && state.ended.legacy) store("play.legacy", JSON.stringify(state.ended.legacy));
   }

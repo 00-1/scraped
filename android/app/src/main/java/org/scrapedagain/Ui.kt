@@ -289,9 +289,10 @@ private fun Avatar(w: World) {
 @Composable
 private fun WorldRow(model: AppModel, w: World, onClick: () -> Unit, onLong: () -> Unit) {
     val preview = w.lastGame().lineSequence().firstOrNull { it.isNotBlank() }?.trim() ?: ""
-    val day = if (w.ended) model.label("ended") else "${model.label("day")} ${w.day}"
+    // No day count (S06): the game doesn't count days for the player.
+    val day = if (w.ended) model.label("ended") else null
     // A shared world says so, and who moved last.
-    val tag = if (w.shared == null) day
+    val tag = if (w.shared == null) day ?: ""
     else listOfNotNull(model.label("shared"), w.lastMover()?.let { "${model.label("moved_last")} $it" }, day).joinToString(" · ")
     val unread = if (w.shared == null) 0 else w.unread(model.worldsMe)
     ListItem(
@@ -505,7 +506,7 @@ private fun GameScreen(model: AppModel, ink: Ink) {
                     Text("${model.label("world")} ${w.code}", maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium)
                     val status = if (w.shared != null && model.worldsStatus.isNotEmpty()) " · ${model.label(model.worldsStatus)}" else ""
                     Text(
-                        "${model.label("day")} ${w.day} · ${model.label(w.difficulty)}$status",
+                        "${model.label(w.difficulty)}$status",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

@@ -157,9 +157,10 @@ public final class AgentProtocol {
                 r.put("capabilities", new JSONObject().put("tools", new JSONObject()));
                 r.put("serverInfo", new JSONObject().put("name", "scraped-again-phone").put("version", "1"));
                 // DEBUG-TEXT: instructions for agents, not player text.
-                r.put("instructions", "You are playing Scraped Again, a text game about deciphering a lost language, on someone's phone. "
-                        + "Use read to see the latest text and act to type a command, exactly as a player would (look, read stele, go temple, help). "
-                        + "You see only what the player sees. Never claim to know what writing means without evidence.");
+                // Mechanics only (S06): nothing about what the game is or holds.
+                r.put("instructions", "You are playing Scraped Again on someone's phone. "
+                        + "Use read to see the latest text and act to type a command, exactly as a player would (look, go north, help). "
+                        + "You see only what the player sees.");
                 return json(200, result(id, r));
             }
             case "ping":
@@ -196,7 +197,7 @@ public final class AgentProtocol {
     private static JSONArray tools() throws JSONException {
         JSONObject act = new JSONObject()
                 .put("name", "act")
-                .put("description", "Type one command into the game, as a player would (look, read stele, go temple, take knife, help). Returns the game's reply.")
+                .put("description", "Type one command into the game, as a player would (look, go north, take knife, help). Returns the game's reply.")
                 .put("inputSchema", new JSONObject()
                         .put("type", "object")
                         .put("properties", new JSONObject().put("command", new JSONObject().put("type", "string")))

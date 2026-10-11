@@ -222,12 +222,9 @@ class AppModel(app: Application) : AndroidViewModel(app) {
                 transcript += Entry(who, cmd)
                 transcript += Entry('g', text)
                 w.save = save
-                val state = r.optJSONObject("state")
-                if (state != null) {
-                    w.day = state.optInt("minutes") / 1440 + 1
-                    if (state.has("dead")) w.ended = true
-                }
-                chips = chipsFor(state)
+                // The reply is the text and whether the run ended (S06).
+                if (r.optBoolean("ended")) w.ended = true
+                chips = chipsFor(r)
                 if (who == 'y') history += cmd
                 recallAt = 0
             }
@@ -247,26 +244,16 @@ class AppModel(app: Application) : AndroidViewModel(app) {
     fun hasHistory() = history.isNotEmpty()
 
     // Command words on chips are the parser's own verbs (crates/game/data/
-    // verbs.toml): they are what a player types, not prose.
-    private fun chipsFor(state: JSONObject?): Chips {
-        if (state == null) return Chips(commands = listOf("look" to "look"))
-        val outside = state.optString("place") == "outside"
-        val commands = ArrayList<Pair<String, String>>()
-        commands += "look" to "look"
-        val exits = state.optJSONArray("exits") ?: JSONArray()
-        for (i in 0 until minOf(exits.length(), 10)) {
-            val e = exits.optString(i)
-            commands += e to (if (outside) "go " + lastWord(e) else e)
-        }
-        if (!outside) commands += "out" to "out"
-        val things = ArrayList<Pair<String, String>>()
-        val t = state.optJSONArray("things") ?: JSONArray()
-        for (i in 0 until minOf(t.length(), 12)) {
-            val name = t.optString(i)
-            things += name to lastWord(name)
-        }
-        return Chips(commands, listOf("read", "take", "examine", "clean"), things, listOf("inventory", "status", "listen", "wait"))
-    }
+    // verbs.toml): they are what a player types, not prose. Only the basics,
+    // the same everywhere (S06): nothing the text hasn't said (no exits or
+    // things from hidden state), nothing about writing.
+    @Suppress("UNUSED_PARAMETER")
+    private fun chipsFor(reply: JSONObject?): Chips =
+        Chips(
+            commands = listOf("look" to "look", "out" to "out", "go back" to "go back"),
+            verbs = listOf("examine", "take", "touch", "listen"),
+            after = listOf("inventory", "status", "wait", "help"),
+        )
 
     private fun lastWord(name: String): String =
         name.trim().split(Regex("\\s+")).last().filter { it.isLetterOrDigit() || it == '_' || it == '-' }
@@ -585,13 +572,12 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         }
         if (entries.isEmpty()) entries += Entry('g', opened.optString("text"))
         val now = System.currentTimeMillis()
-        val state = opened.optJSONObject("state")
         val w = World(
             id = now.toString(36) + (SecureRandom().nextInt(1 shl 20)).toString(36),
             seed = "", difficulty = "standard", code = opened.optString("code"),
             save = JSONObject().put("sealed", file.optString("save")).put("turn", file.optInt("turn")),
             transcript = entries, notebook = "", created = now, updated = now,
-            day = (state?.optInt("minutes") ?: 0) / 1440 + 1, ended = false,
+            day = 1, ended = false,
             shared = file, remote = name, tag = tag,
         )
         if (tag != null) w.synced = w.mark()

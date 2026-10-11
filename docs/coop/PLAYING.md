@@ -37,7 +37,7 @@ git clone https://github.com/OWNER/WORLDS.git worlds && cd worlds
 ./scraped-player-linux-x86_64 --world NAME.world --as ai --json
 ```
 
-Each line you send is a command (`look`, `read stele`, `go temple`, `help`)
+Each line you send is a command (`look`, `go north`, `help`)
 or `{"cmd": "..."}`; each reply is one JSON line. Every move is written into
 the world file as you make it, tagged `ai` with the time. Two more lines
 carry table talk, which isn't a move:

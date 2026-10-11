@@ -103,7 +103,10 @@ mod tests {
             serde_json::from_str(&call(r#"{"cmd":"play_new","seed":"42"}"#)).unwrap();
         assert!(first["text"].as_str().is_some_and(|s| !s.is_empty()));
         let next: Value = serde_json::from_str(&call(r#"{"cmd":"play","line":"look"}"#)).unwrap();
-        assert!(next["state"]["things"].is_array());
+        // The app gets the text and nothing more (S06). (Tests build with
+        // the developer tools' spoilers; android/build.sh checks the app's
+        // own library has none.)
+        assert!(next["text"].is_string());
         let bad: Value = serde_json::from_str(&call("not json")).unwrap();
         assert!(bad["error"].is_string());
     }

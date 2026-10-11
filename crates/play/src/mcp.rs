@@ -43,7 +43,8 @@ impl Server {
                 "capabilities": { "tools": {} },
                 "serverInfo": { "name": "scraped-again", "version": env!("CARGO_PKG_VERSION") },
                 // DEBUG-TEXT: instructions for agents, not player text.
-                "instructions": format!("Scraped Again: a text game about deciphering a lost language. Start with new_game (or open_world for a world shared with a person), then send commands with act (look, read stele, go temple, help); talk and talk_since carry table talk with your partner. Text in the game is what the player sees; never invent what writing means.\n\n{}", crate::FAIR_PLAY),
+                // Mechanics only (S06): nothing about what the game is or holds.
+                "instructions": format!("Scraped Again. Start with new_game (or open_world for a world shared with a person), then send commands with act, exactly as a player would type them (look, go north, help); save and load keep a game; talk and talk_since carry table talk with your partner.\n\n{}", crate::FAIR_PLAY),
             })),
             "ping" => Ok(json!({})),
             "tools/list" => Ok(json!({ "tools": tools() })),
@@ -190,7 +191,7 @@ fn tools() -> Value {
         },
         {
             "name": "act",
-            "description": "Send one command, exactly as a player would type it (look, read stele, go temple, take knife, clean wall, listen, help). Returns what the player sees and a state summary.",
+            "description": "Send one command, exactly as a player would type it (look, go north, take knife, help). Returns what the player sees.",
             "inputSchema": { "type": "object", "properties": { "command": { "type": "string" } }, "required": ["command"] }
         },
         {

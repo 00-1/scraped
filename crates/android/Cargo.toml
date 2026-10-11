@@ -10,7 +10,8 @@ publish.workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-scraped-web = { path = "../web" }
+# The player build: no spoilers in the app (S06).
+scraped-web = { path = "../web", default-features = false }
 serde_json.workspace = true
 jni = { version = "0.21", default-features = false }
 

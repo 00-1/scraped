@@ -2,8 +2,9 @@
 
 *Scraped Again* can be played by programs as well as people: the JSON-lines
 protocol of the terminal client, or the MCP server. Both carry exactly what a
-human player sees, plus a structured summary; ground truth (meanings, maps)
-is only given with `--spoil`, for debugging.
+human player sees and nothing more (S06): no hidden lists, ids, clock or
+figures. Ground truth (meanings, maps) and the state summary are only in the
+developer tools, for debugging.
 
 ## JSON lines (`scraped --json`)
 
@@ -18,15 +19,9 @@ Every response is one line of JSON:
 |---|---|---|
 | `protocol` | 1 | The protocol version. A client should refuse versions it doesn't know. |
 | `text` | 1 | Exactly what a human player sees. |
-| `state.place` | 1 | `outside`, or `structure S room R`. |
-| `state.things`, `state.carried`, `state.exits` | 1 | Names as the player sees them. |
-| `state.minutes` | 1 | Minutes since the first midnight. |
-| `state.landmarks`, `state.edges`, `state.weather` | 1 | Outdoors only: what is in view, by rough bearing and distance. |
-| `state.travelled` | 1 | The last journey as the player perceived it. |
-| `state.wrote`, `state.scraped` | 1 | What the last `write` or `scrape` did. |
-| `state.body`, `state.light`, `state.load` | 1 | Needs by coarse state, light, weight carried. |
-| `state.dead` | 1 | How the run ended, once it has. |
-| `truth` | 1 | Only with `--spoil`: position, live claims, understanding, regions, storylets; `attention`, every fact the description weighed (slot, key, salience, score, whether new, variables), said or not; at the end, the run record and the chronicle's gloss. |
+| `ended` | 2 | Present, and true, once the run has ended. |
+| `state` | 1 | Developer builds only (`scraped`, not `scraped-player`): a summary of the state, for bots and debugging. Removed from the player build in version 2. |
+| `truth` | 1 | Only with `--spoil` (developer builds): position, live claims, understanding, regions, storylets; `attention`, every fact the description weighed (slot, key, salience, score, whether new, variables), said or not; at the end, the run record and the chronicle's gloss. |
 
 Session commands are handled by the client, not the game: `save [FILE]`,
 `load [FILE]`, `transcript on|off`, `export [PREFIX]`, `code`, `quit`.
@@ -59,5 +54,5 @@ A stdio MCP server (protocol revision 2025-06-18) with five tools:
 Each result has the player's text as `content` and the JSON-lines response
 (with `protocol`) as `structuredContent`.
 
-For an agent playing *with* a person, see `docs/coop/CLAUDE.md`: house rules
-for co-op play.
+An agent playing *with* a person gets what the person gets, plus the
+fair-play note (`docs/coop/FAIR-PLAY.md`); there are no house rules (S06).
