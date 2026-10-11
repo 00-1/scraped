@@ -1426,7 +1426,7 @@ impl Game {
                 self.output(vec![out.text, t], None)
             };
         }
-        let followed = out.text.len() > 0
+        let followed = !out.text.is_empty()
             && self.renders[mark.min(self.renders.len())..]
                 .iter()
                 .any(|r| r.trace.slot.starts_with("cue."));
