@@ -27,6 +27,7 @@ What this means in practice:
 - **Tools are ordinary first.** What can scrape is first a knife, a chisel, a pumice stone, used to cut, pry or clean. What can magnify is first a lens for starting fires and reading small marks. Their deeper use is discovered, not announced.
 - **Small payoffs, often.** Alongside the slow build, the world is scattered with small, quick puzzles solved with ordinary actions and the senses (a jammed lid, a hollow wall, a loose stone), each giving something. Play is rewarded along the way, not only at the end of long threads (Jb, 2026-10-11).
 - **A run without writing is still a run.** A player who never learns the mechanic can still explore, survive, map, solve mechanisms, piece together the history, and end their time in the world in a meaningful way.
+- **Several ways of playing, each with its own payoffs** (Jb, 2026-10-11). Each play style has its own arc of small payoffs, growing mastery, large payoffs and a satisfying end, and several of them never progress with writing at all. Writing is one path among several (D14).
 
 ## Say little; let the player dig
 

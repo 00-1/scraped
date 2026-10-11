@@ -347,6 +347,7 @@ Held doors are no longer a cause: every counter word is now met in five readable
 | S06 | [What the game shows](milestones/S06-what-the-game-shows.md) | From Jb's first playtest: nothing in the JSON beyond the text, no statement of what the game is about, help and manual, marks in three steps, no modern units, cues that can be followed up |
 | D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what the character notices unasked; verbs suggested by situations; evidence of old spells in every category |
 | S07 | [From the second playtest](milestones/S07-from-the-second-playtest.md) | After D13: looking as a progression, say it once and recognise on return, chains and a sweep, pieces of writing studied separately, obvious next steps, and the playtest's bugs |
+| D14 | [Ways of playing](milestones/D14-ways-of-playing.md) | Each play style gets its own arc: small payoffs, growing mastery, large payoffs and an ending, with several arcs that never need writing |
 | X01 | [Record-keeping extension](milestones/X01-record-keeping-extension.md) | Not scheduled; waits for Jb. An optional companion that records from the player's text only, with text markup clients can show or hide |
 
 Order of priority is deliberate: first the instruments and quiet text (D01–D02), so every later addition is measured and adds to what can be found rather than to what is read; then the world, outside and in (D03–D06); then what it says (D07–D08); then the magic and how it's discovered (D09–D10); then the late-game payoff (D11).

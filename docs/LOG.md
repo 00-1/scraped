@@ -932,3 +932,4 @@ Jb also asked for small, quick payoffs scattered through the world (two playtest
 
 Added `docs/milestones/S07-from-the-second-playtest.md`, after D13.
 
+Jb also asked that the other play styles have their own payoffs, with several satisfying ways of playing that never progress with writing. Added `docs/milestones/D14-ways-of-playing.md` (after S07): arcs for forager, mason and wayfarer, each with small payoffs, mastery, large payoffs and an ending, all proposed for Jb to decide.
