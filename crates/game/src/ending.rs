@@ -547,7 +547,10 @@ impl Game {
             ("kinds", Value::Number(rec.kinds as i64)),
             ("rooms", Value::Number(rec.rooms as i64)),
             ("secrets", Value::Number(rec.secrets as i64)),
-            ("walked", Value::Number(i64::from(rec.walked_km))),
+            (
+                "walked",
+                Value::from(crate::measures::how_far(f64::from(rec.walked_km) * 1000.0)),
+            ),
             ("rim", Value::Bool(rec.rim)),
         ]);
         out.push(self.say("end.summary", c));

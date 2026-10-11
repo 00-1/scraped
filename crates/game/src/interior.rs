@@ -272,7 +272,7 @@ impl Game {
             ctx(&[
                 ("name", Value::from(name)),
                 ("spaces", Value::Number(path.len() as i64)),
-                ("metres", Value::Number((metres / 2.0).round() as i64 * 2)),
+                ("how_far", Value::from(crate::measures::how_far(metres))),
             ]),
         );
         self.said_already = 1;
@@ -348,7 +348,7 @@ impl Game {
             "move.run",
             ctx(&[
                 ("spaces", Value::Number(spaces as i64)),
-                ("metres", Value::Number((metres / 2.0).round() as i64 * 2)),
+                ("how_far", Value::from(crate::measures::how_far(metres))),
                 ("turns", Value::Number(turns)),
                 ("branches", Value::Number(branches as i64)),
                 (

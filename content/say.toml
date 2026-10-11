@@ -97,7 +97,7 @@ example = true
 
 [[variant]]
 slot = "say.wait"
-text = "You wait {duration minutes}."
+text = "You wait {how_long}."
 example = true
 
 [[variant]]

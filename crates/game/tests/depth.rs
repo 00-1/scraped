@@ -198,3 +198,58 @@ fn the_seed_42_hand_replay_plays_clean() {
         "{all}"
     );
 }
+
+/// S06: what the game shows. No rendered response in the explorer's or
+/// the hand player's runs carries a modern unit, and nothing in their
+/// first hour speaks of writing, reading, signs or glyphs.
+#[test]
+#[ignore = "slow in debug; CI runs it in release"]
+fn no_modern_units_and_no_writing_in_the_first_hour() {
+    const UNITS: [&str; 9] = [
+        "hour",
+        "hours",
+        "minute",
+        "minutes",
+        "metre",
+        "metres",
+        "kilometre",
+        "kilometres",
+        "km",
+    ];
+    const WRITING: [&str; 13] = [
+        "writing",
+        "written",
+        "write",
+        "read",
+        "reading",
+        "sign",
+        "signs",
+        "glyph",
+        "glyphs",
+        "letter",
+        "letters",
+        "inscription",
+        "script",
+    ];
+    let p = pack();
+    for seed in [1, 42, 9001] {
+        for kind in ["explorer", "hand"] {
+            let r = play(&p, seed, kind, 24.0, 20_000);
+            for (i, (cmd, text)) in r.commands.iter().zip(&r.texts).enumerate() {
+                let low = text.to_lowercase();
+                let words: Vec<&str> = low.split(|c: char| !c.is_alphabetic()).collect();
+                for u in UNITS {
+                    assert!(!words.contains(&u), "seed {seed} {kind}: `{cmd}`: {text}");
+                }
+                if r.at[i] <= 1.0 {
+                    for w in WRITING {
+                        assert!(
+                            !words.contains(&w),
+                            "seed {seed} {kind} first hour: `{cmd}`: {text}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

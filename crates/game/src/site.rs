@@ -185,7 +185,7 @@ impl Site {
             if !st.outside.is_empty() {
                 things.push(Thing {
                     id: things.len(),
-                    kind: "inscription",
+                    kind: "carving",
                     material: Material::Stone,
                     home: Place::Outside,
                     portable: false,

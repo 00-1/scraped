@@ -144,7 +144,7 @@ impl Game {
         let waited = minutes - left;
         let mut t = self.say(
             "say.wait",
-            ctx(&[("minutes", Value::Number(i64::from(waited)))]),
+            ctx(&[("how_long", Value::from(crate::measures::how_long(waited)))]),
         );
         // Someone who waits a while out of doors, quietly, may see what
         // lives there come out (D06).

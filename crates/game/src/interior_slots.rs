@@ -26,7 +26,7 @@ fn s_report(_: u64) -> Vec<Context> {
             ctx(&[
                 ("direction", Value::from(*d)),
                 ("passage", Value::from(PASSAGES[i % PASSAGES.len()])),
-                ("metres", Value::Number(4 + 6 * i as i64)),
+                ("how_far", Value::from(crate::measures::HOW_FAR[i % 2])),
                 ("dark", Value::Bool(i % 3 == 2)),
                 ("north", Value::Number(if i == 0 { 4 } else { -(i as i64) })),
                 ("east", Value::Number(2 * i as i64)),
@@ -47,7 +47,10 @@ fn s_run(_: u64) -> Vec<Context> {
         .map(|i| {
             ctx(&[
                 ("spaces", Value::Number(2 + i)),
-                ("metres", Value::Number(10 + 12 * i)),
+                (
+                    "how_far",
+                    Value::from(crate::measures::HOW_FAR[(i as usize) % 3]),
+                ),
                 ("turns", Value::Number(i % 3)),
                 ("branches", Value::Number(i / 2)),
                 ("direction", Value::from(INSIDE_DIRECTIONS[i as usize % 4])),
@@ -65,7 +68,7 @@ fn s_walk(_: u64) -> Vec<Context> {
                     Value::from(["the great hall", "the stair", "the dry pool"][i]),
                 ),
                 ("spaces", Value::Number(1 + 3 * i as i64)),
-                ("metres", Value::Number(12 + 20 * i as i64)),
+                ("how_far", Value::from(crate::measures::HOW_FAR[i % 3])),
             ])
         })
         .collect()
@@ -140,7 +143,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("move.report", "Which way the player went inside and how far, honestly, so they can draw a map ('North through the door, some 12 metres.'). Said before the next room. In the dark, only the direction is felt: no distance.")
             .var("direction", e(INSIDE_DIRECTIONS), "Which way.")
             .var("passage", e(PASSAGES), "What they went through.")
-            .var("metres", VarType::Number, "From the middle of one space to the middle of the next, to the nearest 2 m.")
+            .var("how_far", e(&crate::measures::HOW_FAR), "How far, as a walker judges it (never in metres).")
             .var("dark", VarType::Bool, "Whether they moved by feel.")
             .var("north", VarType::Number, "How far north the move went, in metres (negative: south), so a careful player's map comes out true.")
             .var("east", VarType::Number, "How far east (negative: west).")
@@ -154,7 +157,7 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_thing),
         SlotDef::new("move.run", "Following a long passage, told in a line rather than space by space ('The passage winds on, branching twice, some 40 metres.').")
             .var("spaces", VarType::Number, "How many stretches of passage were passed through.")
-            .var("metres", VarType::Number, "How far, to the nearest 2 m.")
+            .var("how_far", e(&crate::measures::HOW_FAR), "How far, as a walker judges it (never in metres).")
             .var("turns", VarType::Number, "How many times it turned.")
             .var("branches", VarType::Number, "How many side ways were passed.")
             .var("direction", e(INSIDE_DIRECTIONS), "The way it was heading at the end.")
@@ -163,7 +166,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("move.walk", "The player walks back to a space they know, by the ways they know ('You make your way back to the great hall.').")
             .var("name", VarType::Text, "Where to, as named by room.name.")
             .var("spaces", VarType::Number, "How many spaces they passed through.")
-            .var("metres", VarType::Number, "How far, to the nearest 2 m.")
+            .var("how_far", e(&crate::measures::HOW_FAR), "How far, as a walker judges it (never in metres).")
             .max_len(120)
             .sampler(s_walk),
         SlotDef::new("move.no_way", "The player asks to go back to a space they know, but no way they know leads there from here.")

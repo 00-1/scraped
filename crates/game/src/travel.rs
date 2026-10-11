@@ -668,9 +668,9 @@ impl Game {
                 ("mode", Value::from(mode)),
                 ("bearing", Value::from(b.map_or("nowhere", |b| BEARINGS[b]))),
                 ("distance", Value::from(distance_band(metres))),
-                ("metres", Value::Number(rough_metres(metres))),
+                ("how_far", Value::from(crate::measures::how_far(metres))),
                 ("duration", Value::from(duration_band(total))),
-                ("minutes", Value::Number(rough_minutes(total))),
+                ("how_long", Value::from(crate::measures::how_long(total))),
                 ("edge", Value::from(edge.map_or("none", |(e, _)| EDGES[e]))),
             ]);
             parts.push(self.say("travel.report", c));

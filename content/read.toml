@@ -77,7 +77,7 @@ example = true
 
 [[variant]]
 slot = "trace.frame"
-text = "You take [if from == to]{noun} {from}[else]{plural noun 2} {from} to {to}[end] of {thing}[if with == 'pressing'], pressing clay into it[else], rubbing charcoal over it[end] ({duration minutes}):"
+text = "You take [if from == to]{noun} {from}[else]{plural noun 2} {from} to {to}[end] of {thing}[if with == 'pressing'], pressing clay into it[else], rubbing charcoal over it[end] ({how_long}):"
 example = true
 
 [[variant]]

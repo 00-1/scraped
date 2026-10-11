@@ -67,7 +67,7 @@ const WRITABLE: &[&str] = &[
     "basin",
     "beam",
     "table",
-    "inscription",
+    "carving",
     "milestone",
 ];
 

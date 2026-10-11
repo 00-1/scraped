@@ -541,8 +541,8 @@ impl Game {
                 ("to", Value::Number(to as i64)),
                 ("glyphs", Value::Number(signs.len() as i64)),
                 (
-                    "minutes",
-                    Value::Number(i64::from(TRACE_MINUTES) * done as i64),
+                    "how_long",
+                    Value::from(crate::measures::how_long(TRACE_MINUTES * done as u32)),
                 ),
             ]),
         );

@@ -811,7 +811,7 @@ impl Game {
             }
             "shelf" | "basin" | "chest" | "table" | "lintel" | "niche" | "gravestone"
             | "milestone" => "middling",
-            "inscription" | "gate" | "wall" => "huge",
+            "carving" | "gate" | "wall" => "huge",
             _ => "large",
         };
         let condition = match th.home {

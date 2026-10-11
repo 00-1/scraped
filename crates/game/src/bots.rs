@@ -1584,7 +1584,7 @@ impl DepthBot {
         }
         self.sealed[i].legs = 0;
         let stones: Vec<usize> = (0..s.things.len())
-            .filter(|&k| s.things[k].contains("inscription"))
+            .filter(|&k| s.things[k].contains("carving"))
             .collect();
         if stones.is_empty() {
             self.sealed[i].tries = 4;
@@ -2415,6 +2415,8 @@ pub struct BotRun {
     /// S05: the things read, in the order first read, with how many pages
     /// each runs to.
     pub reads: Vec<(usize, usize)>,
+    /// S06: the hours into the run at which each response came.
+    pub at: Vec<f64>,
     /// Sealed places (D11) found shut, and those gone into.
     pub sealed_met: usize,
     pub sealed_opened: usize,
@@ -2576,6 +2578,7 @@ pub fn play_with(
         blanks: Vec::new(),
         uncued_death: None,
         reads: Vec::new(),
+        at: Vec::new(),
         sealed_met: 0,
         sealed_opened: 0,
         read_great: false,
@@ -2680,6 +2683,7 @@ pub fn play_with(
             run.rooms.insert(format!("{}{lit}", out.state.place));
         }
         run.texts.push(out.text.clone());
+        run.at.push(f64::from(g.state.minutes - start) / 60.0);
         if let Some(r) = &g.state.reading {
             if !run.reads.iter().any(|x| x.0 == r.thing) {
                 let pages = g.signs(r.thing).len().div_ceil(crate::PAGE);

@@ -73,7 +73,10 @@ fn s_trace_frame(_: u64) -> Vec<Context> {
                 ("from", Value::Number(from)),
                 ("to", Value::Number(to)),
                 ("glyphs", Value::Number(glyphs)),
-                ("minutes", Value::Number(4 * (to - from + 1))),
+                (
+                    "how_long",
+                    Value::from(crate::measures::how_long(4 * (to - from + 1) as u32)),
+                ),
             ])
         })
         .collect()
@@ -146,7 +149,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("from", VarType::Number, "The first sign traced (from 1).")
             .var("to", VarType::Number, "The last sign traced.")
             .var("glyphs", VarType::Number, "How many signs the text has in all.")
-            .var("minutes", VarType::Number, "How long it took.")
+            .var("how_long", e(&crate::measures::HOW_LONG), "How long it took, as it felt.")
             .max_len(160)
             .sampler(s_trace_frame),
         SlotDef::new("trace.sign", "One traced sign: its number and its exact strokes, precise enough to draw. Told once; the game doesn't keep it.")

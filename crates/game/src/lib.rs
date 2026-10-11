@@ -33,6 +33,7 @@ mod life_slots;
 #[cfg(test)]
 mod life_tests;
 pub mod mapper;
+pub mod measures;
 mod object_slots;
 #[cfg(test)]
 mod object_tests;
@@ -2278,7 +2279,7 @@ impl Game {
                 "passage",
                 Value::from(way.passage.map_or("opening".to_string(), |p| label(&p))),
             ),
-            ("metres", Value::Number(metres)),
+            ("how_far", Value::from(measures::how_far(metres as f64))),
             ("dark", Value::Bool(self.is_dark())),
         ]);
         Some(self.say("move.report", c))

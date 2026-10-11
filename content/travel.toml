@@ -2,7 +2,7 @@ notes = "Journeys: how far you went, getting lost, arriving, and what stops you.
 
 [[variant]]
 slot = "travel.report"
-text = "You travel {bearing}[if edge != 'none'] along the {edge}[end], about {metres} metres, in about {count minutes minute}."
+text = "You travel {bearing}[if edge != 'none'] along the {edge}[end], {how_far}, {how_long}."
 example = true
 
 [[variant]]

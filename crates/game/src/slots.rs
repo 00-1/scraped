@@ -8,8 +8,7 @@ use scraped_content::{Context, Registry, SlotDef, Value, VarType};
 
 use crate::site::{ctx, label, Place, Site};
 use scraped_sim::outdoors::{
-    bearing, distance_band, duration_band, rough_metres, rough_minutes, BEARINGS, DISTANCES,
-    DURATIONS, EDGES,
+    bearing, distance_band, duration_band, BEARINGS, DISTANCES, DURATIONS, EDGES,
 };
 use scraped_sim::region::VARIABLES;
 
@@ -182,7 +181,7 @@ const BASE_KINDS: &[&str] = &[
     "milestone",
     "parapet",
     "beam",
-    "inscription",
+    "carving",
     "torch",
     "lamp",
     "oil",
@@ -600,7 +599,7 @@ fn s_verb(_: u64) -> Vec<Context> {
 }
 
 fn s_minutes(_: u64) -> Vec<Context> {
-    vec![ctx(&[("minutes", Value::Number(30))])]
+    vec![ctx(&[("how_long", Value::from("a while"))])]
 }
 
 /// The qualities writing pushes and the classes it acts on (D09), as slot
@@ -778,9 +777,9 @@ fn s_report(seed: u64) -> Vec<Context> {
                 Value::from(bearing(from, l.pos).map_or("nowhere", |b| BEARINGS[b])),
             ),
             ("distance", Value::from(distance_band(m))),
-            ("metres", Value::Number(rough_metres(m))),
+            ("how_far", Value::from(crate::measures::how_far(m))),
             ("duration", Value::from(duration_band(minutes))),
-            ("minutes", Value::Number(rough_minutes(minutes))),
+            ("how_long", Value::from(crate::measures::how_long(minutes))),
             (
                 "edge",
                 Value::from(if i % MODES.len() == 2 {
@@ -1004,21 +1003,21 @@ fn s_fill_none(_: u64) -> Vec<Context> {
 
 fn s_eat(_: u64) -> Vec<Context> {
     vec![
-        ctx(&[
-            ("thing", Value::from("the provisions")),
-            ("hours", Value::Number(12)),
-        ]),
-        ctx(&[
-            ("thing", Value::from("some berries")),
-            ("hours", Value::Number(4)),
-        ]),
+        ctx(&[("thing", Value::from("the provisions"))]),
+        ctx(&[("thing", Value::from("some berries"))]),
     ]
 }
 
 fn s_sleep(_: u64) -> Vec<Context> {
     vec![
-        ctx(&[("hours", Value::Number(8)), ("woken", Value::Bool(false))]),
-        ctx(&[("hours", Value::Number(2)), ("woken", Value::Bool(true))]),
+        ctx(&[
+            ("how_long", Value::from("most of a day")),
+            ("woken", Value::Bool(false)),
+        ]),
+        ctx(&[
+            ("how_long", Value::from("a good while")),
+            ("woken", Value::Bool(true)),
+        ]),
     ]
 }
 
@@ -1195,7 +1194,7 @@ fn s_end(_: u64) -> Vec<Context> {
                 ("kinds", Value::Number(i as i64 + 3)),
                 ("rooms", Value::Number(i as i64 * 7)),
                 ("secrets", Value::Number(i as i64 % 5)),
-                ("walked", Value::Number(i as i64 * 11)),
+                ("walked", Value::from(crate::measures::HOW_FAR[3 + i % 3])),
                 ("rim", Value::Bool(i % 3 == 0)),
             ])
         })
@@ -1217,7 +1216,7 @@ fn s_end(_: u64) -> Vec<Context> {
             ("kinds", Value::Number(9)),
             ("rooms", Value::Number(60)),
             ("secrets", Value::Number(4)),
-            ("walked", Value::Number(80)),
+            ("walked", Value::from("a day's walk")),
             ("rim", Value::Bool(*e == "beyond")),
         ]));
     }
@@ -1571,7 +1570,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.unknown_verb", "The first word of the command isn't a known verb.").var("word", VarType::Text, "The word.").sampler(s_word),
         SlotDef::new("say.need_object", "A verb needs something to act on ('take what?').").var("verb", VarType::Text, "The verb.").sampler(s_verb),
         SlotDef::new("say.empty", "The player entered nothing.").sampler(s_none),
-        SlotDef::new("say.wait", "Time passes while the player waits.").var("minutes", VarType::Number, "How long.").sampler(s_minutes),
+        SlotDef::new("say.wait", "Time passes while the player waits.").var("how_long", e(&crate::measures::HOW_LONG), "How long, as it felt (never in hours or minutes).").sampler(s_minutes),
         SlotDef::new("say.help", "Help: the commands the player can try. Lists the basics (looking, the senses, moving, going back, taking and dropping, eating, drinking, sleeping, waiting) and every verb the player has already used (S06): never a verb they haven't found. Every verb stays understood whether listed or not.")
             .var("verbs", VarType::List, "The command words to list, the basics first, as the player types them (look, go back, listen, clean…).")
             .max_len(900)
@@ -1633,9 +1632,9 @@ pub fn slots() -> Vec<SlotDef> {
             .var("mode", e(MODES), "How they travelled: walking to a place, heading a direction, following an edge, or going back.")
             .var("bearing", e(&[&BEARINGS[..], &["nowhere"]].concat()), "The overall direction travelled ('nowhere' if they ended where they began).")
             .var("distance", e(&DISTANCES), "Rough distance band.")
-            .var("metres", VarType::Number, "Distance as the player judges it, rounded (to 100 m under a kilometre, 500 m above).")
+            .var("how_far", e(&crate::measures::HOW_FAR), "How far, as a walker judges it (never in metres).")
             .var("duration", e(&DURATIONS), "Rough time taken.")
-            .var("minutes", VarType::Number, "Time taken, rounded to quarter hours.")
+            .var("how_long", e(&crate::measures::HOW_LONG), "How long it took, as it felt (never in hours or minutes).")
             .var("edge", e(&[&EDGES[..], &["none"]].concat()), "The edge followed, or 'none'.")
             .max_len(300)
             .sampler(s_report),
@@ -1773,11 +1772,10 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_fill_none),
         SlotDef::new("eat.done", "The player eats.")
             .var("thing", VarType::Text, thing)
-            .var("hours", VarType::Number, "Hours of hunger it takes away.")
             .sampler(s_eat),
         SlotDef::new("eat.none", "Nothing to eat (or that isn't food).").sampler(s_none),
         SlotDef::new("sleep.done", "The player wakes after sleeping (or is woken early).")
-            .var("hours", VarType::Number, "Hours slept.")
+            .var("how_long", e(&crate::measures::HOW_LONG), "How long the sleep was, as it felt.")
             .var("woken", VarType::Bool, "Woken before rested.")
             .sampler(s_sleep),
         SlotDef::new("forage.found", "An hour's foraging finds something to eat, from a plant that grows there (D06).")
@@ -1864,7 +1862,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("kinds", VarType::Number, "D10: kinds of building entered.")
             .var("rooms", VarType::Number, "D10: rooms seen.")
             .var("secrets", VarType::Number, "D10: hidden things uncovered, containers opened, locks undone.")
-            .var("walked", VarType::Number, "D10: kilometres walked.")
+            .var("walked", e(&crate::measures::HOW_FAR), "How far they walked in all, as a walker judges it (S06: never in kilometres).")
             .var("rim", VarType::Bool, "D10: whether the player reached the world's rim.")
             .max_len(600)
             .sampler(s_end),

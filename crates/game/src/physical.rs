@@ -998,13 +998,7 @@ impl Game {
         self.state.moved.remove(&t);
         self.state.gone.insert(t);
         self.state.body.eat(meal);
-        let tx = self.say(
-            "eat.done",
-            ctx(&[
-                ("thing", Value::from(named)),
-                ("hours", Value::Number(i64::from(meal))),
-            ]),
-        );
+        let tx = self.say("eat.done", ctx(&[("thing", Value::from(named))]));
         self.output(vec![tx], None)
     }
 
@@ -1018,7 +1012,10 @@ impl Game {
             slept += 1;
         }
         let c = ctx(&[
-            ("hours", Value::Number(i64::from(slept))),
+            (
+                "how_long",
+                Value::from(crate::measures::how_long(slept * 60)),
+            ),
             ("woken", Value::Bool(slept < hours)),
         ]);
         let t = if self.state.dead.is_some() {

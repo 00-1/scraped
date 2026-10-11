@@ -423,7 +423,7 @@ pub fn place(site: &mut Site, pack: &Pack) -> Vec<Placed> {
             let thing = site.things.len();
             site.things.push(Thing {
                 id: thing,
-                kind: "inscription",
+                kind: "carving",
                 material: Material::Stone,
                 home,
                 portable: false,
