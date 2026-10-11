@@ -897,5 +897,4 @@ Jb's decisions (in `docs/DESIGN.md`):
 - New "Noticing and knowing": play styles and habit shape what's noticed unasked; verbs suggested by situations; nothing about what the game is about; agents get only fair play; the JSON says only what the text says; no modern units; cues can always be followed up.
 - New "Possible future: a record-keeping extension" built on the player's text only.
 
-Added `docs/milestones/S06-what-the-game-shows.md` (now) and `docs/milestones/D13-ways-of-noticing.md` (after).
-
+Added `docs/milestones/S06-what-the-game-shows.md` (now) and `docs/milestones/D13-ways-of-noticing.md` (after: also starting verbs per style and the world's own units). Recorded the extension as `docs/milestones/X01-record-keeping-extension.md`, not scheduled until Jb decides.

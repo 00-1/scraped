@@ -18,11 +18,12 @@ Build on the proposed defaults, mark `// DESIGN-Q:`, list them in the LOG:
 
 1. **Keenness** per category (marks; sounds; smells; living things; buildings, materials and wear; land, routes and sky; things and mechanisms), in the player's half of the save. The attention model weighs candidate facts by keenness. The budget per response is unchanged.
 2. **Habit:** deliberate attention to a category (the verbs and targets that count, listed per category) raises it; neglect lowers it towards a floor. Never shown as a number. One optional slot per category for the first time it sharpens (Jb's words; may stay empty).
-3. **Play styles** as starting keenness (and the matching start, per the gate above).
+3. **Play styles** as starting keenness, and a **starting set of known verbs** per style (listed in `help` from the start; the basics for everyone). Proposed: scribe, studying and tracing marks; forager, foraging, fishing, snares, following tracks, gathering wood; mason, touching and tapping surfaces, examining materials, working mechanisms, digging; wayfarer, looking up, heading by bearing, following a river, naming a place and going to it. Scraping and writing are in no set. Habit adds verbs as they're used, as for everyone.
 4. **Suggested verbs:** situations that suggest each verb (a table: verb → situations), one suggestion per response at most, through slots, shown a couple of times and then dropped until the situation changes, never after the verb is used. Keenness makes a category's suggestions come sooner. Scraping and writing are never suggested before the player has done them.
 5. **Evidence in every category.** Each kind of old spell leaves evidence in at least two categories, through `spell.cue` and its follow-ups (S06). Proposed coverage: cold or heat in materials and air; light in sights and the sky; beasts drawn or kept off in living things; doors held or opened in buildings; growth in living things and smells; sounds where a spell wakes.
 6. **Bots per style** (scribe, forager, mason, wayfarer), built on the explorer, each attending more to its category. Metrics: share of unasked facts by category; first evidence of a spell, and its category; first release; survival.
-7. **`help` and suggestions together:** every verb in the parser has at least one situation that suggests it (test), and each style bot meets it on most seeds.
+7. **The world's own measures** (`docs/DESIGN.md`, "Measures as a body knows them"): the old culture's units of length, time and weight, as words in its language; milestones and boundary stones giving distances in them; and objects that give finer time when found and understood (a sundial, a water clock, alongside the calendar stones). Each world's units are fixed by generation and consistent, so a player who works one out can measure with it. Read and used like any other text or object: the game never converts them.
+8. **`help` and suggestions together:** every verb in the parser has at least one situation that suggests it (test), and each style bot meets it on most seeds.
 
 ## Targets
 
@@ -40,7 +41,8 @@ Build on the proposed defaults, mark `// DESIGN-Q:`, list them in the LOG:
 
 ## Checklist
 
-- [ ] Keenness, habit, styles (gates as DESIGN-Q)
+- [ ] Keenness, habit, styles with starting verbs (gates as DESIGN-Q)
+- [ ] The world's own units; milestones, sundials, water clocks
 - [ ] Suggested verbs, table and slots
 - [ ] Evidence of spells in every category
 - [ ] Four style bots and metrics
