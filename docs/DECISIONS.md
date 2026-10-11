@@ -427,3 +427,22 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | `go in` | The building just examined, else the one stood at (within 30 m, nearest), else which | `crates/game/src/lib.rs` | now |
 | `exit` | Leaves a building; `quit` or `q` ends play | `crates/play/src/lib.rs` | now |
 | Bare sounds and scene lists | Kept bare, by Jb's taste: "Faintly, river from the southeast", "Here: bones, bundle and bowl" (the `alist` helper exists if a variant wants articles) | `content/sense.toml`, `content/place.toml` | content |
+
+## What the game shows (S06)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| When marks become "signs" | After three different things have been looked at mark by mark; before that, "mark" | `crates/game/src/lib.rs` (`STUDIED_FOR_SIGNS`, `ambient`) | content |
+| When "reading" words appear | From the first sound heard for a mark (the `reading` ambient flag) | `ambient` | content |
+| `help` | look, examine, listen, smell, touch, go, go back, take, drop, inventory, eat, drink, sleep and wait, plus each verb the player has used that was understood | `HELP_BASICS` | now |
+| Tracing tools | Clay gives a pressing (no light needed); charcoal with bark or a cloak gives a rubbing (needs light). Every kind of mark traces | `crates/game/src/reading.rs` (`tracing_tool`) | now |
+| Where the tools come from | Charcoal when a fire burns out near the player; `gather bark` on wooded land (forest, pine, scrub, shore); `gather clay` within 300 m of a river, stream or lake | `crates/game/src/physical.rs` | now |
+| How long and how far | Moment, short while, while, good while, half a day, most of a day, more than a day; a few steps, a stone's throw, a short walk, a long walk, most of a morning's walk, a day's walk. No hours, metres or day count | `crates/game/src/measures.rs` | content |
+| Cues remembered for follow-up | The last 24 | `CUES_KEPT` | now |
+| What the app says about the game | Nothing (`app.about` has no variant) | `content/ui.toml` | content |
+| Things with no marks | A carving whose marks went elsewhere is a "block" | `crates/game/src/site.rs` | now |
+| Reading a marked object with no text | Looked at instead (a calendar stone's ring, an emblem) | `crates/game/src/lib.rs` | now |
+| Writing no one can reach | Lies dormant: in a buried building, or a room that rubble, collapse or flood bars for good. Rooms behind locked doors count as reachable (their keys exist) | `Site::dormant` | now |
+| Fairness for S06 | A firesteel; clay, or wooded land with a flame; every cue's cause where its effect is felt | `crates/game/src/fairness.rs` (`flame`, `tracing`, `cues`) | now |
+| Protocol | Version 2: replies carry `protocol`, `text` and `ended` only, in the player build, the app and MCP | `crates/play/src/lib.rs` | now |
+| Android chips | The basics only: look, out, go back | `android/.../AppModel.kt` | now |

@@ -1,6 +1,6 @@
 # Playtest 2026-10-11
 
-Jb's first playtest, with an AI partner over MCP, on v0.5.0 (standard difficulty). About 75 commands, all in the start town's temple (forecourt, hall, chapel).
+Jb's first playtest, on the Android app with an AI partner over MCP, on v0.5.0 (standard difficulty). About 75 commands, all in the start town's temple (forecourt, hall, chapel).
 
 - `transcript.md`: every command and the game's text, verbatim. The replies' `state` objects are left out; S06 removes them from the player build.
 - `save.txt`: the sealed save from the end of the session, for reproducing it with the developer tools.
