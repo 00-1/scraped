@@ -49,6 +49,8 @@ mod reading_slots;
 #[cfg(test)]
 mod reading_tests;
 #[cfg(test)]
+mod s06_tests;
+#[cfg(test)]
 mod sealed_tests;
 pub mod seedcode;
 mod senses;
@@ -90,6 +92,36 @@ use scraped_sim::writing::Claim;
 use site::{ctx, label, Place, Site, Thing, Way};
 
 /// Verbs that are compass points or up and down.
+/// What `help` always lists (S06): looking, the senses, moving, going
+/// back, taking and dropping, eating, drinking, sleeping, waiting.
+// DESIGN-Q: these, as the parser's own command words.
+pub const HELP_BASICS: &[&str] = &[
+    "look",
+    "examine",
+    "listen",
+    "smell",
+    "touch",
+    "go",
+    "go back",
+    "take",
+    "drop",
+    "inventory",
+    "eat",
+    "drink",
+    "sleep",
+    "wait",
+];
+
+/// Replies that mean the game didn't follow a command: its verb isn't
+/// counted as used (S06).
+const NOT_FOLLOWED: &[&str] = &[
+    "say.unknown_verb",
+    "say.not_here",
+    "say.need_object",
+    "say.which",
+    "say.empty",
+];
+
 const DIRECTION_VERBS: &[&str] = &[
     "north",
     "south",
@@ -241,6 +273,10 @@ pub struct State {
     pub scraped: BTreeSet<usize>,
     /// Writing tools the player has come across (for the first-find note).
     pub found: BTreeSet<String>,
+    /// The verbs the player has used and the game followed (S06): what
+    /// `help` lists beside the basics.
+    #[serde(default)]
+    pub used: BTreeSet<String>,
     /// Surfaces cleaned of moss, soot or dust (D10).
     #[serde(default)]
     pub cleaned: BTreeSet<usize>,
@@ -576,6 +612,7 @@ impl Game {
             dead: None,
             scraped: site.writing.scraped.clone(),
             found: BTreeSet::new(),
+            used: BTreeSet::new(),
             cleaned: BTreeSet::new(),
             written: Vec::new(),
             encountered: BTreeMap::new(),
@@ -820,9 +857,6 @@ impl Game {
         &self.renders
     }
 
-    /// Renders a description; variants may vary from turn to turn.
-    /// The command as the player typed it, to quote back ("to head north",
-    /// not "to head"; S04).
     /// The building whose door the player stands at (S05): within 30 m,
     /// and nearer than any other.
     fn building_at_hand(&self, buildings: &[Target]) -> Option<Target> {
@@ -842,6 +876,8 @@ impl Game {
         }
     }
 
+    /// The command as the player typed it, to quote back ("to head north",
+    /// not "to head"; S04).
     pub(crate) fn typed(&self, verb: &str) -> String {
         self.log
             .last()
@@ -850,6 +886,7 @@ impl Game {
             .unwrap_or_else(|| verb.to_string())
     }
 
+    /// Renders a description; variants may vary from turn to turn.
     fn say(&mut self, slot: &str, mut c: Context) -> String {
         // The player's own words quoted back lose their article: "You see no
         // sinkhole here", not "no the sinkhole" (S04).
@@ -1289,7 +1326,17 @@ impl Game {
                 return self.output(vec![t], None);
             }
         };
-        self.command(cmd)
+        // A verb the game followed goes into the player's guide (S06).
+        let mark = self.renders.len();
+        let verb = cmd.verb.clone();
+        let out = self.command(cmd);
+        let failed = self.renders[mark.min(self.renders.len())..]
+            .iter()
+            .any(|r| NOT_FOLLOWED.contains(&r.trace.slot.as_str()));
+        if !failed && !matches!(verb.as_str(), "help" | "manual") {
+            self.state.used.insert(verb);
+        }
+        out
     }
 
     fn pass(&mut self, minutes: u32) {
@@ -1367,18 +1414,26 @@ impl Game {
                 self.output(parts, None)
             }
             "wait" => self.wait(&cmd.words),
+            // How to play, one page (S06).
             "manual" => {
-                let section = cmd
-                    .words
-                    .iter()
-                    .find(|w| slots::MANUAL.contains(&w.as_str()))
-                    .map_or("contents", String::as_str)
-                    .to_string();
-                let t = self.say("manual.page", ctx(&[("section", Value::from(section))]));
+                let t = self.say("manual.page", Context::new());
                 self.output(vec![t], None)
             }
+            // The basics, and every verb the player has used (S06).
             "help" => {
-                let t = self.say("say.help", Context::new());
+                let mut verbs: Vec<String> = HELP_BASICS.iter().map(|v| v.to_string()).collect();
+                for v in &self.state.used {
+                    if !verbs.contains(v) {
+                        verbs.push(v.clone());
+                    }
+                }
+                let t = self.say(
+                    "say.help",
+                    ctx(&[(
+                        "verbs",
+                        Value::List(verbs.into_iter().map(Value::from).collect()),
+                    )]),
+                );
                 self.output(vec![t], None)
             }
             "more" => self.read_closely(&cmd.words),

@@ -1314,11 +1314,14 @@ fn s_app(_: u64) -> Vec<Context> {
         .collect()
 }
 
-fn s_manual(_: u64) -> Vec<Context> {
-    MANUAL
-        .iter()
-        .map(|s| ctx(&[("section", Value::from(*s))]))
-        .collect()
+fn s_help(_: u64) -> Vec<Context> {
+    let basics: Vec<Value> = crate::HELP_BASICS.iter().map(|v| Value::from(*v)).collect();
+    let mut more = basics.clone();
+    more.extend(["clean", "fish", "read"].map(Value::from));
+    vec![
+        ctx(&[("verbs", Value::List(basics))]),
+        ctx(&[("verbs", Value::List(more))]),
+    ]
 }
 
 fn s_code(_: u64) -> Vec<Context> {
@@ -1562,7 +1565,10 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("say.need_object", "A verb needs something to act on ('take what?').").var("verb", VarType::Text, "The verb.").sampler(s_verb),
         SlotDef::new("say.empty", "The player entered nothing.").sampler(s_none),
         SlotDef::new("say.wait", "Time passes while the player waits.").var("minutes", VarType::Number, "How long.").sampler(s_minutes),
-        SlotDef::new("say.help", "Help: the kinds of commands the game understands. Plain and short. Since D12 the game also understands the senses (listen, smell, touch, look closer, look up and down), clean or scrub something, eat, drink, gather, make fire, sleep, fish, forage, mark, name a place, and the manual. Never mention writing's power, scraping as anything but cleaning, or leaving.").max_len(900).sampler(s_none),
+        SlotDef::new("say.help", "Help: the commands the player can try. Lists the basics (looking, the senses, moving, going back, taking and dropping, eating, drinking, sleeping, waiting) and every verb the player has already used (S06): never a verb they haven't found. Every verb stays understood whether listed or not.")
+            .var("verbs", VarType::List, "The command words to list, the basics first, as the player types them (look, go back, listen, clean…).")
+            .max_len(900)
+            .sampler(s_help),
         SlotDef::new("say.intro", "The opening of a new game, before the first look. M12 replaces this with the authored frame.")
             .var("biome", e(BIOMES), "The land the site stands in.")
             .max_len(900)
@@ -2012,11 +2018,10 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("scrape.too_weak", "The scraper the player carries is not strong enough for this writing: it skids and won't bite.").var("thing", VarType::Text, thing).sampler(s_named),
         SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
-        SlotDef::new("manual.page", "The player's manual, one section per page (the 'manual' command; 'manual notebook' and so on). Contents lists the sections. Never spoil the language or the world: teach how to play and how to keep a notebook, not what anything means.")
-            .var("section", e(MANUAL), "Which section: contents, playing (commands and moving), reading (glyphs, labels, pages), notebook (how to keep one: glyph tables, word lists, guesses, places), writing (writing and scraping, without saying what writing does), survival, endings (that runs end, and how to begin again; no spoilers).")
+        SlotDef::new("manual.page", "The manual (the 'manual' command): how to play, one page (S06). How to talk to the game (a few words: a verb and a thing), going places and going back, saving. Nothing about what the world holds, reading, writing or what is to be found.")
             .min_variants(1)
             .max_len(3000)
-            .sampler(s_manual),
+            .sampler(s_none),
         SlotDef::new("ui.label", "A label in the browser player's interface: buttons, fields and short notices around the game (not the game's own text). Keep each short. title: the page title; keys: a one-line hint of the keyboard shortcuts (Enter sends, Up and Down recall commands, Alt+S saves, Alt+M opens the menu); saved/loaded: brief notices; world_code: before the world's shareable code; the presets' names: gentle, standard, archaeologist.")
             .var("id", e(UI_LABELS), "Which label.")
             .min_variants(1)
@@ -2030,6 +2035,10 @@ pub fn slots() -> Vec<SlotDef> {
             .min_variants(1)
             .max_len(240)
             .sampler(s_app),
+        SlotDef::new("app.about", "What the game says about itself, anywhere a client shows it (an app store listing, an 'about' line). Empty by default: nothing anywhere tells a player or an agent what the game is about (S06). Only Jb's words, if any.")
+            .min_variants(0)
+            .max_len(600)
+            .sampler(s_none),
         SlotDef::new("say.seed_code", "Shows the world's shareable code, so players can compare notebooks for the same world.")
             .var("code", VarType::Text, "The code, e.g. K5G0-9ZQ1.")
             .max_len(200)
@@ -2190,11 +2199,6 @@ pub const APP_LABELS: &[(&str, &str)] = &[
     ("agent_new_key", "Make a new key (old connections stop working)."),
     ("agent_offline", "Agent access needs Wi-Fi."),
     ("loading", "Shown while the world is being made or loaded."),
-];
-
-/// Sections of the player's manual (the `manual` command).
-pub const MANUAL: &[&str] = &[
-    "contents", "playing", "reading", "notebook", "writing", "survival", "endings",
 ];
 
 /// The order for a systematic writing session: slot families in the order
