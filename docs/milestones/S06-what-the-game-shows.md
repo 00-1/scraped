@@ -74,7 +74,8 @@ The playtest's "Something about the door is not as it should be" led nowhere:
 - "There is no writing on a stone inscription." Don't call a thing an inscription if it bears no marks.
 - The old map: "a town to the northwest, a town to the northwest… a town to the north… a town to the north". Give distances or something to tell them apart ("two towns to the northwest, one far").
 - Doubled "like": "like a tall, mixed sign like a tree, with a loop beside". The related form should read as one phrase ("like the tree sign, with a loop beside").
-- Add every command above to the hand player's test cases, and the playtest transcript (`docs/playtests/2026-10-11/`, text only, without any personal details) as a fixture.
+- Add every command above to the hand player's test cases, and the playtest transcript (`docs/playtests/2026-10-11/transcript.md`, with its save) as a fixture.
+- From now on, keep each playtest Jb shares in `docs/playtests/<date>/`: the transcript (commands and text), the save, and any notes the players kept, with no personal details.
 
 ## 8. Fairness covers what play leaves waiting
 
