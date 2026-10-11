@@ -4,6 +4,10 @@
 
 **Goal:** an optional companion to the base game that keeps records for players who want it. The base game stays as it is: it keeps no records, and players can play bare or with their own tools.
 
+## Start from the playtests
+
+Playtests show how players actually collect and organise evidence: what they record, how they label marks and texts, how they draw maps, and what they wish the game did for them. Keep each playtest's notes in `docs/playtests/<date>/`, next to its transcript. Before designing anything here, read them. The first is `docs/playtests/2026-10-11/field-notes.html`: a pannable map with object cards, texts as grouped sign labels, a sign list with guesses and where each was seen, and open questions. Shape the extension's records on what players built for themselves.
+
 ## Scope (when started)
 
 1. **Markup in the text.** Tags around places, directions, distances, things carried, marks and tracings, for example `{place:the worn temple}`, `{dir:east}`, `{mark:…}`. Rules:
