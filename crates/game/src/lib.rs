@@ -897,14 +897,28 @@ impl Game {
         &self.renders
     }
 
-    /// The seal pressed at the foot of the marks last looked at (S06).
+    /// The seal pressed at the foot of marks at hand (S06): those last
+    /// looked at, else any here.
     fn the_seal_at_the_foot(&mut self) -> Option<Output> {
-        let thing = self.state.last_read.filter(|&t| self.at_hand(t))?;
-        let real = self.here().into_iter().any(|t| {
+        let sealed = |g: &Self, t: usize| {
+            g.layers_seen(t)
+                .last()
+                .is_some_and(|l| reading::form(g.text(l.0).genre) == "sealed")
+        };
+        let here = self.here();
+        let thing = self
+            .state
+            .last_read
+            .filter(|&t| self.at_hand(t) && sealed(self, t))
+            .or_else(|| {
+                here.iter()
+                    .copied()
+                    .find(|&t| self.at_hand(t) && sealed(self, t))
+            })?;
+        let real = here.into_iter().any(|t| {
             t != thing && (self.thing(t).kind.contains("seal") || self.kind_of(t) == "seal")
         });
-        let top = self.layers_seen(thing).last().map(|l| l.0)?;
-        if real || reading::form(self.text(top).genre) != "sealed" {
+        if real {
             return None;
         }
         self.pass(1);
@@ -2254,6 +2268,15 @@ impl Game {
             {
                 self.read_map(i)
             }
+            // An object marked but not written on (a calendar's ring, an
+            // emblem): read, it is looked at (S06).
+            ("read", Target::Thing(i))
+                if self.thing(i).texts.is_empty()
+                    && (self.thing(i).object.is_some()
+                        || self.thing(i).kind == "calendar stone") =>
+            {
+                self.act("examine", target)
+            }
             ("read", Target::Thing(i)) => {
                 if self.thing(i).texts.is_empty() {
                     let t = self.say("read.nothing", named);
@@ -2320,7 +2343,10 @@ impl Game {
             .into_iter()
             .find(|w| w.link == link)
             .expect("resolved from ways");
-        let named = ctx(&[("thing", Value::from(self.way_name(&w)))]);
+        // The door itself, not its name in a list of ways out (S06).
+        let passage = self.site.way_vars(&w).get("passage").map(Value::text);
+        let door = format!("the {}", passage.unwrap_or_default());
+        let named = ctx(&[("thing", Value::from(door))]);
         // Sealed by works or by its day (D05): nothing the hand can do.
         if open {
             if let Some(cause) = self.sealed(structure, w.link) {

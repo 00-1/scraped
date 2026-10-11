@@ -284,3 +284,46 @@ fn the_s06_playtest_commands_are_understood() {
         }
     }
 }
+
+/// S06: Jb's first playtest (docs/playtests/2026-10-11), replayed on its
+/// own world from the save: none of what went wrong comes back.
+#[test]
+fn the_first_playtest_replays_clean() {
+    let sealed = include_str!("../../../docs/playtests/2026-10-11/save.txt");
+    let save: scraped_game::Save =
+        serde_json::from_str(&scraped_game::saves::unseal(sealed).unwrap()).unwrap();
+    let mut g = scraped_game::Game::create(save.seed, pack(), &save.difficulty, None);
+    g.start();
+    let cmds = include_str!("../../../tests/fixtures/s06-playtest.txt");
+    let show = std::env::var("SHOW").is_ok();
+    for cmd in cmds.lines() {
+        let o = g.step(cmd);
+        if show {
+            println!("> {cmd}\n{}\n", o.text);
+        }
+        for line in o.text.lines() {
+            assert!(
+                scraped_game::bots::slip(line).is_none(),
+                "after `{cmd}`: {line:?}"
+            );
+        }
+        for bad in [
+            "closely here",
+            "There is no writing on",
+            "no seal here",
+            " like a tall, mixed sign like",
+            "no marks on a clay calendar stone",
+            "A door north is",
+            "there (",
+        ] {
+            assert!(!o.text.contains(bad), "after `{cmd}`: {}", o.text);
+        }
+        if cmd.contains("door") && !cmd.starts_with("open") {
+            assert!(
+                !o.text.starts_with("a door north"),
+                "after `{cmd}`: {}",
+                o.text
+            );
+        }
+    }
+}

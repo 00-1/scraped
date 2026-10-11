@@ -7,7 +7,7 @@ example = true
 
 [[variant]]
 slot = "write.refused"
-text = "You can't write there ({reason})."
+text = "[if reason == 'nothing']You have nothing to write that on.[else]You can't write there.[end]"
 example = true
 
 [[variant]]

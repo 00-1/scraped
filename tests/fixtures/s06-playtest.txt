@@ -1,0 +1,75 @@
+look
+read inscription
+help
+examine inscription
+go temple
+read stele
+read stele closely
+read closely stele
+trace sign 1
+examine stele
+look closer
+examine map
+read on
+read on
+look closely door
+examine door
+look closer at door
+listen
+touch door
+manual
+manual playing
+manual reading
+manual notebook
+manual writing
+manual survival
+manual endings
+write manual
+open door
+look north
+read map
+examine calendar stone
+read calendar stone
+examine basin
+examine candelabrum
+examine torch
+smell
+read basin
+read closely basin
+take torch
+north
+examine brazier
+examine torch
+light torch
+light brazier
+make fire
+examine wall
+examine statue
+read wall
+read statue
+clean wall
+read closely wall
+read on
+read on
+read on
+read on
+look closer
+listen
+smell
+touch
+look
+touch statue
+clean statue
+read closely statue
+west
+examine niche
+examine wall
+look closer
+listen
+smell
+touch
+read niche
+read wall
+clean niche
+read closely niche
+examine seal
