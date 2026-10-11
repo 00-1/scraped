@@ -48,18 +48,64 @@ Decided by Jb (2026-10-03).
 
 ## How the script is perceived
 
-Decided by Jb (2026-10-03). Unknown writing is experienced the way a person would experience it, in layers:
+Decided by Jb (2026-10-03); revised by Jb (2026-10-11). Unknown writing is experienced the way a person would experience it, in three steps:
 
-1. **The whole text, at a glance:** an impression of the mass of writing. How much, in what lines, how cut or painted, how worn, perhaps that some shapes recur. Never a list of signs.
-2. **Looking closely:** an impression of each character in turn. A shape you could recognise again (tall and hooked, a ring like an eye, a squat cross with a dot), consistent for the same sign every time, so a player can learn to spot repeats themselves. Not a geometric specification.
-3. **Examining one sign** gives a fuller impression of that sign: still how it looks, not how it's built.
-4. **Tracing a sign is a task in itself.** Breaking a sign down into its exact strokes, precise enough to draw, is a deliberate piece of work, like taking a rubbing or making a careful copy. It takes time, needs good light and a legible sign, and is something the player chooses to sit down and do. Only tracing gives the stroke-by-stroke description.
+1. **The marks as a whole, at a glance:** an impression of the mass of marks. How much, in what lines, how cut or painted, how worn, perhaps that some shapes recur. Never a list.
+2. **Each shape in turn:** an impression of each mark. A shape you could recognise again (tall and hooked, a ring like an eye, a squat cross with a dot), consistent for the same mark every time, so a player can learn to spot repeats themselves. Not a geometric specification. Where one mark is said to be "like" another, the other is one the player can find.
+3. **One mark, exactly: tracing.** Breaking a mark down into its exact form, precise enough to draw, is a deliberate piece of work, like taking a rubbing or making a careful copy. It needs a tracing tool (charcoal and cloth, bark or hide; wax or soft clay pressed into cut marks), takes time, needs light (except a pressing) and a legible mark. Examining one mark and tracing it are the same step; there is no separate "fuller impression". The result is shown once, in the moment: **the game doesn't keep tracings**, the player does.
 
-A sign whose sound the player has heard (see "Heard sounds") is shown by that sound from then on.
+**Marks, not writing.** At first the character sees marks: cut, painted, scratched into things. The game doesn't call them writing until the character could plausibly tell: for example once they've studied marks on several surfaces and the same shapes keep coming back. Even then, nothing says what writing does.
+
+**Reading comes late.** The verbs say what the character can actually do. Before any word or sound is known, the character can look at marks, study them and trace them, not read them. `read` is understood from the start (people will type it), but the game answers in terms of looking, and only calls it reading, suggests it, or adds it to the player's guide once the player has recognised a word or heard a mark's sound. The first time the game says "you read" should mean something.
+
+A mark whose sound the player has heard (see "Heard sounds") is shown by that sound from then on.
 
 ### Heard sounds
 
 Signs make their own sounds: as a sign's strokes come away under a blade, it gives its sound, faintly. A player who is listening hears it, and from then on that sign is shown by its sound, romanised. This is the one way signs get names in the game, and it is real: the sound is the sign's true value. Scraping costs legibility, so learning sounds and keeping texts readable pull against each other. (Details and alternatives in `docs/milestones/S01-course-corrections.md`.)
+
+## Noticing and knowing
+
+Decided by Jb (2026-10-11). Builds on "Say little; let the player dig".
+
+### What the character notices
+
+- **Everyone can do everything.** No style, skill or history locks an action. What differs is what the character notices **unasked**.
+- **Categories of noticing:** marks; sounds; smells; living things and their signs; buildings, materials and wear; land, routes and sky; things and mechanisms. Each has a keenness. The attention budget per response stays the same: keenness only decides which facts win the few places in it.
+- **Habit moves keenness.** Attending to a category on purpose (listening, studying marks, touching stone, looking up) slowly raises it; neglect slowly lowers it towards a floor. Someone who always listens starts hearing things on arrival; a scribe who never studies marks loses that edge. It changes over days of play, not minutes, and is never shown as a number.
+- **There is always a floor.** Anything can be noticed by asking (`listen`, `look closer`, examining). Keenness only changes what comes unasked.
+- **Play styles** set the starting keenness: for example a scribe (marks), a forager (living things, water, weather), a mason (materials, wear, mechanisms), a wayfarer (land, routes, sky). A style is only a starting lean.
+- **Every category can lead to the realisation.** The world carries evidence of old spells in every category (beasts that won't cross a road, a larder cold in summer, a door that never wears, lights at night), so each style reaches the slow realisation through its own kind of evidence.
+- Keenness belongs to the player's state, not the world's (C01), so two players in one world can notice the same place differently.
+
+Open for Jb: how a style is chosen (a menu, something in the fiction, or no choice: everyone starts even and drifts); how fast habit moves keenness; whether a starting style keeps a small permanent edge.
+
+### What the character knows to try
+
+- **Verbs are suggested by situations.** When a situation makes a verb obvious, the response may suggest it quietly, at most one suggestion per response, within the attention budget, in Jb's words. Fresh tracks suggest following them; a run suggests a snare; a cold dark room with wood suggests a fire; marks suggest studying them.
+- **Suggestions claim only what the character could do then.** Marks suggest looking and studying, not reading (see "How the script is perceived"); scraping is not an idea until marks have come away under a blade.
+- **Using a verb adds it to the guide.** `help` lists only the verbs the player has used (plus the basics: looking, moving, taking, the senses). Every verb is understood from the start, and a player who types one before it's suggested is answered properly.
+- **Every verb is discoverable.** Each verb has at least one situation that suggests it, met on most worlds. A player should never have to type random words until one works.
+- **Keenness shapes suggestions:** a forager is offered a snare the first time they see a run.
+- **Scraping and writing are never suggested early** and are in no style's starting set. They come into view only after the player has done them, usually by accident.
+
+### What the game says about itself
+
+- **No statement of what the game is about.** No blurb, intro or instruction tells the player (or an agent) the aim. Any text the game shows about itself is Jb's, through a slot.
+- **The manual is how to play,** not what the game holds: how to talk to the game, go places, save. No sections on reading, writing or what's to be found.
+- **Agents get what humans get,** plus a short fair-play note (don't cheat). No extra house rules or advice.
+- **The JSON carries nothing the text doesn't say.** No hidden lists, ids, exact clock, load figures or fields that reveal commands. An agent and a person see the same world.
+
+### Measures as a body knows them
+
+- **No modern units.** There are no hours, minutes, metres or kilometres in this world, and the character has no instruments.
+- **Time** is the sun's place, light and dark, sleeps, hunger, a torch burning down, the moon over longer spans; under cloud or underground the sense of it blurs. **Distance** is steps, a stone's throw, how far the eye reaches, a morning's or a day's walk. **Size and weight** are a handspan, an arm's length, taller than you, too heavy to lift.
+- **Finer measures come from the world:** a sundial, a water clock, a calendar stone, a milestone in the old units. Learning the old world's units is part of deciphering it.
+- **The game doesn't count days for the player.** That's their notebook.
+
+### Following up strangeness
+
+- **A cue can always be dug into.** When a response says something is not as it should be, examining, touching, looking closer at, listening to or smelling the thing it names always gives a response about that thing, even if all it says is that something feels wrong for no reason the character can name. A cue never leads to nothing.
 
 ## The three laws
 
@@ -288,6 +334,18 @@ Idea: present that assessment as a chronicle in the world's own language, writte
 Not planned; recorded so current work doesn't close it off (Jb, 2026-10-04).
 
 If the game ever has several players in one world, they would live on **separate timelines and share only traces**. Each player has their own clock, weather and seasons. What's shared is the world's lasting changes: writing, scraping, marks, opened doors, moved things, released spells. When a player syncs, others' changes appear in their world as things that happened while they weren't looking. Players are (almost) never in the same place at the same time, so there are no player interactions to support: others are present only through what they leave. In keeping with the theme, other players become other hands in the layers, and writing is how they speak to each other. Clashes resolve by order: whoever synced first took the lamp. To keep this open, saves keep the player's state separate from the world's (C01).
+
+## Possible future: a record-keeping extension
+
+Not planned; recorded so current work doesn't close it off (Jb, 2026-10-11).
+
+The base game keeps no records for the player ("The game is not your notebook"), and keeping them is part of the game. Beside it, an optional extension could record for players who want it:
+
+- **It sees only the text the player sees.** No access to game state. It is a bundled version of the pen-and-paper or outside tool a player could use anyway, and anyone could write their own.
+- **What it records it interprets, and can get wrong.** Traced marks, texts by place, a map plotted by dead reckoning from "a town to the east, far" and "most of a morning's walk north". The map drifts like a hand-drawn one, and the player can correct it.
+- **It works from a transcript alone,** so it works the same for a person, an AI partner, or a replay.
+- **Light markup in the text** could help it: tags around places, directions, distances, things, marks and tracings, which clients can hide, colour or make tappable. Removing the tags leaves exactly the plain text; tags only label kinds a reader would recognise anyway (never "strange", "magic" or "important"); and tags carry no identity (two buildings with the same name are not told apart, and mentions of one are not linked).
+- Whether a world is played with it could be recorded with the world, like difficulty.
 
 ## Open questions
 

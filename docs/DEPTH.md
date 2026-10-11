@@ -344,6 +344,8 @@ Held doors are no longer a cause: every counter word is now met in five readable
 | D12 | [Integration and tuning](milestones/D12-integration.md) | All clients and tools updated, fairness re-checked, targets met together, performance, a playtest pack and content plan for Jb |
 | S04 | [Playing by hand](milestones/S04-playing-by-hand.md) | After D12, before Jb's playtest: a bot that types like a person, parser and wording bugs from playing by hand, cued deadly spells, learnable counter words |
 | S05 | [Reading in play](milestones/S05-reading-in-play.md) | After S04: checks on the player build's real text, related signs that can be found, text length that fits its surface, short texts met first |
+| S06 | [What the game shows](milestones/S06-what-the-game-shows.md) | From Jb's first playtest: nothing in the JSON beyond the text, no statement of what the game is about, help and manual, marks in three steps, no modern units, cues that can be followed up |
+| D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what the character notices unasked; verbs suggested by situations; evidence of old spells in every category |
 
 Order of priority is deliberate: first the instruments and quiet text (D01–D02), so every later addition is measured and adds to what can be found rather than to what is read; then the world, outside and in (D03–D06); then what it says (D07–D08); then the magic and how it's discovered (D09–D10); then the late-game payoff (D11).
 

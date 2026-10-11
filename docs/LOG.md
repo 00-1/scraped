@@ -887,3 +887,15 @@ Fixed:
 **New content slots:** none. New template helpers `list_or` and `alist`; `say.which`'s example uses `list_or`. "Faintly, river from the southeast" and "Here: bones, bundle and bowl" stay as they are: Jb likes them bare.
 
 Released as v0.5.0, a minor bump (`saves check --against v0.4.0`; worlds generate as before), with a 0.5.0 corpus save.
+
+## 2026-10-11 — Jb's first playtest; S06 and D13 added
+
+Jb played v0.5.0 with an AI partner over MCP (about 75 commands, the start town's temple). The engine's pattern-hunting works (the partner found a mirrored text, parallel groups, recurring pairs), and damage, hands, the seal and the calendar stone gave real things to reason about. But the session became about reading from the first turn. Causes: the MCP instructions ("a text game about deciphering a lost language"), `help` naming reading and tracing, the manual's sections, and the title. The JSON `state` also gave the partner objects, buildings, landmarks, ids and the clock that no text had said. Jb was happy with the slow build (no flame yet, no feedback on guesses) and with time spent on records; the door cue that led nowhere bothered him.
+
+Jb's decisions (in `docs/DESIGN.md`):
+- "How the script is perceived" revised: marks, not writing; three steps (whole, each shape, tracing); tracing needs a tool and isn't kept; `read` comes late.
+- New "Noticing and knowing": play styles and habit shape what's noticed unasked; verbs suggested by situations; nothing about what the game is about; agents get only fair play; the JSON says only what the text says; no modern units; cues can always be followed up.
+- New "Possible future: a record-keeping extension" built on the player's text only.
+
+Added `docs/milestones/S06-what-the-game-shows.md` (now) and `docs/milestones/D13-ways-of-noticing.md` (after).
+
