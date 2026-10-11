@@ -932,6 +932,6 @@ Jb also asked for small, quick payoffs scattered through the world (two playtest
 
 Added `docs/milestones/S07-from-the-second-playtest.md`, after D13.
 
-Jb also asked that the other play styles have their own payoffs, with several satisfying ways of playing that never progress with writing. Added `docs/milestones/D15-ways-of-playing.md` (after S07): arcs for forager, mason and wayfarer, each with small payoffs, mastery, large payoffs and an ending, all proposed for Jb to decide.
+Jb also asked that the other play styles have their own payoffs, with several satisfying ways of playing that never progress with writing. Added `docs/milestones/D15-ways-of-playing.md` (after D14): arcs for forager, mason and wayfarer, each with small payoffs, mastery, large payoffs and an ending, all proposed for Jb to decide.
 
 Wayfinding needs its own pass (Jb): confusing until mastered, not confusing from noise. Heading a way and stopping at what's interesting stays; if something is visible that way, head to it. Added "Finding your way" to DESIGN.md and `docs/milestones/D14-finding-your-way.md`, after S07 and before D15. Order: D13, S07, D14, D15. X01 waits for Jb.
