@@ -112,8 +112,14 @@ impl Game {
     }
 
     pub(crate) fn landmark_name(&mut self, i: usize) -> String {
-        let c = self.site.landmark_vars(i);
-        self.stable("land.name", c, 3_000_000 + i as u64)
+        let mut c = self.site.landmark_vars(i);
+        // A town the player has been to is known by how it was met (S07).
+        let known = self.site.land.landmarks[i]
+            .settlement
+            .is_some_and(|t| self.state.towns_met.contains(&t));
+        c.insert("known".to_string(), Value::Bool(known));
+        let key = 3_000_000 + i as u64 + if known { 500_000 } else { 0 };
+        self.stable("land.name", c, key)
     }
 
     pub(crate) fn edge_name(&mut self, e: usize) -> String {
@@ -354,6 +360,18 @@ impl Game {
         if let Some(o) = self.outdoors_only("back") {
             return o;
         }
+        // Retrace the way you came (S07): a loop back to where you'd been
+        // is cut out, and a point you already stand at is passed over (a
+        // blocked step goes nowhere).
+        let here = self.state.pos;
+        if let Some(k) = self
+            .state
+            .trail
+            .iter()
+            .rposition(|p| p.dist(here) <= ARRIVE)
+        {
+            self.state.trail.truncate(k);
+        }
         match self.state.trail.pop() {
             Some(p) => self.journey(Goal::To(p), None, "back", None),
             None => {
@@ -551,6 +569,22 @@ impl Game {
             // arrival says where the player is (D08: busier lands).
             if matches!(&goal, Goal::To(g) if pos.dist(*g) <= ARRIVE) {
                 break;
+            }
+            // Heading a way stops on reaching something on it (S07): a walk
+            // never passes a place it comes to.
+            if matches!(goal, Goal::Heading(_)) {
+                let reached = self.site.land.landmarks.iter().position(|l| {
+                    !matches!(l.kind, "hill" | "mountain")
+                        && l.pos.dist(pos) <= ARRIVE
+                        && l.pos.dist(start) > ARRIVE
+                });
+                if let Some(i) = reached {
+                    self.state.seen.insert(i);
+                    let name = self.landmark_name(i);
+                    event = Some(("travel.arrive", ctx(&[("name", Value::from(name))])));
+                    self.arrival_keys = self.target_keys(Target::Landmark(i));
+                    break;
+                }
             }
             if let Some(t) = self.site.land.town(&self.site.world, pos) {
                 if let Some(i) = self

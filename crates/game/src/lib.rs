@@ -55,6 +55,8 @@ mod reading_tests;
 #[cfg(test)]
 mod s06_tests;
 #[cfg(test)]
+mod s07_tests;
+#[cfg(test)]
 mod sealed_tests;
 pub mod seedcode;
 mod senses;
@@ -306,6 +308,12 @@ pub struct State {
     /// are called signs once there are enough.
     #[serde(default)]
     pub studied: BTreeSet<usize>,
+    /// Towns the player has been in (S07): known by name from afar.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub towns_met: BTreeSet<usize>,
+    /// When each place was first looked at this visit (S07).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub looked: BTreeMap<String, u32>,
     /// Each player's style and habits of attention (D13), by who plays
     /// ("" when one person plays alone).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
@@ -553,6 +561,8 @@ pub struct Game {
     /// `keep_renders` is set), with their variables.
     renders: Vec<Rendered>,
     pub keep_renders: bool,
+    /// Recognition variables for the fact being said (S07).
+    fact_ambient: Option<Context>,
     /// Who is playing now, in a shared world (D13: each keeps their own
     /// noticing); "" alone.
     pub who: String,
@@ -655,6 +665,8 @@ impl Game {
             found: BTreeSet::new(),
             used: BTreeSet::new(),
             studied: BTreeSet::new(),
+            looked: BTreeMap::new(),
+            towns_met: BTreeSet::new(),
             noticing: Default::default(),
             suggested: BTreeMap::new(),
             cues: Vec::new(),
@@ -727,6 +739,7 @@ impl Game {
             trace: false,
             renders: Vec::new(),
             keep_renders: false,
+            fact_ambient: None,
             who: String::new(),
             sustain: false,
             last_link: None,
@@ -994,10 +1007,15 @@ impl Game {
     // first sound heard.
     pub(crate) fn ambient(&self) -> Context {
         let signs = self.state.studied.len() >= STUDIED_FOR_SIGNS;
-        ctx(&[
+        let mut c = ctx(&[
             ("noun", Value::from(if signs { "sign" } else { "mark" })),
             ("reading", Value::Bool(!self.state.heard.is_empty())),
-        ])
+        ]);
+        // A fact's own recognition (S07), while it is being said.
+        if let Some(f) = &self.fact_ambient {
+            c.extend(f.clone());
+        }
+        c
     }
 
     /// The building whose door the player stands at (S05): within 30 m,
@@ -1200,7 +1218,13 @@ impl Game {
             out.extend(self.sign_targets());
         }
         for w in self.ways() {
+            // The way's name without its state in brackets (S07): "stair
+            // down", not "stair down (closed)".
             let name = self.way_name(&w);
+            let name = match name.find(" (") {
+                Some(i) if name.ends_with(')') => name[..i].to_string(),
+                _ => name,
+            };
             let dir = label(&w.exit);
             out.push(Candidate::new(Target::Way(w.link), &name, &[&dir]));
         }
@@ -1367,6 +1391,12 @@ impl Game {
         }
     }
 
+    /// Whether words name something here the parser knows.
+    fn resolves_here(&mut self, words: &[String]) -> bool {
+        let cands = self.visible_targets();
+        !matches!(resolve(words, &cands, None), Resolution::None)
+    }
+
     /// Adds a part to a response already made, keeping its truth, its
     /// renders and the transcript in step.
     fn append(&mut self, out: &mut Output, t: String) {
@@ -1377,6 +1407,24 @@ impl Game {
             t
         } else {
             format!("{}\n\n{t}", out.text)
+        };
+        if let Some(last) = self.transcript.last_mut() {
+            last.1 = out.text.clone();
+        }
+        if self.trace && cfg!(feature = "spoilers") {
+            out.renders = self.renders.clone();
+        }
+    }
+
+    /// Adds to a response's first paragraph, as one reply (S07).
+    fn append_inline(&mut self, out: &mut Output, t: String) {
+        if t.is_empty() {
+            return;
+        }
+        out.text = match out.text.split_once("\n\n") {
+            Some((first, rest)) => format!("{first} {t}\n\n{rest}"),
+            None if out.text.is_empty() => t,
+            None => format!("{} {t}", out.text),
         };
         if let Some(last) = self.transcript.last_mut() {
             last.1 = out.text.clone();
@@ -1513,7 +1561,8 @@ impl Game {
             if failed {
                 out = self.output(vec![t], None);
             } else {
-                self.append(&mut out, t);
+                // One reply, folded together (S07).
+                self.append_inline(&mut out, t);
             }
         }
         let followed = !out.text.is_empty()
@@ -1656,6 +1705,49 @@ impl Game {
             let more = self.page();
             return self.output(vec![first.text, more.text], None);
         }
+        // A part of a scene, named (S07): answered as part of the scene,
+        // unless something real by that name is here.
+        if matches!(
+            cmd.verb.as_str(),
+            "examine" | "look_closer" | "touch" | "take" | "smell" | "listen"
+        ) && !cmd.words.is_empty()
+            && !self.resolves_here(&cmd.words)
+        {
+            let verb = cmd.verb.clone();
+            if let Some(o) = self.scene_part(&verb, &cmd.words) {
+                return o;
+            }
+        }
+        // `examine marks` (S07): the marks on what is at hand, those last
+        // looked at first.
+        // DESIGN-Q: the last thing read if at hand, else the first marked
+        // thing here; never "not here" while marks are in view.
+        if matches!(
+            cmd.verb.as_str(),
+            "examine" | "look_closer" | "touch" | "read"
+        ) && matches!(
+            cmd.words
+                .iter()
+                .map(String::as_str)
+                .filter(|w| !matches!(*w, "the" | "these" | "those" | "at" | "on"))
+                .collect::<Vec<_>>()
+                .as_slice(),
+            ["marks"] | ["mark"] | ["signs"] | ["markings"]
+        ) {
+            let marked = self
+                .state
+                .last_read
+                .filter(|&t| self.at_hand(t) && !self.thing(t).texts.is_empty())
+                .or_else(|| {
+                    self.here()
+                        .into_iter()
+                        .find(|&t| !self.thing(t).texts.is_empty())
+                });
+            if let Some(t) = marked {
+                let verb = cmd.verb.clone();
+                return self.act(&verb, Target::Thing(t));
+            }
+        }
         // The seal at the foot of marks just looked at (S06): named only in
         // the reading, but there to examine, unless a real seal lies here.
         if matches!(cmd.verb.as_str(), "examine" | "touch")
@@ -1688,13 +1780,53 @@ impl Game {
                 let t = self.describe(attention::Response::Look);
                 self.output(vec![t], None)
             }
+            // What is in plain view here, briefly, at any time (S07).
+            "take_stock" => {
+                self.pass(1);
+                let names: Vec<String> = if self.is_dark() {
+                    Vec::new()
+                } else {
+                    self.here()
+                        .into_iter()
+                        .map(|t| self.thing_name(t))
+                        .collect()
+                };
+                let things: Vec<Value> = scraped_content::english::stack(&names)
+                    .into_iter()
+                    .map(Value::from)
+                    .collect();
+                let ways: Vec<Value> = self
+                    .ways()
+                    .into_iter()
+                    .map(|w| Value::from(self.target_name(Target::Way(w.link))))
+                    .collect();
+                let creatures: Vec<Value> = self
+                    .creatures_in_view()
+                    .into_iter()
+                    .map(|c| Value::from(self.creature_name(c)))
+                    .collect();
+                let t = self.say(
+                    "say.stock",
+                    ctx(&[
+                        ("things", Value::List(things)),
+                        ("ways", Value::List(ways)),
+                        ("creatures", Value::List(creatures)),
+                    ]),
+                );
+                self.output(vec![t], None)
+            }
             "inventory" => {
-                let items: Vec<Value> = self
+                let names: Vec<String> = self
                     .state
                     .carried
                     .clone()
                     .into_iter()
-                    .map(|t| Value::from(self.thing_name(t)))
+                    .map(|t| self.thing_name(t))
+                    .collect();
+                // Like things together (S07): "some provisions", once.
+                let items: Vec<Value> = scraped_content::english::stack(&names)
+                    .into_iter()
+                    .map(Value::from)
                     .collect();
                 let n = items.len() as i64;
                 let t = self.say(
@@ -1737,7 +1869,21 @@ impl Game {
             "help" => {
                 let mut verbs: Vec<String> = HELP_BASICS.iter().map(|v| v.to_string()).collect();
                 for v in &self.state.used {
-                    if !verbs.contains(v) {
+                    // Directions come under "go" (S07).
+                    let dir = matches!(
+                        v.as_str(),
+                        "north"
+                            | "south"
+                            | "east"
+                            | "west"
+                            | "northeast"
+                            | "northwest"
+                            | "southeast"
+                            | "southwest"
+                            | "up"
+                            | "down"
+                    );
+                    if !dir && !verbs.contains(v) {
                         verbs.push(v.clone());
                     }
                 }
@@ -1892,7 +2038,8 @@ impl Game {
                     let mut parts = Vec::new();
                     for t in found.into_iter().take(4) {
                         let o = self.act(verb, t);
-                        if !o.text.trim().is_empty() {
+                        // Alike things say the same once (S07).
+                        if !o.text.trim().is_empty() && !parts.contains(&o.text) {
                             parts.push(o.text);
                         }
                     }
@@ -2019,7 +2166,14 @@ impl Game {
             Target::Thing(i) => self.thing_name(i),
             Target::Structure(i) => self.structure_name(i),
             Target::Way(l) => match self.ways().into_iter().find(|w| w.link == l) {
-                Some(w) => self.way_name(&w),
+                // Without its state in brackets (S07).
+                Some(w) => {
+                    let n = self.way_name(&w);
+                    match n.find(" (") {
+                        Some(i) if n.ends_with(')') => n[..i].to_string(),
+                        _ => n,
+                    }
+                }
                 None => String::new(),
             },
             Target::Landmark(i) => self.landmark_name(i),
@@ -2128,6 +2282,20 @@ impl Game {
                 } else {
                     self.examine_group(target)
                 };
+            }
+        }
+        // `enter` a part of town (S07): it is not a building to go into.
+        if let (Target::District(d), "go") = (target, verb) {
+            let raw = self
+                .log
+                .last()
+                .map(|l| l.to_lowercase())
+                .unwrap_or_default();
+            if raw.starts_with("enter ") || raw.starts_with("go into ") || raw.starts_with("go in ")
+            {
+                let name = self.target_name(Target::District(d));
+                let t = self.say("say.not_enterable", ctx(&[("thing", Value::from(name))]));
+                return self.output(vec![t], None);
             }
         }
         // Places (D03): parts of town and features close by.
@@ -2372,6 +2540,8 @@ impl Game {
                 self.output(vec![t], None)
             }
             ("open", Target::Way(l)) | ("close", Target::Way(l)) => self.door(verb == "open", l),
+            // Pushing or pulling a way (S07): the door, if there is one.
+            ("operate", Target::Way(l)) => self.door(true, l),
             ("open", Target::Thing(t)) => self.open_object(t),
 
             ("examine", Target::Way(l)) => {

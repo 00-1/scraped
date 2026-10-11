@@ -66,6 +66,16 @@ text = "You are already outside."
 example = true
 
 [[variant]]
+slot = "say.stock"
+text = "[if things]Here: {list things}.[else]Nothing lies about.[end][if ways] Ways out: {list ways}.[end][if creatures] About: {list creatures}.[end]"
+example = true
+
+[[variant]]
+slot = "say.not_enterable"
+text = "{cap thing} is streets and houses, not a door to go in by."
+example = true
+
+[[variant]]
 slot = "say.not_entrance"
 text = "Find your way back to the entrance first."
 example = true

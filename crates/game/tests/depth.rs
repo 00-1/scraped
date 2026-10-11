@@ -373,3 +373,44 @@ fn d13_styles_notice_differently() {
         println!("{style}: {cat} share {mine:.2} vs neutral {neutral:.2}; own sign first on {first} of {n}");
     }
 }
+
+/// S07: Jb's second playtest (docs/playtests/2026-10-11-v0.6.0), replayed
+/// on its own world from the save: what went wrong stays fixed.
+#[test]
+fn the_second_playtest_replays_clean() {
+    let sealed = include_str!("../../../docs/playtests/2026-10-11-v0.6.0/save.txt");
+    let save: scraped_game::Save =
+        serde_json::from_str(&scraped_game::saves::unseal(sealed).unwrap()).unwrap();
+    let mut g = scraped_game::Game::create(save.seed, pack(), &save.difficulty, None);
+    g.start();
+    let cmds = include_str!("../../../tests/fixtures/s07-playtest.txt");
+    let show = std::env::var("SHOW").is_ok();
+    for (i, cmd) in cmds.lines().enumerate() {
+        let o = g.step(cmd);
+        if show {
+            println!("[{}] > {cmd}\n{}\n", i + 1, o.text);
+        }
+        for line in o.text.lines() {
+            assert!(
+                scraped_game::bots::slip(line).is_none(),
+                "after `{cmd}`: {line:?}"
+            );
+        }
+    }
+    let state = serde_json::to_value(g.save()).unwrap();
+    if show {
+        for (k, v) in state.as_object().into_iter().flatten() {
+            println!("save.{k}: {}", v.to_string().len());
+        }
+        for (k, v) in state["snapshot"].as_object().into_iter().flatten() {
+            println!("save.snapshot.{k}: {}", v.to_string().len());
+        }
+        for (k, v) in state["snapshot"]["state"].as_object().into_iter().flatten() {
+            let n = v.to_string().len();
+            if n > 2000 {
+                println!("snapshot.{k}: {n}");
+            }
+        }
+        println!("save: {}", serde_json::to_string(&g.save()).unwrap().len());
+    }
+}

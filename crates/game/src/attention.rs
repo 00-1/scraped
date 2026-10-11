@@ -109,6 +109,11 @@ pub struct Told {
     pub said: bool,
 }
 
+/// How long a thing told stays known (S07): within it, passive noticing
+/// doesn't repeat it, and a return is "short".
+// DESIGN-Q: half a day.
+pub(crate) const RECOGNISED: u32 = 12 * 60;
+
 /// The kinds of response, each with its budget of facts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Response {
@@ -280,10 +285,31 @@ impl Game {
             .saturating_sub(std::mem::take(&mut self.said_already))
             .max(1);
         let now = self.state.minutes;
+        // Say it once (S07): what comes unasked (arrivals, looks) never
+        // repeats a fact told within half a day unless it changed; an
+        // arrival still names the place, in the voice of recognition.
+        let passive = matches!(
+            response,
+            Response::Arrival | Response::Room | Response::Travel | Response::Look
+        );
+        let known = |f: &Fact, told: &BTreeMap<String, Told>| {
+            told.get(&f.key).is_some_and(|t| {
+                t.said && t.signature == f.signature() && now < t.minutes + RECOGNISED
+            })
+        };
+        let first_look = response == Response::Look && !self.looked_here();
         // What no one here is keen enough to notice goes unnoticed (D13).
         let mut scored: Vec<(f64, bool, Fact)> = facts
             .into_iter()
             .filter(|f| self.keen_weight(f) > 0.0)
+            .filter(|f| {
+                !passive
+                    || f.interrupt
+                    || self.arrival_keys.contains(&f.key)
+                    || (response != Response::Look
+                        && matches!(f.slot, "place.whole" | "room.whole"))
+                    || !known(f, &self.state.told)
+            })
             .map(|f| {
                 let sig = f.signature();
                 let (score, fresh) = match self.state.told.get(&f.key) {
@@ -329,10 +355,14 @@ impl Game {
         let mut taken = 0;
         let mut per_slot: BTreeMap<&'static str, usize> = BTreeMap::new();
         let mut noticed: Vec<(String, u64)> = Vec::new();
-        // A keen eye catches one more thing of its own kind (D13), past the
-        // budget, if it is new.
-        // DESIGN-Q: one extra fact a response, for a category at 1.3+.
-        let mut keen_extra = true;
+        // A keen eye catches one more thing of its own kind (D13; Jb,
+        // 2026-10-11): one short fact past the budget, on arrival and on
+        // look, after the anchors, and never one already said.
+        // DESIGN-Q: keen means a category at 1.3 or more.
+        let mut keen_extra = matches!(
+            response,
+            Response::Arrival | Response::Room | Response::Travel | Response::Look
+        );
         for (_, fresh, f) in scored {
             // A short response says one of each kind of thing.
             let cap = match response {
@@ -342,7 +372,8 @@ impl Game {
             let room = per_slot.get(f.slot).copied().unwrap_or(0) < cap;
             // Where the player set out for is always said (S01).
             let target = self.arrival_keys.contains(&f.key);
-            let keen = keen_extra && fresh && room && self.keen_weight(&f) >= 1.3;
+            let unsaid = self.state.told.get(&f.key).is_none_or(|t| !t.said);
+            let keen = keen_extra && fresh && unsaid && room && self.keen_weight(&f) >= 1.3;
             if f.interrupt || target || (taken < budget && room) || keen {
                 *per_slot.entry(f.slot).or_default() += 1;
                 if taken >= budget && keen && !f.interrupt && !target {
@@ -373,8 +404,35 @@ impl Game {
         let keys = std::mem::take(&mut self.arrival_keys);
         keep.sort_by_key(|f| (!keys.contains(&f.key), order(f.slot)));
         let mut out = Vec::new();
+        // Looked all over (S07): nothing left to notice says so, once a look.
+        if response == Response::Look && keep.iter().all(|f| f.interrupt) {
+            let indoors = !matches!(self.state.place, crate::site::Place::Outside);
+            let t = self.say("look.done", ctx(&[("indoors", Value::Bool(indoors))]));
+            out.push(sentence(t.trim()));
+        }
+        if response == Response::Look {
+            self.note_looked();
+        }
         for f in keep {
             let sig = f.signature();
+            let before = self
+                .state
+                .told
+                .get(&f.key)
+                .filter(|t| t.said)
+                .map(|t| t.minutes);
+            self.fact_ambient = Some(ctx(&[
+                ("seen_before", Value::Bool(before.is_some())),
+                (
+                    "absence",
+                    Value::from(match before {
+                        None => "",
+                        Some(m) if now < m + RECOGNISED => "short",
+                        Some(_) => "long",
+                    }),
+                ),
+                ("first_look", Value::Bool(first_look)),
+            ]));
             self.state.told.insert(
                 f.key.clone(),
                 Told {
@@ -384,12 +442,41 @@ impl Game {
                 },
             );
             let t = self.say(f.slot, f.vars);
+            self.fact_ambient = None;
             let t = sentence(t.trim());
             if !t.is_empty() {
                 out.push(t);
             }
         }
         out
+    }
+
+    /// Whether the player has looked here already this visit (S07).
+    fn looked_here(&self) -> bool {
+        let key = self.visit_key();
+        self.state
+            .looked
+            .get(&key)
+            .is_some_and(|&m| self.state.minutes < m + RECOGNISED)
+    }
+
+    fn note_looked(&mut self) {
+        let key = self.visit_key();
+        let now = self.state.minutes;
+        if !self.looked_here() {
+            self.state.looked.insert(key, now);
+        }
+    }
+
+    /// The place a visit is to: a room, or a square of the land.
+    fn visit_key(&self) -> String {
+        match self.state.place {
+            crate::site::Place::Room { structure, room } => format!("r{structure}:{room}"), // DEBUG-TEXT: a key
+            crate::site::Place::Outside => {
+                let (x, y) = self.state.pos.cell();
+                format!("c{x}:{y}") // DEBUG-TEXT: a key
+            }
+        }
     }
 
     /// Notes facts as said without saying them (already said another way).
@@ -454,6 +541,10 @@ impl Game {
         let role = town
             .and_then(|t| self.site.world.towns.get(t))
             .map_or("", |t| t.role.id());
+        // Met, so known from afar from now on (S07).
+        if let Some(t) = town {
+            self.state.towns_met.insert(t);
+        }
         let (settlement, size, abandoned) = match town {
             Some(t) => {
                 let st = &w.history.settlements[t];
@@ -1032,7 +1123,9 @@ impl Game {
         let mut loose: Vec<Value> = Vec::new();
         let mut loose_ids: Vec<String> = Vec::new();
         for (k, ts) in by_kind {
-            if ts.len() >= 2 && response != Response::Closer {
+            // A mass noun is one lot however many (S07): "some provisions".
+            let mass = scraped_content::english::is_mass(k);
+            if ts.len() >= 2 && response != Response::Closer && !mass {
                 let vars = ctx(&[
                     ("kind", Value::from(k)),
                     ("amount", Value::from(vague(ts.len()))),
@@ -1070,6 +1163,11 @@ impl Game {
             }
         }
         if !loose.is_empty() {
+            let names: Vec<String> = loose.iter().map(Value::text).collect();
+            let loose: Vec<Value> = scraped_content::english::stack(&names)
+                .into_iter()
+                .map(Value::from)
+                .collect();
             let one = loose.len() == 1;
             out.push(
                 Fact::new(

@@ -1555,6 +1555,18 @@ pub fn slots() -> Vec<SlotDef> {
             .var("thing", VarType::Text, "The building's name.")
             .sampler(s_named),
         SlotDef::new("say.outside_already", "The player tries to go out while already outside.").sampler(s_none),
+        SlotDef::new("say.stock", "The player takes stock (S07: `take stock`, `what's here`): a brief list of what is in plain view here, every time they ask, even if all of it was said before. Things, the ways out, creatures. Short, a list, no description.")
+            .var("things", VarType::List, "Things in plain view, alike ones counted ('two clay jars').")
+            .var("ways", VarType::List, "The ways out, by name.")
+            .var("creatures", VarType::List, "Creatures in view.")
+            .max_len(400)
+            .sampler(|_| vec![
+                ctx(&[("things", Value::List(vec![Value::from("a stone stele"), Value::from("two clay jars")])), ("ways", Value::List(vec![Value::from("a door north")])), ("creatures", Value::List(vec![]))]),
+                ctx(&[("things", Value::List(vec![])), ("ways", Value::List(vec![])), ("creatures", Value::List(vec![Value::from("a hare")]))]),
+            ]),
+        SlotDef::new("say.not_enterable", "The player tries to go into a part of town (S07): it is streets and buildings, not a building with a door.")
+            .var("thing", VarType::Text, "The part of town, as named.")
+            .sampler(s_named),
         SlotDef::new("say.not_entrance", "The player types 'out' in a room deeper inside a building; they must find their way back to the entrance first.").sampler(s_none),
         SlotDef::new("say.too_dark", "The player names something to look at or handle in the dark (S04): too dark to see it, not 'not here'.")
             .var("words", VarType::Text, "What they asked for, as typed (without its article).")
@@ -1612,6 +1624,8 @@ pub fn slots() -> Vec<SlotDef> {
             .var("tallest", VarType::Text, "Settlements: the kind of the tallest building (tower, temple…), or empty.")
             .var("setting", e(&scraped_sim::traits::SETTINGS), "Where it stands.")
             .var("condition", e_or_empty(&scraped_sim::traits::CONDITIONS), "Buildings and settlements: their state (for a settlement, its buildings on average). Empty for summits.")
+            .var("known", VarType::Bool, "Settlements: the player has been there (S07). Name it the way they met it (its role, as said on arrival), so a known place is known from afar.")
+            .var("role", VarType::Text, "Settlements: what the town did (farming, holy, market…), as told on arrival; empty otherwise.")
             .min_variants(1)
             .max_len(60)
             .sampler(s_land_name),
@@ -2305,6 +2319,38 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
                     "reading",
                     VarType::Bool,
                     "Whether reading has begun (a mark's sound has been heard). Until then speak of looking and studying, never of reading.",
+                    Value::Bool(false),
+                );
+        }
+    }
+    // S07: places and things are told as first sight or as recognised.
+    for s in &mut all {
+        let id = s.id.as_str();
+        if id.starts_with("place.")
+            || id.starts_with("room.")
+            || id.starts_with("land.")
+            || id.starts_with("thing.")
+            || id.starts_with("object.")
+            || id.starts_with("feature.")
+            || matches!(id, "item.examine" | "mech.examine" | "emblem.describe")
+        {
+            *s = std::mem::replace(s, SlotDef::new("", ""))
+                .ambient(
+                    "seen_before",
+                    VarType::Bool,
+                    "Whether the player has been told of this before (S07): word it as recognised ('the stele still stands by the door'), not as first sight.",
+                    Value::Bool(false),
+                )
+                .ambient(
+                    "absence",
+                    e(&["", "short", "long"]),
+                    "How long since the player was last told of it: '' never, 'short' within half a day, 'long' longer.",
+                    Value::from(""),
+                )
+                .ambient(
+                    "first_look",
+                    VarType::Bool,
+                    "Said on the first look at this place this visit (S07: 'At first glance…').",
                     Value::Bool(false),
                 );
         }

@@ -899,6 +899,7 @@ impl Game {
             (Some(src), _) if !from_container => {
                 self.advance(5, Activity::Resting);
                 self.state.body.thirst = 0;
+                self.announce_body();
                 let t = self.say(
                     "drink.done",
                     ctx(&[("source", Value::from(src)), ("full", Value::Bool(true))]),
@@ -909,6 +910,7 @@ impl Game {
                 self.advance(2, Activity::Resting);
                 *self.state.water.get_mut(&c).expect("has water") -= 1;
                 self.state.body.drink(8 * 60);
+                self.announce_body();
                 let t = self.say(
                     "drink.done",
                     ctx(&[
@@ -998,6 +1000,7 @@ impl Game {
         self.state.moved.remove(&t);
         self.state.gone.insert(t);
         self.state.body.eat(meal);
+        self.announce_body();
         let tx = self.say("eat.done", ctx(&[("thing", Value::from(named))]));
         self.output(vec![tx], None)
     }

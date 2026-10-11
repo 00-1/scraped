@@ -79,3 +79,13 @@ example = true
 slot = "place.building"
 text = "{cap name} stands before you."
 example = true
+
+[[variant]]
+slot = "scene.part"
+text = "[if verb == 'take']The {part} belong with the rest; you leave them.[else]The {part}, part of the {kind}.[end]"
+example = true
+
+[[variant]]
+slot = "look.done"
+text = "Nothing more catches your eye. A closer look might."
+example = true

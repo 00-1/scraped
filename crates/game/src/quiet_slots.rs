@@ -689,6 +689,10 @@ pub fn slots() -> Vec<SlotDef> {
             .var("count", VarType::Number, "How many.")
             .max_len(120)
             .sampler(s_count),
+        SlotDef::new("look.done", "The player looks again and nothing more catches the eye here (S07): looking is a progression and never loops back. May point to looking closer or the senses.")
+            .var("indoors", VarType::Bool, "Indoors or out.")
+            .max_len(120)
+            .sampler(|_| vec![ctx(&[("indoors", Value::Bool(true))]), ctx(&[("indoors", Value::Bool(false))])]),
         SlotDef::new("place.thing", "Something standing in the open here (a well, a stele, a milestone), mentioned on its own.")
             .var("name", VarType::Text, "Its name.")
             .var("kind", VarType::Text, "What it is (a thing or mechanism kind).")

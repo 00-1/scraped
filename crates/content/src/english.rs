@@ -51,6 +51,38 @@ fn plurals() -> &'static Plurals {
     })
 }
 
+/// Whether a name is a mass noun ("provisions", "oil"): never counted,
+/// so two lots of it are simply "some" (S07).
+pub fn is_mass(word: &str) -> bool {
+    let last = word.rsplit([' ', '-', '_']).next().unwrap_or(word);
+    plurals().mass.iter().any(|m| m == last)
+}
+
+/// Like names put together (S07): one mass noun once, countable ones
+/// counted ("two clay jars"), in first-seen order.
+pub fn stack(names: &[String]) -> Vec<String> {
+    let mut counts: Vec<(String, i64)> = Vec::new();
+    for n in names {
+        match counts.iter_mut().find(|(m, _)| m == n) {
+            Some((_, c)) => *c += 1,
+            None => counts.push((n.clone(), 1)),
+        }
+    }
+    counts
+        .into_iter()
+        .map(|(n, c)| {
+            if c == 1 || is_mass(&n) {
+                return n;
+            }
+            let bare = ["a ", "an ", "some ", "the "]
+                .iter()
+                .find_map(|a| n.strip_prefix(a))
+                .unwrap_or(&n);
+            format!("{} {}", number(c), plural_if(bare, c))
+        })
+        .collect()
+}
+
 /// Whether a name is the same in the plural ("deer", "provisions").
 pub fn unchanging(word: &str) -> bool {
     let last = word.rsplit([' ', '-', '_']).next().unwrap_or(word);

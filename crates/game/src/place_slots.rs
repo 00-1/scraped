@@ -195,6 +195,25 @@ fn s_scene(_: u64) -> Vec<Context> {
         .collect()
 }
 
+fn s_scene_part(_: u64) -> Vec<Context> {
+    SCENES
+        .iter()
+        .enumerate()
+        .take(4)
+        .map(|(i, (k, parts))| {
+            ctx(&[
+                (
+                    "verb",
+                    Value::from(["examine", "take", "touch", "look_closer"][i % 4]),
+                ),
+                ("part", Value::from(parts[0])),
+                ("kind", Value::from(*k)),
+                ("cause", Value::from(SCENE_CAUSES[i % SCENE_CAUSES.len()])),
+            ])
+        })
+        .collect()
+}
+
 /// Every slot of places with character.
 pub fn slots() -> Vec<SlotDef> {
     let parts = scene_parts();
@@ -251,5 +270,12 @@ pub fn slots() -> Vec<SlotDef> {
             .var("purpose", VarType::Text, "Indoors: the room's purpose; outdoors: empty.")
             .max_len(220)
             .sampler(s_scene),
+        SlotDef::new("scene.part", "The player examines, touches or tries to take one of the things a scene was told with (S07): 'examine the pots' among grave goods. It belongs to the scene: say a little more about it as part of the whole, never anything new about what happened. Taking it: it stays with the rest (or Jb may decide otherwise).")
+            .var("verb", e(&["examine", "look_closer", "touch", "take", "read", "smell", "listen"]), "What the player tried.")
+            .var("part", VarType::Text, "The thing named, as an id from the scene's parts.")
+            .var("kind", e(&scenes()), "Which scene it belongs to.")
+            .var("cause", e(SCENE_CAUSES), "What the scene shows (for choosing words; never to be said outright).")
+            .max_len(200)
+            .sampler(s_scene_part),
     ]
 }

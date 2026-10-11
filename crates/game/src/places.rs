@@ -235,6 +235,65 @@ impl Game {
         }
     }
 
+    /// Scenes the player is among now: this room's, or those close by in
+    /// the open.
+    pub(crate) fn scenes_here(&self) -> Vec<usize> {
+        let p = self.state.pos;
+        let place = self.state.place;
+        self.site
+            .world
+            .scenes
+            .iter()
+            .filter(|s| match (s.at, place) {
+                (
+                    SceneAt::Room { structure, room },
+                    Place::Room {
+                        structure: a,
+                        room: b,
+                    },
+                ) => structure == a && room == b,
+                (SceneAt::Outside { x, y }, Place::Outside) => {
+                    Pos::of_cell(usize::from(x), usize::from(y)).dist(p) <= 220.0
+                }
+                _ => false,
+            })
+            .map(|s| s.id)
+            .collect()
+    }
+
+    /// A part of a scene named (S07): "examine the pots" among grave goods.
+    /// Scenes are told as a whole, and their parts answer as part of it.
+    pub(crate) fn scene_part(&mut self, verb: &str, words: &[String]) -> Option<crate::Output> {
+        let last = words.last()?;
+        let stem = last.trim_end_matches('s');
+        for s in self.scenes_here() {
+            let sc = &self.site.world.scenes[s];
+            let kind = sc.kind;
+            let cause = sc.cause;
+            let part = parts(kind)
+                .iter()
+                .find(|p| {
+                    let w = p.rsplit(' ').next().unwrap_or(p);
+                    w == last || w.trim_end_matches('s') == stem
+                })
+                .copied();
+            if let Some(part) = part {
+                self.pass(1);
+                let t = self.say(
+                    "scene.part",
+                    ctx(&[
+                        ("verb", Value::from(verb)),
+                        ("part", Value::from(part)),
+                        ("kind", Value::from(kind)),
+                        ("cause", Value::from(cause)),
+                    ]),
+                );
+                return Some(self.output(vec![t], None));
+            }
+        }
+        None
+    }
+
     fn scene_fact(&self, s: usize, purpose: &str, response: Response) -> Fact {
         let sc = &self.site.world.scenes[s];
         // DESIGN-Q: scenes weigh little at first glance, so they are mostly

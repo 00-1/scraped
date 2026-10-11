@@ -1,0 +1,365 @@
+look
+examine storehouse
+enter storehouse
+examine token
+examine clay jar
+examine wood
+examine marks
+read jar
+look in jar
+study jar
+more
+examine wall
+study wall
+more
+more
+more
+more
+more
+more
+more
+more
+more
+look
+look
+look
+look
+examine provisions
+take all
+inventory
+go e
+look
+look
+look
+look
+study tablet
+more
+more
+more
+more
+more
+more
+more
+examine hook
+examine pitcher
+examine table
+examine provisions
+examine wood
+study table
+take all
+inventory
+drop wood
+take hook
+west
+out
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+look
+go east
+look
+go east
+go south
+look
+go to burial mound
+look
+look
+look
+look
+look
+look
+look
+study mound
+examine pots
+examine beads
+examine bronze
+dig
+go to temple
+go north
+go south
+look
+look
+help
+go back
+go back
+go back
+go south
+go to waterfall
+drink water
+fill pitcher
+fill jar
+drink water
+go north
+go back
+look
+go east
+go north
+look
+go west
+make fire
+go to plain town
+eat provisions
+look
+look
+enter temple
+listen
+smell
+touch door
+open door
+examine door
+go north
+listen
+smell
+touch walls
+go north
+listen
+smell
+touch stair
+open stair
+go south
+go east
+listen
+smell
+touch floor
+search
+go west
+go west
+listen
+smell
+touch floor
+sleep
+look
+drink from jar
+examine niche
+study niche
+look
+look
+look
+examine wall
+study wall
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+go east
+look
+look
+look
+look
+look
+look
+look
+examine brazier
+examine torch
+examine statue
+examine wall
+study wall
+more
+more
+more
+more
+take torch
+inventory
+light torch
+go east
+look
+look
+look
+look
+look
+examine figurine
+examine niche
+examine wall
+study niche
+examine torch
+study wall
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+eat provisions
+drink from jar
+go west
+go north
+look
+look
+look
+look
+look
+examine altar
+examine oil
+examine flute
+examine stair
+examine wall
+study altar
+more
+more
+study wall
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+more
+go down
+push stair
+pull stair
+dig stair
+break stair
+unlock stair with token
+play flute
+pray
+put token on altar
+open stair down
+examine altar
+listen
+touch altar
+read altar
+wait
+open stair
+clean altar
+wipe altar
+study altar
+more
+more
+read tablet
+clean tablet
+study tablet
+more
+more
+more
+more
+more
+more
+more
+go south
+read wall
+clean wall
+study wall
+more
+more
+more
+more
+go south
+look
+look
+look
+look
+look
+examine map
+examine calendar
+examine candelabrum
+examine stele
+examine basin
+read map
+read calendar
+read stele
+read basin
+study basin
+study stele
+more
+more
+out
+go northeast
+drink from jar
+go northeast
+look
+go northeast
+examine tree
+look
+look
+look
+look
+touch tree
+listen
+smell
+read tree
+dig
+light torch
+go to waystation
+look
+look
+look
+look
+look
+look
+look
+look
+examine pack
+enter workshops
+enter workshop
+enter market hall
+look
+look
+look
+look
+look
+examine coin
+read coin

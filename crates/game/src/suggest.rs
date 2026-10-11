@@ -25,6 +25,12 @@ pub struct Suggestion {
 // DESIGN-Q: the situations that suggest each verb.
 pub const TABLE: &[Suggestion] = &[
     s(
+        "take_stock",
+        "take stock",
+        "things",
+        &["look.done", "room.items", "place.group"],
+    ),
+    s(
         "look",
         "look",
         "buildings",
@@ -309,6 +315,27 @@ impl Game {
         }
     }
 
+    fn needs_object(&self, verb: &str) -> bool {
+        crate::parser::verbs()
+            .iter()
+            .any(|v| v.id == verb && v.object == crate::parser::ObjectRule::Required)
+    }
+
+    /// What a suggestion for a verb that needs a thing would name (S07):
+    /// a marked thing for the marks verbs, something portable to take,
+    /// else the first thing here.
+    fn suggest_object(&self, verb: &str) -> Option<String> {
+        let here = self.here();
+        let pick = match verb {
+            "read" | "trace" | "clean" | "more" => {
+                here.iter().find(|&&t| !self.thing(t).texts.is_empty())
+            }
+            "take" => here.iter().find(|&&t| self.thing(t).portable),
+            _ => here.first(),
+        };
+        pick.map(|&t| self.thing(t).kind.to_string())
+    }
+
     /// The suggestion, if any, for a response that rendered these slots.
     pub(crate) fn suggest(&mut self, said: &[String]) -> Option<String> {
         let place = format!("{:?}", self.state.place); // DEBUG-TEXT: a key, never shown
@@ -320,6 +347,10 @@ impl Game {
                     .any(|a| s == a || (a.ends_with('.') && s.starts_with(a)))
             });
             if !fits || !self.may_suggest(v) {
+                continue;
+            }
+            // A verb that needs a thing names one here, or isn't offered.
+            if self.needs_object(v.verb) && self.suggest_object(v.verb).is_none() {
                 continue;
             }
             let keen = self.keenness(v.category);
@@ -339,11 +370,17 @@ impl Game {
             }
         }
         let (_, v) = best?;
+        let thing = if self.needs_object(v.verb) {
+            self.suggest_object(v.verb).unwrap_or_default()
+        } else {
+            String::new()
+        };
         let t = self.say(
             "suggest.verb",
             ctx(&[
                 ("verb", Value::from(v.verb)),
                 ("words", Value::from(v.words)),
+                ("thing", Value::from(thing)),
             ]),
         );
         if t.is_empty() {
@@ -361,7 +398,14 @@ fn s_suggest(_: u64) -> Vec<Context> {
         .iter()
         .map(|v| {
             let w = TABLE.iter().find(|s| s.verb == *v).map_or(*v, |s| s.words);
-            ctx(&[("verb", Value::from(*v)), ("words", Value::from(w))])
+            ctx(&[
+                ("verb", Value::from(*v)),
+                ("words", Value::from(w)),
+                (
+                    "thing",
+                    Value::from(if *v == "trace" { "stele" } else { "" }),
+                ),
+            ])
         })
         .collect()
 }
@@ -371,6 +415,7 @@ pub fn slots() -> Vec<SlotDef> {
     vec![SlotDef::new("suggest.verb", "A thing the player might try here, suggested by what was just said (D13): the character's own passing thought, never an instruction or a hint about what matters. At most one a response, shown a couple of times and then dropped. Never mention writing, reading, signs or glyphs unless the verb is one of those and the player already does it.")
         .var("verb", VarType::Enum { values: TABLE.iter().map(|s| s.verb.to_string()).collect() }, "The verb, as the parser knows it (look_up, snare, trace…), for variants per verb.")
         .var("words", VarType::Text, "What the player would type, in plain words ('look up', 'set a snare').")
+        .var("thing", VarType::Text, "For a verb that needs one, the thing here it would be done to ('stele'); empty otherwise.")
         .max_len(160)
         .sampler(s_suggest)]
 }

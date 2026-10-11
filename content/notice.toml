@@ -18,7 +18,7 @@ example = true
 
 [[variant]]
 slot = "suggest.verb"
-text = "You could {words}."
+text = "You could {words}[if thing] the {thing}[end]."
 example = true
 
 [[variant]]

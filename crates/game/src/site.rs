@@ -488,6 +488,16 @@ impl Site {
             ("tallest", Value::from(t.tallest)),
             ("setting", Value::from(t.setting)),
             ("condition", Value::from(t.condition)),
+            // S07: set by the game once the player has been there.
+            ("known", Value::Bool(false)),
+            (
+                "role",
+                Value::from(
+                    l.settlement
+                        .and_then(|s| self.world.towns.get(s))
+                        .map_or("", |t| t.role.id()),
+                ),
+            ),
         ])
     }
 

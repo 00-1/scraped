@@ -21,6 +21,12 @@ id = "look_closer"
 words = ["look closer", "look closely", "look more closely", "look carefully", "l closer", "search", "search here", "look about here"]
 object = "none"
 
+# S07: what is in plain view here, listed on request.
+[[verb]]
+id = "take_stock"
+words = ["take stock", "what's here", "whats here", "what is here", "list", "take stock here"]
+object = "none"
+
 [[verb]]
 id = "look_up"
 words = ["look up", "l up", "look at the sky", "look skyward", "look at the ceiling"]
@@ -58,7 +64,7 @@ object = "required"
 
 [[verb]]
 id = "examine"
-words = ["examine", "x", "inspect", "look at", "l at"]
+words = ["examine", "x", "inspect", "look at", "l at", "look in", "look into", "look inside", "peer into"]
 object = "required"
 
 [[verb]]

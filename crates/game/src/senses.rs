@@ -797,6 +797,8 @@ impl Game {
             }
             _ => {}
         }
+        // The same words twice say nothing more (S07).
+        parts.dedup();
         self.output(vec![parts.join(" ")], None)
     }
 

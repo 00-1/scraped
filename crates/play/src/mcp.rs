@@ -145,7 +145,15 @@ impl Server {
                 // Sealed (C01): not for reading by eye.
                 let sealed =
                     scraped_game::saves::seal(&serde_json::to_string(&g.save()).expect("save"));
-                Ok(text(sealed.clone(), json!({ "save": sealed })))
+                // Too long for a tool's output (S07): written to a file, and
+                // its path returned for `load`.
+                let dir = std::path::Path::new("scraped-saves");
+                let path = dir.join(format!("{}-{}.save", g.seed_code(), g.save().turn));
+                std::fs::create_dir_all(dir)
+                    .and_then(|_| std::fs::write(&path, &sealed))
+                    .map_err(|e| (-32000, format!("cannot write {}: {e}", path.display())))?;
+                let p = path.display().to_string();
+                Ok(text(p.clone(), json!({ "path": p })))
             }
             "load" => {
                 let raw = match &args["save"] {
@@ -153,7 +161,20 @@ impl Server {
                     Value::Object(o) if o.get("save").is_some_and(Value::is_string) => {
                         o["save"].as_str().unwrap_or("").to_string()
                     }
+                    Value::Object(o) if o.get("path").is_some_and(Value::is_string) => {
+                        o["path"].as_str().unwrap_or("").to_string()
+                    }
                     other => other.to_string(),
+                };
+                // A path written by `save`, or the sealed text itself.
+                let raw = match args.get("path").and_then(Value::as_str) {
+                    Some(p) => std::fs::read_to_string(p)
+                        .map_err(|e| (-32602, format!("cannot read {p}: {e}")))?,
+                    None if !raw.starts_with("SCRAPED") && std::path::Path::new(&raw).is_file() => {
+                        std::fs::read_to_string(&raw)
+                            .map_err(|e| (-32602, format!("cannot read {raw}: {e}")))?
+                    }
+                    None => raw,
                 };
                 let json = scraped_game::saves::unseal(&raw).map_err(|e| (-32602, e))?;
                 let save: Save = serde_json::from_str(&json)
@@ -196,13 +217,13 @@ fn tools() -> Value {
         },
         {
             "name": "save",
-            "description": "The current game as a sealed save, to load later.",
+            "description": "Saves the current game to a file and returns its path, to load later.",
             "inputSchema": { "type": "object", "properties": {} }
         },
         {
             "name": "load",
-            "description": "Load a save returned by the save tool.",
-            "inputSchema": { "type": "object", "properties": { "save": { "description": "what the save tool returned" } }, "required": ["save"] }
+            "description": "Load a game saved by the save tool, by the path it returned.",
+            "inputSchema": { "type": "object", "properties": { "save": { "description": "the path the save tool returned (or a sealed save)" } }, "required": ["save"] }
         },
         {
             "name": "open_world",
