@@ -1,0 +1,872 @@
+<title>Scraped Again Field Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a surveyor's notebook — one pannable map up top, then places, texts, signs and the verbatim log */
+:root {
+  --bg: #f3f1ec;
+  --paper: #fbfaf7;
+  --ink: #23262b;
+  --muted: #646a72;
+  --rule: #d5d2ca;
+  --accent: #2f6b74;
+  --mark: #a5532f;
+  --display: "Alegreya", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #181b1f; --paper: #20242a; --ink: #e4e2dc; --muted: #9aa0a8; --rule: #363b43; --accent: #6fb3bc; --mark: #df8a62; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #181b1f; --paper: #20242a; --ink: #e4e2dc; --muted: #9aa0a8; --rule: #363b43; --accent: #6fb3bc; --mark: #df8a62; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--display); font-size: 17px; line-height: 1.5; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 56px; display: grid; gap: 32px; }
+h1, h2 { text-wrap: balance; margin: 0; font-weight: 700; }
+h1 { font-size: 2rem; line-height: 1.15; }
+h2 { font-size: 1.3rem; }
+.label { font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+header { display: grid; gap: 8px; }
+.status { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--mono); font-size: .82rem; color: var(--muted); }
+.status b { color: var(--ink); font-weight: 500; }
+section { display: grid; gap: 12px; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+@media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+.panel { background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 16px; min-width: 0; }
+svg text { font-family: var(--mono); fill: var(--ink); }
+svg .faint { fill: var(--muted); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+dt { font-family: var(--mono); font-size: .8rem; color: var(--muted); padding-top: 3px; }
+dd { margin: 0; }
+ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+.log { display: grid; gap: 0; }
+.entry { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 4px 16px; padding-block: 12px; border-top: 1px solid var(--rule); }
+.entry .t { font-family: var(--mono); font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
+.cmd { font-family: var(--mono); font-size: .88rem; color: var(--accent); }
+.out { font-family: var(--mono); font-size: .86rem; white-space: pre-wrap; margin: 4px 0 0; overflow-x: auto; }
+.empty { color: var(--muted); font-style: italic; }
+.q li::marker { color: var(--mark); }
+table.tx { border-collapse: collapse; width: 100%; font-size: .9rem; }
+.tx th { text-align: left; font-family: var(--mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 4px 10px 6px 0; border-bottom: 1px solid var(--rule); }
+.tx td { padding: 5px 10px 5px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.tx td:first-child, .tx td:nth-child(2) { font-family: var(--mono); font-size: .8rem; white-space: nowrap; }
+.tx td:first-child { font-variant-numeric: tabular-nums; color: var(--muted); }
+.tx tr.brk td { font-family: var(--display); font-style: italic; color: var(--muted); white-space: normal; }
+
+.mapbox { position: relative; height: min(78vh, 720px); background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; touch-action: none; cursor: grab; }
+.mapbox.drag { cursor: grabbing; }
+.mapbox svg { width: 100%; height: 100%; display: block; user-select: none; -webkit-user-select: none; }
+#world * { vector-effect: non-scaling-stroke; }
+#world text { font-family: var(--display); fill: var(--ink); }
+#world .t-muted { fill: var(--muted); }
+#world .t-acc { fill: var(--accent); }
+#world .t-mark { fill: var(--mark); }
+#world .f-mark { fill: var(--mark); }
+#world .axis { stroke: var(--rule); stroke-width: 1; }
+#world .ring { fill: none; stroke: var(--rule); stroke-width: 1.5; stroke-dasharray: 6 6; }
+#world .town circle { fill: var(--paper); stroke: var(--accent); stroke-width: 2; }
+#world .s-mark line { stroke: var(--mark); stroke-width: 3; }
+#world .temple { fill: none; stroke: var(--accent); stroke-width: 1; }
+#world .room-visited { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
+#world .room-unknown { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 6 5; }
+#world .card { fill: var(--paper); stroke: var(--rule); stroke-width: 1; }
+#world .door { stroke: var(--mark); stroke-width: 3; stroke-dasharray: 6 4; }
+#world .path { stroke: var(--muted); stroke-width: 1.5; }
+#world .stones rect { fill: var(--rule); stroke: var(--muted); stroke-width: 1; }
+#world .bldg rect { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.mapctl { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; }
+.mapctl button { font-family: var(--mono); font-size: .78rem; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 3px; padding: 6px 10px; min-width: 38px; cursor: pointer; }
+.mapctl button:hover { border-color: var(--accent); }
+.mapctl button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.maphint { position: absolute; left: 10px; bottom: 8px; font-family: var(--mono); font-size: .68rem; color: var(--muted); background: var(--bg); padding: 2px 6px; border-radius: 2px; pointer-events: none; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="label">Scraped Again · standard difficulty · shared notebook</span>
+    <h1>Field notes</h1>
+    <div class="status">
+      <span>Time <b>10:25</b> day 1</span>
+      <span>Place <b>temple chapel (dim)</b></span>
+      <span>Carrying <b>a torch</b> (1/15)</span>
+      <span>Body <b>fine on all counts</b></span>
+      <span>Weather <b>clear daylight</b></span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Map</h2>
+    <div class="mapbox" id="mapbox">
+      <svg role="img" aria-label="Pannable map: village square, temple, and the surrounding region">
+        <g id="world">
+          <!-- ===== REGION (large scale; readable when zoomed out) ===== -->
+          <line class="axis" x1="0" y1="-5000" x2="0" y2="5000"/>
+          <line class="axis" x1="-5000" y1="0" x2="5000" y2="0"/>
+          <circle class="ring" cx="0" cy="0" r="2500"/>
+          <circle class="ring" cx="0" cy="0" r="4500"/>
+          <text x="0" y="-5080" text-anchor="middle" font-size="240" class="t-muted">N</text>
+          <text x="5100" y="80" font-size="240" class="t-muted">E</text>
+          <text x="-5100" y="80" text-anchor="end" font-size="240" class="t-muted">W</text>
+          <text x="0" y="5260" text-anchor="middle" font-size="240" class="t-muted">S</text>
+          <text x="70" y="-2540" font-size="140" class="t-muted">middle distance</text>
+          <text x="70" y="-4540" font-size="140" class="t-muted">far</text>
+
+          <!-- seen from the village -->
+          <path class="f-mark" d="M-1768 -1898 l130 210 l-260 0 z"/>
+          <text x="-1768" y="-1520" text-anchor="middle" font-size="170">high mountain</text>
+          <text x="-1768" y="-1360" text-anchor="middle" font-size="120" class="t-muted">NW · middle</text>
+
+          <circle class="f-mark" cx="2500" cy="0" r="80"/>
+          <text x="2500" y="250" text-anchor="middle" font-size="170">lone burial mound</text>
+          <text x="2500" y="410" text-anchor="middle" font-size="120" class="t-muted">E · middle</text>
+
+          <path class="f-mark" d="M3182 -3312 l130 210 l-260 0 z"/>
+          <text x="3182" y="-2950" font-size="170" text-anchor="middle">rounded mountain</text>
+          <rect class="f-mark" x="2823" y="-3517" width="140" height="140"/>
+          <text x="2700" y="-3420" text-anchor="end" font-size="170">damaged wayside shrine</text>
+          <circle class="f-mark" cx="3447" cy="-2893" r="65"/>
+          <text x="3580" y="-2850" font-size="170">upland cairn</text>
+          <text x="3300" y="-3700" text-anchor="middle" font-size="120" class="t-muted">all three: NE · far</text>
+
+          <!-- from the temple's map: bearing only, distance guessed -->
+          <g class="town">
+            <circle cx="-2681" cy="-2250" r="75"/><circle cx="-2250" cy="-2681" r="75"/>
+            <circle cx="-305" cy="-3487" r="75"/><circle cx="305" cy="-3487" r="75"/>
+            <circle cx="1893" cy="-2703" r="75"/>
+            <circle cx="3700" cy="0" r="75"/>
+          </g>
+          <text x="-2850" y="-2200" text-anchor="end" font-size="140" class="t-acc">town (map)</text>
+          <text x="-2250" y="-2830" text-anchor="middle" font-size="140" class="t-acc">town (map)</text>
+          <text x="-420" y="-3440" text-anchor="end" font-size="140" class="t-acc">town (map)</text>
+          <text x="420" y="-3440" font-size="140" class="t-acc">town (map)</text>
+          <text x="1893" y="-2850" text-anchor="middle" font-size="140" class="t-acc">town (map)</text>
+          <text x="3700" y="-130" text-anchor="middle" font-size="140" class="t-acc">town (map)</text>
+          <g class="s-mark"><line x1="2898" y1="-2597" x2="3078" y2="-2417"/><line x1="3078" y1="-2597" x2="2898" y2="-2417"/></g>
+          <text x="2988" y="-2230" text-anchor="middle" font-size="150" class="t-mark">cross · by a boulder field (map)</text>
+
+          <text x="0" y="640" text-anchor="middle" font-size="190" class="t-acc">village &amp; temple ✓</text>
+          <text x="0" y="800" text-anchor="middle" font-size="130" class="t-muted">zoom in for detail</text>
+
+          <!-- ===== TEMPLE (small scale; zoom in) ===== -->
+          <rect class="temple" x="-620" y="-1000" width="1240" height="910" rx="4"/>
+          <text x="-610" y="-1012" font-size="19" font-weight="700" class="t-acc">TEMPLE (intact) · game calls it structure 15</text>
+          <text x="610" y="-1012" text-anchor="end" font-size="12" class="t-muted">placed north of the square for layout; real position unknown</text>
+
+          <!-- unexplored rooms off the hall -->
+          <rect class="room-unknown" x="-160" y="-960" width="320" height="120" rx="3"/>
+          <text x="0" y="-895" text-anchor="middle" font-size="16" class="t-muted">? beyond the north arch</text>
+          <line class="path" x1="0" y1="-840" x2="0" y2="-650"/>
+          <text x="10" y="-750" font-size="12" class="t-muted">arch N</text>
+
+          <rect class="room-visited" x="-600" y="-650" width="220" height="150" rx="3"/>
+          <text x="-590" y="-628" font-size="16" font-weight="700">CHAPEL</text>
+          <text x="-590" y="-612" font-size="11" class="t-muted">(room 4) · "dim and close" · dead end</text>
+          <circle class="f-mark" cx="-398" cy="-633" r="7"/>
+          <text x="-410" y="-628" text-anchor="end" font-size="11" class="t-mark">here</text>
+          <text font-size="12"><tspan x="-590" y="-590">▪ stone niche <tspan class="t-acc">· T4</tspan></tspan><tspan x="-578" dy="14" class="t-muted">14 signs, 3 groups · cleaned, read</tspan><tspan x="-590" dy="18">▪ clay wall <tspan class="t-acc">· T5</tspan></tspan><tspan x="-578" dy="14" class="t-muted">288 signs, 48 groups</tspan><tspan x="-578" dy="14" class="t-mark">careful hand · seal at foot</tspan></text>
+          <line class="path" x1="-380" y1="-575" x2="-320" y2="-575"/>
+          <text x="-350" y="-584" text-anchor="middle" font-size="11" class="t-muted">arch W</text>
+
+          <rect class="room-unknown" x="380" y="-650" width="220" height="150" rx="3"/>
+          <text x="490" y="-570" text-anchor="middle" font-size="16" class="t-muted">? beyond the east arch</text>
+          <line class="path" x1="320" y1="-575" x2="380" y2="-575"/>
+          <text x="350" y="-584" text-anchor="middle" font-size="11" class="t-muted">arch E</text>
+
+          <!-- hall -->
+          <rect class="room-visited" x="-320" y="-650" width="640" height="150" rx="3"/>
+          <text x="-305" y="-626" font-size="17" font-weight="700">HALL</text>
+          <text x="-255" y="-626" font-size="12" class="t-muted">(game: structure 15, room 1) · "dim and close" · ~10 m north of the forecourt</text>
+          <g transform="translate(-305,-596)"><rect class="card" width="146" height="80" rx="3"/><text x="10" y="20" font-size="14" font-weight="700">Clay wall <tspan class="t-acc">· T3</tspan></text><text font-size="12"><tspan x="10" y="38">68 signs · cleaned</tspan><tspan x="10" dy="15" class="t-mark">20 worn (all in 1–34)</tspan><tspan x="10" dy="15" class="t-mark">scraped on purpose</tspan></text></g>
+          <g transform="translate(-150,-596)"><rect class="card" width="146" height="80" rx="3"/><text x="10" y="20" font-size="14" font-weight="700">Stone statue</text><text x="10" y="38" font-size="12" class="t-muted">no writing</text><text x="10" y="54" font-size="12" class="t-muted">smooth, cold</text><text x="10" y="70" font-size="12" class="t-muted">nothing to clean</text></g>
+          <g transform="translate(5,-596)"><rect class="card" width="146" height="80" rx="3"/><text x="10" y="20" font-size="14" font-weight="700">A torch</text><text x="10" y="38" font-size="12" class="t-muted">a second one, here</text></g>
+          <g transform="translate(160,-596)"><rect class="card" width="146" height="80" rx="3"/><text x="10" y="20" font-size="14" font-weight="700">The brazier</text><text x="10" y="38" font-size="12">mechanism · "is cold"</text><text x="10" y="54" font-size="12" class="t-mark">can't light: "no flame"</text></g>
+          <text x="-305" y="-508" font-size="12" class="t-muted">Senses: look closer showed nothing odd · listen: only breath · smell: nothing · air cool, ground dry</text>
+
+          <line class="door" x1="0" y1="-500" x2="0" y2="-430"/>
+          <text x="14" y="-474" font-size="13" font-weight="700" class="t-mark">door N · already open</text>
+          <text x="14" y="-456" font-size="12" class="t-mark">"Something about the door is not as it should be."</text>
+          <text x="14" y="-440" font-size="11" class="t-muted">examine / touch / listen gave nothing</text>
+
+          <rect class="room-visited" x="-320" y="-430" width="640" height="330" rx="3"/>
+          <text x="-305" y="-404" font-size="17" font-weight="700">FORECOURT</text>
+          <text x="-200" y="-404" font-size="12" class="t-muted">(game: structure 15, room 0) · daylight</text>
+
+          <g transform="translate(-305,-390)">
+            <rect class="card" width="295" height="94" rx="3"/>
+            <text x="10" y="20" font-size="14" font-weight="700">Stone stele <tspan class="t-acc">· T1</tspan></text>
+            <text font-size="12.5"><tspan x="10" y="38">38 signs, 6 groups, ~4 lines, slanted hand</tspan><tspan x="10" dy="15">"A few shapes keep coming back."</tspan><tspan x="10" dy="15">Fully read closely; sign 1 traced</tspan><tspan x="10" dy="15" class="t-acc">Idea: about the door's state</tspan></text>
+          </g>
+          <g transform="translate(-305,-288)">
+            <rect class="card" width="295" height="80" rx="3"/>
+            <text x="10" y="20" font-size="14" font-weight="700">Stone basin <tspan class="t-acc">· T2</tspan></text>
+            <text font-size="12.5"><tspan x="10" y="38">8 signs, 1 line, heavy hand</tspan><tspan x="10" dy="15">Signs 2–8 mirror around sign 5</tspan><tspan x="10" dy="15" class="t-acc">Idea: everyday label (washing?)</tspan></text>
+          </g>
+          <g transform="translate(-305,-200)">
+            <rect class="card" width="295" height="80" rx="3"/>
+            <text x="10" y="20" font-size="14" font-weight="700">Clay calendar stone</text>
+            <text font-size="12.5"><tspan x="10" y="38">A ring of marks for the days</tspan><tspan x="10" dy="15">One notch, early in spring, cut deeper</tspan><tspan x="10" dy="15" class="t-muted">No writing</tspan></text>
+          </g>
+          <g transform="translate(10,-390)">
+            <rect class="card" width="295" height="94" rx="3"/>
+            <text x="10" y="20" font-size="14" font-weight="700">Map · worn vellum</text>
+            <text font-size="12.5"><tspan x="10" y="38">"A hand in a beaded border"; plain edge</tspan><tspan x="10" dy="15">Towns: NW ×2, N ×2, NE, E</tspan><tspan x="10" dy="15">A cross to the NE, by a boulder field</tspan><tspan x="10" dy="15" class="t-muted">Plotted on the region (zoom out)</tspan></text>
+          </g>
+          <g transform="translate(10,-288)">
+            <rect class="card" width="295" height="50" rx="3"/>
+            <text x="10" y="20" font-size="14" font-weight="700">Bronze candelabrum</text>
+            <text font-size="12.5"><tspan x="10" y="38">"A stag in a beaded border"</tspan></text>
+          </g>
+          <g transform="translate(10,-230)">
+            <rect class="card" width="295" height="50" rx="3"/>
+            <text x="10" y="20" font-size="14" font-weight="700" class="t-muted">Torch</text>
+            <text font-size="12.5"><tspan x="10" y="38" class="t-acc">Taken: we carry it</tspan></text>
+          </g>
+          <g transform="translate(10,-172)">
+            <rect class="card" width="295" height="66" rx="3"/>
+            <text x="10" y="20" font-size="14" font-weight="700">The room itself</text>
+            <text font-size="12.5"><tspan x="10" y="38">Smell: nothing · listen: only our breath</tspan><tspan x="10" dy="15">Air cool, ground dry</tspan></text>
+          </g>
+
+          <line class="path" x1="0" y1="-100" x2="0" y2="-40"/>
+          <text x="14" y="-64" font-size="12" class="t-muted">the way out</text>
+
+          <!-- ===== VILLAGE SQUARE ===== -->
+          <rect class="room-visited" x="-340" y="-40" width="680" height="250" rx="4"/>
+          <text x="-325" y="-14" font-size="19" font-weight="700" class="t-acc">VILLAGE SQUARE · outside · ✓ visited (start)</text>
+          <text x="-325" y="12" font-size="13">Grassland · intact farming village of a few houses · bare earth here and there</text>
+          <text x="-325" y="30" font-size="13" class="t-muted">A road passes through (direction unknown)</text>
+
+          <circle class="card" cx="-255" cy="95" r="26"/>
+          <circle class="room-visited" cx="-255" cy="95" r="12"/>
+          <text x="-255" y="145" text-anchor="middle" font-size="13" font-weight="700">the well</text>
+          <text x="-255" y="161" text-anchor="middle" font-size="11" class="t-muted">a mechanism · untried</text>
+
+          <g class="stones">
+            <rect x="-130" y="70" width="18" height="28" rx="6"/><rect x="-96" y="70" width="18" height="28" rx="6"/>
+            <rect x="-62" y="70" width="18" height="28" rx="6"/><rect x="-28" y="70" width="18" height="28" rx="6"/>
+            <rect x="6" y="70" width="18" height="28" rx="6"/><rect x="40" y="70" width="18" height="28" rx="6"/>
+          </g>
+          <text x="-130" y="120" font-size="13" font-weight="700">6 stone inscriptions</text>
+          <text font-size="12"><tspan x="-130" y="137">One read: "There is no writing on a stone inscription."</tspan><tspan x="-130" dy="15" class="t-muted">Untried: look closer, clean, the other five</tspan></text>
+
+          <!-- unvisited buildings (exits from the square) -->
+          <g class="bldg">
+            <rect x="-340" y="240" width="104" height="64" rx="3"/><rect x="-225" y="240" width="104" height="64" rx="3"/>
+            <rect x="-110" y="240" width="104" height="64" rx="3"/><rect x="5" y="240" width="104" height="64" rx="3"/>
+            <rect x="120" y="240" width="104" height="64" rx="3"/><rect x="235" y="240" width="104" height="64" rx="3"/>
+            <rect x="-340" y="318" width="104" height="64" rx="3"/><rect x="-225" y="318" width="104" height="64" rx="3"/>
+            <rect x="-110" y="318" width="104" height="64" rx="3"/><rect x="5" y="318" width="104" height="64" rx="3"/>
+            <rect x="120" y="318" width="104" height="64" rx="3"/>
+          </g>
+          <g font-size="13" text-anchor="middle">
+            <text x="-288" y="268">House</text><text x="-173" y="268">House</text><text x="-58" y="268">House</text><text x="57" y="268">House</text>
+            <text x="172" y="268">Storehouse</text><text x="287" y="268">Cemetery</text>
+            <text x="-288" y="346">Granary</text><text x="-173" y="346">Brewery</text><text x="-58" y="346">Kiln</text><text x="57" y="346">Orchard</text><text x="172" y="346">Bakehouse</text>
+          </g>
+          <g font-size="11" text-anchor="middle" class="t-muted">
+            <text x="-288" y="286">intact</text><text x="-173" y="286">intact</text><text x="-58" y="286">intact</text><text x="57" y="286">intact</text>
+            <text x="172" y="286">worn</text><text x="287" y="286" class="t-mark">damaged</text>
+            <text x="-288" y="364">worn · full?</text><text x="-173" y="364">worn</text><text x="-58" y="364">worn</text><text x="57" y="364">intact · season?</text><text x="172" y="364">worn</text>
+          </g>
+          <text x="-340" y="404" font-size="11" class="t-muted">Unvisited buildings, listed by the game as exits from the square. Where each stands is unknown.</text>
+        </g>
+      </svg>
+      <div class="mapctl">
+        <button type="button" data-act="in" aria-label="Zoom in">+</button>
+        <button type="button" data-act="out" aria-label="Zoom out">−</button>
+        <button type="button" data-act="village">Village</button>
+        <button type="button" data-act="region">Region</button>
+      </div>
+      <div class="maphint">drag to pan · pinch, scroll or double-click to zoom</div>
+    </div>
+    <script>
+    (function () {
+      var box = document.getElementById('mapbox');
+      var g = document.getElementById('world');
+      var VIEWS = { village: { x: -640, y: -1040, w: 1280, h: 1450 }, region: { x: -5400, y: -5400, w: 10800, h: 10800 } };
+      var s = 1, tx = 0, ty = 0, touched = false;
+      var pts = new Map();
+      function apply() { g.setAttribute('transform', 'translate(' + tx + ' ' + ty + ') scale(' + s + ')'); }
+      function fit(b) {
+        var r = box.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        s = Math.min(r.width / b.w, r.height / b.h) * 0.96;
+        tx = r.width / 2 - s * (b.x + b.w / 2);
+        ty = r.height / 2 - s * (b.y + b.h / 2);
+        apply();
+      }
+      function zoomAt(px, py, f) {
+        var ns = Math.min(12, Math.max(0.02, s * f));
+        tx = px - (px - tx) * ns / s;
+        ty = py - (py - ty) * ns / s;
+        s = ns; apply();
+      }
+      function local(e) { var r = box.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+
+      box.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('button')) return;
+        touched = true;
+        box.setPointerCapture(e.pointerId);
+        pts.set(e.pointerId, local(e));
+        box.classList.add('drag');
+      });
+      box.addEventListener('pointermove', function (e) {
+        if (!pts.has(e.pointerId)) return;
+        var prev = Array.from(pts.values());
+        pts.set(e.pointerId, local(e));
+        var now = Array.from(pts.values());
+        if (now.length === 1) {
+          var p = prev[0];
+          tx += now[0].x - p.x; ty += now[0].y - p.y; apply();
+        } else if (now.length >= 2) {
+          var a = now[0], b = now[1], a0 = prev[0], b0 = prev[1];
+          var d = Math.hypot(a.x - b.x, a.y - b.y), d0 = Math.hypot(a0.x - b0.x, a0.y - b0.y);
+          var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+          tx += mx - (a0.x + b0.x) / 2; ty += my - (a0.y + b0.y) / 2;
+          if (d0 > 0) zoomAt(mx, my, d / d0); else apply();
+        }
+      });
+      function end(e) { pts.delete(e.pointerId); if (!pts.size) box.classList.remove('drag'); }
+      box.addEventListener('pointerup', end);
+      box.addEventListener('pointercancel', end);
+      box.addEventListener('wheel', function (e) {
+        e.preventDefault(); touched = true;
+        var p = local(e); zoomAt(p.x, p.y, Math.exp(-e.deltaY * 0.0015));
+      }, { passive: false });
+      box.addEventListener('dblclick', function (e) {
+        if (e.target.closest('button')) return;
+        var p = local(e); zoomAt(p.x, p.y, 1.8);
+      });
+      box.querySelectorAll('.mapctl button').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var act = btn.dataset.act, r = box.getBoundingClientRect();
+          touched = true;
+          if (act === 'in') zoomAt(r.width / 2, r.height / 2, 1.5);
+          else if (act === 'out') zoomAt(r.width / 2, r.height / 2, 1 / 1.5);
+          else fit(VIEWS[act]);
+        });
+      });
+      fit(VIEWS.village);
+      if (window.ResizeObserver) new ResizeObserver(function () { if (!touched) fit(VIEWS.village); }).observe(box);
+    })();
+    </script>
+    <p class="label">Teal outline: visited · dashed grey: known, not entered · red: where we are, and warnings · hollow teal circles and the cross: from the temple's map (bearing only, distance guessed) · solid red marks: landmarks seen from the village (bearing + middle/far)</p>
+  </section>
+
+  <section>
+    <h2>Places</h2>
+    <div class="panel">
+        <dl>
+          <dt>Setting</dt><dd>Grassland; intact farming village of a few houses, bare earth here and there.</dd>
+          <dt>Outside</dt><dd>The well; 6 stone inscriptions (the one we read had "no writing")</dd>
+          <dt>Buildings</dt><dd>Temple (intact), 4 houses (intact), storehouse (worn), cemetery (damaged), granary (worn), brewery (worn), kiln (worn), orchard (intact), bakehouse (worn)</dd>
+          <dt>Visited</dt><dd>Temple: forecourt, hall</dd>
+          <dt>Temple hall</dt><dd>~10 m north of the forecourt through the open door. "Dim and close." Clay wall, stone statue, a torch, the brazier (mechanism). Exits: door south (forecourt), arches north, east and west (unexplored).</dd>
+          <dt>Temple forecourt</dt><dd>Stone stele (T1); stone basin (T2); torch (plain); clay calendar stone (ring of day marks, no writing; one notch early in spring cut deeper); bronze candelabrum ("a stag in a beaded border"); a map (worn vellum, "a hand in a beaded border", see below). Exits: door north, already open ("something about the door is not as it should be"); the way out (back to the village).</dd>
+        </dl>
+    </div>
+  </section>
+
+  <section>
+    <h2>Texts</h2>
+    <div class="panel">
+      <p><b>T1 · Temple forecourt stele.</b> 38 signs in 6 groups, about 4 lines, slanted hand. "A few shapes keep coming back." Fully read closely (3 pages).</p>
+      <div style="overflow-x:auto">
+      <table class="tx">
+        <thead><tr><th>#</th><th>Label</th><th>Game's description</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>EGG</td><td>a slight, curved sign like an egg</td></tr>
+          <tr><td>2</td><td>SEED</td><td>a wide, curved sign like a seed</td></tr>
+          <tr><td>3</td><td>SQ-curl</td><td>a squarish, angular sign, with a curl above</td></tr>
+          <tr><td>4</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>5</td><td>SQ-point</td><td>a squarish, angular sign, with a point</td></tr>
+          <tr><td>6</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>7</td><td>SQ-point</td><td>a squarish, angular sign, with a point</td></tr>
+          <tr><td>8</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>9</td><td>HOOK</td><td>a tall, mixed sign like a fish-hook</td></tr>
+          <tr><td>10</td><td>SEED</td><td>a wide, curved sign like a seed</td></tr>
+          <tr class="brk"><td colspan="3">(blank line in listing)</td></tr>
+          <tr><td>11</td><td>SQ-curl·dot?</td><td>like a squarish, angular sign, with a curl above, with a dot beside</td></tr>
+          <tr><td>12</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>13</td><td>TREE</td><td>a tall, mixed sign like a tree</td></tr>
+          <tr><td>14</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>15</td><td>SQmix-cross·loop?</td><td>like a squarish, mixed sign, with a crossing, with a loop beside</td></tr>
+          <tr><td>16</td><td>SEED</td><td>a wide, curved sign like a seed</td></tr>
+          <tr class="brk"><td colspan="3">(blank line)</td></tr>
+          <tr><td>17</td><td>SQmix-cross</td><td>a squarish, mixed sign, with a crossing</td></tr>
+          <tr><td>18</td><td>ARROW</td><td>a wide, angular sign like an arrow</td></tr>
+          <tr><td>19</td><td>SQmix-sweep</td><td>a squarish, mixed sign, with a sweep below</td></tr>
+          <tr><td>20</td><td>ARROW</td><td>a wide, angular sign like an arrow</td></tr>
+          <tr><td>21</td><td>SQ-curl·dot?</td><td>like a squarish, angular sign, with a curl above, with a dot beside</td></tr>
+          <tr><td>22</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr class="brk"><td colspan="3">(blank line)</td></tr>
+          <tr><td>23</td><td>SQmix-ptbelow</td><td>a squarish, mixed sign, with a point below</td></tr>
+          <tr><td>24</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>25</td><td>SQmix-cross</td><td>a squarish, mixed sign, with a crossing</td></tr>
+          <tr><td>26</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>27</td><td>EGG</td><td>a slight, curved sign like an egg</td></tr>
+          <tr><td>28</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr class="brk"><td colspan="3">(blank line)</td></tr>
+          <tr><td>29</td><td>TREE·loop?</td><td>like a tall, mixed sign like a tree, with a loop beside</td></tr>
+          <tr><td>30</td><td>SEED</td><td>a wide, curved sign like a seed</td></tr>
+          <tr><td>31</td><td>SQmix-cross</td><td>a squarish, mixed sign, with a crossing</td></tr>
+          <tr><td>32</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr class="brk"><td colspan="3">(blank line; page 3)</td></tr>
+          <tr><td>33</td><td>SQ-curl</td><td>a squarish, angular sign, with a curl above</td></tr>
+          <tr><td>34</td><td>ARROW</td><td>a wide, angular sign like an arrow</td></tr>
+          <tr><td>35</td><td>TREE</td><td>a tall, mixed sign like a tree</td></tr>
+          <tr><td>36</td><td>SQ-cross</td><td>a squarish, angular sign, with a crossing above</td></tr>
+          <tr><td>37</td><td>SQ-curl·dot?</td><td>like a squarish, angular sign, with a curl above, with a dot beside</td></tr>
+          <tr><td>38</td><td>ARROW</td><td>a wide, angular sign like an arrow</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><b>Working hypothesis (Jb):</b> T1 relates to the state of the north door, which "is not as it should be": it may describe the problem or be its cause. Not a translation; hold unless a better candidate turns up near the stele.</p>
+      <p><b>Groups.</b> The blank lines split the 38 signs into exactly six groups (10 + 6 + 6 + 6 + 4 + 6), matching "six groups", so we take them to be the groups.</p>
+      <div style="overflow-x:auto">
+      <table class="tx">
+        <thead><tr><th>Grp</th><th>Signs</th><th>Labels</th></tr></thead>
+        <tbody>
+          <tr><td>G1</td><td>1–10</td><td>EGG SEED SQ-curl <b>SQ-cross</b> SQ-point <b>SQ-cross</b> SQ-point <b>SQ-cross</b> HOOK SEED</td></tr>
+          <tr><td>G2</td><td>11–16</td><td>SQ-curl·dot <b>SQ-cross</b> TREE <b>SQ-cross</b> SQmix-cross·loop SEED</td></tr>
+          <tr><td>G3</td><td>17–22</td><td>SQmix-cross ARROW SQmix-sweep ARROW SQ-curl·dot <b>SQ-cross</b></td></tr>
+          <tr><td>G4</td><td>23–28</td><td>SQmix-ptbelow <b>SQ-cross</b> SQmix-cross <b>SQ-cross</b> EGG <b>SQ-cross</b></td></tr>
+          <tr><td>G5</td><td>29–32</td><td>TREE·loop SEED SQmix-cross <b>SQ-cross</b></td></tr>
+          <tr><td>G6</td><td>33–38</td><td>SQ-curl ARROW TREE <b>SQ-cross</b> SQ-curl·dot ARROW</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <ul>
+        <li>SQ-cross: 11 of 38. In G1 and G4 it falls on every other sign (x C x C x C).</li>
+        <li>Repeated pairs: SQ-curl·dot + SQ-cross (G2, G3); SQmix-cross + SQ-cross (G4, G5).</li>
+        <li>SEED ends G1 and G2 but sits second in G5, so it is not simply a group-ender.</li>
+        <li>ARROW appears only in G3 and G6, twice in each.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <p><b>T2 · Temple forecourt stone basin.</b> 8 signs in 1 group, about 1 line, heavy hand (T1 was slanted). Fully read closely.</p>
+      <p><b>Working hypothesis (Jb):</b> something everyday tied to the basin's use, like a label for washing, while T1 is the more meaningful text. Test: if other basins or water vessels carry the same signs, a label is likely.</p>
+      <div style="overflow-x:auto">
+      <table class="tx">
+        <thead><tr><th>#</th><th>Label</th><th>Game's description</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>SQ-curl·dot?</td><td>like a squarish, angular sign, with a curl above, with a dot beside</td></tr>
+          <tr><td>2</td><td>HORN</td><td>a wide, curved sign like a horn</td></tr>
+          <tr><td>3</td><td>SQ-curl·loop?</td><td>like a squarish, angular sign, with a curl above, with a loop beside</td></tr>
+          <tr><td>4</td><td>MOON-dotbelow</td><td>a slight, curved sign like a moon, with a dot below</td></tr>
+          <tr><td>5</td><td>SQ-HORN</td><td>a squarish, curved sign like a horn</td></tr>
+          <tr><td>6</td><td>MOON-dotbelow</td><td>a slight, curved sign like a moon, with a dot below</td></tr>
+          <tr><td>7</td><td>SQ-curl·loop?</td><td>like a squarish, angular sign, with a curl above, with a loop beside</td></tr>
+          <tr><td>8</td><td>HORN</td><td>a wide, curved sign like a horn</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <ul>
+        <li>Signs 2–8 read the same both ways: HORN, curl·loop, MOON, <b>SQ-HORN</b>, MOON, curl·loop, HORN. Sign 5 is the centre.</li>
+        <li>Shares only SQ-curl·dot with T1, where it appears 3 times. Here it opens the text.</li>
+        <li>The curl sign now comes plain, "with a dot beside" and "with a loop beside". The dot/loop may be add-on marks that change a base sign.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <p><b>T3 · Temple hall clay wall.</b> 68 signs in 14 groups, about 6 lines, heavy hand (like T2). Cleaned, then read closely (5 pages). 48 signs legible, 20 "(worn away)", all of them in signs 1–34.</p>
+      <ul>
+        <li>"Grime hides some of the signs." → cleaned ("You rub the grime from a clay wall.")</li>
+        <li>"This writing was scraped; about half of its signs are lost."</li>
+        <li>"Some of these marks were scraped away on purpose." The losses bunch in the first half, so the opening may be what someone wanted gone.</li>
+        <li>A "—" appears between signs 34 and 35 with no blank line, so we take 31–38 as one group, split across a line.</li>
+      </ul>
+      <div style="overflow-x:auto">
+      <table class="tx">
+        <thead><tr><th>Grp</th><th>Signs</th><th>Labels (▒ = worn away)</th></tr></thead>
+        <tbody>
+          <tr><td>G1</td><td>1–4</td><td>▒ SEED ▒ ▒</td></tr>
+          <tr><td>G2</td><td>5–10</td><td>▒ SEED ▒ SQ-cross ▒ ▒</td></tr>
+          <tr><td>G3</td><td>11–14</td><td>▒ SEED ▒ ▒</td></tr>
+          <tr><td>G4</td><td>15–16</td><td>HOOK ▒</td></tr>
+          <tr><td>G5</td><td>17–18</td><td>SQ-curl SEED</td></tr>
+          <tr><td>G6</td><td>19–26</td><td><b>CROOK</b> ▒ curl·dot ARROW ▒ ARROW ▒ SQ-cross</td></tr>
+          <tr><td>G7</td><td>27–30</td><td>▒ ▒ ▒ ▒</td></tr>
+          <tr><td>G8</td><td>31–38</td><td>SQmix-ptbelow ▒ TREE·loop ▒ — SQmix-sweep SEED curl·dot SEED</td></tr>
+          <tr><td>G9</td><td>39–44</td><td>SQ-HORN·dot SEED WAVE WIDE TREE·dot ARROW</td></tr>
+          <tr><td>G10</td><td>45–48</td><td>SQ-HORN SEED TREE·dot·loop WIDE</td></tr>
+          <tr><td>G11</td><td>49–52</td><td>HOOK SEED SQmix-saw SEED</td></tr>
+          <tr><td>G12</td><td>53–60</td><td><b>CROOK</b> ARROW curl·dot ARROW curl·dot ARROW EGG WIDE</td></tr>
+          <tr><td>G13</td><td>61–64</td><td>EGG ARROW curl·dot WIDE</td></tr>
+          <tr><td>G14</td><td>65–68</td><td>curl·dot ARROW TREE·dot·loop WIDE</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><b>Restoration guesses</b> (not readings; strength = how much evidence)</p>
+      <div style="overflow-x:auto">
+      <table class="tx">
+        <thead><tr><th>Sign</th><th>Guess</th><th>Strength</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>20</td><td>ARROW</td><td>fair</td><td>G12 has ARROW in the same slot; the rest of G6 matches G12</td></tr>
+          <tr><td>23</td><td>curl·dot</td><td>fair</td><td>Same slot in G12; gives the ARROW/curl·dot alternation seen in G12</td></tr>
+          <tr><td>25</td><td>EGG?</td><td>weak</td><td>Same slot in G12, but G6 ends differently (SQ-cross, not WIDE), so the groups aren't identical</td></tr>
+          <tr><td>16</td><td>SEED</td><td>fair</td><td>HOOK is followed by SEED in T1 (9–10) and T3 (49–50); SEED is often 2nd</td></tr>
+          <tr><td>34</td><td>SEED</td><td>weak</td><td>TREE·loop is followed by SEED in T1 (29–30)</td></tr>
+          <tr><td>32</td><td>SQ-cross</td><td>weak</td><td>SQmix-ptbelow is followed by SQ-cross in T1 (23–24); one example only</td></tr>
+          <tr><td>1, 3–5, 7, 9–11, 13–14</td><td>?</td><td>none</td><td>G1–G3 fit the "x SEED …" shape, but many groups do, so there's nothing to choose between</td></tr>
+          <tr><td>27–30</td><td>?</td><td>none</td><td>Whole group gone</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><b>Patterns</b></p>
+      <ul>
+        <li><b>G6 and G12 run in parallel.</b> Both have 8 signs and start with CROOK. Where both are legible they match: 3 curl·dot, 4 ARROW, 6 ARROW. Only the last sign differs. Possible restoration of G6: CROOK [ARROW] curl·dot ARROW [curl·dot] ARROW [EGG?] SQ-cross. A guess to test, not a reading.</li>
+        <li><b>SEED is very often the 2nd sign of a group:</b> T3 G1, G2, G3, G5, G9, G10, G11, and T1 G1, G5. It may mark something after a group's first sign.</li>
+        <li><b>"curl·dot ARROW" is a repeated pair:</b> T3 21–22, 55–56, 57–58, 65–66; T1 37–38.</li>
+        <li><b>"HOOK SEED"</b> occurs in T3 (49–50) and T1 (9–10).</li>
+        <li><b>WIDE</b> (a plain "wide, angular sign") ends G10, G12, G13 and G14. It may be an ending or a closing word.</li>
+        <li><b>Dots and loops attach to many bases:</b> curl, tree and square-horn take a dot; curl, tree and SQmix-cross take a loop; tree takes both. This looks like add-on marks rather than separate signs.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <p><b>T4 · Chapel stone niche.</b> 14 signs in 3 groups, about 2 lines, heavy hand. "A few shapes keep coming back." "Dust hides some of the signs." Cleaned at 10:20; nothing worn away. Read closely:</p>
+      <ul>
+        <li>G1: SQ-point ARROW SQmix-sweep HORN SQ-curl HORN</li>
+        <li>G2: SQ-curl ARROW <b>DOOR·dot</b> ARROW</li>
+        <li>G3: TREE MOON-dotbelow TREE·dot·loop ARROW</li>
+      </ul>
+      <p class="label">New sign: DOOR ("like a tall, curved sign like a doorway, with a dot beside"). The doubled "like a" suggests a variant. Echoes: HORN and MOON-dotbelow (T2), TREE·dot·loop (T3 G10, G14), "SQ-curl ARROW" (T1 G6), "X ARROW Y ARROW" (T3 G6, G12). <code>examine seal</code> on T5: "You see no seal here."</p>
+      <p><b>T5 · Chapel clay wall.</b> 288 signs in 48 groups, about 24 lines, <b>careful hand</b> (a third style, after slanted and heavy). "A seal is pressed at the foot." No grime or scraping mentioned. By far the longest text. Not yet read closely: at 16 signs a page that is about 18 pages, roughly 1½ hours of game time.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Sign list</h2>
+    <p class="label">Our working labels. "?" = the game said "like a…", so it may be a variant of another sign.</p>
+    <div class="panel" style="overflow-x:auto">
+      <table class="tx">
+        <thead><tr><th>Label</th><th>Description</th><th>Strokes (traced)</th><th>Seen</th><th>Ideas</th></tr></thead>
+        <tbody>
+          <tr><td>SEED</td><td>wide, curved, like a seed</td><td></td><td>T1: 2, 10, 16, 30 · T3: 2, 6, 12, 18, 36, 38, 40, 46, 50, 52</td><td>Most common overall (14). Often 2nd in a group</td></tr>
+          <tr><td>SQ-cross</td><td>squarish, angular, crossing above</td><td></td><td>T1: 4, 6, 8, 12, 14, 22, 24, 26, 28, 32, 36 · T3: 8, 26</td><td>11 of 38 in T1, often every other sign; rare in T3</td></tr>
+          <tr><td>ARROW</td><td>wide, angular, like an arrow</td><td></td><td>T1: 18, 20, 34, 38 · T3: 22, 24, 44, 54, 56, 58, 62, 66</td><td>Often right after curl·dot</td></tr>
+          <tr><td>SQ-curl·dot?</td><td>"like" SQ-curl, dot beside</td><td></td><td>T1: 11, 21, 37 · T2: 1 · T3: 21, 37, 55, 57, 63, 65</td><td>In all three texts. Pairs with ARROW</td></tr>
+          <tr><td>WIDE</td><td>a wide, angular sign (no likeness given)</td><td></td><td>T3: 42, 48, 60, 64, 68</td><td>Ends G10, G12, G13, G14</td></tr>
+          <tr><td>EGG</td><td>slight, curved, like an egg</td><td>A ring, right.</td><td>T1: 1, 27 · T3: 59, 61</td><td></td></tr>
+          <tr><td>HOOK</td><td>tall, mixed, like a fish-hook</td><td></td><td>T1: 9 · T3: 15, 49</td><td>"HOOK SEED" in T1 and T3</td></tr>
+          <tr><td>CROOK</td><td>tall, mixed, like a crook</td><td></td><td>T3: 19, 53</td><td>Starts the parallel groups G6 and G12</td></tr>
+          <tr><td>SQ-curl</td><td>squarish, angular, curl above</td><td></td><td>T1: 3, 33 · T3: 17</td><td></td></tr>
+          <tr><td>SQ-curl·loop?</td><td>"like" SQ-curl, loop beside</td><td></td><td>T2: 3, 7</td><td>Mirror positions in T2</td></tr>
+          <tr><td>TREE</td><td>tall, mixed, like a tree</td><td></td><td>T1: 13, 35</td><td>Takes dot, loop or both</td></tr>
+          <tr><td>TREE·loop?</td><td>"like" TREE, loop beside</td><td></td><td>T1: 29 · T3: 33</td><td>Starts T1 G5 (then SEED)</td></tr>
+          <tr><td>TREE·dot?</td><td>"like" TREE, dot beside</td><td></td><td>T3: 43</td><td></td></tr>
+          <tr><td>TREE·dot·loop?</td><td>"like" TREE, dot and loop beside</td><td></td><td>T3: 47, 67</td><td>3rd sign, before WIDE, in G10 and G14</td></tr>
+          <tr><td>HORN</td><td>wide, curved, like a horn</td><td></td><td>T2: 2, 8</td><td></td></tr>
+          <tr><td>SQ-HORN</td><td>squarish, curved, like a horn</td><td></td><td>T2: 5 · T3: 45</td><td>Centre of T2's mirrored run</td></tr>
+          <tr><td>SQ-HORN·dot?</td><td>"like" SQ-HORN, dot beside</td><td></td><td>T3: 39</td><td></td></tr>
+          <tr><td>MOON-dotbelow</td><td>slight, curved, like a moon, dot below</td><td></td><td>T2: 4, 6</td><td>Not "like a…", so maybe a sign of its own</td></tr>
+          <tr><td>WAVE</td><td>wide, curved, like a wave</td><td></td><td>T3: 41</td><td></td></tr>
+          <tr><td>SQmix-cross</td><td>squarish, mixed, with a crossing</td><td></td><td>T1: 17, 25, 31</td><td>Differs from SQ-cross: "mixed", crossing not "above"</td></tr>
+          <tr><td>SQmix-cross·loop?</td><td>"like" squarish, mixed, crossing, loop beside</td><td></td><td>T1: 15</td><td>Variant of SQmix-cross?</td></tr>
+          <tr><td>SQmix-sweep</td><td>squarish, mixed, sweep below</td><td></td><td>T1: 19 · T3: 35</td><td></td></tr>
+          <tr><td>SQmix-ptbelow</td><td>squarish, mixed, point below</td><td></td><td>T1: 23 · T3: 31</td><td>Starts T1 G4 and T3 G8</td></tr>
+          <tr><td>SQmix-saw</td><td>squarish, mixed, saw edge beside</td><td></td><td>T3: 51</td><td></td></tr>
+          <tr><td>SQ-point</td><td>squarish, angular, with a point</td><td></td><td>T1: 5, 7</td><td>Alternates with SQ-cross in T1 G1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Open questions</h2>
+    <ul class="q">
+      <li>Why does the first stone inscription have "no writing"? Worn, dirty, or just that one stone? Try <code>look closer</code>, <code>read closely</code>, <code>clean</code>, or the other five.</li>
+      <li>Which way does the road run?</li>
+      <li>What is wrong with the temple's north door?</li>
+      <li>How do we get a flame? Torch, brazier and "make fire" all say "no flame". Maybe the kiln or bakehouse has fire, or "gather wood" first.</li>
+      <li>The game has a <code>write</code> command (status shows accepted / glyphs / refused). What can we write on, and with what?</li>
+      <li>"Beaded border" emblems: a hand (map), a stag (candelabrum). Owners, makers, clans or gods?</li>
+      <li>What is the cross by the boulder field to the NE? Our NE landmarks are a wayside shrine and an upland cairn.</li>
+      <li>What is the deeper notch early in spring on the calendar? A festival, or the day a text was made? What season is it now? Clues so far: "bare earth here and there" (ploughed for sowing, or after harvest?), body "warm" outside, air "cool" in the forecourt. To check: the orchard (blossom, fruit or bare?), the granary and storehouse (full or empty?).</li>
+      <li>Are the "like a…, with a dot/loop beside" signs variants of other signs or separate signs?</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Game log</h2>
+    <p class="label">Verbatim game text, oldest first</p>
+    <div class="log">
+      <div class="entry"><span class="t">08:00</span><div><div class="cmd">new game (standard)</div><p class="out">You wake in a grassland, with no memory of arriving.
+
+An intact farming village of a few houses. The intact temple stands alone of its kind here. Here and there: bare earth.</p></div></div>
+      <div class="entry"><span class="t">08:01</span><div><div class="cmd">&gt; look</div><p class="out">An intact farming village of a few houses. The worn storehouse stands alone of its kind here.</p></div></div>
+      <div class="entry"><span class="t">08:01</span><div><div class="cmd">&gt; read inscription</div><p class="out">There is no writing on a stone inscription.</p></div></div>
+      <div class="entry"><span class="t">08:01</span><div><div class="cmd">&gt; help</div><p class="out">Try: look, examine (x) something, go to a building or anything you can see, north, ne, up, out,
+head north, follow the river downstream, go back, name this place the gap, go to the gap,
+open and close doors, take, drop, inventory (i), read something, read closely,
+examine sign 3, trace sign 3, listen, smell, touch, look closer, clean something,
+eat, drink, gather wood, make fire, sleep, wait, manual.</p></div></div>
+      <div class="entry"><span class="t">08:03</span><div><div class="cmd">&gt; examine inscription</div><p class="out">A stone inscription.</p></div></div>
+      <div class="entry"><span class="t">08:04</span><div><div class="cmd">&gt; go temple</div><p class="out">A forecourt. A clay calendar stone, a candelabrum, a map and a torch lie here. Ways out: a door north and the way out.</p></div></div>
+      <div class="entry"><span class="t">08:05</span><div><div class="cmd">&gt; read stele</div><p class="out">On a stone stele, thirty-eight signs in six groups, about four lines, in a slanted hand. A few shapes keep coming back.</p></div></div>
+      <div class="entry"><span class="t">08:05</span><div><div class="cmd">&gt; read stele closely</div><p class="out">You see no stele closely here.</p></div></div>
+      <div class="entry"><span class="t">08:10</span><div><div class="cmd">&gt; read closely stele</div><p class="out">On a stone stele, thirty-eight signs (page 1 of 3):
+
+1. a slight, curved sign like an egg
+2. a wide, curved sign like a seed
+3. a squarish, angular sign, with a curl above
+4. a squarish, angular sign, with a crossing above
+5. a squarish, angular sign, with a point
+6. a squarish, angular sign, with a crossing above
+7. a squarish, angular sign, with a point
+8. a squarish, angular sign, with a crossing above
+9. a tall, mixed sign like a fish-hook
+10. a wide, curved sign like a seed
+
+11. like a squarish, angular sign, with a curl above, with a dot beside
+12. a squarish, angular sign, with a crossing above
+13. a tall, mixed sign like a tree
+14. a squarish, angular sign, with a crossing above
+15. like a squarish, mixed sign, with a crossing, with a loop beside
+16. a wide, curved sign like a seed
+
+(Read on for more.)</p></div></div>
+      <div class="entry"><span class="t">08:14</span><div><div class="cmd">&gt; trace sign 1</div><p class="out">You trace sign 1 of a stone stele, stroke by stroke (about five minutes):
+
+1. A ring, right.</p></div></div>
+      <div class="entry"><span class="t">08:16</span><div><div class="cmd">&gt; examine stele</div><p class="out">A stone stele. Marks are cut into it: writing. You could read it.</p></div></div>
+      <div class="entry"><span class="t">08:19</span><div><div class="cmd">&gt; look closer</div><p class="out">A stone stele stands here. Something about the door is not as it should be.</p></div></div>
+      <div class="entry"><span class="t">08:20</span><div><div class="cmd">&gt; examine map</div><p class="out">A vellum map, worn. It bears a hand in a beaded border.</p></div></div>
+      <div class="entry"><span class="t">08:25</span><div><div class="cmd">&gt; read on</div><p class="out">On a stone stele, thirty-eight signs (page 2 of 3):
+
+17. a squarish, mixed sign, with a crossing
+18. a wide, angular sign like an arrow
+19. a squarish, mixed sign, with a sweep below
+20. a wide, angular sign like an arrow
+21. like a squarish, angular sign, with a curl above, with a dot beside
+22. a squarish, angular sign, with a crossing above
+
+23. a squarish, mixed sign, with a point below
+24. a squarish, angular sign, with a crossing above
+25. a squarish, mixed sign, with a crossing
+26. a squarish, angular sign, with a crossing above
+27. a slight, curved sign like an egg
+28. a squarish, angular sign, with a crossing above
+
+29. like a tall, mixed sign like a tree, with a loop beside
+30. a wide, curved sign like a seed
+31. a squarish, mixed sign, with a crossing
+32. a squarish, angular sign, with a crossing above
+
+(Read on for more.)</p></div></div>
+      <div class="entry"><span class="t">08:30</span><div><div class="cmd">&gt; read on</div><p class="out">On a stone stele, thirty-eight signs (page 3 of 3):
+
+33. a squarish, angular sign, with a curl above
+34. a wide, angular sign like an arrow
+35. a tall, mixed sign like a tree
+36. a squarish, angular sign, with a crossing above
+37. like a squarish, angular sign, with a curl above, with a dot beside
+38. a wide, angular sign like an arrow
+
+That is all of it.</p></div></div>
+      <div class="entry"><span class="t">08:31</span><div><div class="cmd">&gt; look closely door</div><p class="out">A forecourt. A stone basin stands here.</p></div></div>
+      <div class="entry"><span class="t">08:31</span><div><div class="cmd">&gt; examine door</div><p class="out">a door north</p></div></div>
+      <div class="entry"><span class="t">08:34</span><div><div class="cmd">&gt; look closer at door</div><p class="out">A forecourt. Ways out: a door north and the way out.</p></div></div>
+      <div class="entry"><span class="t">08:35</span><div><div class="cmd">&gt; listen</div><p class="out">You hear nothing but your own breath.</p></div></div>
+      <div class="entry"><span class="t">08:36</span><div><div class="cmd">&gt; touch door</div><p class="out">The air is cool; the ground is dry.</p></div></div>
+      <div class="entry"><span class="t">08:36</span><div><div class="cmd">&gt; manual</div><p class="out">Manual: playing, reading, notebook, writing, survival, endings. Type 'manual' and a section.</p></div></div>
+      <div class="entry"><span class="t">08:36</span><div><div class="cmd">&gt; manual playing / reading / notebook / writing / survival / endings</div><p class="out">(playing: Jb's page goes here.)
+(reading: Jb's page goes here.)
+(notebook: Jb's page goes here.)
+(writing: Jb's page goes here.)
+(survival: Jb's page goes here.)
+(endings: Jb's page goes here.)</p></div></div>
+      <div class="entry"><span class="t">08:36</span><div><div class="cmd">&gt; write manual</div><p class="out">You can't write there (nothing).</p></div></div>
+      <div class="entry"><span class="t">08:36</span><div><div class="cmd">save</div><p class="out">(game saved before trying the door)</p></div></div>
+      <div class="entry"><span class="t">08:36</span><div><div class="cmd">&gt; open door</div><p class="out">A door north is already open.</p></div></div>
+      <div class="entry"><span class="t">08:37</span><div><div class="cmd">&gt; look north</div><p class="out">A forecourt. Ways out: a door north and the way out.</p></div></div>
+      <div class="entry"><span class="t">08:42</span><div><div class="cmd">&gt; read map</div><p class="out">An old map, its edge in a plain style. It shows a town to the northwest, a town to the northwest, a town to the northeast, a town to the north, a town to the east and a town to the north. A cross is drawn to the northeast, by a boulder field.</p></div></div>
+      <div class="entry"><span class="t">08:44</span><div><div class="cmd">&gt; examine calendar stone</div><p class="out">A ring of marks for the days. One notch, early in spring, is cut deeper than the rest.</p></div></div>
+      <div class="entry"><span class="t">08:44</span><div><div class="cmd">&gt; read calendar stone</div><p class="out">There is no writing on a clay calendar stone.</p></div></div>
+      <div class="entry"><span class="t">08:46</span><div><div class="cmd">&gt; examine basin</div><p class="out">A stone basin. Marks are cut into it: writing. You could read it.</p></div></div>
+      <div class="entry"><span class="t">08:47</span><div><div class="cmd">&gt; examine candelabrum</div><p class="out">A bronze candelabrum. It bears a stag in a beaded border.</p></div></div>
+      <div class="entry"><span class="t">08:48</span><div><div class="cmd">&gt; examine torch</div><p class="out">A torch.</p></div></div>
+      <div class="entry"><span class="t">08:49</span><div><div class="cmd">&gt; smell</div><p class="out">You smell nothing worth noting.</p></div></div>
+      <div class="entry"><span class="t">08:50</span><div><div class="cmd">&gt; read basin</div><p class="out">On a stone basin, eight signs in one group, about one line, in a heavy hand.</p></div></div>
+      <div class="entry"><span class="t">08:55</span><div><div class="cmd">&gt; read closely basin</div><p class="out">On a stone basin, eight signs:
+
+1. like a squarish, angular sign, with a curl above, with a dot beside
+2. a wide, curved sign like a horn
+3. like a squarish, angular sign, with a curl above, with a loop beside
+4. a slight, curved sign like a moon, with a dot below
+5. a squarish, curved sign like a horn
+6. a slight, curved sign like a moon, with a dot below
+7. like a squarish, angular sign, with a curl above, with a loop beside
+8. a wide, curved sign like a horn
+
+That is all of it.</p></div></div>
+      <div class="entry"><span class="t">08:56</span><div><div class="cmd">&gt; take torch</div><p class="out">You take a torch.</p></div></div>
+      <div class="entry"><span class="t">08:57</span><div><div class="cmd">&gt; north</div><p class="out">North by the door, some 10 metres.
+
+A hall, dim and close. Ways out: a door south, an arch north, an arch east and an arch west.</p></div></div>
+      <div class="entry"><span class="t">08:58</span><div><div class="cmd">&gt; examine brazier</div><p class="out">The brazier is cold.</p></div></div>
+      <div class="entry"><span class="t">08:59</span><div><div class="cmd">&gt; examine torch</div><p class="out">A torch.</p></div></div>
+      <div class="entry"><span class="t">08:59</span><div><div class="cmd">&gt; light torch · light brazier · make fire</div><p class="out">You can't make fire: no flame.
+(same reply all three times)</p></div></div>
+      <div class="entry"><span class="t">09:01</span><div><div class="cmd">&gt; examine wall</div><p class="out">A clay wall. Marks are cut into it: writing. You could read it.</p></div></div>
+      <div class="entry"><span class="t">09:03</span><div><div class="cmd">&gt; examine statue</div><p class="out">A stone statue.</p></div></div>
+      <div class="entry"><span class="t">09:04</span><div><div class="cmd">&gt; read wall</div><p class="out">On a clay wall, sixty-eight signs in fourteen groups, about six lines, in a heavy hand.
+
+Grime hides some of the signs.
+
+This writing was scraped; about half of its signs are lost.
+
+Some of these marks were scraped away on purpose.</p></div></div>
+      <div class="entry"><span class="t">09:04</span><div><div class="cmd">&gt; read statue</div><p class="out">There is no writing on a stone statue.</p></div></div>
+      <div class="entry"><span class="t">09:19</span><div><div class="cmd">&gt; clean wall</div><p class="out">You rub the grime from a clay wall.</p></div></div>
+      <div class="entry"><span class="t">09:24</span><div><div class="cmd">&gt; read closely wall</div><p class="out">On a clay wall, sixty-eight signs (page 1 of 5):
+
+1. (worn away)
+2. a wide, curved sign like a seed
+3. (worn away)
+4. (worn away)
+
+5. (worn away)
+6. a wide, curved sign like a seed
+7. (worn away)
+8. a squarish, angular sign, with a crossing above
+9. (worn away)
+10. (worn away)
+
+11. (worn away)
+12. a wide, curved sign like a seed
+13. (worn away)
+14. (worn away)
+
+15. a tall, mixed sign like a fish-hook
+16. (worn away)
+
+(Read on for more.)</p></div></div>
+      <div class="entry"><span class="t">09:29</span><div><div class="cmd">&gt; read on</div><p class="out">On a clay wall, sixty-eight signs (page 2 of 5):
+
+17. a squarish, angular sign, with a curl above
+18. a wide, curved sign like a seed
+
+19. a tall, mixed sign like a crook
+20. (worn away)
+21. like a squarish, angular sign, with a curl above, with a dot beside
+22. a wide, angular sign like an arrow
+23. (worn away)
+24. a wide, angular sign like an arrow
+25. (worn away)
+26. a squarish, angular sign, with a crossing above
+
+27. (worn away)
+28. (worn away)
+29. (worn away)
+30. (worn away)
+
+31. a squarish, mixed sign, with a point below
+32. (worn away)
+
+(Read on for more.)</p></div></div>
+      <div class="entry"><span class="t">09:34</span><div><div class="cmd">&gt; read on</div><p class="out">On a clay wall, sixty-eight signs (page 3 of 5):
+
+33. like a tall, mixed sign like a tree, with a loop beside
+34. (worn away)
+—
+35. a squarish, mixed sign, with a sweep below
+36. a wide, curved sign like a seed
+37. like a squarish, angular sign, with a curl above, with a dot beside
+38. a wide, curved sign like a seed
+
+39. like a squarish, curved sign like a horn, with a dot beside
+40. a wide, curved sign like a seed
+41. a wide, curved sign like a wave
+42. a wide, angular sign
+43. like a tall, mixed sign like a tree, with a dot beside
+44. a wide, angular sign like an arrow
+
+45. a squarish, curved sign like a horn
+46. a wide, curved sign like a seed
+47. like a tall, mixed sign like a tree, with a dot beside and a loop beside
+48. a wide, angular sign
+
+(Read on for more.)</p></div></div>
+      <div class="entry"><span class="t">09:39</span><div><div class="cmd">&gt; read on</div><p class="out">On a clay wall, sixty-eight signs (page 4 of 5):
+
+49. a tall, mixed sign like a fish-hook
+50. a wide, curved sign like a seed
+51. a squarish, mixed sign, with a saw edge beside
+52. a wide, curved sign like a seed
+
+53. a tall, mixed sign like a crook
+54. a wide, angular sign like an arrow
+55. like a squarish, angular sign, with a curl above, with a dot beside
+56. a wide, angular sign like an arrow
+57. like a squarish, angular sign, with a curl above, with a dot beside
+58. a wide, angular sign like an arrow
+59. a slight, curved sign like an egg
+60. a wide, angular sign
+
+61. a slight, curved sign like an egg
+62. a wide, angular sign like an arrow
+63. like a squarish, angular sign, with a curl above, with a dot beside
+64. a wide, angular sign
+
+(Read on for more.)</p></div></div>
+      <div class="entry"><span class="t">09:44</span><div><div class="cmd">&gt; read on</div><p class="out">On a clay wall, sixty-eight signs (page 5 of 5):
+
+65. like a squarish, angular sign, with a curl above, with a dot beside
+66. a wide, angular sign like an arrow
+67. like a tall, mixed sign like a tree, with a dot beside and a loop beside
+68. a wide, angular sign
+
+That is all of it.</p></div></div>
+      <div class="entry"><span class="t">09:47</span><div><div class="cmd">&gt; look closer</div><p class="out">A torch lies here. A clay wall stands here.</p></div></div>
+      <div class="entry"><span class="t">09:48</span><div><div class="cmd">&gt; listen</div><p class="out">You hear nothing but your own breath.</p></div></div>
+      <div class="entry"><span class="t">09:49</span><div><div class="cmd">&gt; smell</div><p class="out">You smell nothing worth noting.</p></div></div>
+      <div class="entry"><span class="t">09:50</span><div><div class="cmd">&gt; touch</div><p class="out">The air is cool; the ground is dry.</p></div></div>
+      <div class="entry"><span class="t">09:51</span><div><div class="cmd">&gt; look</div><p class="out">A hall, dim and close. A stone statue stands here.</p></div></div>
+      <div class="entry"><span class="t">09:52</span><div><div class="cmd">&gt; touch statue</div><p class="out">A stone statue feels smooth, cold.</p></div></div>
+      <div class="entry"><span class="t">09:52</span><div><div class="cmd">&gt; clean statue</div><p class="out">There is nothing to clean from a stone statue.</p></div></div>
+      <div class="entry"><span class="t">09:52</span><div><div class="cmd">&gt; read closely statue</div><p class="out">There is no writing on a stone statue.</p></div></div>
+      <div class="entry"><span class="t">09:53</span><div><div class="cmd">&gt; west</div><p class="out">West by the arch, some 10 metres.
+
+A chapel, dim and close. Ways out: an arch east.</p></div></div>
+      <div class="entry"><span class="t">09:55</span><div><div class="cmd">&gt; examine niche</div><p class="out">A stone niche. Marks are cut into it: writing. You could read it.</p></div></div>
+      <div class="entry"><span class="t">09:57</span><div><div class="cmd">&gt; examine wall</div><p class="out">A clay wall. Marks are cut into it: writing. You could read it.</p></div></div>
+      <div class="entry"><span class="t">10:00</span><div><div class="cmd">&gt; look closer</div><p class="out">A stone niche stands here. A clay wall stands here.</p></div></div>
+      <div class="entry"><span class="t">10:01</span><div><div class="cmd">&gt; listen</div><p class="out">You hear nothing but your own breath.</p></div></div>
+      <div class="entry"><span class="t">10:02</span><div><div class="cmd">&gt; smell</div><p class="out">You smell nothing worth noting.</p></div></div>
+      <div class="entry"><span class="t">10:03</span><div><div class="cmd">&gt; touch</div><p class="out">The air is cool; the ground is dry.</p></div></div>
+      <div class="entry"><span class="t">10:04</span><div><div class="cmd">&gt; read niche</div><p class="out">On a stone niche, fourteen signs in three groups, about two lines, in a heavy hand. A few shapes keep coming back.
+
+Dust hides some of the signs.</p></div></div>
+      <div class="entry"><span class="t">10:05</span><div><div class="cmd">&gt; read wall</div><p class="out">On a clay wall, two hundred and eighty-eight signs in forty-eight groups, about twenty-four lines, in a careful hand. A seal is pressed at the foot.</p></div></div>
+      <div class="entry"><span class="t">10:20</span><div><div class="cmd">&gt; clean niche</div><p class="out">You rub the dust from a stone niche.</p></div></div>
+      <div class="entry"><span class="t">10:25</span><div><div class="cmd">&gt; read closely niche</div><p class="out">On a stone niche, fourteen signs:
+
+1. a squarish, angular sign, with a point
+2. a wide, angular sign like an arrow
+3. a squarish, mixed sign, with a sweep below
+4. a wide, curved sign like a horn
+5. a squarish, angular sign, with a curl above
+6. a wide, curved sign like a horn
+
+7. a squarish, angular sign, with a curl above
+8. a wide, angular sign like an arrow
+9. like a tall, curved sign like a doorway, with a dot beside
+10. a wide, angular sign like an arrow
+
+11. a tall, mixed sign like a tree
+12. a slight, curved sign like a moon, with a dot below
+13. like a tall, mixed sign like a tree, with a dot beside and a loop beside
+14. a wide, angular sign like an arrow
+
+That is all of it.</p></div></div>
+      <div class="entry"><span class="t">10:25</span><div><div class="cmd">&gt; examine seal</div><p class="out">You see no seal here.</p></div></div>
+    </div>
+  </section>
+</div>

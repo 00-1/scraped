@@ -346,6 +346,7 @@ The base game keeps no records for the player ("The game is not your notebook"),
 - **It works from a transcript alone,** so it works the same for a person, an AI partner, or a replay.
 - **Light markup in the text** could help it: tags around places, directions, distances, things, marks and tracings, which clients can hide, colour or make tappable. Removing the tags leaves exactly the plain text; tags only label kinds a reader would recognise anyway (never "strange", "magic" or "important"); and tags carry no identity (two buildings with the same name are not told apart, and mentions of one are not linked).
 - Whether a world is played with it could be recorded with the world, like difficulty.
+- **Playtests show how it should work.** The notes players keep in playtests (`docs/playtests/`) are the best evidence of what to record and how to organise it.
 
 ## Open questions
 
