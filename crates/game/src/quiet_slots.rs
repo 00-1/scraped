@@ -692,6 +692,7 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("place.thing", "Something standing in the open here (a well, a stele, a milestone), mentioned on its own.")
             .var("name", VarType::Text, "Its name.")
             .var("kind", VarType::Text, "What it is (a thing or mechanism kind).")
+            .var("marked", VarType::Bool, "Whether marks are cut or painted on it (D13: noticed sooner by an eye for marks).")
             .max_len(140)
             .sampler(s_thing),
         // ---------- the land ----------
@@ -825,6 +826,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("name", VarType::Text, "Its name.")
             .var("kind", VarType::Text, "What it is.")
             .var("item", VarType::Bool, "Something that could be carried.")
+            .var("marked", VarType::Bool, "Whether marks are cut or painted on it (D13: noticed sooner by an eye for marks).")
             .max_len(140)
             .sampler(s_room_thing),
         // ---------- the senses ----------

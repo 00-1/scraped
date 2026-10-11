@@ -178,6 +178,27 @@ pub fn samples(args: &[String]) -> Result<String, String> {
     if o.bot.as_deref() == Some("hand") {
         return hand_report(&p, &dir, o.hours.unwrap_or(10.0));
     }
+    // D13: an hour of each style on seed 42, from the same start.
+    if o.bot.as_deref() == Some("styles") {
+        let mut out = String::new();
+        for style in scraped_game::bots::STYLE_BOTS {
+            let r = play(&p, 42, style, o.hours.unwrap_or(1.0), 5_000);
+            let mut md = format!(
+                "# {milestone}: the {style}, seed 42\n\n{} commands, {:.1} hours of game time. Example text only; spoiler-free.\n\n", // DEBUG-TEXT
+                r.commands.len(),
+                r.hours
+            );
+            md.push_str(&block(&r.texts[0]));
+            for (c, t) in r.commands.iter().zip(r.texts.iter().skip(1)) {
+                md.push_str(&format!("\n**> {c}**\n\n{}", block(t)));
+            }
+            let path = dir.join(format!("{style}-42.md"));
+            std::fs::write(&path, md)
+                .map_err(|e| format!("cannot write {}: {e}", path.display()))?;
+            out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
+        }
+        return Ok(out);
+    }
     let hours = o.hours.unwrap_or(3.0);
     let mut out = String::new();
     for seed in SAMPLE_SEEDS {

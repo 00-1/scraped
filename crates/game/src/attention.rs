@@ -329,7 +329,11 @@ impl Game {
         let mut taken = 0;
         let mut per_slot: BTreeMap<&'static str, usize> = BTreeMap::new();
         let mut noticed: Vec<(String, u64)> = Vec::new();
-        for (_, _, f) in scored {
+        // A keen eye catches one more thing of its own kind (D13), past the
+        // budget, if it is new.
+        // DESIGN-Q: one extra fact a response, for a category at 1.3+.
+        let mut keen_extra = true;
+        for (_, fresh, f) in scored {
             // A short response says one of each kind of thing.
             let cap = match response {
                 Response::Closer | Response::Around => 6,
@@ -338,9 +342,12 @@ impl Game {
             let room = per_slot.get(f.slot).copied().unwrap_or(0) < cap;
             // Where the player set out for is always said (S01).
             let target = self.arrival_keys.contains(&f.key);
-            if f.interrupt || target || (taken < budget && room) {
+            let keen = keen_extra && fresh && room && self.keen_weight(&f) >= 1.3;
+            if f.interrupt || target || (taken < budget && room) || keen {
                 *per_slot.entry(f.slot).or_default() += 1;
-                if !f.interrupt {
+                if taken >= budget && keen && !f.interrupt && !target {
+                    keen_extra = false;
+                } else if !f.interrupt {
                     taken += 1;
                 }
                 self.note_life(&f.key);
@@ -607,6 +614,7 @@ impl Game {
                 let vars = ctx(&[
                     ("name", Value::from(name)),
                     ("kind", Value::from(self.thing(t).kind)),
+                    ("marked", Value::Bool(!self.thing(t).texts.is_empty())),
                 ]);
                 out.push(Fact::new("place.thing", format!("thing:{t}"), 22.0, vars));
             }
@@ -1056,6 +1064,7 @@ impl Game {
                         ("name", Value::from(name)),
                         ("kind", Value::from(k)),
                         ("item", Value::Bool(portable)),
+                        ("marked", Value::Bool(!self.thing(t).texts.is_empty())),
                     ]),
                 ));
             }

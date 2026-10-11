@@ -2791,14 +2791,14 @@ pub fn play_with(
         // D13: what arrived unasked, by category; the first sign of a
         // spell in each; the first spell's marks read.
         let hour_now = f64::from(g.state.minutes - start) / 60.0;
-        let unasked = matches!(run.kinds.last(), Some(&"arrival" | &"travel"));
+        let unasked = matches!(run.kinds.last(), Some(&"arrival" | &"travel" | &"look"));
         for r in &g.renders[taken.min(g.renders.len())..] {
             let slot = r.trace.slot.as_str();
             if slot == "spell.sign" {
                 let cat = r.vars.get("category").map(Value::text).unwrap_or_default();
                 run.first_sign.entry(cat).or_insert(hour_now);
             } else if unasked {
-                if let Some(c) = crate::noticing::category_of_slot(slot) {
+                if let Some(c) = crate::noticing::category_of(slot, &r.vars) {
                     *run.unasked.entry(c.to_string()).or_default() += 1;
                 }
             }

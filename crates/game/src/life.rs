@@ -231,8 +231,9 @@ impl Game {
         let home = self.home_near(&living);
         let in_town = self.town_here().is_some();
         let closer = matches!(response, Response::Closer);
-        // Signs: looked for, not seen in passing.
-        if closer {
+        // Signs: looked for, not seen in passing, unless the eye is keen
+        // on living things (D13).
+        if closer || self.keenness("life") >= 1.3 {
             let mut signs: Vec<(u64, Fact)> = Vec::new();
             for l in &living {
                 let s = &self.site.world.life.species[l.species];

@@ -146,6 +146,17 @@ pub fn category_of_slot(slot: &str) -> Option<&'static str> {
     })
 }
 
+/// The category of a fact, by its slot and what it says: a thing bearing
+/// marks is noticed by an eye for marks.
+pub fn category_of(slot: &str, vars: &Context) -> Option<&'static str> {
+    if matches!(slot, "room.thing" | "place.thing")
+        && matches!(vars.get("marked"), Some(Value::Bool(true)))
+    {
+        return Some("marks");
+    }
+    category_of_slot(slot)
+}
+
 /// The category a command gives deliberate attention to, if any.
 // DESIGN-Q: which verbs count for which category.
 pub fn category_of_verb(verb: &str) -> Option<&'static str> {
@@ -255,7 +266,7 @@ impl Game {
             let k = self.keenness(&cat);
             return if k > 1.05 { k } else { 0.0 };
         }
-        category_of_slot(f.slot).map_or(1.0, |c| self.keenness(c))
+        category_of(f.slot, &f.vars).map_or(1.0, |c| self.keenness(c))
     }
 
     /// Records a followed command as attention; says so, once, when a

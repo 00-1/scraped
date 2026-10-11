@@ -446,3 +446,18 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Fairness for S06 | A firesteel; clay, or wooded land with a flame; every cue's cause where its effect is felt | `crates/game/src/fairness.rs` (`flame`, `tracing`, `cues`) | now |
 | Protocol | Version 2: replies carry `protocol`, `text` and `ended` only, in the player build, the app and MCP | `crates/play/src/lib.rs` | now |
 | Android chips | The basics only: look, out, go back | `android/.../AppModel.kt` | now |
+
+## Ways of noticing (D13)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| How a style is chosen | Offered once after the opening (`style.offer`, Jb's words); the first command answers it with scribe, forager, mason, wayfarer or none; anything else starts play with no style. Kept with the player, so two players in a shared world keep their own | `crates/game/src/noticing.rs` (`choose_style`) | now |
+| Categories | Marks; sounds; smells; life; buildings (materials, wear); land (routes, sky, weather); things (objects, mechanisms). A thing bearing marks counts as marks | `category_of` | now |
+| Keenness | Everyone 1; a style's own category 1.5, never below 1.15. A dozen deliberate attentions in about three days bring a category to 1.8; a week of neglect fades it halfway to its floor (0.7), two weeks three quarters | `Noticing::keenness` | now |
+| What keenness does | Weighs facts by their category; a category at 1.3+ catches one fresh fact past the budget a response; keen ears and noses catch the strongest sound or smell unasked; a keen forager sees animal signs in passing | `attention.rs`, `senses.rs`, `life.rs` | now |
+| Which verbs count as attention | read, read on, trace, clean, mark, count (marks); listen, shout (sounds); smell, taste (smells); forage, fish, snare, feed, gather (life); touch, look closer, dig, pry (buildings); look up, look around, head, follow, name, cross, go beyond (land); examine, take, open, close, work, use (things) | `category_of_verb` | now |
+| Starting verbs | scribe: read, trace, look closer, clean; forager: forage, fish, snare, gather, follow; mason: touch, look closer, work, dig; wayfarer: look up, head, follow, name. Scraping and writing in none | `STYLE_VERBS` | now |
+| Suggestions | After a response whose slots fit a verb's situations; at most one a response; twice per situation (the place), then dropped until it changes; never once used; scraping and writing only once done; reading only once a mark's sound is known; a keen category's after one response, others after three | `crates/game/src/suggest.rs` | content |
+| Evidence of spells by category | heat: buildings, land; light: land, things; wetness: land, smells; flow: land, sounds; sound: sounds, life; growth: life, smells; lure and calm: life, sounds; weight and binding: things, buildings; visibility and rising: things, land; keeping: things, smells; openness and stability: buildings, sounds. Noticed only by someone keen (above 1.05) on that category | `evidence_of`, `spell_signs` | content |
+| The world's measures | A "road" of 1200–1800 m (by seed) counted on three milestones nearest the start town's ways in ("city, N roads", nearest towns first); goods weighed in "weight" where the language has the word; daylight in 8, 10 or 12 parts on sundials (6 to 18, needs the sun: outdoors or a court open to the sky, no cloud) and twice that over the whole day on water clocks. Never converted | `crates/sim/src/writing.rs` (`Measures`, `MILESTONES`), `crates/game/src/works.rs` (`examine_clock`) | now |
+| Style bots | The explorer, answering the offer, spending about a quarter of its steps on its own category | `crates/game/src/bots.rs` (`style_step`) | bots |
