@@ -198,6 +198,8 @@ pub struct DepthBot {
     entered_kinds: BTreeMap<&'static str, usize>,
     /// Gone indoors for the night: stays in till morning.
     sheltering: bool,
+    /// "Which one?" asked in a place, how often (answers go round them).
+    which: BTreeMap<String, u32>,
     /// Turns taken wandering when no known way leads out (D04: after a
     /// drop that can't be climbed back).
     wander: std::cell::RefCell<BTreeMap<String, usize>>,
@@ -279,6 +281,7 @@ impl DepthBot {
             tried_here: BTreeMap::new(),
             entered_kinds: BTreeMap::new(),
             sheltering: false,
+            which: BTreeMap::new(),
             wander: std::cell::RefCell::new(BTreeMap::new()),
             shut: BTreeSet::new(),
             sealed: Vec::new(),
@@ -643,7 +646,11 @@ impl DepthBot {
         let s = &last.state;
         let here = s.place.clone();
         if g.state.pending.is_some() {
-            return "first".into();
+            // Asked again here: try the next one (D14: a barred first
+            // door was asked about for ever).
+            let k = self.which.entry(here.clone()).or_default();
+            *k += 1;
+            return ["first", "second", "third", "fourth"][(*k as usize - 1) % 4].into();
         }
         // A way that didn't let us through is noted before anything else,
         // or whatever leads back by it (thirst, the dark, leaving) would
