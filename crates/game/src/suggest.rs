@@ -194,10 +194,10 @@ pub const TABLE: &[Suggestion] = &[
     s("south", "south", "buildings", &["room.ways"]),
     s("east", "east", "buildings", &["room.ways"]),
     s("west", "west", "buildings", &["room.ways"]),
-    s("northeast", "northeast", "land", &["travel.blocked"]),
-    s("northwest", "northwest", "land", &["travel.blocked"]),
-    s("southeast", "southeast", "land", &["travel.blocked"]),
-    s("southwest", "southwest", "land", &["travel.blocked"]),
+    s("northeast", "go northeast", "land", &["travel.blocked"]),
+    s("northwest", "go northwest", "land", &["travel.blocked"]),
+    s("southeast", "go southeast", "land", &["travel.blocked"]),
+    s("southwest", "go southwest", "land", &["travel.blocked"]),
     s("up", "up", "buildings", &["room.ways"]),
     s("down", "down", "buildings", &["room.ways"]),
     s(
@@ -281,13 +281,23 @@ pub const TABLE: &[Suggestion] = &[
     ),
     s("shout", "shout", "sounds", &["room.whole", "place.whole"]),
     s("cross", "cross", "land", &["travel.blocked", "land.edge"]),
-    s("status", "how am I", "life", &["body.felt", "body.change"]),
+    s(
+        "status",
+        "check yourself",
+        "life",
+        &["body.felt", "body.change"],
+    ),
     s("scrape", "scrape", "marks", &["scrape.done", "write.done"]),
     s("clean", "clean", "marks", &["read.grime", "thing.examine"]),
     s("beyond", "go beyond", "land", &["land.rim"]),
     s("write", "write", "marks", &["write.done", "scrape.done"]),
     s("manual", "manual", "things", &["say.help"]),
-    s("mark", "mark", "marks", &["travel.lost", "travel.arrive"]),
+    s(
+        "mark",
+        "mark here",
+        "marks",
+        &["travel.lost", "travel.arrive"],
+    ),
     s(
         "dig",
         "dig",
@@ -379,8 +389,9 @@ impl Game {
     /// else the first thing here.
     fn suggest_object(&self, verb: &str) -> Option<String> {
         let here = self.here();
-        // Payoff verbs name the thing with the cue; put needs no name.
-        if verb == "put" {
+        // Payoff verbs name the thing with the cue; put needs no name, and
+        // naming a place takes the player's own word (D14).
+        if matches!(verb, "put" | "name" | "make") {
             return Some(String::new());
         }
         if matches!(verb, "knock" | "shake" | "lift" | "pry") {

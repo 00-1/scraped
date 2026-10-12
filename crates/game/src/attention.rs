@@ -307,7 +307,7 @@ impl Game {
                     || f.interrupt
                     || self.arrival_keys.contains(&f.key)
                     || (response != Response::Look
-                        && matches!(f.slot, "place.whole" | "room.whole"))
+                        && matches!(f.slot, "place.whole" | "room.whole" | "place.signature"))
                     || !known(f, &self.state.told)
             })
             .map(|f| {
@@ -1213,7 +1213,7 @@ impl Game {
 /// Where a kind of fact comes in a response.
 fn order(slot: &str) -> u8 {
     match slot {
-        "place.dark" | "room.whole" | "place.whole" => 0,
+        "place.dark" | "room.whole" | "place.whole" | "place.signature" => 0,
         "place.district" | "place.layout" => 1,
         "place.scene" => 2,
         "land.feature" => 4,

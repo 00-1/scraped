@@ -159,8 +159,21 @@ impl Game {
     }
 
     /// Cues of the payoffs here (S07 §7): each noticed in its category.
-    pub(crate) fn payoff_facts(&self, out: &mut Vec<crate::attention::Fact>) {
+    pub(crate) fn payoff_facts(&mut self, out: &mut Vec<crate::attention::Fact>) {
+        // Only what the player could name and reach now (D14: no cue for
+        // a wall in the dark or a carving out of reach).
+        let visible: Vec<usize> = self
+            .visible_targets()
+            .into_iter()
+            .filter_map(|c| match c.target {
+                Target::Thing(t) => Some(t),
+                _ => None,
+            })
+            .collect();
         for t in self.here() {
+            if !visible.contains(&t) {
+                continue;
+            }
             if let Some(p) = self.payoff_on(t) {
                 let cat = KINDS
                     .iter()

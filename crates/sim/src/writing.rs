@@ -1414,26 +1414,27 @@ impl Writing {
                     continue;
                 }
                 let n_rooms = st.interior.rooms.len();
-                let order: Vec<usize> = if at_door {
-                    // The furthest reachable room that does not lead out,
-                    // failing that any other.
-                    let reach = fixtures.reachable_rooms(w, s);
-                    let mut rooms: Vec<usize> = reach
-                        .iter()
-                        .copied()
-                        .filter(|&r| !st.interior.rooms[r].outside && r > 1)
-                        .collect();
-                    rooms.sort_unstable();
-                    rooms.reverse();
-                    rooms.extend(reach.iter().copied().filter(|&r| Some(r) != room));
-                    // Last, a wall here: at least the thing itself fits.
-                    rooms.extend(room);
-                    rooms
-                } else {
-                    room.into_iter()
-                        .chain((0..n_rooms).filter(|&r| Some(r) != room))
-                        .collect()
-                };
+                let order: Vec<usize> =
+                    if at_door {
+                        // The furthest reachable room that does not lead out,
+                        // failing that any other.
+                        let reach = fixtures.reachable_rooms(w, s);
+                        let mut rooms: Vec<usize> = reach
+                            .iter()
+                            .copied()
+                            .filter(|&r| !st.interior.rooms[r].outside && r > 1)
+                            .collect();
+                        rooms.sort_unstable();
+                        rooms.reverse();
+                        rooms.extend(reach.iter().copied().filter(|&r| {
+                            Some(r) != room && !st.interior.rooms[r].outside && r > 1
+                        }));
+                        rooms
+                    } else {
+                        room.into_iter()
+                            .chain((0..n_rooms).filter(|&r| Some(r) != room))
+                            .collect()
+                    };
                 match spot_in(s, &order, (room, feature)) {
                     Some((r, f)) => {
                         self.relocated.insert(
@@ -1446,7 +1447,52 @@ impl Writing {
                             },
                         );
                     }
-                    None => kept += n,
+                    None => {
+                        // A building with nowhere further in (S05, D14):
+                        // the text goes deep into another building of the
+                        // start town, else stays.
+                        // DESIGN-Q: the lowest-numbered such building.
+                        let elsewhere = if at_door {
+                            (0..w.structures.len())
+                                .filter(|&o| o != s && w.structures[o].settlement == Some(start))
+                                .find_map(|o| {
+                                    let ost = &w.structures[o];
+                                    let mut deep: Vec<usize> = fixtures
+                                        .reachable_rooms(w, o)
+                                        .into_iter()
+                                        .filter(|&r| !ost.interior.rooms[r].outside && r > 1)
+                                        .collect();
+                                    deep.sort_unstable();
+                                    deep.reverse();
+                                    spot_in(o, &deep, (None, None)).map(|(r, f)| (o, r, f))
+                                })
+                        } else {
+                            None
+                        };
+                        // Last, a wall here: at least the thing itself fits.
+                        let here = if elsewhere.is_none() && at_door {
+                            spot_in(s, &room.into_iter().collect::<Vec<_>>(), (room, feature))
+                        } else {
+                            None
+                        };
+                        let elsewhere = elsewhere.or(here.map(|(r, f)| (s, r, f)));
+                        match elsewhere {
+                            Some((o, r, f)) => {
+                                self.relocated.insert(
+                                    t.id,
+                                    Text {
+                                        structure: o,
+                                        room: Some(r),
+                                        feature: Some(f),
+                                        material: w.structures[o].interior.rooms[r].features[f]
+                                            .material,
+                                        ..t.clone()
+                                    },
+                                );
+                            }
+                            None => kept += n,
+                        }
+                    }
                 }
             }
         }

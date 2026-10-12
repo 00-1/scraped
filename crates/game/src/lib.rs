@@ -18,6 +18,8 @@ mod composing_tests;
 pub mod coverage;
 #[cfg(test)]
 mod coverage_tests;
+#[cfg(test)]
+mod d14_tests;
 pub mod depth;
 pub mod ending;
 #[cfg(test)]
@@ -309,6 +311,13 @@ pub struct State {
     /// are called signs once there are enough.
     #[serde(default)]
     pub studied: BTreeSet<usize>,
+    /// Barriers already seen coming (D14), by cell.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub approached: BTreeSet<(u16, u16)>,
+    /// Ground walked over (D14), by 3×3-cell block: known ground is
+    /// recognised, and keeps the player's bearings.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub walked: BTreeSet<(u16, u16)>,
     /// Small payoffs found (S07 §7), by thing.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub payoffs_done: BTreeSet<usize>,
@@ -663,6 +672,8 @@ pub struct Game {
     /// `keep_renders` is set), with their variables.
     renders: Vec<Rendered>,
     pub keep_renders: bool,
+    /// What a heading goes on until (D14), while it runs.
+    until: Option<String>,
     /// Recognition variables for the fact being said (S07).
     fact_ambient: Option<Context>,
     /// Who is playing now, in a shared world (D13: each keeps their own
@@ -771,6 +782,8 @@ impl Game {
             swept: BTreeSet::new(),
             examined: BTreeSet::new(),
             payoffs_done: BTreeSet::new(),
+            approached: BTreeSet::new(),
+            walked: BTreeSet::new(),
             noticing: Default::default(),
             suggested: BTreeMap::new(),
             cues: Vec::new(),
@@ -845,6 +858,7 @@ impl Game {
             renders: Vec::new(),
             keep_renders: false,
             fact_ambient: None,
+            until: None,
             who: String::new(),
             sustain: false,
             last_link: None,
@@ -1005,10 +1019,18 @@ impl Game {
         let minutes = self.state.minutes;
         let traces = std::mem::take(&mut r.trace);
         drop(r);
+        // A fact's recognition is part of what was said, so the line can
+        // be rendered again from its record.
+        let mut vars = c.clone();
+        if let Some(f) = &self.fact_ambient {
+            for (k, v) in f {
+                vars.entry(k.clone()).or_insert_with(|| v.clone());
+            }
+        }
         self.renders
             .extend(traces.into_iter().map(|trace| Rendered {
                 trace,
-                vars: c.clone(),
+                vars: vars.clone(),
                 minutes,
                 seed,
             }));

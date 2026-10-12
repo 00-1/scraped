@@ -270,6 +270,13 @@ pub fn slots() -> Vec<SlotDef> {
             .var("purpose", VarType::Text, "Indoors: the room's purpose; outdoors: empty.")
             .max_len(220)
             .sampler(s_scene),
+        SlotDef::new("place.signature", "Where the player stands outdoors, by its signature (D14): its two or three most distinctive features, the same every visit, so a place can be recognised. With seen_before, word it as a place come back to. No name: the player names places themselves.")
+            .var("parts", VarType::List, "Its distinctive features as ids, most distinctive first: old features (cairn, standing_stone, spring…), edges (river, stream, road, coast, lakeshore, cliff, treeline), a landmark kind, then the ground (a biome).")
+            .max_len(200)
+            .sampler(|_| vec![
+                ctx(&[("parts", Value::List(vec![Value::from("standing_stone"), Value::from("stream"), Value::from("grassland")]))]),
+                ctx(&[("parts", Value::List(vec![Value::from("road"), Value::from("forest")]))]),
+            ]),
         SlotDef::new("scene.part", "The player examines, touches or tries to take one of the things a scene was told with (S07): 'examine the pots' among grave goods. It belongs to the scene: say a little more about it as part of the whole, never anything new about what happened. Taking it: it stays with the rest (or Jb may decide otherwise).")
             .var("verb", e(&["examine", "look_closer", "touch", "take", "read", "smell", "listen"]), "What the player tried.")
             .var("part", VarType::Text, "The thing named, as an id from the scene's parts.")

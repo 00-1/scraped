@@ -55,10 +55,10 @@ Design: `docs/DESIGN.md`, "Finding your way".
 
 ## Checklist
 
-- [ ] Stable outdoor places with signatures; recognition
-- [ ] Heading stops at interesting things; heads to what's in view; deterministic
-- [ ] Travel by landmark, path, and until
-- [ ] Landmarks consistent and shifting
-- [ ] Disorientation only for reasons; by difficulty
-- [ ] `go back` retraces; barriers seen ahead; travel words agree
-- [ ] Wayfarer bot; targets; samples; LOG; DECISIONS
+- [x] Stable outdoor places with signatures; recognition
+- [x] Heading stops at interesting things; heads to what's in view; deterministic
+- [x] Travel by landmark, path, and until
+- [x] Landmarks consistent and shifting
+- [x] Disorientation only for reasons; by difficulty
+- [x] `go back` retraces; barriers seen ahead; travel words agree
+- [x] Wayfarer bot; targets; samples; LOG; DECISIONS

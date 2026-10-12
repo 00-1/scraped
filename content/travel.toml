@@ -64,3 +64,13 @@ example = true
 slot = "travel.back_none"
 text = "You haven't come from anywhere yet."
 example = true
+
+[[variant]]
+slot = "travel.approach"
+text = "A {by} lies ahead to the {bearing}."
+example = true
+
+[[variant]]
+slot = "travel.until"
+text = "[if what == 'dark']Dark falls, and you stop.[else]You reach the {what}.[end]"
+example = true

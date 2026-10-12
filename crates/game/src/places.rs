@@ -101,7 +101,71 @@ impl Game {
 
     /// The facts of places with character outdoors: the district and the
     /// town's layout, features, and scenes in the open.
+    /// The outdoor place the player is in (D14): a block of land about
+    /// 900 paces across, and its signature, its two or three most
+    /// distinctive features in a fixed order (old features first, then
+    /// water, roads and edges, then a landmark, then the ground). The
+    /// same every visit; no name is given.
+    // DESIGN-Q: places are 3×3-cell blocks; the signature order.
+    pub(crate) fn signature(&self, p: Pos) -> (String, Vec<String>) {
+        let (cx, cy) = p.cell();
+        let (bx, by) = (cx / 3, cy / 3);
+        let in_block = |x: usize, y: usize| x / 3 == bx && y / 3 == by;
+        let mut parts: Vec<String> = Vec::new();
+        let push = |s: &str, parts: &mut Vec<String>| {
+            if !parts.iter().any(|x| x == s) {
+                parts.push(s.to_string());
+            }
+        };
+        let w = &self.site.world;
+        for f in &w.features {
+            if in_block(f.cell.ux(), f.cell.uy()) {
+                push(f.kind, &mut parts);
+            }
+        }
+        for (e, kind) in scraped_sim::outdoors::EDGES.iter().enumerate() {
+            let mut found = false;
+            for x in bx * 3..bx * 3 + 3 {
+                for y in by * 3..by * 3 + 3 {
+                    if x < scraped_world::terrain::SIZE && y < scraped_world::terrain::SIZE {
+                        found |= self.site.land.has_edge(x, y, e);
+                    }
+                }
+            }
+            if found {
+                push(kind, &mut parts);
+            }
+        }
+        for l in &self.site.land.landmarks {
+            let (lx, ly) = l.pos.cell();
+            if in_block(lx, ly) {
+                push(l.kind, &mut parts);
+            }
+        }
+        let biome = self.site.biome_at(Pos::of_cell(bx * 3 + 1, by * 3 + 1));
+        push(&biome, &mut parts);
+        parts.truncate(3);
+        (format!("sig:{bx}:{by}"), parts) // DEBUG-TEXT: a key
+    }
+
     pub(crate) fn place_facts(&mut self, response: Response, out: &mut Vec<Fact>) {
+        // The place's signature (D14), outside towns: always first, the
+        // same each time, recognised on return.
+        if self.town_here().is_none() {
+            let (key, parts) = self.signature(self.state.pos);
+            out.push(
+                Fact::new(
+                    "place.signature",
+                    key,
+                    60.0,
+                    ctx(&[(
+                        "parts",
+                        Value::List(parts.into_iter().map(Value::from).collect()),
+                    )]),
+                )
+                .anchored(),
+            );
+        }
         if let Some((t, d)) = self.district_here() {
             let town = &self.site.world.towns[t];
             let kind = town.districts[d].kind;

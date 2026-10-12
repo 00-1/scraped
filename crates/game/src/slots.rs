@@ -1559,6 +1559,13 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("chain.stopped", "A chain of commands stopped part way because something happened (S07); say where it stopped and what was not done.")
             .var("rest", VarType::Text, "The commands not done, as typed.")
             .sampler(|_| vec![ctx(&[("rest", Value::from("examine the basin, read the map"))])]),
+        SlotDef::new("travel.until", "A walk headed somewhere 'until' something is reached, and it is (D14): the river, the road, a town, dark.")
+            .var("what", VarType::Text, "What was reached, as the player named it.")
+            .sampler(|_| vec![ctx(&[("what", Value::from("river"))]), ctx(&[("what", Value::from("dark"))])]),
+        SlotDef::new("travel.approach", "A barrier comes into sight just ahead while travelling (D14), before it bars the way: a river, cliff, sea or lake. Say what lies ahead and which way; the walk stops here.")
+            .var("by", VarType::Text, "What lies ahead: river, cliff, sea, lake, marsh…")
+            .var("bearing", e(&BEARINGS), "Which way it lies.")
+            .sampler(|_| vec![ctx(&[("by", Value::from("river")), ("bearing", Value::from("east"))])]),
         SlotDef::new("life.no_tracks", "The player tries to follow tracks or signs where none lead anywhere fresh (S07).").sampler(s_none),
         SlotDef::new("say.stock", "The player takes stock (S07: `take stock`, `what's here`): a brief list of what is in plain view here, every time they ask, even if all of it was said before. Things, the ways out, creatures. Short, a list, no description.")
             .var("things", VarType::List, "Things in plain view, alike ones counted ('two clay jars').")

@@ -178,6 +178,28 @@ pub fn samples(args: &[String]) -> Result<String, String> {
     if o.bot.as_deref() == Some("hand") {
         return hand_report(&p, &dir, o.hours.unwrap_or(10.0));
     }
+    // D14: a wayfarer out for a day and back on seed 42, clear and fog.
+    if o.bot.as_deref() == Some("wayback") {
+        let mut out = String::new();
+        for (label, w) in [
+            ("clear", ("clear", "daylight")),
+            ("fog", ("fog", "daylight")),
+        ] {
+            let r = scraped_game::bots::out_and_back(&p, 42, Some(w));
+            let md = format!(
+                "# {milestone}: a wayfarer out and back, seed 42, {label}\n\nOut {:.1} km; home: {}; a place recognised on the way back: {}. Example text only; spoiler-free.\n\n{}", // DEBUG-TEXT
+                r.out_metres / 1000.0,
+                r.home,
+                r.recognised,
+                block(&r.transcript)
+            );
+            let path = dir.join(format!("wayfarer-42-{label}.md"));
+            std::fs::write(&path, md)
+                .map_err(|e| format!("cannot write {}: {e}", path.display()))?;
+            out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
+        }
+        return Ok(out);
+    }
     // D13: an hour of each style on seed 42, from the same start.
     if o.bot.as_deref() == Some("styles") {
         let mut out = String::new();

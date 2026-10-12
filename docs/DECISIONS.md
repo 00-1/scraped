@@ -481,3 +481,15 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Following tracks | Leads to the nearest roaming creature within 1.5 km | `travel.rs` (`follow_tracks`) | now |
 | Style bots | Play their style from the first command, once per place, from what the last reply said; the explorer only for the body, the dark, or moving on (never to read, except the scribe) | `bots.rs` (`style_step`) | bots |
 | MCP save | Written to `scraped-saves/<code>-<turn>.save`, the path returned; `load` takes the path. The save is about 137 KB after 370 commands, three quarters the transcript kept for the end record | `crates/play/src/mcp.rs` | now |
+
+## Finding your way (D14)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Telling places apart | A fixed signature per 3×3-cell block (about 3 km across): its old features, edges (river, road, coast…), a landmark in it, then the ground, at most three, said first on arrival outside towns, as known on return. No game-given names | `places.rs` (`signature`), `place.signature` | content |
+| Sense of direction | The sun holds the heading by day under open sky; forest, fog, storm, snow and rain hide it; the still star by night; a path being followed, the goal in sight, any landmark in view, or ground walked before (a block crossed on an earlier journey) also hold it. Otherwise the heading drifts | `travel.rs` (`journey`) | now |
+| How lost by difficulty | Gentle drifts half as much, archaeologist one and a half times; a keen eye for land divides drift further | `travel.rs` | now |
+| Approach | A river, coast, lakeshore or cliff is noticed one step before it bars the way, once per stretch | `travel.rs`, `travel.approach` | content |
+| Heading to what is in view | `head east` goes to the nearest landmark in view within about 30° of that way, and stops there; otherwise on until something comes into view, a barrier, a town, or about 3 km | `head_toward` | now |
+| Head until | `head east until the river / road / lake / sea / a town / dark` | `head`, `travel.until` | content |
+| Going back | Cuts a loop back from its first visit, so a blocked step leaves no copy to walk back to | `go_back` | now |

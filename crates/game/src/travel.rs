@@ -267,6 +267,26 @@ impl Game {
         if let Some(o) = self.outdoors_only("head") {
             return o;
         }
+        // `head east until the river` (D14): on until it is reached.
+        if let Some(i) = words
+            .iter()
+            .position(|w| matches!(w.as_str(), "until" | "till" | "to"))
+        {
+            let what: Vec<&str> = words[i + 1..]
+                .iter()
+                .map(String::as_str)
+                .filter(|w| !matches!(*w, "the" | "a" | "you" | "reach" | "it's" | "its" | "is"))
+                .collect();
+            if let (Some(b), Some(w)) = (
+                words[..i].iter().find_map(|w| parse_bearing(w)),
+                what.last(),
+            ) {
+                self.until = Some(w.to_string());
+                let o = self.journey(Goal::Heading(b), None, "head", None);
+                self.until = None;
+                return o;
+            }
+        }
         match words.iter().find_map(|w| parse_bearing(w)) {
             Some(b) => self.head_toward(b),
             None => {
@@ -283,6 +303,27 @@ impl Game {
     pub(crate) fn head_toward(&mut self, b: usize) -> Output {
         if let Some(o) = self.outdoors_only("head") {
             return o;
+        }
+        // Something seen that way is where the walk goes (D14, Jb): the
+        // nearest landmark in view on that bearing.
+        let ahead = self
+            .in_view()
+            .into_iter()
+            .filter(|v| v.bearing == b && v.metres > ARRIVE)
+            .min_by(|a, c| {
+                a.metres
+                    .partial_cmp(&c.metres)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+                    .then(a.landmark.cmp(&c.landmark))
+            });
+        if let Some(v) = ahead {
+            let to = self.site.land.landmarks[v.landmark].pos;
+            return self.journey(
+                Goal::To(to),
+                Some(Target::Landmark(v.landmark)),
+                "head",
+                None,
+            );
         }
         self.journey(Goal::Heading(b), None, "head", None)
     }
@@ -396,20 +437,24 @@ impl Game {
         self.journey(Goal::Along(path), None, "follow", Some((e, end)))
     }
 
+    /// Whether a barrier at this cell (or one beside it) has been seen
+    /// coming already (D14).
+    fn approached_here(&self, x: usize, y: usize) -> bool {
+        self.state
+            .approached
+            .iter()
+            .any(|&(ax, ay)| (ax as i64 - x as i64).abs() <= 1 && (ay as i64 - y as i64).abs() <= 1)
+    }
+
     pub(crate) fn go_back(&mut self) -> Output {
         if let Some(o) = self.outdoors_only("back") {
             return o;
         }
         // Retrace the way you came (S07): a loop back to where you'd been
-        // is cut out, and a point you already stand at is passed over (a
-        // blocked step goes nowhere).
+        // is cut out from its first visit, and a point you already stand at
+        // is passed over (a blocked step goes nowhere, D14).
         let here = self.state.pos;
-        if let Some(k) = self
-            .state
-            .trail
-            .iter()
-            .rposition(|p| p.dist(here) <= ARRIVE)
-        {
+        if let Some(k) = self.state.trail.iter().position(|p| p.dist(here) <= ARRIVE) {
             self.state.trail.truncate(k);
         }
         match self.state.trail.pop() {
@@ -511,6 +556,7 @@ impl Game {
         self.interrupted = false;
         let mut event: Option<(&str, Context)> = None;
         let mut sighted: Option<usize> = None;
+        let known_ground = self.state.walked.clone();
         for step in 0..max {
             let now = self.state.minutes;
             let (weather, light, range) = self.conditions_at(pos, now);
@@ -519,11 +565,18 @@ impl Game {
             // lost in daylight was a bug): in daylight unless fog, storm or
             // snow hides it, under trees too; low at dawn and dusk only when
             // the sky is clear.
-            let sun = match light {
-                "daylight" => !matches!(weather, "fog" | "storm" | "snow"),
-                "dim" => weather == "clear",
-                _ => false,
-            };
+            // Under the trees the sun is lost (D14, Jb: drift in forest).
+            let (fx, fy) = pos.cell();
+            let forest = matches!(
+                self.site.world.terrain.biome.get(fx, fy),
+                scraped_world::terrain::Biome::Forest | scraped_world::terrain::Biome::Pine
+            );
+            let sun = !forest
+                && match light {
+                    "daylight" => !matches!(weather, "fog" | "storm" | "snow" | "rain"),
+                    "dim" => weather == "clear",
+                    _ => false,
+                };
             let goal_seen = match goal {
                 Goal::To(g) => self
                     .site
@@ -533,7 +586,13 @@ impl Game {
             };
             // The still star keeps the heading true on a clear night (D06).
             let star = self.star_to_steer_by(weather, light, pos);
-            let guided = following || goal_seen || sun || star || !view.is_empty();
+            // Ground walked before is known, and the player knows where
+            // they are on it (D14: drift stops at a recognised place).
+            // DESIGN-Q: any block crossed on an earlier journey counts.
+            let block = ((fx / 3) as u16, (fy / 3) as u16);
+            let known = known_ground.contains(&block);
+            self.state.walked.insert(block);
+            let guided = following || goal_seen || sun || star || known || !view.is_empty();
             if guided {
                 // Landmarks show where the player really is.
                 err = 0;
@@ -541,10 +600,19 @@ impl Game {
                 by = f64::from(pos.y);
             } else {
                 blind += 1;
-                err = (err
-                    + (hash(&[self.seed(), u64::from(start_minutes), step as u64]) % 25) as i32
-                    - 12)
-                    .clamp(-90, 90);
+                // Drift, less for a keen eye for land and sky (D13), and by
+                // difficulty (D14).
+                // DESIGN-Q: gentle drifts half as much, archaeologist half
+                // as much again.
+                let turn = (hash(&[self.seed(), u64::from(start_minutes), step as u64]) % 25)
+                    as f64
+                    - 12.0;
+                let scale = match self.preset.as_str() {
+                    "gentle" => 0.5,
+                    "archaeologist" => 1.5,
+                    _ => 1.0,
+                } / self.keenness("land");
+                err = (err + (turn * scale).round() as i32).clamp(-90, 90);
             }
             // Where the player means to go next.
             let aim = match &goal {
@@ -578,7 +646,21 @@ impl Game {
                 // Following a river keeps to its bank.
                 !(*o == "river" && edge.is_some_and(|(e, _)| self.site.land.has_edge(nx, ny, e)))
             });
+            // A barrier is seen before it bars the way (D14): the step
+            // before it, the first time, says what lies ahead.
             if let Some(by_what) = obstacle {
+                if !self.approached_here(nx, ny) {
+                    self.state.approached.insert((nx as u16, ny as u16));
+                    let c = ctx(&[
+                        ("by", Value::from(by_what)),
+                        (
+                            "bearing",
+                            Value::from(bearing(pos, next).map_or("north", |b| BEARINGS[b])),
+                        ),
+                    ]);
+                    event = Some(("travel.approach", c));
+                    break;
+                }
                 let c = ctx(&[
                     ("by", Value::from(by_what)),
                     (
@@ -609,6 +691,30 @@ impl Game {
             // arrival says where the player is (D08: busier lands).
             if matches!(&goal, Goal::To(g) if pos.dist(*g) <= ARRIVE) {
                 break;
+            }
+            // On until something is reached (D14): a path, the dark, a town.
+            if let Some(u) = self.until.clone() {
+                let (cx, cy) = pos.cell();
+                let reached = match u.as_str() {
+                    "dark" | "night" | "nightfall" | "dusk" => {
+                        scraped_sim::outdoors::outdoor_light(self.state.minutes) != "daylight"
+                    }
+                    "town" | "village" | "city" => {
+                        self.site.land.town(&self.site.world, pos).is_some()
+                    }
+                    w => EDGES
+                        .iter()
+                        .position(|e| {
+                            *e == w
+                                || (w == "lake" && *e == "lakeshore")
+                                || (w == "sea" && *e == "coast")
+                        })
+                        .is_some_and(|e| self.site.land.has_edge(cx, cy, e)),
+                };
+                if reached {
+                    event = Some(("travel.until", ctx(&[("what", Value::from(u))])));
+                    break;
+                }
             }
             // Heading a way stops on reaching something on it (S07): a walk
             // never passes a place it comes to.

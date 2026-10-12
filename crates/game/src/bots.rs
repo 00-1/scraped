@@ -500,9 +500,17 @@ impl DepthBot {
                     }
                 }
                 if let Some(b) = cmd.strip_prefix("head ") {
-                    if (g.state.pos.x, g.state.pos.y) == pos {
-                        if let Some(i) = BEARINGS.iter().position(|x| *x == b) {
+                    if let Some(i) = BEARINGS.iter().position(|x| *x == b) {
+                        if (g.state.pos.x, g.state.pos.y) == pos {
                             self.blocked.insert((sq, i));
+                        }
+                        // Walked up to a barrier (D14): that way is barred
+                        // from where the walk ended.
+                        if g.renders[self.renders.min(g.renders.len())..]
+                            .iter()
+                            .any(|r| r.trace.slot == "travel.blocked")
+                        {
+                            self.blocked.insert((square_of(g), i));
                         }
                     }
                 }
@@ -1043,7 +1051,9 @@ impl DepthBot {
                         return Some(c);
                     }
                 }
-            } else {
+            } else if self.worth(g, s, "out for water") {
+                // Out for water, once in a while: not in and out all night
+                // when there's none to be had (D14).
                 return Some(self.towards_entrance(&s.place));
             }
         }
@@ -1052,8 +1062,9 @@ impl DepthBot {
                 return Some("eat".into());
             }
             // Fishing means sitting still for an hour and a half: only
-            // when warm, and in daylight.
-            let warm = need("warmth") == "warm";
+            // in daylight, and not when already shivering (D14: hunger
+            // kills by cold first, so a cool body still fishes).
+            let warm = !matches!(need("warmth").as_str(), "shivering" | "hypothermic");
             let day = (7..18).contains(&((s.minutes / 60) % 24));
             let water =
                 outside && warm && day && g.water_near(1).iter().any(|(_, d, _)| *d <= 300.0);
@@ -1149,6 +1160,17 @@ impl DepthBot {
                 let p = g.state.pos;
                 if (x - p.x).abs() + (y - p.y).abs() > 400 {
                     let b = bearing_to(x - p.x, y - p.y);
+                    // Barred that way lately (D14): go back the way we
+                    // came instead of pacing between barriers.
+                    let barred = self
+                        .recent
+                        .iter()
+                        .rev()
+                        .take(12)
+                        .any(|(_, sq)| self.blocked.contains(&(*sq, b)));
+                    if barred && !g.state.trail.is_empty() {
+                        return Some("go back".into());
+                    }
                     if !self.blocked.contains(&(square_of(g), b)) {
                         return Some(format!("head {}", BEARINGS[b]));
                     }
@@ -3137,4 +3159,74 @@ pub fn in_context(pack: &Pack, seed: u64, slot: &str, max: usize) -> Vec<Assembl
     }
     found.truncate(max);
     found
+}
+
+/// How a wayfarer's day out and back went (D14).
+#[derive(Debug, Clone, Default)]
+pub struct WayBack {
+    /// How far from the start the walk out ended, in metres.
+    pub out_metres: f64,
+    /// Whether the walk back ended at the start.
+    pub home: bool,
+    /// Whether a place met on the way out was recognised on the way back.
+    pub recognised: bool,
+    /// The journey as the player read it.
+    pub transcript: String,
+}
+
+/// A wayfarer walks out for about a day and comes back on purpose (D14):
+/// out by heading one way, turning when the way is barred; back by going
+/// back the way it came, using only what the text and its own memory give.
+pub fn out_and_back(
+    pack: &Pack,
+    seed: u64,
+    forced: Option<(&'static str, &'static str)>,
+) -> WayBack {
+    let mut g = Game::new(seed, pack.clone());
+    g.keep_renders = true;
+    let mut text = String::new();
+    let say = |g: &mut Game, cmd: &str, text: &mut String| -> Output {
+        g.forced = forced;
+        let out = g.step(cmd);
+        text.push_str(&format!("> {cmd}\n{}\n\n", out.text.trim()));
+        out
+    };
+    let first = g.start();
+    text.push_str(&format!("{}\n\n", first.text.trim()));
+    say(&mut g, "none", &mut text);
+    say(&mut g, "out", &mut text);
+    let start = g.state.pos;
+    let began = g.state.minutes;
+    let dirs = ["north", "east", "south", "west"];
+    let mut d = (seed % 4) as usize;
+    let mut legs = 0;
+    while g.state.minutes < began + 8 * 60 && legs < 40 && g.state.dead.is_none() {
+        let before = g.state.pos;
+        say(&mut g, &format!("head {}", dirs[d]), &mut text);
+        legs += 1;
+        if g.state.pos.dist(before) < 50.0 {
+            d = (d + 1) % 4;
+        }
+    }
+    let out_metres = g.state.pos.dist(start);
+    let mark = g.renders.len();
+    for _ in 0..60 {
+        if g.state.dead.is_some() || g.state.pos.dist(start) <= 300.0 {
+            break;
+        }
+        let out = say(&mut g, "go back", &mut text);
+        if out.text.trim().is_empty() || g.state.trail.is_empty() {
+            break;
+        }
+    }
+    let recognised = g.renders[mark..].iter().any(|r| {
+        r.trace.slot == "place.signature"
+            && matches!(r.vars.get("seen_before"), Some(Value::Bool(true)))
+    });
+    WayBack {
+        out_metres,
+        home: g.state.dead.is_none() && g.state.pos.dist(start) <= 300.0,
+        recognised,
+        transcript: text,
+    }
 }

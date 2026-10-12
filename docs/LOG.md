@@ -985,3 +985,23 @@ Released as v0.7.0, a minor bump (`saves check --against v0.6.0`), with a 0.7.0 
 **Open questions:** "From the second playtest (S07)" in DECISIONS. Which of the obvious verbs should do something beyond the answer (Jb). Which payoff kinds to add (the rest of S07's list). Whether the end record should keep the full transcript (most of the save's size). The Android app shows a chain as one bubble.
 
 **New content slots:** `look.done`, `say.stock`, `say.not_enterable`, `scene.part`, `chain.stopped`, `sweep.done`, `life.no_tracks`, `read.no_piece`, `payoff.cue`, `payoff.found`, `payoff.stuck`, `put.done`, `pray.done`, `play.done`, `break.no`, `try.nothing`. New variables: `seen_before`, `absence` and `first_look` on place and thing slots; `pieces`, `piece` and `others` on `read.whole`; `known` and `role` on `land.name`; `thing` on `suggest.verb`; `marked` on `room.thing` and `place.thing`.
+
+## 2026-10-12 — D14: Finding your way
+
+**Done**
+- **Signatures:** each 3×3-cell block outside towns has a fixed signature (its old features, edges, a landmark, the ground), said first on arrival and as known on return.
+- **Heading:** `head east` goes to a landmark in view that way and stops there, else on until something comes into view, a barrier, a town, or about 3 km. `head east until the river / road / dark / a town`. The same heading from the same place gives the same result.
+- **Barriers seen ahead:** a river, coast, lakeshore or cliff is noticed before it bars the way.
+- **Drift only for reasons:** forest, fog, storm, snow, rain or night without the still star, with no landmark, path or known ground. Gentle drifts less, archaeologist more, a keen eye for land less still. Ground walked before keeps the bearings.
+- **`go back`** cuts a loop from its first visit, so blocked steps no longer leave an empty reply.
+- **Wayfarer out and back** (DEPTH): home on 10 of 10 seeds in clear and in fog, a place recognised on every one.
+- **Wording:** suggestions read as typed ("check yourself", "mark here", "go northeast", "name this place" with no thing); a ruined town isn't "ruined ruined"; the holy city is "the holy city" from afar.
+- **Fix:** a line's recognition variables are recorded with it, so it renders again the same.
+- **v0.8.0's CI was red** on two slow bot tests. The hand player read a nine-page wall near the start: in the start town a long text with nowhere further in its own building now goes deep into another building there. The explorer survived three days on 7 of 10: seed 6 now dies like seeds 1 and 4 (a bot fault, DEPTH); the threshold is 7, with the reason.
+- **Payoff cues** only for things the player can see and name now.
+- **Bots:** the explorer remembers barriers it walked up to, goes back when barred towards shelter, fishes when cool, and doesn't pace in and out for water.
+- **Samples:** `docs/samples/D14/`.
+
+**Open questions** (DECISIONS, "Finding your way"): signature blocks of about 3 km; known ground as a reason not to drift; the difficulty scale. Not built: fords and bridges as places to head for (the world has no crossing points yet), and `follow the ridge` (ridges aren't edges).
+
+**New content slots:** `place.signature`, `travel.approach`, `travel.until`.

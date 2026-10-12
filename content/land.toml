@@ -12,7 +12,7 @@ example = true
 
 [[variant]]
 slot = "land.name"
-text = "[if known][if role != \"\"]the {role} {kind}[else]the {mark} {kind}[end][else]the {mark}[if mark2 != \"\"] {mark2}[end] {kind}[end]"
+text = "[if known][if role == 'holy city']the holy city[else][if role != \"\"]the {role} {kind}[else]the {mark} {kind}[end][end][else]the {mark}[if mark2 != \"\"] {mark2}[end] {kind}[end]"
 example = true
 
 [[variant]]
