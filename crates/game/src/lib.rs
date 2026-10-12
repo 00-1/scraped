@@ -1601,8 +1601,10 @@ impl Game {
             return self.step_one(input);
         }
         let keep = self.keep_renders;
+        if !keep {
+            self.renders.clear();
+        }
         self.keep_renders = true;
-        self.renders.clear();
         let mut steps: Vec<Step> = Vec::new();
         let mut last: Option<Output> = None;
         for (i, cmd) in chain.iter().enumerate() {
