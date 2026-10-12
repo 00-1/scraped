@@ -52,7 +52,7 @@ example = true
 
 [[variant]]
 slot = "travel.no_edge"
-text = "There is no {words} here to follow."
+text = "You find no {words} here to follow."
 example = true
 
 [[variant]]

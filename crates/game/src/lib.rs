@@ -308,6 +308,15 @@ pub struct State {
     /// are called signs once there are enough.
     #[serde(default)]
     pub studied: BTreeSet<usize>,
+    /// Things examined (S07): the sweep skips them.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub examined: BTreeSet<usize>,
+    /// The sweep's steps done, by place (S07).
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub swept: BTreeSet<String>,
+    /// Which piece of writing on each thing is being studied (S07).
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub pieces: BTreeMap<usize, usize>,
     /// Towns the player has been in (S07): known by name from afar.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub towns_met: BTreeSet<usize>,
@@ -438,6 +447,93 @@ pub struct Output {
     /// The slot renders behind the text (only when `Game::trace` is set).
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub renders: Vec<Rendered>,
+    /// A chain's steps (S07), each its own reply headed by its command;
+    /// empty for a single command. Text only, like `text`.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub steps: Vec<Step>,
+}
+
+/// One step of a chain (S07).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Step {
+    pub command: String,
+    pub text: String,
+}
+
+/// What stops a chain (S07): danger, a creature, a sound or smell come
+/// unasked, a strangeness, the weather turning, a journey interrupted.
+const CHAIN_STOPS: &[&str] = &[
+    "hazard.",
+    "danger.",
+    "creature.",
+    "body.collapse",
+    "spell.cue",
+    "spell.sign",
+    "air.uncanny",
+    "weather.coming",
+    "travel.interrupt",
+    "travel.blocked",
+    "effect.",
+];
+
+/// A chain's commands (S07): split at "then", "and" and commas; a part
+/// with no verb of its own takes the one before ("take the knife and the
+/// rope"). One command if it doesn't split.
+pub fn chain_of(input: &str) -> Vec<String> {
+    let lower = input.trim().to_lowercase();
+    // What is written or named is taken whole.
+    if lower.starts_with("write ") || lower.starts_with("name ") || lower.contains('"') {
+        return vec![input.trim().to_string()];
+    }
+    let mut parts: Vec<String> = vec![lower.clone()];
+    for sep in [
+        ", and then ",
+        " and then ",
+        ", then ",
+        " then ",
+        ", and ",
+        " and ",
+        ", ",
+    ] {
+        parts = parts
+            .into_iter()
+            .flat_map(|p| {
+                p.split(sep)
+                    .map(|x| x.trim().to_string())
+                    .filter(|x| !x.is_empty())
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+    }
+    if parts.len() < 2 {
+        return vec![input.trim().to_string()];
+    }
+    let mut out: Vec<String> = Vec::new();
+    let mut verb: Option<String> = None;
+    for p in parts {
+        match parser::parse(&p) {
+            Ok(c) => {
+                verb = parser::verbs()
+                    .iter()
+                    .find(|v| v.id == c.verb)
+                    .and_then(|v| {
+                        // The words the player typed for it.
+                        v.words
+                            .iter()
+                            .filter(|w| p.starts_with(w.as_str()))
+                            .max_by_key(|w| w.len())
+                            .cloned()
+                    });
+                out.push(p);
+            }
+            Err(_) => match &verb {
+                Some(v) => out.push(format!("{v} {p}")),
+                // The first part has no verb: not a chain.
+                None => return vec![input.trim().to_string()],
+            },
+        }
+    }
+    out
 }
 
 pub mod saves;
@@ -602,8 +698,6 @@ pub(crate) enum Mark {
         lost: bool,
     },
     Gap,
-    /// Between separate pieces of writing on one thing.
-    Break,
 }
 
 impl Game {
@@ -667,6 +761,9 @@ impl Game {
             studied: BTreeSet::new(),
             looked: BTreeMap::new(),
             towns_met: BTreeSet::new(),
+            pieces: BTreeMap::new(),
+            swept: BTreeSet::new(),
+            examined: BTreeSet::new(),
             noticing: Default::default(),
             suggested: BTreeMap::new(),
             cues: Vec::new(),
@@ -1487,13 +1584,66 @@ impl Game {
             } else {
                 Vec::new()
             },
+            steps: Vec::new(),
         }
     }
 
     // ---------- commands ----------
 
-    /// Runs one command and describes the result.
+    /// One turn from the player: a command, or a chain of them (S07: "clean
+    /// the wall and study it", "examine the stele, the basin and the map").
+    /// Each step runs in order and costs its own time; the reply is one
+    /// part per step, headed by its command. A chain stops when something
+    /// happens: a failure, a danger, a sound, a creature, a strangeness.
     pub fn step(&mut self, input: &str) -> Output {
+        let chain = chain_of(input);
+        if chain.len() < 2 {
+            return self.step_one(input);
+        }
+        let keep = self.keep_renders;
+        self.keep_renders = true;
+        self.renders.clear();
+        let mut steps: Vec<Step> = Vec::new();
+        let mut last: Option<Output> = None;
+        for (i, cmd) in chain.iter().enumerate() {
+            let mark = self.renders.len();
+            let o = self.step_one(cmd);
+            let stop = i + 1 < chain.len()
+                && self.renders[mark.min(self.renders.len())..]
+                    .iter()
+                    .any(|r| {
+                        let s = r.trace.slot.as_str();
+                        NOT_FOLLOWED.contains(&s) || CHAIN_STOPS.iter().any(|p| s.starts_with(p))
+                    });
+            steps.push(Step {
+                command: cmd.clone(),
+                text: o.text.clone(),
+            });
+            last = Some(o);
+            if stop || self.state.dead.is_some() {
+                if i + 1 < chain.len() {
+                    let rest = chain[i + 1..].join(", ");
+                    let t = self.say("chain.stopped", ctx(&[("rest", Value::from(rest))]));
+                    if let Some(s) = steps.last_mut() {
+                        s.text = format!("{}\n\n{t}", s.text);
+                    }
+                }
+                break;
+            }
+        }
+        self.keep_renders = keep;
+        let mut out = last.expect("a chain has steps");
+        out.text = steps
+            .iter()
+            .map(|s| format!("> {}\n\n{}", s.command, s.text)) // DEBUG-TEXT: the typed command, echoed
+            .collect::<Vec<_>>()
+            .join("\n\n");
+        out.steps = steps;
+        out
+    }
+
+    /// Runs one command and describes the result.
+    fn step_one(&mut self, input: &str) -> Output {
         if !self.keep_renders {
             self.renders.clear();
         }
@@ -1580,9 +1730,9 @@ impl Game {
         }
         // A verb this situation suggests (D13), at most one.
         if !failed && self.state.dead.is_none() {
-            let said: Vec<String> = self.renders[mark.min(self.renders.len())..]
+            let said: Vec<(String, Context)> = self.renders[mark.min(self.renders.len())..]
                 .iter()
-                .map(|r| r.trace.slot.clone())
+                .map(|r| (r.trace.slot.clone(), r.vars.clone()))
                 .collect();
             if let Some(t) = self.suggest(&said) {
                 self.append(&mut out, t);
@@ -1665,7 +1815,7 @@ impl Game {
         self.advance(minutes, Activity::Resting);
     }
 
-    fn command(&mut self, mut cmd: Command) -> Output {
+    pub(crate) fn command(&mut self, mut cmd: Command) -> Output {
         // "enter" alone is "go in" (S04).
         if cmd.verb == "go"
             && cmd.words.is_empty()
@@ -1716,6 +1866,50 @@ impl Game {
             let verb = cmd.verb.clone();
             if let Some(o) = self.scene_part(&verb, &cmd.words) {
                 return o;
+            }
+        }
+        // Another piece of writing on one thing (S07): "study the fainter
+        // marks", "the marks beneath", "the clearest marks".
+        if matches!(
+            cmd.verb.as_str(),
+            "read" | "examine" | "look_closer" | "more"
+        ) {
+            let w: Vec<&str> = cmd.words.iter().map(String::as_str).collect();
+            let deeper = w.iter().any(|x| {
+                matches!(
+                    *x,
+                    "fainter" | "beneath" | "under" | "underneath" | "older" | "lower"
+                )
+            });
+            let top = w
+                .iter()
+                .any(|x| matches!(*x, "clearest" | "clearer" | "top" | "upper" | "newest"));
+            if deeper || top {
+                let thing = self
+                    .state
+                    .last_read
+                    .filter(|&t| self.at_hand(t))
+                    .or_else(|| {
+                        self.here()
+                            .into_iter()
+                            .find(|&t| !self.thing(t).texts.is_empty())
+                    });
+                if let Some(t) = thing {
+                    let n = self.layers_seen(t).len();
+                    let k = if top {
+                        0
+                    } else if w.contains(&"fainter") && self.piece(t) == 0 {
+                        1
+                    } else {
+                        self.piece(t) + 1
+                    };
+                    if k < n {
+                        self.state.pieces.insert(t, k);
+                        return self.read_whole(t);
+                    }
+                    let t = self.say("read.no_piece", Context::new());
+                    return self.output(vec![t], None);
+                }
             }
         }
         // `examine marks` (S07): the marks on what is at hand, those last
@@ -1780,6 +1974,7 @@ impl Game {
                 let t = self.describe(attention::Response::Look);
                 self.output(vec![t], None)
             }
+            "sweep" => self.sweep(),
             // What is in plain view here, briefly, at any time (S07).
             "take_stock" => {
                 self.pass(1);
@@ -1834,6 +2029,42 @@ impl Game {
                     ctx(&[("items", Value::List(items)), ("count", Value::Number(n))]),
                 );
                 self.output(vec![t], None)
+            }
+            // `examine all`, `touch all`, `study all` (S07): each thing in
+            // view in turn; the marks verbs take the marked ones.
+            v if matches!(cmd.words.as_slice(), [w] if w == "all" || w == "everything")
+                && matches!(
+                    v,
+                    "examine"
+                        | "touch"
+                        | "look_closer"
+                        | "read"
+                        | "smell"
+                        | "clean"
+                        | "trace"
+                        | "open"
+                ) =>
+            {
+                let verb = v.to_string();
+                let marks = matches!(verb.as_str(), "read" | "clean" | "trace");
+                let things: Vec<usize> = self
+                    .here()
+                    .into_iter()
+                    .filter(|&t| !marks || !self.thing(t).texts.is_empty())
+                    .take(8)
+                    .collect();
+                if things.is_empty() {
+                    let t = self.say("say.not_here", ctx(&[("words", Value::from("all"))]));
+                    return self.output(vec![t], None);
+                }
+                let mut parts = Vec::new();
+                for t in things {
+                    let o = self.act(&verb, Target::Thing(t));
+                    if !o.text.trim().is_empty() && !parts.contains(&o.text) {
+                        parts.push(o.text);
+                    }
+                }
+                self.output(parts, None)
             }
             "take" if cmd.words.first().map(String::as_str) == Some("all") => {
                 self.take_all(&cmd.words[1..])
@@ -1895,6 +2126,40 @@ impl Game {
                     )]),
                 );
                 self.output(vec![t], None)
+            }
+            // Every remaining page at once (S07): `more all`, `study X
+            // fully`, `read X through`; one part per page.
+            "more" | "read"
+                if cmd
+                    .words
+                    .last()
+                    .is_some_and(|w| matches!(w.as_str(), "fully" | "through" | "all"))
+                    && (cmd.verb == "more" || cmd.words.len() > 1) =>
+            {
+                let named: Vec<String> = cmd.words[..cmd.words.len() - 1]
+                    .iter()
+                    .filter(|w| !matches!(w.as_str(), "pages" | "the"))
+                    .cloned()
+                    .collect();
+                let first = self.read_closely(&named);
+                let mut steps = vec![Step {
+                    command: self.log.last().cloned().unwrap_or_default(),
+                    text: first.text,
+                }];
+                // DESIGN-Q: at most 60 pages at once.
+                while self.state.reading.is_some() && steps.len() < 60 {
+                    let o = self.page();
+                    if o.text.trim().is_empty() {
+                        break;
+                    }
+                    steps.push(Step {
+                        command: "read on".into(), // DEBUG-TEXT: the step's own command
+                        text: o.text,
+                    });
+                }
+                let mut out = self.output(steps.iter().map(|s| s.text.clone()).collect(), None);
+                out.steps = steps;
+                out
             }
             "more" => self.read_closely(&cmd.words),
             "out" => self.go_out(),
@@ -2261,6 +2526,10 @@ impl Game {
     }
 
     fn act(&mut self, verb: &str, target: Target) -> Output {
+        // What has been examined, for the sweep to skip (S07).
+        if let ("examine", Target::Thing(t)) = (verb, target) {
+            self.state.examined.insert(t);
+        }
         // Groups: looking at them lists their members; going to one goes to
         // the nearest member not yet entered.
         if let Target::Buildings(k, _) | Target::Things(k) = target {
@@ -2861,13 +3130,31 @@ impl Game {
     // ---------- reading ----------
 
     /// The glyphs of everything written on a thing, in reading order.
+    /// The piece of writing on a thing being studied (S07): 0 the clearest
+    /// (the top), counting down through what lies beneath.
+    pub(crate) fn piece(&self, thing: usize) -> usize {
+        let n = self.layers_seen(thing).len();
+        self.state
+            .pieces
+            .get(&thing)
+            .copied()
+            .unwrap_or(0)
+            .min(n.saturating_sub(1))
+    }
+
+    /// The layer a piece is (its text and whether it is part-scraped).
+    pub(crate) fn piece_layer(&self, thing: usize, k: usize) -> Option<(usize, bool)> {
+        let seen = self.layers_seen(thing);
+        seen.len().checked_sub(1 + k).map(|i| seen[i])
+    }
+
+    /// The marks of the piece being studied (S07: each piece of writing on
+    /// a thing is studied on its own; no separator between them).
     fn marks(&self, thing: usize) -> Vec<Mark> {
         let mut out = Vec::new();
         let deep = self.deep_layers(thing);
-        for (n, (tid, partial)) in self.layers_seen(thing).into_iter().enumerate() {
-            if n > 0 {
-                out.push(Mark::Break);
-            }
+        let k = self.piece(thing);
+        if let Some((tid, partial)) = self.piece_layer(thing, k) {
             let text = self.text(tid);
             let r = self.site.world.renderer(text.era);
             let rendered = r.render(&text.meaning);

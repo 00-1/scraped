@@ -1555,6 +1555,11 @@ pub fn slots() -> Vec<SlotDef> {
             .var("thing", VarType::Text, "The building's name.")
             .sampler(s_named),
         SlotDef::new("say.outside_already", "The player tries to go out while already outside.").sampler(s_none),
+        SlotDef::new("sweep.done", "The player searches a place they have already gone over completely (S07): nothing more to find by the obvious ways.").sampler(s_none),
+        SlotDef::new("chain.stopped", "A chain of commands stopped part way because something happened (S07); say where it stopped and what was not done.")
+            .var("rest", VarType::Text, "The commands not done, as typed.")
+            .sampler(|_| vec![ctx(&[("rest", Value::from("examine the basin, read the map"))])]),
+        SlotDef::new("life.no_tracks", "The player tries to follow tracks or signs where none lead anywhere fresh (S07).").sampler(s_none),
         SlotDef::new("say.stock", "The player takes stock (S07: `take stock`, `what's here`): a brief list of what is in plain view here, every time they ask, even if all of it was said before. Things, the ways out, creatures. Short, a list, no description.")
             .var("things", VarType::List, "Things in plain view, alike ones counted ('two clay jars').")
             .var("ways", VarType::List, "The ways out, by name.")

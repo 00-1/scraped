@@ -18,7 +18,13 @@ object = "none"
 
 [[verb]]
 id = "look_closer"
-words = ["look closer", "look closely", "look more closely", "look carefully", "l closer", "search", "search here", "look about here"]
+words = ["look closer", "look closely", "look more closely", "look carefully", "l closer", "look about here"]
+object = "none"
+
+# S07: the obvious inspection of a place, skipping what is known.
+[[verb]]
+id = "sweep"
+words = ["search", "search here", "search the room", "search the place", "search around", "go over the room", "go over the place", "search everything"]
 object = "none"
 
 # S07: what is in plain view here, listed on request.

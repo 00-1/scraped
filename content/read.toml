@@ -62,7 +62,12 @@ example = true
 
 [[variant]]
 slot = "read.whole"
-text = "On {thing}, {count glyphs noun} in {count words group}, about {count lines line}, in a {hand} hand.[if form == 'sealed'] A seal is pressed at the foot.[end][if form == 'columns'] The {plural noun 2} stand in columns.[end][if recurring] A few shapes keep coming back.[end]"
+text = "On {thing}, {count glyphs noun} in {count words group}, about {count lines line}, in a {hand} hand.[if form == 'sealed'] A seal is pressed at the foot.[end][if form == 'columns'] The {plural noun 2} stand in columns.[end][if recurring] A few shapes keep coming back.[end][if others] Other {plural noun 2} share it: {list others}.[end]"
+example = true
+
+[[variant]]
+slot = "read.no_piece"
+text = "There is nothing more beneath these."
 example = true
 
 [[variant]]

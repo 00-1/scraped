@@ -114,7 +114,11 @@ fn suggestions_keep_their_rules() {
     let mut g = Game::new(42, pack());
     g.start();
     g.step("none");
-    let said = |v: &[&str]| v.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+    let said = |v: &[&str]| {
+        v.iter()
+            .map(|s| (s.to_string(), scraped_content::Context::new()))
+            .collect::<Vec<_>>()
+    };
     let mut shown = 0;
     for _ in 0..10 {
         if g.suggest(&said(&["shout.done", "room.whole"])).is_some() {
@@ -205,4 +209,32 @@ fn the_world_keeps_its_own_measures() {
     }
     assert!(clocks >= 6, "{clocks} clocks on three seeds");
     assert!(miles >= 3, "{miles} milestones on three seeds");
+}
+
+/// A suggestion follows from something told (S07): no fishing without
+/// water mentioned.
+#[test]
+fn suggestions_follow_from_what_was_told() {
+    let mut g = Game::new(42, pack());
+    g.start();
+    g.step("none");
+    let none = |v: &[&str]| {
+        v.iter()
+            .map(|s| (s.to_string(), scraped_content::Context::new()))
+            .collect::<Vec<_>>()
+    };
+    for _ in 0..4 {
+        if let Some(t) = g.suggest(&none(&["life.seen", "land.edge"])) {
+            assert!(!t.contains("fish"), "{t}");
+        }
+    }
+    let river = crate::site::ctx(&[("kind", scraped_content::Value::from("river"))]);
+    g.state.suggested.clear();
+    let mut fished = false;
+    for _ in 0..10 {
+        if let Some(t) = g.suggest(&[("land.edge".to_string(), river.clone())]) {
+            fished |= t.contains("fish");
+        }
+    }
+    assert!(fished);
 }

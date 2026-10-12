@@ -36,6 +36,21 @@ fn s_whole(_: u64) -> Vec<Context> {
                     "form",
                     Value::from(crate::reading::FORMS[i % crate::reading::FORMS.len()]),
                 ),
+                ("pieces", Value::Number(1 + (i as i64 % 3))),
+                ("piece", Value::Number(0)),
+                (
+                    "others",
+                    Value::List(
+                        [
+                            vec![],
+                            vec!["fainter, another hand"],
+                            vec!["fainter", "fainter, cut differently"],
+                        ][i % 3]
+                            .iter()
+                            .map(|s| Value::from(*s))
+                            .collect(),
+                    ),
+                ),
             ])
         })
         .collect()
@@ -123,6 +138,7 @@ fn s_thing(_: u64) -> Vec<Context> {
 /// Every slot of reading in layers.
 pub fn slots() -> Vec<SlotDef> {
     vec![
+        SlotDef::new("read.no_piece", "The player asks for fainter marks or marks beneath, and there are no more pieces of writing on this thing (S07).").sampler(|_| vec![Context::new()]),
         SlotDef::new("read.whole", "The player reads a thing: the whole text at a glance, never sign by sign ('Six short lines cut deep into the stone, in a heavy hand; a few shapes keep coming back.'). How much writing, in how many lines, how it was made, its state. Reading closely ('read closely') goes sign by sign. Never reveals meaning.")
             .var("thing", VarType::Text, "The thing, as named by thing.name.")
             .var("material", e(materials()), "The surface.")
@@ -136,6 +152,9 @@ pub fn slots() -> Vec<SlotDef> {
             .var("scraped", VarType::Bool, "Whether the writing seen was scraped (only part of it survives; read.scraped follows).")
             .var("form", e(&crate::reading::FORMS), "How it is laid out, as the eye sees before reading (D08): numbers in columns (a ledger), entries one under another (an annal, a list of judgements), a seal pressed at the foot (a letter, a contract, a decree), a bare list, short verses (a hymn, a curse), or running lines.")
             .max_len(220)
+            .var("pieces", VarType::Number, "How many separate pieces of writing the thing carries (S07: layers or separate texts); each is studied on its own.")
+            .var("piece", VarType::Number, "Which piece this is: 0 the clearest (on top), then the ones beneath.")
+            .var("others", VarType::List, "How each other piece looks beside this one: 'fainter', 'as clear', 'another hand', 'cut differently' (joined with commas). Never say they are other languages or eras.")
             .sampler(s_whole),
         SlotDef::new("read.seal", "The player examines the seal pressed at the foot of the marks just looked at (S06): what it looks like, pressed into the surface. Never what it means.")
             .var("thing", VarType::Text, "What the marks are on.")

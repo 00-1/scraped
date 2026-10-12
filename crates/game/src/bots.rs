@@ -20,7 +20,7 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 use serde::Serialize;
 
-use scraped_content::{Pack, Value};
+use scraped_content::{Context, Pack, Value};
 use scraped_sim::outdoors::{hash, BEARINGS};
 
 use crate::{Game, Output, Place, Rendered, Summary};
@@ -2193,6 +2193,21 @@ fn hand_extra(
             scraped_content::english::plural_if(k, 2)
         ));
     }
+    // S07: everything at once, a sweep, and a chain of looks.
+    if (16..18).contains(&h) && out.state.things.len() >= 2 {
+        return Some("examine all".into());
+    }
+    if (18..20).contains(&h) && inside {
+        return Some("search".into());
+    }
+    if (30..33).contains(&h) && out.state.things.len() >= 2 {
+        let word = |t: &String| t.split_whitespace().last().unwrap_or(t).to_string();
+        return Some(format!(
+            "examine the {} and the {}",
+            word(&out.state.things[0]),
+            word(&out.state.things[1])
+        ));
+    }
     if (10..16).contains(&h) && !out.state.things.is_empty() {
         let t = &out.state.things
             [(hash(&[seed, 0x4a51, step]) % out.state.things.len() as u64) as usize];
@@ -2498,35 +2513,137 @@ pub struct BotRun {
 /// giving its own category deliberate attention now and then.
 pub const STYLE_BOTS: [&str; 4] = ["scribe", "forager", "mason", "wayfarer"];
 
-/// What a style bot does instead of the explorer's step, about a quarter
-/// of the time.
-// DESIGN-Q: a quarter of steps go to the style's own attention.
-fn style_step(g: &Game, style: &str, seed: u64, step: u64) -> Option<String> {
-    let h = hash(&[seed, 0x57e1, step]) % 100;
-    if h >= 25 {
+/// How a style moves on when it would otherwise stop to read: out of a
+/// building, then towards a landmark it hasn't been to (forager and
+/// wayfarer), or a closer look (mason).
+fn style_move(g: &Game, out: &Output, style: &str, done: &mut BTreeSet<String>) -> Option<String> {
+    if style == "mason" {
+        return Some("look closer".into());
+    }
+    if g.state.place != Place::Outside {
+        return Some("out".into());
+    }
+    out.state.landmarks.iter().find_map(|l| {
+        let name = l.name.trim_start_matches("the ").to_string();
+        done.insert(format!("landmark {name}"))
+            .then(|| format!("go to the {name}"))
+    })
+}
+
+/// What a style bot does next (D13, S07): its own kind of attention, once
+/// per place, from what the last reply said; the explorer's step only when
+/// the body needs something, in the dark, or when the style has nothing
+/// more to do here (the explorer then moves on).
+// DESIGN-Q: each style's own actions, from the D13 proposal.
+fn style_step(
+    g: &Game,
+    out: &Output,
+    style: &str,
+    said: &[(String, Context)],
+    done: &mut BTreeSet<String>,
+) -> Option<String> {
+    let body = &g.state.body;
+    if body.thirst > 480 || body.hunger > 720 || body.chill > 300 || g.is_dark() {
         return None;
     }
     let outside = g.state.place == Place::Outside;
-    let marked = g
-        .here()
-        .into_iter()
-        .find(|&t| !g.thing(t).texts.is_empty())
-        .map(|t| g.thing(t).kind);
-    Some(match style {
-        "scribe" => match marked {
-            Some(k) if h.is_multiple_of(2) => format!("read {k}"),
-            Some(k) => format!("look closer at {k}"),
-            None => "look closer".into(),
-        },
-        "forager" if outside && h.is_multiple_of(3) => "forage".into(),
-        "forager" if h.is_multiple_of(2) => "smell".into(),
-        "forager" => "listen".into(),
-        "mason" if h.is_multiple_of(2) => "touch".into(),
-        "mason" => "look closer".into(),
-        "wayfarer" if outside && h.is_multiple_of(2) => "look around".into(),
-        "wayfarer" => "look up".into(),
-        _ => return None,
-    })
+    let at = if outside {
+        let (x, y) = g.state.pos.cell();
+        format!("c{x}:{y}") // DEBUG-TEXT: a key
+    } else {
+        format!("{:?}", g.state.place) // DEBUG-TEXT: a key
+    };
+    let mut once = |cmd: String| done.insert(format!("{at} {cmd}")).then_some(cmd);
+    let told = |slot: &str| said.iter().any(|(s, _)| s == slot);
+    let told_var = |slot: &str, k: &str, vals: &[&str]| {
+        said.iter()
+            .any(|(s, v)| s == slot && v.get(k).is_some_and(|x| vals.contains(&x.text().as_str())))
+    };
+    let here = g.here();
+    let kind = |t: usize| g.thing(t).kind;
+    match style {
+        "forager" => {
+            let water = told_var(
+                "land.edge",
+                "kind",
+                &["river", "stream", "lakeshore", "coast"],
+            ) || told_var("sense.sound", "source", &["river", "stream", "sea", "lake"]);
+            if water && outside {
+                if let Some(c) = once("fish".into()) {
+                    return Some(c);
+                }
+            }
+            if told("life.sign") && outside {
+                if let Some(c) = once("follow tracks".into()) {
+                    return Some(c);
+                }
+            }
+            if outside {
+                if let Some(c) = once("forage".into()) {
+                    return Some(c);
+                }
+            }
+            once("listen".into()).or_else(|| once("smell".into()))
+        }
+        "mason" => {
+            for &t in here.iter().filter(|&&t| !g.thing(t).portable).take(2) {
+                if let Some(c) = once(format!("touch {}", kind(t))) {
+                    return Some(c);
+                }
+            }
+            for m in g.mechanisms_here() {
+                let k = scraped_sim::outdoors::label(&g.site.fixtures.mechanisms[m].kind);
+                if let Some(c) = once(format!("work {}", k.replace('_', " "))) {
+                    return Some(c);
+                }
+            }
+            if outside {
+                return None;
+            }
+            once("look closer".into()).or_else(|| once("touch".into()))
+        }
+        "wayfarer" => {
+            if !outside {
+                return once("out".into());
+            }
+            if let Some(c) = once("look up".into()).or_else(|| once("look around".into())) {
+                return Some(c);
+            }
+            for (s, v) in said {
+                if s == "land.edge" {
+                    let k = v.get("kind").map(Value::text).unwrap_or_default();
+                    if matches!(k.as_str(), "road" | "river" | "stream" | "coast") {
+                        if let Some(c) = once(format!("follow the {k}")) {
+                            return Some(c);
+                        }
+                    }
+                }
+            }
+            for l in &out.state.landmarks {
+                let name = l.name.trim_start_matches("the ").to_string();
+                if done.insert(format!("landmark {name}")) {
+                    return Some(format!("go to the {name}"));
+                }
+            }
+            None
+        }
+        "scribe" => {
+            for &t in here
+                .iter()
+                .filter(|&&t| !g.thing(t).texts.is_empty())
+                .take(2)
+            {
+                let k = kind(t);
+                if let Some(c) =
+                    once(format!("read {k}")).or_else(|| once(format!("look closer at {k}")))
+                {
+                    return Some(c);
+                }
+            }
+            None
+        }
+        _ => None,
+    }
 }
 
 /// The family a command's verb belongs to, for the verb mix (S01).
@@ -2683,6 +2800,7 @@ pub fn play_with(
     // A style bot answers the offer first (D13); the others say nothing to
     // it and simply play.
     let style = STYLE_BOTS.iter().copied().find(|s| *s == kind);
+    let mut style_done: BTreeSet<String> = BTreeSet::new();
     if let Some(s) = style {
         out = g.step(s);
         run.commands.push(s.to_string());
@@ -2745,9 +2863,28 @@ pub fn play_with(
         let cmd = match extra.take() {
             Some(c) => c,
             None if hand => hand_phrase(&bot.next(&g, &out), seed, step),
-            None => match style.and_then(|s| style_step(&g, s, seed, step)) {
+            None => match style.and_then(|s| {
+                let said: Vec<(String, Context)> = g.renders[taken.min(g.renders.len())..]
+                    .iter()
+                    .map(|r| (r.trace.slot.clone(), r.vars.clone()))
+                    .collect();
+                style_step(&g, &out, s, &said, &mut style_done)
+            }) {
                 Some(c) => c,
-                None => bot.next(&g, &out),
+                None => {
+                    let c = bot.next(&g, &out);
+                    // Only the scribe stops to read (D13): the others move
+                    // on their own way instead.
+                    let reading = ["read", "clean", "trace", "more"]
+                        .iter()
+                        .any(|v| c.split_whitespace().next() == Some(*v));
+                    match style {
+                        Some(st) if st != "scribe" && reading => {
+                            style_move(&g, &out, st, &mut style_done).unwrap_or(c)
+                        }
+                        _ => c,
+                    }
+                }
             },
         };
         let before = g.state.place;

@@ -24,6 +24,7 @@ pub struct Suggestion {
 /// Every verb in the parser, with what suggests it.
 // DESIGN-Q: the situations that suggest each verb.
 pub const TABLE: &[Suggestion] = &[
+    s("sweep", "search the place", "things", &["look.done"]),
     s(
         "take_stock",
         "take stock",
@@ -307,12 +308,30 @@ impl Game {
             "scrape" | "write" => self.state.used.contains(v.verb),
             "read" | "more" => !self.state.heard.is_empty(),
             "drink" => self.state.body.thirst > 240,
-            "eat" => self.state.body.hunger > 360,
+            "eat" => self.state.body.hunger > 360 && self.carrying_food(),
+            "light" => self.carrying_any(&["torch", "lamp", "candle"]),
+            "make" => self.carrying_any(&["wood", "firesteel"]),
+            "wear" => self.carrying_any(&["cloak"]),
+            "fill" => self.carrying_any(&["waterskin", "jar", "pitcher", "bowl", "pot"]),
             "sleep" => self.state.body.fatigue > 960,
             "out" => !matches!(self.state.place, Place::Outside),
             "trace" => self.tracing_tool().is_some(),
             _ => true,
         }
+    }
+
+    fn carrying_any(&self, kinds: &[&str]) -> bool {
+        self.state
+            .carried
+            .iter()
+            .any(|&t| kinds.contains(&self.kind_of(t)))
+    }
+
+    fn carrying_food(&self) -> bool {
+        self.state
+            .carried
+            .iter()
+            .any(|&t| scraped_sim::items::kind(self.kind_of(t)).is_some_and(|k| k.meal > 0))
     }
 
     fn needs_object(&self, verb: &str) -> bool {
@@ -337,14 +356,17 @@ impl Game {
     }
 
     /// The suggestion, if any, for a response that rendered these slots.
-    pub(crate) fn suggest(&mut self, said: &[String]) -> Option<String> {
+    pub(crate) fn suggest(&mut self, said: &[(String, Context)]) -> Option<String> {
         let place = format!("{:?}", self.state.place); // DEBUG-TEXT: a key, never shown
         let mut best: Option<(f64, &Suggestion)> = None;
         for v in TABLE {
-            let fits = said.iter().any(|s| {
+            // It follows from something already told (S07): the slot fits
+            // and what it said holds what the verb needs.
+            let fits = said.iter().any(|(s, vars)| {
                 v.after
                     .iter()
                     .any(|a| s == a || (a.ends_with('.') && s.starts_with(a)))
+                    && perceived(v.verb, s, vars)
             });
             if !fits || !self.may_suggest(v) {
                 continue;
@@ -390,6 +412,30 @@ impl Game {
             rec.shown += 1;
         }
         Some(t)
+    }
+}
+
+/// Whether a slot just said holds what a verb needs (S07): water told of
+/// before fishing, plants before foraging, a creature's sign before a
+/// snare. A suggestion never comes from nothing the player was told.
+fn perceived(verb: &str, slot: &str, vars: &Context) -> bool {
+    let var = |k: &str| vars.get(k).map(Value::text).unwrap_or_default();
+    let water = || match slot {
+        "land.edge" => matches!(
+            var("kind").as_str(),
+            "river" | "stream" | "lakeshore" | "coast"
+        ),
+        "sense.sound" => matches!(var("source").as_str(), "river" | "stream" | "sea" | "lake"),
+        "fill.done" | "drink.done" | "drink.none" => true,
+        _ => false,
+    };
+    match verb {
+        "fish" | "fill" | "drink" => water(),
+        "cross" => slot == "travel.blocked" || water(),
+        "follow" => matches!(slot, "land.edge" | "life.sign"),
+        "forage" => matches!(slot, "life.plant" | "forage.found"),
+        "snare" => matches!(slot, "life.sign" | "life.home" | "creature.seen"),
+        _ => true,
     }
 }
 

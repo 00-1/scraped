@@ -66,6 +66,21 @@ text = "You are already outside."
 example = true
 
 [[variant]]
+slot = "sweep.done"
+text = "You have gone over all of it."
+example = true
+
+[[variant]]
+slot = "chain.stopped"
+text = "You stop there. Not done: {rest}."
+example = true
+
+[[variant]]
+slot = "life.no_tracks"
+text = "No fresh trail leads anywhere from here."
+example = true
+
+[[variant]]
 slot = "say.stock"
 text = "[if things]Here: {list things}.[else]Nothing lies about.[end][if ways] Ways out: {list ways}.[end][if creatures] About: {list creatures}.[end]"
 example = true

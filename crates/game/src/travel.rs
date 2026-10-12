@@ -292,6 +292,15 @@ impl Game {
         if let Some(o) = self.outdoors_only("follow") {
             return o;
         }
+        // Tracks and signs (S07, D13): towards the beast that left them.
+        if words.iter().any(|w| {
+            matches!(
+                w.as_str(),
+                "tracks" | "track" | "trail" | "prints" | "signs" | "spoor"
+            )
+        }) {
+            return self.follow_tracks();
+        }
         let mut way = Way::Onward;
         let mut rest = Vec::new();
         for w in words {
@@ -324,6 +333,37 @@ impl Game {
                     "travel.no_edge",
                     ctx(&[("words", Value::from(rest.join(" ")))]),
                 );
+                self.output(vec![t], None)
+            }
+        }
+    }
+
+    /// Follows the freshest tracks here to the beast that left them: the
+    /// nearest roaming creature whose range takes in this spot (the same
+    /// ones whose signs are seen here). None, and it says so.
+    // DESIGN-Q: tracks lead to a creature within 1.5 km, ground or not.
+    pub(crate) fn follow_tracks(&mut self) -> Output {
+        let p = self.state.pos;
+        let mut best: Option<(f64, usize)> = None;
+        for i in 0..self.state.creatures.len() {
+            let home = &self.site.fixtures.creatures[i];
+            if home.species.is_none()
+                || !matches!(home.home, scraped_sim::fixtures::Spot::Out { .. })
+            {
+                continue;
+            }
+            let d = p.dist(self.state.creatures[i].pos);
+            if d <= 1500.0 && best.is_none_or(|(b, _)| d < b) {
+                best = Some((d, i));
+            }
+        }
+        match best {
+            Some((_, i)) => {
+                let to = self.state.creatures[i].pos;
+                self.journey(Goal::To(to), None, "follow", None)
+            }
+            None => {
+                let t = self.say("life.no_tracks", Context::new());
                 self.output(vec![t], None)
             }
         }

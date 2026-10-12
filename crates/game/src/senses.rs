@@ -467,6 +467,73 @@ impl Game {
         }
     }
 
+    /// `search` (S07): the obvious inspection, in order: the next looks,
+    /// each thing here not yet examined, the senses not yet tried here.
+    /// Skips what's done this visit, stops at the first thing that says
+    /// something, carries on if asked again; says so when nothing's left.
+    /// Keenness orders the senses.
+    // DESIGN-Q: the sweep's order, and what counts as saying something.
+    pub(crate) fn sweep(&mut self) -> Output {
+        let at = match self.state.place {
+            Place::Room { structure, room } => format!("r{structure}:{room}"), // DEBUG-TEXT: a key
+            Place::Outside => {
+                let (x, y) = self.state.pos.cell();
+                format!("c{x}:{y}") // DEBUG-TEXT: a key
+            }
+        };
+        let mut plan: Vec<String> = vec!["look".into()];
+        for t in self.here() {
+            if !self.state.examined.contains(&t) {
+                plan.push(format!("examine #{t}")); // DEBUG-TEXT: an internal step
+            }
+        }
+        let mut senses = vec![
+            ("listen", "sounds"),
+            ("smell", "smells"),
+            ("touch", "buildings"),
+        ];
+        senses.sort_by(|a, b| {
+            self.keenness(b.1)
+                .partial_cmp(&self.keenness(a.1))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+        plan.extend(senses.into_iter().map(|(s, _)| s.to_string()));
+        plan.push("look closer".into());
+        let mut parts = Vec::new();
+        for step in plan {
+            let key = format!("{at} {step}");
+            if self.state.swept.contains(&key) {
+                continue;
+            }
+            self.state.swept.insert(key);
+            let mark = self.renders.len();
+            let o = match step.strip_prefix("examine #") {
+                Some(t) => {
+                    let t: usize = t.parse().unwrap_or(0);
+                    self.act("examine", Target::Thing(t))
+                }
+                None => self.command(crate::parser::parse(&step).expect("a known step")),
+            };
+            let quiet = self.renders[mark.min(self.renders.len())..]
+                .iter()
+                .all(|r| {
+                    matches!(
+                        r.trace.slot.as_str(),
+                        "look.done" | "sense.silence" | "sense.no_smell"
+                    )
+                });
+            if !o.text.trim().is_empty() {
+                parts.push(o.text);
+            }
+            if !quiet {
+                return self.output(parts, None);
+            }
+        }
+        let t = self.say("sweep.done", scraped_content::Context::new());
+        parts.push(t);
+        self.output(parts, None)
+    }
+
     /// `smell`: up to two smells, strongest first.
     pub(crate) fn smell(&mut self) -> Output {
         self.pass(1);

@@ -206,7 +206,31 @@ impl Game {
         }
         let recurring = signs.len() >= 12 && counts.values().any(|&n| n * 8 >= signs.len());
         let seen = self.layers_seen(thing);
-        let top = seen.last().map_or(self.thing(thing).texts[0], |l| l.0);
+        // The piece being studied (S07), and how the others look beside it.
+        let k = self.piece(thing);
+        let top = self
+            .piece_layer(thing, k)
+            .map_or(self.thing(thing).texts[0], |l| l.0);
+        let deep = self.deep_layers(thing);
+        let others: Vec<Value> = (0..seen.len())
+            .filter(|&j| j != k)
+            .filter_map(|j| self.piece_layer(thing, j))
+            .map(|(tid, partial)| {
+                let mut d = Vec::new();
+                d.push(if partial || deep.contains(&tid) {
+                    "fainter"
+                } else {
+                    "as clear"
+                });
+                if self.hand(tid) != self.hand(top) {
+                    d.push("another hand");
+                }
+                if self.text(tid).era != self.text(top).era {
+                    d.push("cut differently");
+                }
+                Value::from(d.join(", "))
+            })
+            .collect();
         let hand = self.hand(top);
         let era = self.text(top).era as usize;
         let name = self.thing_name(thing);
@@ -226,6 +250,9 @@ impl Game {
             ("recurring", Value::Bool(recurring)),
             ("scraped", Value::Bool(seen.first().is_some_and(|l| l.1))),
             ("form", Value::from(form(self.text(top).genre))),
+            ("pieces", Value::Number(seen.len() as i64)),
+            ("piece", Value::Number(k as i64)),
+            ("others", Value::List(others)),
         ]);
         let mut parts = vec![self.say("read.whole", c)];
         if let Some(cover) = self.grime(thing) {
@@ -400,7 +427,6 @@ impl Game {
                 {
                     lines.push(String::new())
                 }
-                Mark::Break if n >= first && n < last => lines.push("—".to_string()),
                 _ => {}
             }
         }
