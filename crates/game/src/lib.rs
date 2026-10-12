@@ -63,6 +63,8 @@ mod s06_tests;
 #[cfg(test)]
 mod s07_tests;
 #[cfg(test)]
+mod s08_tests;
+#[cfg(test)]
 mod sealed_tests;
 pub mod seedcode;
 mod senses;
@@ -1338,7 +1340,10 @@ impl Game {
         for t in seen.into_iter().chain(self.state.carried.clone()) {
             let name = self.thing_name(t);
             let kind = self.thing(t).kind.replace('_', " ");
-            out.push(Candidate::new(Target::Thing(t), &name, &[&kind]));
+            // A payoff's part, by its cue's words (S08).
+            let mut extra = vec![kind.as_str()];
+            extra.extend(self.payoff_words(t));
+            out.push(Candidate::new(Target::Thing(t), &name, &extra));
         }
         for m in self.mechanisms_here() {
             let name = self.mech_name(m);
@@ -2587,10 +2592,32 @@ impl Game {
     }
 
     pub(crate) fn act(&mut self, verb: &str, target: Target) -> Output {
-        // A small payoff, if the verb fits it (S07 §7).
+        // A small payoff, if the verb fits it (S07 §7), on whichever of
+        // alike things has one (S08).
+        let target = match target {
+            Target::Thing(t) => Target::Thing(self.payoff_alike(t)),
+            t => t,
+        };
         if let Target::Thing(t) = target {
             if let Some(o) = self.try_payoff(verb, t) {
                 return o;
+            }
+            // Pushing, pulling or pressing a thing with nothing to find:
+            // tried, and nothing comes of it (S08).
+            if verb == "operate" && !self.thing(t).portable {
+                let typed = self.typed(verb);
+                let word = typed.split_whitespace().next().unwrap_or("push");
+                let v = match word {
+                    "pull" | "press" | "turn" => word,
+                    _ => "push",
+                };
+                self.pass(1);
+                let kind = self.thing(t).kind;
+                let tx = self.say(
+                    "try.nothing",
+                    ctx(&[("verb", Value::from(v)), ("thing", Value::from(kind))]),
+                );
+                return self.output(vec![tx], None);
             }
         }
         // What has been examined, for the sweep to skip (S07).

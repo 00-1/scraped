@@ -216,11 +216,23 @@ class AppModel(app: Application) : AndroidViewModel(app) {
             val text = r.optString("text")
             r.optJSONObject("file")?.let { w.shared = it }
             val save = Engine.ask(Engine.req("play_save"))
+            // A chain (S07): one bubble per step, each under its own
+            // command, as on the other clients (S08).
+            val steps = r.optJSONArray("steps")
+            val entries = mutableListOf<Entry>()
+            if (steps != null && steps.length() > 1) {
+                for (i in 0 until steps.length()) {
+                    val st = steps.getJSONObject(i)
+                    entries += Entry(who, st.optString("command"))
+                    entries += Entry('g', st.optString("text"))
+                }
+            } else {
+                entries += Entry(who, cmd)
+                entries += Entry('g', text)
+            }
             withContext(Dispatchers.Main) {
-                w.transcript += Entry(who, cmd)
-                w.transcript += Entry('g', text)
-                transcript += Entry(who, cmd)
-                transcript += Entry('g', text)
+                w.transcript += entries
+                transcript += entries
                 w.save = save
                 // The reply is the text and whether the run ended (S06).
                 if (r.optBoolean("ended")) w.ended = true

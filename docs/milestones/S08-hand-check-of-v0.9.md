@@ -63,9 +63,9 @@ In the storehouse's storeroom: "The statue sounds wrong here." There's no statue
 
 ## Checklist
 
-- [ ] Towns recognised on return; `go back` retraces the whole journey
-- [ ] Payoff parts can be named and worked; push/pull/press/prise; tool hints
-- [ ] Spell signs name only what's present
-- [ ] Sweep runs to something new; alike things grouped or told apart
-- [ ] Scene parts worded as scene; suggestions from a perceived cause; Android chains per step; mason ending
-- [ ] Fixture; release; HANDOFF; LOG
+- [x] Towns recognised on return; `go back` retraces the whole journey
+- [x] Payoff parts can be named and worked; push/pull/press/prise; tool hints
+- [x] Spell signs name only what's present
+- [x] Sweep runs to something new; alike things grouped or told apart
+- [x] Scene parts worded as scene; suggestions from a perceived cause; Android chains per step; mason ending
+- [x] Fixture; release; HANDOFF; LOG

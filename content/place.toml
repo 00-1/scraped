@@ -22,7 +22,7 @@ example = true
 
 [[variant]]
 slot = "place.whole"
-text = "[if settlement == 'none'][if amount == 'one']A {condition} {main} stands alone here[else]{cap amount} {condition} buildings stand here[end][else]{cap a condition} [if settlement == 'ruins'][if condition != 'ruined']ruined [end]{role}[else]{role}[end][if main_amount != 'one'] of {main_amount} {plural main 2}[end][end]."
+text = "[if seen_before][if settlement == 'none']The {condition} {main} again.[else]Back in the {role}.[end][else][if settlement == 'none'][if amount == 'one']A {condition} {main} stands alone here[else]{cap amount} {condition} buildings stand here[end][else]{cap a condition} [if settlement == 'ruins'][if condition != 'ruined']ruined [end]{role}[else]{role}[end][if main_amount != 'one'] of {main_amount} {plural main 2}[end][end].[end]"
 example = true
 
 [[variant]]
@@ -72,7 +72,7 @@ example = true
 
 [[variant]]
 slot = "place.scene"
-text = "Here: {list parts}"
+text = "[if kind == 'bones with belongings']Bones lie here, a bundle and a bowl still beside them.[else][if kind == 'lost traveller']Bones by the way, a pack and a staff where they fell.[else][if kind == 'meal left']Bowls and cups set out, and a dust of bread between them.[else][if kind == 'barricade']A table, a chest and a beam are heaped against the way in.[else]{cap list parts}, left as they were.[end][end][end][end]"
 example = true
 
 [[variant]]

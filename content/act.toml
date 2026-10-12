@@ -12,7 +12,7 @@ example = true
 
 [[variant]]
 slot = "payoff.stuck"
-text = "The lid of the {thing} won't give by hand."
+text = "The lid of the {thing} won't give by hand; something to lever it might."
 example = true
 
 [[variant]]

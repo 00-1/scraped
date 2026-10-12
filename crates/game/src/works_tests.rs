@@ -18,7 +18,9 @@ fn works_are_solved_by_trying_parts_and_watching() {
                 g.site.fixtures.works[w].structure,
                 g.site.fixtures.works[w].seal,
             );
-            assert!(steps.len() >= 4);
+            // Great works have four parts; the start town's small ones two
+            // (S08).
+            assert!(steps.len() >= 2);
             assert!(g.sealed(st, seal).is_some(), "sealed at first");
             // A bot with no plan: tries the parts back to front, again and
             // again, reading only whether each one moved.

@@ -460,7 +460,12 @@ impl Game {
         match self.state.trail.pop() {
             Some(p) => self.journey(Goal::To(p), None, "back", None),
             None => {
-                let t = self.say("travel.back_none", Context::new());
+                // Back where the journeys began (S08), or never left.
+                let travelled = !self.state.walked.is_empty();
+                let t = self.say(
+                    "travel.back_none",
+                    ctx(&[("travelled", Value::Bool(travelled))]),
+                );
                 self.output(vec![t], None)
             }
         }

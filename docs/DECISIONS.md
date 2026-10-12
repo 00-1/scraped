@@ -505,3 +505,17 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | The end summary | One `end.arc` line per arc the player went along, after the opening counts | `ending.rs` | content |
 | Fairness | Three goals: a camp (wood, water and a flame near the start), works (a building whose works can be reached), a summit (a hill or mountain a walker can reach) | `fairness.rs` | now |
 | Style bots | Kept well when measured (as the scholar is). Forager: makes a camp on the nearest wooded ground by drinkable water a walker can reach, names it, lays food up there and settles; feeds a scavenger it sees. Mason: works every part that is ready, keeps to a building whose works are unfinished and goes round it again each time a part moves, settles in a building made sound. Wayfarer: climbs every hill and mountain it sees, then (after a summit or three days) walks towards the rim, whose way it knows, and goes beyond. None reads, scrapes or writes | `bots.rs` (`arc_step`) | bots |
+
+## Hand check of v0.9 (S08)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Arriving in a town | The town's description comes first, anchored, in recognition wording once met (`seen_before`); the land's signature only outside towns | `attention.rs` | content |
+| Going back from where you set out | `travel.back_none` with `travelled`: back where the journeys began, or never left | `travel.rs` | content |
+| A payoff among alike things | The one with something to find is worked; its part is named by its cue's words (stone, proud stone, loose stone; stretch, hollow; lid; fruit, branch) | `actions.rs` (`payoff_alike`, `payoff_words`) | now |
+| New words | `press`, `press on` (= push); `lever`, `prise up`, `lever up` (= pry). Pushing, pulling or pressing a thing with nothing to find: `try.nothing` | `verbs.toml`, `lib.rs` | now |
+| Spell signs | A sign naming a kind of thing (a statue, a jar) only where one is here; a door's only where there are ways | `noticing.rs` (`spell_signs`) | now |
+| The sweep | Names said in passing are no news; a look with nothing left is skipped while things remain; alike things are gone over together (`sweep.alike`) | `senses.rs` (`sweep`) | content |
+| Suggestions | smell after smoke, a plant or a smell; listen after a creature, an animal sign or a sound; shout after a silence or a creature in sight | `suggest.rs` | now |
+| Small works | Up to two in the start town: a lever and a winch that open a dead-end room, in a building of 3–39 rooms, so a mason can make a building sound near the start | `crates/sim/src/fixtures.rs` (`place_works`) | now |
+| Android chains | One bubble per step, under its own command | `AppModel.kt` | now |

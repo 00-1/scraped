@@ -151,6 +151,31 @@ pub fn payoffs(site: &Site) -> Vec<Payoff> {
 
 impl Game {
     /// The undone payoff on a thing, if any.
+    /// A thing alike to this one, here, with a payoff still to find, or
+    /// this one (S08: of three carvings, "lift stone" tried the wrong one).
+    pub(crate) fn payoff_alike(&self, t: usize) -> usize {
+        if self.payoff_on(t).is_some() {
+            return t;
+        }
+        let kind = self.thing(t).kind;
+        self.here()
+            .into_iter()
+            .find(|&o| self.thing(o).kind == kind && self.payoff_on(o).is_some())
+            .unwrap_or(t)
+    }
+
+    /// Words a payoff's part can be named by, from its cue (S08: "the
+    /// proud stone").
+    pub(crate) fn payoff_words(&self, t: usize) -> &'static [&'static str] {
+        match self.payoff_on(t).map(|p| p.kind) {
+            Some("loose_stone") => &["stone", "proud stone", "loose stone"],
+            Some("hollow_wall") => &["stretch", "hollow"],
+            Some("jammed_lid") => &["lid"],
+            Some("fruit_tree") => &["fruit", "branch"],
+            _ => &[],
+        }
+    }
+
     fn payoff_on(&self, t: usize) -> Option<Payoff> {
         self.payoffs
             .iter()
@@ -202,11 +227,22 @@ impl Game {
             .filter(|c| matches!(c.target, Target::Thing(_)))
             .collect();
         match resolve(words, &cands, self.state.it.as_ref()) {
-            Resolution::One(Target::Thing(t)) => Some(t),
-            Resolution::Many(ts) => ts.into_iter().find_map(|t| match t {
-                Target::Thing(t) => Some(t),
-                _ => None,
-            }),
+            Resolution::One(Target::Thing(t)) => Some(self.payoff_alike(t)),
+            // Alike things: the one with something to find first (S08).
+            Resolution::Many(ts) => {
+                let things: Vec<usize> = ts
+                    .into_iter()
+                    .filter_map(|t| match t {
+                        Target::Thing(t) => Some(t),
+                        _ => None,
+                    })
+                    .collect();
+                things
+                    .iter()
+                    .copied()
+                    .find(|&t| self.payoff_on(t).is_some())
+                    .or(things.first().copied())
+            }
             _ => None,
         }
     }
@@ -435,7 +471,7 @@ pub fn slots() -> Vec<SlotDef> {
             .var("tool", VarType::Text, "For a lid: what worked it loose; else empty.")
             .max_len(220)
             .sampler(s_found),
-        SlotDef::new("payoff.stuck", "A jammed lid that won't give by hand (S07 §7): it wants something thin and strong under it. Never name the tool outright.")
+        SlotDef::new("payoff.stuck", "A jammed lid that won't give by hand (S07 §7): it wants something thin and strong under it. Say what kind of thing would help (S08: something to lever it), never the tool by name.")
             .var("kind", kinds_enum(), "Which kind.")
             .var("thing", VarType::Text, "The thing.")
             .sampler(s_cue),
@@ -454,8 +490,8 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("break.no", "The player tries to break something (S07 §5): it doesn't break, or they think better of it. In the world, never 'you can't'.")
             .var("thing", VarType::Text, "What they tried to break.")
             .sampler(|_| vec![ctx(&[("thing", Value::from("stair"))])]),
-        SlotDef::new("try.nothing", "The player knocks on, shakes or lifts something with nothing to find (S07 §5).")
-            .var("verb", VarType::Enum { values: vec!["knock".into(), "shake".into(), "lift".into()] }, "What they did.")
+        SlotDef::new("try.nothing", "The player knocks on, shakes, lifts, pushes, pulls, presses or prises something with nothing to find (S07 §5, S08).")
+            .var("verb", VarType::Enum { values: ["knock", "shake", "lift", "push", "pull", "press", "pry", "turn"].iter().map(|v| v.to_string()).collect() }, "What they did (S08: also push, pull, press, pry or turn).")
             .var("thing", VarType::Text, "To what.")
             .sampler(|_| vec![ctx(&[("verb", Value::from("knock")), ("thing", Value::from("wall"))])]),
     ]

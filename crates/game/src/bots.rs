@@ -1246,7 +1246,15 @@ impl DepthBot {
         }
         // A roof without a fire doesn't warm: by day, cold and with no
         // wood, out to gather some rather than wait the cold out.
-        if !outside && self.sheltering && !evening && cold && !has("wood") && has("firesteel") {
+        // Once in a while (S08: in and out of a cold house for hours).
+        if !outside
+            && self.sheltering
+            && !evening
+            && cold
+            && !has("wood")
+            && has("firesteel")
+            && self.worth(g, s, "out for wood")
+        {
             self.sheltering = false;
         }
         if !outside && self.sheltering && !evening {

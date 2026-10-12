@@ -590,11 +590,16 @@ impl Game {
             ("biome", Value::from(self.site.biome_at(self.state.pos))),
         ]);
         let whole = Fact::new("place.whole", key.clone(), 70.0, vars);
-        out.push(if response == Response::Look {
-            whole.anchored()
-        } else {
-            whole
-        });
+        // Arriving, the town comes first, recognised if met before (S08:
+        // a return home was told as open land).
+        let arriving = matches!(response, Response::Arrival | Response::Travel);
+        out.push(
+            if response == Response::Look || (arriving && town.is_some()) {
+                whole.anchored()
+            } else {
+                whole
+            },
+        );
         // Standouts: tall, alone of their kind, or unlike the rest.
         let here_district = self.district_here().map(|(_, d)| d);
         let w = &self.site.world;

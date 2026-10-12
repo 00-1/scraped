@@ -267,7 +267,7 @@ object = "optional"
 
 [[verb]]
 id = "operate"
-words = ["pull", "push", "operate", "work", "turn", "raise", "lower", "crank"]
+words = ["pull", "push", "press", "press on", "operate", "work", "turn", "raise", "lower", "crank"]
 object = "required"
 
 [[verb]]
@@ -287,7 +287,7 @@ object = "required"
 
 [[verb]]
 id = "pry"
-words = ["pry", "prise", "force", "pry open", "force open", "lever open"]
+words = ["pry", "prise", "force", "pry open", "force open", "lever open", "lever", "prise up", "lever up"]
 object = "required"
 
 [[verb]]

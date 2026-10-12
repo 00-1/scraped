@@ -482,10 +482,21 @@ impl Game {
             }
         };
         let mut plan: Vec<String> = vec!["look".into()];
+        // Alike things are gone over together (S08): one examined, the
+        // others said to be the same.
+        let mut groups: Vec<(String, Vec<usize>)> = Vec::new();
         for t in self.here() {
-            if !self.state.examined.contains(&t) {
-                plan.push(format!("examine #{t}")); // DEBUG-TEXT: an internal step
+            if self.state.examined.contains(&t) {
+                continue;
             }
+            let name = self.thing_name(t);
+            match groups.iter_mut().find(|(n, _)| *n == name) {
+                Some((_, ts)) => ts.push(t),
+                None => groups.push((name, vec![t])),
+            }
+        }
+        for (_, ts) in &groups {
+            plan.push(format!("examine #{}", ts[0])); // DEBUG-TEXT: an internal step
         }
         let mut senses = vec![
             ("listen", "sounds"),
@@ -507,21 +518,45 @@ impl Game {
             }
             self.state.swept.insert(key);
             let mark = self.renders.len();
-            let o = match step.strip_prefix("examine #") {
+            let mut o = match step.strip_prefix("examine #") {
                 Some(t) => {
                     let t: usize = t.parse().unwrap_or(0);
-                    self.act("examine", Target::Thing(t))
+                    let mut o = self.act("examine", Target::Thing(t));
+                    let alike = groups
+                        .iter()
+                        .find(|(_, ts)| ts[0] == t)
+                        .map(|(_, ts)| ts[1..].to_vec())
+                        .unwrap_or_default();
+                    if !alike.is_empty() {
+                        self.state.examined.extend(alike.iter().copied());
+                        let kind = self.thing(t).kind.replace('_', " ");
+                        let n = self.say(
+                            "sweep.alike",
+                            ctx(&[
+                                ("kind", Value::from(kind)),
+                                ("others", Value::Number(alike.len() as i64)),
+                            ]),
+                        );
+                        self.append_inline(&mut o, n);
+                    }
+                    o
                 }
                 None => self.command(crate::parser::parse(&step).expect("a known step")),
             };
+            // Names said in passing are no news; "nothing more" isn't said
+            // while things are still to be gone over (S08).
             let quiet = self.renders[mark.min(self.renders.len())..]
                 .iter()
                 .all(|r| {
                     matches!(
                         r.trace.slot.as_str(),
                         "look.done" | "sense.silence" | "sense.no_smell"
-                    )
+                    ) || r.trace.slot.ends_with(".name")
+                        || matches!(r.trace.slot.as_str(), "place.structure" | "place.exit")
                 });
+            if quiet && step == "look" {
+                o.text.clear();
+            }
             if !o.text.trim().is_empty() {
                 parts.push(o.text);
             }

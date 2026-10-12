@@ -93,19 +93,13 @@ pub const TABLE: &[Suggestion] = &[
         "listen",
         "listen",
         "sounds",
-        &[
-            "room.whole",
-            "place.whole",
-            "creature.",
-            "life.sign",
-            "spell.cue",
-        ],
+        &["creature.", "life.sign", "sense.sound"],
     ),
     s(
         "smell",
         "smell",
         "smells",
-        &["fire.near", "air.", "life.plant", "spell.cue"],
+        &["fire.near", "life.plant", "sense.smell"],
     ),
     s(
         "touch",
@@ -279,7 +273,13 @@ pub const TABLE: &[Suggestion] = &[
             "payoff.stuck",
         ],
     ),
-    s("shout", "shout", "sounds", &["room.whole", "place.whole"]),
+    // From something perceived (S08: "You could smell." out of nowhere).
+    s(
+        "shout",
+        "shout",
+        "sounds",
+        &["sense.silence", "creature.sighted"],
+    ),
     s("cross", "cross", "land", &["travel.blocked", "land.edge"]),
     s(
         "status",

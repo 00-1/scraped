@@ -214,12 +214,30 @@ impl Game {
             }
         };
         let mut seen: Vec<(Class, &str)> = Vec::new();
+        // What can be perceived here (S08: "the statue sounds wrong" in a
+        // room with no statue).
+        let kinds: Vec<&str> = self
+            .here()
+            .into_iter()
+            .map(|t| self.thing(t).kind)
+            .collect();
+        let ways = inside && !self.ways().is_empty();
         for c in &self.claims {
             if c.class == Class::Person
                 || c.class.indoors() != inside
                 || c.pos.dist(at) > c.range
                 || !c.acts(&env.when)
             {
+                continue;
+            }
+            // A kind of thing (a statue, a jar) is named only if one is here.
+            let thing_kind = crate::slots::kinds().contains(&c.subject.as_str());
+            let present = match c.class {
+                Class::Passage => ways,
+                _ if thing_kind || c.class == Class::Thing => kinds.contains(&c.subject.as_str()),
+                _ => true,
+            };
+            if !present {
                 continue;
             }
             let q = c.property.name();

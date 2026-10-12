@@ -1556,6 +1556,11 @@ pub fn slots() -> Vec<SlotDef> {
             .sampler(s_named),
         SlotDef::new("say.outside_already", "The player tries to go out while already outside.").sampler(s_none),
         SlotDef::new("sweep.done", "The player searches a place they have already gone over completely (S07): nothing more to find by the obvious ways.").sampler(s_none),
+        SlotDef::new("sweep.alike", "Searching, the player looked at one of several alike things here (S08): the others are the same, so they were gone over together.")
+            .var("kind", VarType::Text, "The kind of thing ('carving').")
+            .var("others", VarType::Number, "How many others are alike.")
+            .max_len(120)
+            .sampler(|_| vec![ctx(&[("kind", Value::from("carving")), ("others", Value::Number(2))])]),
         SlotDef::new("chain.stopped", "A chain of commands stopped part way because something happened (S07); say where it stopped and what was not done.")
             .var("rest", VarType::Text, "The commands not done, as typed.")
             .sampler(|_| vec![ctx(&[("rest", Value::from("examine the basin, read the map"))])]),
@@ -2055,7 +2060,9 @@ pub fn slots() -> Vec<SlotDef> {
             .max_len(400)
             .sampler(s_scale),
         SlotDef::new("scrape.too_weak", "The scraper the player carries is not strong enough for this writing: it skids and won't bite.").var("thing", VarType::Text, thing).sampler(s_named),
-        SlotDef::new("travel.back_none", "The player asks to go back, but hasn't travelled anywhere yet.").sampler(s_none),
+        SlotDef::new("travel.back_none", "The player asks to go back, but there is nowhere further back: they haven't travelled anywhere yet, or (S08, travelled) they are already back where their journeys began.")
+            .var("travelled", VarType::Bool, "They have travelled, and are back where they set out from.")
+            .sampler(|_| vec![ctx(&[("travelled", Value::Bool(false))]), ctx(&[("travelled", Value::Bool(true))])]),
         SlotDef::new("say.loaded", "A saved game was loaded.").sampler(s_none),
         SlotDef::new("manual.page", "The manual (the 'manual' command): how to play, one page (S06). How to talk to the game (a few words: a verb and a thing), going places and going back, saving. Nothing about what the world holds, reading, writing or what is to be found.")
             .min_variants(1)

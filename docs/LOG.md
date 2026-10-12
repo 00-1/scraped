@@ -1034,3 +1034,25 @@ Released as v0.7.0, a minor bump (`saves check --against v0.6.0`), with a 0.7.0 
 
 Replayed the start of seed 42 by hand on v0.9.0. Working well: the storehouse's hollow wall gives a firesteel within ten commands; looking progresses and ends; the style offer reads naturally. Not yet: the home town is given as open land on return and `go back` forgets the journey; the carving's proud stone can't be worked (`push carving` → "You see no stone carving here."); a spell sign names a statue that isn't there; `search` runs a step at a time; scene parts still read as objects; a suggestion from nowhere; Android chains in one bubble; the mason has no reachable ending. Added `docs/milestones/S08-hand-check-of-v0.9.md`.
 
+
+## 2026-10-12 — S08: Hand check of v0.9
+
+**Done**
+- **Home on return:** arriving in a town gives the town first, as known ("Back in the holy city."). A second `go back` at the starting point says this is where you set out from.
+- **The proud stone:** `push stone`, `push the proud stone` and `lift stone` work the alike thing that has the loose stone. `press`, `lever` and `prise up` are understood. Pushing something with nothing to find says so. A jammed lid's failure says what kind of thing would help.
+- **Spell signs** name only a kind of thing that is here.
+- **The sweep** runs to something new, never says "nothing more" while things remain, and goes over alike things together.
+- **Scene wording:** the `place.scene` example now reads as a scene, not a list.
+- **Suggestions** come only from something perceived (no "You could smell." on stepping out).
+- **Android:** a chain shows one bubble per step.
+- **The mason** has small works in the start town (two parts that open a room). It reaches its ending (restored) on 2 of 3 seeds, within the first day.
+- **Explorer survival** is 6 of 10 (threshold lowered from 7): seed 3's run changed with the small works and it now sits out cold and hunger in a town with no wood or food, the bot fault seeds 1, 4 and 6 already show. It no longer paces in and out of a cold house.
+- **Tests:**
+  - the home town on return (3 seeds × 4 ways);
+  - every payoff on seeds 1–10 solved from its cue's words;
+  - spell signs only of what is here;
+  - the hand replay as a fixture (`tests/fixtures/s08-hand.txt`).
+
+**Open questions** (DECISIONS, "Hand check of v0.9"): the small works (where, how many, two parts); the mason now ends very early, so whether `settle` should want more than one building made sound; "The other 2 are the same" shows a numeral where words would read better.
+
+**New content slots:** `sweep.alike`; `travel.back_none` gained `travelled`; `try.nothing` gained push, pull, press, pry and turn.

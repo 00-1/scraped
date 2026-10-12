@@ -394,7 +394,7 @@ impl Fixtures {
             }
         }
         f.place_sluices(w, land);
-        f.place_works(w, land);
+        f.place_works(w, land, start);
         f.place_creatures(w, land, start);
         f.ensure_basics(w, land, start);
         f
@@ -838,7 +838,7 @@ impl Fixtures {
     // DESIGN-Q: works in up to three great buildings a world (water works
     // in cisterns and palaces, weight works elsewhere), four or five
     // parts; a calendar door in up to two temples.
-    fn place_works(&mut self, w: &World, land: &Land) {
+    fn place_works(&mut self, w: &World, land: &Land, start: usize) {
         let seed = w.seed ^ 0x3077;
         let dead_end = |st: &scraped_world::structures::Structure, skip: &BTreeSet<usize>| {
             // A room with one way in, holding no writing.
@@ -922,6 +922,62 @@ impl Fixtures {
                 steps,
                 seal,
             });
+        }
+        // Small works in the start town (S08): two parts that open a
+        // room, so a mason can make a building sound near the start.
+        // DESIGN-Q: up to two, a lever and a winch, in buildings of three
+        // to thirty-nine rooms.
+        let mut small = 0;
+        for st in w
+            .structures
+            .iter()
+            .filter(|st| st.settlement == Some(start))
+        {
+            if small >= 2 {
+                break;
+            }
+            let si = st.id;
+            if st.condition >= Condition::Ruined
+                || st.interior.rooms.len() < 3
+                || st.interior.rooms.len() >= 40
+                || matches!(st.kind, StructureKind::Archive | StructureKind::Library)
+                || self.works.iter().any(|k| k.structure == si)
+            {
+                continue;
+            }
+            let order = self.reachable_rooms(w, si);
+            let Some((room, seal)) = dead_end(st, &BTreeSet::new()) else {
+                continue;
+            };
+            let at: Vec<usize> = order.iter().copied().filter(|&r| r != room).collect();
+            if at.len() < 2 || seal == 0 {
+                continue;
+            }
+            let pos = land.structure_pos[si];
+            let mut steps = Vec::new();
+            for (k, part) in [MechKind::GearLever, MechKind::Winch]
+                .into_iter()
+                .enumerate()
+            {
+                steps.push(self.mechanisms.len());
+                self.mechanisms.push(Mechanism {
+                    kind: part,
+                    at: Spot::Room {
+                        structure: si,
+                        room: at[if k == 0 { 0 } else { at.len() - 1 }],
+                    },
+                    pos,
+                    works: true,
+                    controls: Some(self.works.len()),
+                });
+            }
+            self.works.push(Works {
+                structure: si,
+                family: "weight",
+                steps,
+                seal,
+            });
+            small += 1;
         }
         for st in w
             .structures

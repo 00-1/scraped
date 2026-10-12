@@ -62,7 +62,7 @@ example = true
 
 [[variant]]
 slot = "travel.back_none"
-text = "You haven't come from anywhere yet."
+text = "[if travelled]This is where you set out from.[else]You haven't come from anywhere yet.[end]"
 example = true
 
 [[variant]]

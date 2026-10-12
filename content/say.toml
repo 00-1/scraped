@@ -214,3 +214,8 @@ example = true
 slot = "say.no_beyond"
 text = "The land goes on."
 example = true
+
+[[variant]]
+slot = "sweep.alike"
+text = "[if others == 1]The other {kind} is the same.[else]The other {others} are the same.[end]"
+example = true
