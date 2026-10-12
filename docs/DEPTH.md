@@ -415,6 +415,7 @@ Not met: the mason's large payoffs and ending, and the first hour for the forage
 | S07 | [From the second playtest](milestones/S07-from-the-second-playtest.md) | After D13: looking as a progression, say it once and recognise on return, chains and a sweep, pieces of writing studied separately, obvious next steps, and the playtest's bugs |
 | D14 | [Finding your way](milestones/D14-finding-your-way.md) | Stable outdoor places recognised on return, heading to what's in view, travel by landmark and path, drift only for reasons, `go back` that retraces |
 | D15 | [Ways of playing](milestones/D15-ways-of-playing.md) | Each play style gets its own arc: small payoffs, growing mastery, large payoffs and an ending, with several arcs that never need writing |
+| S08 | [Hand check of v0.9](milestones/S08-hand-check-of-v0.9.md) | Towns recognised on return, payoff parts that can be worked, spell signs only of what's there, a sweep that runs, scene wording, the mason's ending |
 | X01 | [Record-keeping extension](milestones/X01-record-keeping-extension.md) | Not scheduled; waits for Jb. An optional companion that records from the player's text only, with text markup clients can show or hide |
 
 Order of priority is deliberate: first the instruments and quiet text (D01–D02), so every later addition is measured and adds to what can be found rather than to what is read; then the world, outside and in (D03–D06); then what it says (D07–D08); then the magic and how it's discovered (D09–D10); then the late-game payoff (D11).

@@ -1029,3 +1029,8 @@ Released as v0.7.0, a minor bump (`saves check --against v0.6.0`), with a 0.7.0 
 **Open questions** (DECISIONS): the steps and which are large, the endings and the one verb for both, the companion, the bots' plans (the wayfarer knows the rim's way), the mason's reachable large payoffs (works are only in great buildings), whether a store of six is enough.
 
 **New content slots:** `arc.step`, `settle.not_yet`, `feed.animal`, `feed.no_animal`, `feed.no_food`, `companion.warns`, `end.settled`, `end.restored`, `end.arc`, `travel.no_further`.
+
+## 2026-10-12 — S08 added (review)
+
+Replayed the start of seed 42 by hand on v0.9.0. Working well: the storehouse's hollow wall gives a firesteel within ten commands; looking progresses and ends; the style offer reads naturally. Not yet: the home town is given as open land on return and `go back` forgets the journey; the carving's proud stone can't be worked (`push carving` → "You see no stone carving here."); a spell sign names a statue that isn't there; `search` runs a step at a time; scene parts still read as objects; a suggestion from nowhere; Android chains in one bubble; the mason has no reachable ending. Added `docs/milestones/S08-hand-check-of-v0.9.md`.
+
