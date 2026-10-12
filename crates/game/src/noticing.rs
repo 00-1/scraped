@@ -154,6 +154,11 @@ pub fn category_of(slot: &str, vars: &Context) -> Option<&'static str> {
     {
         return Some("marks");
     }
+    // A small payoff's cue (S07): in its own category.
+    if slot == "payoff.cue" {
+        let c = vars.get("category").map(Value::text).unwrap_or_default();
+        return CATEGORIES.iter().find(|x| **x == c).copied();
+    }
     category_of_slot(slot)
 }
 

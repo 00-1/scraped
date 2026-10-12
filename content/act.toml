@@ -1,0 +1,41 @@
+# Obvious next steps (S07 section 5) and small, quick payoffs (S07 section 7).
+
+[[variant]]
+slot = "payoff.cue"
+text = "[if kind == 'hollow_wall']One stretch of the {thing} sounds different when you brush it.[end][if kind == 'loose_stone']One stone of the {thing} sits proud of the rest.[end][if kind == 'jammed_lid']The lid of the {thing} sits askew.[end][if kind == 'fruit_tree']Fruit hangs heavy on the {thing}.[end]"
+example = true
+
+[[variant]]
+slot = "payoff.found"
+text = "[if kind == 'hollow_wall']A stone in the {thing} rings hollow and comes away.[end][if kind == 'loose_stone']The stone lifts.[end][if kind == 'jammed_lid']The lid gives under the {tool}.[end][if kind == 'fruit_tree']Fruit drops around you.[end] There: {item}."
+example = true
+
+[[variant]]
+slot = "payoff.stuck"
+text = "The lid of the {thing} won't give by hand."
+example = true
+
+[[variant]]
+slot = "put.done"
+text = "You set {thing} down[if on] on the {on}[end].[if altar] Nothing happens.[end]"
+example = true
+
+[[variant]]
+slot = "pray.done"
+text = "[if altar]You kneel before it and pray. Nothing answers.[else]You pray. Nothing answers.[end]"
+example = true
+
+[[variant]]
+slot = "play.done"
+text = "[if instrument]You play the {thing}. The sound carries.[else]The {thing} makes no music.[end]"
+example = true
+
+[[variant]]
+slot = "break.no"
+text = "The {thing} holds. You think better of it."
+example = true
+
+[[variant]]
+slot = "try.nothing"
+text = "You try the {thing}. Nothing comes of it."
+example = true

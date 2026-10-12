@@ -461,3 +461,23 @@ Every design question still waiting for Jb, in one place: each `DESIGN-Q` marker
 | Evidence of spells by category | heat: buildings, land; light: land, things; wetness: land, smells; flow: land, sounds; sound: sounds, life; growth: life, smells; lure and calm: life, sounds; weight and binding: things, buildings; visibility and rising: things, land; keeping: things, smells; openness and stability: buildings, sounds. Noticed only by someone keen (above 1.05) on that category | `evidence_of`, `spell_signs` | content |
 | The world's measures | A "road" of 1200–1800 m (by seed) counted on three milestones nearest the start town's ways in ("city, N roads", nearest towns first); goods weighed in "weight" where the language has the word; daylight in 8, 10 or 12 parts on sundials (6 to 18, needs the sun: outdoors or a court open to the sky, no cloud) and twice that over the whole day on water clocks. Never converted | `crates/sim/src/writing.rs` (`Measures`, `MILESTONES`), `crates/game/src/works.rs` (`examine_clock`) | now |
 | Style bots | The explorer, answering the offer, spending about a quarter of its steps on its own category | `crates/game/src/bots.rs` (`style_step`) | bots |
+
+## From the second playtest (S07)
+
+| Question | Current default | Where | Affects |
+|---|---|---|---|
+| Keen extra (Jb) | A keen category (1.3+) may add one short fact past the budget on arrival and look, after the anchors, never one already said | `crates/game/src/attention.rs` | now |
+| Say it once | Passive noticing (arrivals, looks) doesn't repeat a fact told within half a day unless it changed; an arrival still names the place, in recognition wording; a look with nothing left says so | `RECOGNISED`, `attend` | now |
+| Recognition variables | `seen_before`, `absence` ("", short within half a day, long) and `first_look` on every place and thing slot | `crates/game/src/slots.rs` | content |
+| Known from afar | A town the player has been in is named by its role (`known`, `role` on `land.name`) | `travel.rs` | content |
+| Take stock | Lists things in plain view, ways out and creatures, each time asked | `lib.rs` | now |
+| Chains | Split at "then", "and" and commas; a part with no verb takes the one before; `write` and `name` are never split; stops on a failure, danger, creature, strangeness, the weather or an interrupted journey | `chain_of`, `CHAIN_STOPS` | now |
+| The sweep | `search`: the next looks, then each thing not yet examined, then listen, smell and touch (keenest first), then look closer; stops at the first that says something | `senses.rs` (`sweep`) | now |
+| Studying fully | `read X fully`, `more all`: every remaining page, at most 60 | `lib.rs` | now |
+| Pieces of writing | One piece at a time, the clearest first; "the fainter marks" and "the marks beneath" go down; the first glance lists how the others look (fainter, another hand, cut differently) | `reading.rs`, `Game::piece` | content |
+| Obvious next steps | put/offer, pray, play, unlock (= open with what's carried), break, knock, shake, lift: understood and answered in the world; only the payoffs do anything | `crates/game/src/actions.rs` | now |
+| Small payoffs | Four kinds: a hollow wall (knock, touch), a loose stone (lift, push, pry; also outdoor stones, carvings and wells), a jammed lid (pry or open with a knife, penknife, pry bar or chisel), a fruit tree (shake). One in two buildings, one in three stones in the open; the one nearest the start within 300 m, else the start town's nearest building's first room. Gifts: food, a torch, a knife, oil, rarely a firesteel. Cue as noticeable as a felt strangeness | `actions.rs` (`payoffs`) | now |
+| Suggestions follow what was told | A verb is suggested only from a slot whose variables hold what it needs (water for fish, fill, drink; plants for forage; a sign for a snare; an altar for put and pray; an instrument for play); verbs needing a thing name one here | `suggest.rs` (`perceived`) | now |
+| Following tracks | Leads to the nearest roaming creature within 1.5 km | `travel.rs` (`follow_tracks`) | now |
+| Style bots | Play their style from the first command, once per place, from what the last reply said; the explorer only for the body, the dark, or moving on (never to read, except the scribe) | `bots.rs` (`style_step`) | bots |
+| MCP save | Written to `scraped-saves/<code>-<turn>.save`, the path returned; `load` takes the path. The save is about 137 KB after 370 commands, three quarters the transcript kept for the end record | `crates/play/src/mcp.rs` | now |

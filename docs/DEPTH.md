@@ -318,6 +318,31 @@ Held doors are no longer a cause: every counter word is now met in five readable
 
 Not met after three attempts (weighing by keenness; one keen fact past the budget; marked things and animal signs in passing). Every arrival says its anchors first (the place, what stands out, the ways out), which are buildings and land, so keenness decides only the last one or two facts. And the bots read a spell's own marks in their first hour, while a sign in another category needs a spell acting where they stand. `cargo test --release -p scraped-game --test depth d13 -- --ignored --nocapture` prints the table (`D13_SEEDS` sets the seeds).
 
+### After S07 (seeds 1–10)
+
+D13's style targets, re-measured with Jb's rule (one keen extra fact on arrival and look) and the style bots playing their style from the first command (10 hours):
+
+| Style | Own category's share of unasked facts (explorer) | A spell's sign in its own category before a spell's marks |
+|---|---|---|
+| Wayfarer | 60% (37%) | 7 of 10 |
+| Mason | 57% (58%) | 7 of 10 |
+| Forager | 1% (0%) | 4 of 10 |
+| Scribe | 1% (2%) | 0 of 10 (n/a: a scribe's evidence is the marks) |
+
+The keen-extra rule alone moved nothing; playing the style did. The share target (twice the explorer's) is met by none: buildings are over half of anyone's facts, and living things and marks are rarely among an arrival's candidates.
+
+Small payoffs (S07 §7), 6 hours, after three attempts (denser, one near the start, a stronger cue):
+
+| Bot | First within the first hour | Found in 6 hours |
+|---|---|---|
+| Explorer | 4 of 10 | 0–4 |
+| Scribe | 4 of 10 | 1–6 |
+| Forager | 0 of 10 (it forages its first hour; first at about 1.1 h on three seeds) | 0–6 |
+| Mason | 6 of 10 | 1–8 |
+| Wayfarer | 2 of 10 (it leaves town at once; few payoffs in the open) | 0–5 |
+
+Not met: "most seeds within the first hour" and about one an hour. `cargo test --release -p scraped-game --test depth s07 -- --ignored --nocapture` prints them (`D13_SEEDS` sets the seeds).
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
@@ -358,6 +383,7 @@ Not met after three attempts (weighing by keenness; one keen fact past the budge
 | S05 | [Reading in play](milestones/S05-reading-in-play.md) | After S04: checks on the player build's real text, related signs that can be found, text length that fits its surface, short texts met first |
 | S06 | [What the game shows](milestones/S06-what-the-game-shows.md) | From Jb's first playtest: nothing in the JSON beyond the text, no statement of what the game is about, help and manual, marks in three steps, no modern units, cues that can be followed up |
 | D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what is noticed unasked, suggested verbs, signs of spells in every kind of noticing, the world's own measures |
+| S07 | [From the second playtest](milestones/S07-from-the-second-playtest.md) | Looking as a progression, say it once, take stock, recognition; chains, all, the sweep, studying fully; pieces of writing apart; obvious next steps; small payoffs; the playtest's bugs |
 | D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what the character notices unasked; verbs suggested by situations; evidence of old spells in every category |
 | S07 | [From the second playtest](milestones/S07-from-the-second-playtest.md) | After D13: looking as a progression, say it once and recognise on return, chains and a sweep, pieces of writing studied separately, obvious next steps, and the playtest's bugs |
 | D14 | [Finding your way](milestones/D14-finding-your-way.md) | Stable outdoor places recognised on return, heading to what's in view, travel by landmark and path, drift only for reasons, `go back` that retraces |

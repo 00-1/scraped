@@ -953,3 +953,35 @@ Wayfinding needs its own pass (Jb): confusing until mastered, not confusing from
 **New content slots:** `style.offer` (may be empty), `style.chosen`, `notice.sharpened` (may be empty), `suggest.verb`, `spell.sign`, `clock.sundial`, `clock.water`; `room.thing` and `place.thing` gained `marked`.
 
 Released as v0.7.0, a minor bump (`saves check --against v0.6.0`), with a 0.7.0 corpus save.
+
+## 2026-10-12 — D13 follow-ups and S07 done
+
+**D13, after Jb's answers:**
+- **Keenness says a little more:** one short keen fact past the budget, on arrival and look, after the anchors, never one already said.
+- **Style bots** play their style from the first command. Re-measured on 10 seeds (DEPTH): the wayfarer's share of land facts rises to 60% (37%), and the wayfarer and mason meet a spell's sign in their own category first on 7 of 10. The share target is still not met.
+- **Suggestions follow from something already told**, e.g. no "fish" unless water was mentioned.
+
+**S07, from the second playtest:**
+- **Looking:** a progression that never repeats within a visit and says when nothing is left. Passive noticing says each fact once; places and things carry recognition variables. `take stock`. Known towns are named as met.
+- **Groups and chains:** `all` for every verb, chains with one part per step (`steps` in the JSON, text only), stopping when something happens. `search` sweeps a place. `read X fully` gives every page.
+- **Pieces of writing** on one thing are studied one at a time, with no separator. The first glance says how the others look.
+- **Obvious next steps:** put/offer, pray, play, unlock, break, knock, shake, lift, answered in the world. Suggestion rows for each.
+- **Small payoffs:** a hollow wall, a loose stone, a jammed lid, a fruit tree, each with a cue in its category, one near the start. Targets not met after three attempts (DEPTH): the bots find their first within the first hour on 0–6 of 10 seeds.
+- **The playtest's bugs:**
+  - `go back` retraces your path and cuts out loops.
+  - Exit names no longer carry their state in brackets.
+  - `look in`, `examine marks` and `enter <district>` work.
+  - Scene parts answer as part of their scene.
+  - Like items stack.
+  - Body messages arrive on the turn that causes them.
+  - A cue's follow-up folds into one reply.
+  - Travel reports say how far, not how long.
+  - Heading a way stops at what it reaches.
+  - Directions come under "go" in `help`.
+  - The MCP `save` writes a file and returns its path.
+- **Fixture:** the second playtest replays from its save (`tests/fixtures/s07-playtest.txt`).
+- **Also new:** `follow tracks`.
+
+**Open questions:** "From the second playtest (S07)" in DECISIONS. Which of the obvious verbs should do something beyond the answer (Jb). Which payoff kinds to add (the rest of S07's list). Whether the end record should keep the full transcript (most of the save's size). The Android app shows a chain as one bubble.
+
+**New content slots:** `look.done`, `say.stock`, `say.not_enterable`, `scene.part`, `chain.stopped`, `sweep.done`, `life.no_tracks`, `read.no_piece`, `payoff.cue`, `payoff.found`, `payoff.stuck`, `put.done`, `pray.done`, `play.done`, `break.no`, `try.nothing`. New variables: `seen_before`, `absence` and `first_look` on place and thing slots; `pieces`, `piece` and `others` on `read.whole`; `known` and `role` on `land.name`; `thing` on `suggest.verb`; `marked` on `room.thing` and `place.thing`.

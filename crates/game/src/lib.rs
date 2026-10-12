@@ -7,6 +7,7 @@
 //! prose.
 
 pub use scraped_sim::outdoors;
+pub mod actions;
 pub mod attention;
 #[cfg(test)]
 mod attention_tests;
@@ -308,6 +309,9 @@ pub struct State {
     /// are called signs once there are enough.
     #[serde(default)]
     pub studied: BTreeSet<usize>,
+    /// Small payoffs found (S07 §7), by thing.
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub payoffs_done: BTreeSet<usize>,
     /// Things examined (S07): the sweep skips them.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub examined: BTreeSet<usize>,
@@ -623,6 +627,8 @@ pub struct Game {
     interrupted: bool,
     /// Claims of live writing, recomputed whenever something is scraped.
     claims: Vec<Claim>,
+    /// The world's small payoffs (S07 §7), from its things.
+    pub(crate) payoffs: Vec<actions::Payoff>,
     /// Texts the player has written, rebuilt from the state.
     player_texts: Vec<scraped_world::texts::Text>,
     /// How many texts a root must be met in before it can be written.
@@ -764,6 +770,7 @@ impl Game {
             pieces: BTreeMap::new(),
             swept: BTreeSet::new(),
             examined: BTreeSet::new(),
+            payoffs_done: BTreeSet::new(),
             noticing: Default::default(),
             suggested: BTreeMap::new(),
             cues: Vec::new(),
@@ -817,6 +824,7 @@ impl Game {
             extra: Vec::new(),
             notes: Vec::new(),
             interrupted: false,
+            payoffs: Vec::new(),
             claims,
             player_texts: Vec::new(),
             threshold: composing::THRESHOLD,
@@ -845,6 +853,7 @@ impl Game {
             created: String::new(),
         };
         g.storylets = g.pack.storylets().cloned().collect();
+        g.payoffs = actions::payoffs(&g.site);
         g.recompute_drivers();
         g.initial_drivers = g.drivers.clone();
         g.site.regions.initial = g.site.regions.settle(&g.drivers, 720);
@@ -1977,6 +1986,10 @@ impl Game {
                 self.output(vec![t], None)
             }
             "sweep" => self.sweep(),
+            "put" | "pray" | "play" | "unlock" | "break" | "knock" | "shake" | "lift" => {
+                let verb = cmd.verb.clone();
+                self.obvious(&verb, &cmd.words)
+            }
             // What is in plain view here, briefly, at any time (S07).
             "take_stock" => {
                 self.pass(1);
@@ -2527,7 +2540,13 @@ impl Game {
         self.output(parts, None)
     }
 
-    fn act(&mut self, verb: &str, target: Target) -> Output {
+    pub(crate) fn act(&mut self, verb: &str, target: Target) -> Output {
+        // A small payoff, if the verb fits it (S07 §7).
+        if let Target::Thing(t) = target {
+            if let Some(o) = self.try_payoff(verb, t) {
+                return o;
+            }
+        }
         // What has been examined, for the sweep to skip (S07).
         if let ("examine", Target::Thing(t)) = (verb, target) {
             self.state.examined.insert(t);

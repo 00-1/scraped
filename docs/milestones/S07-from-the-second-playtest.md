@@ -120,11 +120,11 @@ Jb (2026-10-11): two playtests, hundreds of moves, and no payoff yet. The bigger
 
 ## Checklist
 
-- [ ] Looking as a progression; never loops
-- [ ] Say it once; take stock; recognition; places known from afar; cue said once
-- [ ] Groups, chains, the sweep, studying fully
-- [ ] Pieces of writing studied separately
-- [ ] Obvious next steps added to D13's table; verbs understood with in-world answers
-- [ ] Small, quick payoffs scattered around; cues by category; targets measured
-- [ ] Playtest bugs (go back, site summaries, bracketed names, parser, stacking, late body messages, touch, travel wording, overshoot, help, MCP save size)
-- [ ] Fixture; release; HANDOFF; LOG
+- [x] Looking as a progression; never loops
+- [x] Say it once; take stock; recognition; places known from afar; cue said once
+- [x] Groups, chains, the sweep, studying fully
+- [x] Pieces of writing studied separately
+- [x] Obvious next steps added to D13's table; verbs understood with in-world answers
+- [x] Small, quick payoffs scattered around; cues by category; targets measured
+- [x] Playtest bugs (go back, site summaries, bracketed names, parser, stacking, late body messages, touch, travel wording, overshoot, help, MCP save size)
+- [x] Fixture; release; HANDOFF; LOG

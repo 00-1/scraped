@@ -840,6 +840,7 @@ impl Game {
     /// strangeness.
     pub(crate) fn felt_facts(&mut self, out: &mut Vec<Fact>) {
         self.keen_sense_facts(out);
+        self.payoff_facts(out);
         let spot = self.spot();
         let local = self
             .env()

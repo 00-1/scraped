@@ -2507,6 +2507,8 @@ pub struct BotRun {
     pub first_sign: BTreeMap<String, f64>,
     /// D13: the first time a spell's own marks were read, by hour.
     pub first_marks: Option<f64>,
+    /// S07: when each small payoff was found, by hour.
+    pub payoffs: Vec<f64>,
 }
 
 /// The style bots (D13): the explorer, with a style chosen at the start,
@@ -2796,6 +2798,7 @@ pub fn play_with(
         unasked: BTreeMap::new(),
         first_sign: BTreeMap::new(),
         first_marks: None,
+        payoffs: Vec::new(),
     };
     // A style bot answers the offer first (D13); the others say nothing to
     // it and simply play.
@@ -2942,6 +2945,23 @@ pub fn play_with(
                 if let Some(c) = crate::noticing::category_of(slot, &r.vars) {
                     *run.unasked.entry(c.to_string()).or_default() += 1;
                 }
+            }
+        }
+        // S07: small payoffs found, and a cue for one followed up next.
+        for r in &g.renders[taken.min(g.renders.len())..] {
+            match r.trace.slot.as_str() {
+                "payoff.found" => run.payoffs.push(hour_now),
+                "payoff.cue" if extra.is_none() => {
+                    let v = |k: &str| r.vars.get(k).map(Value::text).unwrap_or_default();
+                    let verb = match v("kind").as_str() {
+                        "hollow_wall" => "knock on",
+                        "loose_stone" => "lift",
+                        "jammed_lid" => "pry",
+                        _ => "shake",
+                    };
+                    extra = Some(format!("{verb} the {}", v("thing")));
+                }
+                _ => {}
             }
         }
         if run.first_marks.is_none()

@@ -345,3 +345,44 @@ object = "none"
 id = "dig"
 words = ["dig", "dig here", "excavate", "dig up"]
 object = "optional"
+
+# S07: obvious next steps, answered in the world.
+[[verb]]
+id = "put"
+words = ["put", "place", "offer", "lay"]
+object = "required"
+
+[[verb]]
+id = "pray"
+words = ["pray", "kneel", "worship"]
+object = "none"
+
+[[verb]]
+id = "play"
+words = ["play", "blow", "strum", "beat", "ring"]
+object = "required"
+
+[[verb]]
+id = "unlock"
+words = ["unlock", "try the key on", "try key on"]
+object = "required"
+
+[[verb]]
+id = "break"
+words = ["break", "smash", "shatter"]
+object = "required"
+
+[[verb]]
+id = "knock"
+words = ["knock on", "knock", "tap on", "tap", "rap on", "rap"]
+object = "required"
+
+[[verb]]
+id = "shake"
+words = ["shake"]
+object = "required"
+
+[[verb]]
+id = "lift"
+words = ["lift", "heave", "lift up"]
+object = "required"

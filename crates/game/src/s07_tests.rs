@@ -128,3 +128,69 @@ fn pieces_of_writing_are_studied_apart() {
     }
     assert!(found, "no thing with two pieces on seeds 1, 42, 9001");
 }
+
+/// Small payoffs (S07 §7): every world has one near the start, and the
+/// verb that fits it gives something, once.
+#[test]
+fn small_payoffs_give_something() {
+    for seed in [1u64, 42, 9001] {
+        let mut g = Game::new(seed, pack());
+        g.start();
+        g.step("none");
+        let p = g.payoffs.clone();
+        assert!(!p.is_empty(), "seed {seed}: no payoffs");
+        let first = p
+            .iter()
+            .min_by(|a, b| {
+                let d =
+                    |x: &crate::actions::Payoff| g.site.things[x.thing].pos.dist(g.site.start());
+                d(a).partial_cmp(&d(b)).unwrap()
+            })
+            .copied()
+            .unwrap();
+        assert!(
+            g.site.things[first.thing].pos.dist(g.site.start()) <= 2000.0,
+            "seed {seed}: none near the start"
+        );
+        g.state.place = g.site.things[first.thing].home;
+        g.state.pos = g.site.things[first.thing].pos;
+        g.make_item("knife", true);
+        let verb = crate::actions::KINDS
+            .iter()
+            .find(|k| k.0 == first.kind)
+            .unwrap()
+            .2[0];
+        let before = g.state.made.len();
+        let o = g.act(verb, crate::Target::Thing(first.thing));
+        assert!(
+            g.state.payoffs_done.contains(&first.thing),
+            "seed {seed}: {}",
+            o.text
+        );
+        assert!(g.state.made.len() > before);
+        // Once only.
+        let again = g.act(verb, crate::Target::Thing(first.thing)).text;
+        assert_ne!(again, o.text);
+    }
+}
+
+/// Obvious next steps (S07 §5) are understood and answered in the world.
+#[test]
+fn obvious_verbs_are_understood() {
+    let mut g = Game::new(42, pack());
+    g.start();
+    g.step("none");
+    g.step("go worn temple");
+    g.step("take drum");
+    for cmd in [
+        "play drum",
+        "pray",
+        "put drum on stele",
+        "break stele",
+        "unlock door with drum",
+    ] {
+        let t = g.step(cmd).text;
+        assert!(!t.contains("don't know how"), "{cmd}: {t}");
+        assert!(!t.is_empty(), "{cmd}");
+    }
+}

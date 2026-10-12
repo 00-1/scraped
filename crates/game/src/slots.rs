@@ -2090,6 +2090,7 @@ pub fn registry() -> Registry {
     all.extend(crate::quiet_slots::slots());
     all.extend(crate::noticing::slots());
     all.extend(crate::suggest::slots());
+    all.extend(crate::actions::slots());
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());
@@ -2298,6 +2299,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(crate::quiet_slots::slots());
     all.extend(crate::noticing::slots());
     all.extend(crate::suggest::slots());
+    all.extend(crate::actions::slots());
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());

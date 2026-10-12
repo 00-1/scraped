@@ -24,6 +24,34 @@ pub struct Suggestion {
 /// Every verb in the parser, with what suggests it.
 // DESIGN-Q: the situations that suggest each verb.
 pub const TABLE: &[Suggestion] = &[
+    s(
+        "put",
+        "put something on it",
+        "things",
+        &["room.thing", "place.thing"],
+    ),
+    s("pray", "pray", "buildings", &["room.thing", "place.thing"]),
+    s(
+        "play",
+        "play",
+        "sounds",
+        &["say.take", "item.examine", "object.examine"],
+    ),
+    s(
+        "unlock",
+        "unlock",
+        "things",
+        &["object.locked", "say.door_stuck"],
+    ),
+    s(
+        "break",
+        "break",
+        "things",
+        &["object.locked", "payoff.stuck"],
+    ),
+    s("knock", "knock on", "sounds", &["payoff.cue"]),
+    s("shake", "shake", "life", &["payoff.cue"]),
+    s("lift", "lift", "buildings", &["payoff.cue"]),
     s("sweep", "search the place", "things", &["look.done"]),
     s(
         "take_stock",
@@ -244,7 +272,12 @@ pub const TABLE: &[Suggestion] = &[
         "pry",
         "pry",
         "buildings",
-        &["hazard.barred", "say.door_stuck"],
+        &[
+            "hazard.barred",
+            "say.door_stuck",
+            "payoff.cue",
+            "payoff.stuck",
+        ],
     ),
     s("shout", "shout", "sounds", &["room.whole", "place.whole"]),
     s("cross", "cross", "land", &["travel.blocked", "land.edge"]),
@@ -315,6 +348,7 @@ impl Game {
             "fill" => self.carrying_any(&["waterskin", "jar", "pitcher", "bowl", "pot"]),
             "sleep" => self.state.body.fatigue > 960,
             "out" => !matches!(self.state.place, Place::Outside),
+            "put" => !self.state.carried.is_empty(),
             "trace" => self.tracing_tool().is_some(),
             _ => true,
         }
@@ -345,6 +379,16 @@ impl Game {
     /// else the first thing here.
     fn suggest_object(&self, verb: &str) -> Option<String> {
         let here = self.here();
+        // Payoff verbs name the thing with the cue; put needs no name.
+        if verb == "put" {
+            return Some(String::new());
+        }
+        if matches!(verb, "knock" | "shake" | "lift" | "pry") {
+            return here
+                .iter()
+                .find(|&&t| self.payoffs.iter().any(|p| p.thing == t))
+                .map(|&t| self.thing(t).kind.to_string());
+        }
         let pick = match verb {
             "read" | "trace" | "clean" | "more" => {
                 here.iter().find(|&&t| !self.thing(t).texts.is_empty())
@@ -435,6 +479,17 @@ fn perceived(verb: &str, slot: &str, vars: &Context) -> bool {
         "follow" => matches!(slot, "land.edge" | "life.sign"),
         "forage" => matches!(slot, "life.plant" | "forage.found"),
         "snare" => matches!(slot, "life.sign" | "life.home" | "creature.seen"),
+        // S07 §5: an altar seen; an instrument in hand; a cue of its kind.
+        "put" | "pray" => matches!(var("kind").as_str(), "altar" | "shrine" | "statue"),
+        "play" => {
+            let all: String = vars.values().map(Value::text).collect::<Vec<_>>().join(" ");
+            crate::actions::INSTRUMENTS.iter().any(|i| all.contains(i))
+        }
+        "unlock" => slot == "object.locked" || var("cause") == "locked",
+        "knock" => var("kind") == "hollow_wall",
+        "shake" => var("kind") == "fruit_tree",
+        "lift" => var("kind") == "loose_stone",
+        "pry" => !slot.starts_with("payoff.") || var("kind") == "jammed_lid",
         _ => true,
     }
 }

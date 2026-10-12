@@ -414,3 +414,29 @@ fn the_second_playtest_replays_clean() {
         println!("save: {}", serde_json::to_string(&g.save()).unwrap().len());
     }
 }
+
+/// S07 §7: small payoffs found early and often by the explorer and the
+/// style bots. Prints first-payoff times and counts for docs/DEPTH.md.
+#[test]
+#[ignore = "slow; prints the S07 payoff numbers"]
+fn s07_small_payoffs_come_early() {
+    let p = pack();
+    let n: u64 = std::env::var("D13_SEEDS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(3);
+    for kind in ["explorer", "scribe", "forager", "mason", "wayfarer"] {
+        let mut firsts = Vec::new();
+        let mut counts = Vec::new();
+        for seed in 1..=n {
+            let r = play(&p, seed, kind, 6.0, 20_000);
+            firsts.push(r.payoffs.first().copied());
+            counts.push(r.payoffs.len());
+        }
+        let early = firsts
+            .iter()
+            .filter(|f| f.is_some_and(|h| h <= 1.0))
+            .count();
+        println!("{kind}: first payoff within the first hour on {early} of {n}; firsts {firsts:.1?}; found in 6 h {counts:?}");
+    }
+}
