@@ -178,6 +178,52 @@ pub fn samples(args: &[String]) -> Result<String, String> {
     if o.bot.as_deref() == Some("hand") {
         return hand_report(&p, &dir, o.hours.unwrap_or(10.0));
     }
+    // D15: each way of playing over a season on seed 42, condensed to
+    // the commands around each step of its arc, kept well (as measured).
+    if o.bot.as_deref() == Some("arcs") {
+        let mut out = String::new();
+        for style in ["forager", "mason", "wayfarer"] {
+            let r =
+                scraped_game::bots::play_with(&p, 42, style, 2160.0, 60_000, |g| g.sustain = true);
+            let mut md = format!(
+                "# {milestone}: the {style}, seed 42, condensed\n\n{} commands, {:.1} days; ending: {}. The commands around each step of its way, kept well. Example text only; spoiler-free.\n\n", // DEBUG-TEXT
+                r.commands.len(),
+                r.hours / 24.0,
+                r.ending.as_deref().unwrap_or("none") // DEBUG-TEXT
+            );
+            md.push_str(&block(&r.texts[0]));
+            let mut shown: Vec<usize> = Vec::new();
+            for (k, h) in &r.arc_steps {
+                if !k.starts_with(style) {
+                    continue;
+                }
+                if let Some(i) = r.at.iter().position(|a| a >= h) {
+                    shown.extend(i.saturating_sub(2)..=i);
+                }
+            }
+            shown.extend(r.commands.len().saturating_sub(3)..r.commands.len());
+            shown.sort_unstable();
+            shown.dedup();
+            let mut last = 0;
+            for i in shown {
+                if i > last + 1 {
+                    md.push_str("\n…\n"); // DEBUG-TEXT
+                }
+                md.push_str(&format!(
+                    "\n**> {}** (day {:.1})\n\n{}", // DEBUG-TEXT
+                    r.commands[i],
+                    r.at[i] / 24.0,
+                    block(&r.texts[i + 1])
+                ));
+                last = i;
+            }
+            let path = dir.join(format!("{style}-42.md"));
+            std::fs::write(&path, md)
+                .map_err(|e| format!("cannot write {}: {e}", path.display()))?;
+            out.push_str(&format!("wrote {}\n", path.display())); // DEBUG-TEXT
+        }
+        return Ok(out);
+    }
     // D14: a wayfarer out for a day and back on seed 42, clear and fog.
     if o.bot.as_deref() == Some("wayback") {
         let mut out = String::new();

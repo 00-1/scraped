@@ -72,6 +72,8 @@ With nothing to steer by, you are no longer sure of your way.
 
 Road and scrub. The road runs here. Here and there: bare earth.
 
+A small thing, but yours.
+
 You could follow.
 
 > head south
@@ -92,6 +94,8 @@ Scrub. Here and there: cracked mud. You notice blossom.
 You travel north, a long walk.
 
 Here again: scrub. Fog lies close, evening.
+
+A small thing, but yours.
 
 You could look up.
 

@@ -704,24 +704,26 @@ impl Game {
             .env()
             .local(spot, self.state.minutes, self.carried_light());
         let pos = self.state.pos;
-        let mut facts = vec![Fact::new(
-            "sense.ground",
-            "look-down",
-            90.0,
-            ctx(&[
-                ("biome", Value::from(self.site.biome_at(pos))),
-                ("terrain", Value::from(self.site.land.terrain_here(pos))),
-                ("wetness", Value::from(local.wetness)),
-                ("indoors", Value::Bool(self.indoors())),
-            ]),
-        )
-        .anchored()];
+        let ground = ctx(&[
+            ("biome", Value::from(self.site.biome_at(pos))),
+            ("terrain", Value::from(self.site.land.terrain_here(pos))),
+            ("wetness", Value::from(local.wetness)),
+            ("indoors", Value::Bool(self.indoors())),
+        ]);
+        let mut facts =
+            vec![Fact::new("sense.ground", "look-down", 90.0, ground.clone()).anchored()];
         if !self.indoors() {
             let mut evidence = Vec::new();
             self.ground_evidence(&mut evidence);
             facts.extend(evidence);
         }
         let parts = self.attend(facts, Response::Arrival);
+        // Asked, so it answers (D15: told once, a second look down said
+        // nothing): the ground again.
+        if parts.iter().all(|p| p.trim().is_empty()) {
+            let t = self.say("sense.ground", ground);
+            return self.output(vec![crate::attention::sentence(t.trim())], None);
+        }
         self.output(vec![parts.join(" ")], None)
     }
 

@@ -226,10 +226,11 @@ fn the_summary_agrees_with_the_simulation() {
         kinds.sort();
         kinds.dedup();
         let changes = kinds.len();
+        let arcs = g.arcs_moved();
         let parts = g.summary_parts();
         assert_eq!(
             parts.len(),
-            1 + changes.max(1) + g.state.acts.len() + 2,
+            1 + arcs + changes.max(1) + g.state.acts.len() + 2,
             "seed {seed}"
         );
         checked += 1;

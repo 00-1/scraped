@@ -35,3 +35,38 @@ example = true
 slot = "clock.water"
 text = "Water drips from it into a basin marked inside with {of} rings. It stands at ring {part}."
 example = true
+
+[[variant]]
+slot = "arc.step"
+text = "[if large]Something has changed.[else]A small thing, but yours.[end]"
+example = true
+
+[[variant]]
+slot = "settle.not_yet"
+text = "[if reason == 'no_camp']There is nothing here to stay for yet.[else][if reason == 'no_store']Not with so little laid by.[else]Not here, not yet.[end][end]"
+example = true
+
+[[variant]]
+slot = "feed.animal"
+text = "[if takes][if follows]The {kind} takes it from your hand, and stays close.[else]The {kind} snatches it and backs off.[end][else]The {kind} won't come near the food.[end]"
+example = true
+
+[[variant]]
+slot = "feed.no_animal"
+text = "Nothing close enough to feed."
+example = true
+
+[[variant]]
+slot = "feed.no_food"
+text = "You have nothing to give the {kind}."
+example = true
+
+[[variant]]
+slot = "end.arc"
+text = "[if arc == 'forager']Off the land[else][if arc == 'mason']In stone and works[else][if arc == 'wayfarer']On the roads[else]In the marks[end][end][end], you went some way[if large > 0], and made something of it[end]."
+example = true
+
+[[variant]]
+slot = "companion.warns"
+text = "The {kind} at your heel goes stiff and growls."
+example = true

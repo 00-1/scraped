@@ -482,3 +482,81 @@ fn d14_wayfarer_comes_back() {
         }
     }
 }
+
+/// D15: each non-writing style plays a season on its own arc, kept well,
+/// never reading, scraping or writing: its first small payoff, its first
+/// large one, and its ending. Run with `--ignored --nocapture`; `D13_SEEDS`
+/// sets how many seeds (default 3). Also: arcs the explorer advances.
+#[test]
+#[ignore]
+fn d15_ways_of_playing() {
+    let n: u64 = std::env::var("D13_SEEDS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(3);
+    let p = pack();
+    for style in ["forager", "mason", "wayfarer"] {
+        let (mut small, mut large, mut ended) = (0, 0, 0);
+        for seed in 1..=n {
+            // Kept well, as the scholar is: this measures the arcs, not
+            // survival (the explorer's measure).
+            let r = scraped_game::bots::play_with(&p, seed, style, 2160.0, 60_000, |g| {
+                g.sustain = true
+            });
+            let mine: Vec<&(String, f64)> = r
+                .arc_steps
+                .iter()
+                .filter(|(k, _)| k.starts_with(&format!("{style}:")))
+                .collect();
+            let is_large = |k: &str| {
+                scraped_game::arcs::STEPS
+                    .iter()
+                    .any(|(a, s, l)| *l && format!("{a}:{s}") == k)
+            };
+            let first_small = mine
+                .iter()
+                .find(|(k, _)| !is_large(k))
+                .map(|(_, h)| *h)
+                .into_iter()
+                .chain(r.payoffs.first().copied())
+                .fold(f64::INFINITY, f64::min);
+            let first_large = mine.iter().find(|(k, _)| is_large(k)).map(|(_, h)| *h);
+            let writing = r
+                .commands
+                .iter()
+                .filter(|c| {
+                    ["read", "scrape", "write", "clean", "trace"]
+                        .contains(&c.split_whitespace().next().unwrap_or(""))
+                })
+                .count();
+            assert_eq!(writing, 0, "{style} seed {seed} read, scraped or wrote");
+            let own_end = matches!(r.ending.as_deref(), Some("settled" | "restored" | "beyond"));
+            println!(
+                "{style} seed {seed}: first small {:.1} h, first large {}, ending {:?} at day {:.0}, steps {:?}",
+                first_small,
+                first_large.map_or("none".to_string(), |h| format!("day {:.1}", h / 24.0)),
+                r.ending,
+                r.hours / 24.0,
+                mine.iter().map(|(k, _)| k.as_str()).collect::<Vec<_>>()
+            );
+            small += usize::from(first_small <= 1.0);
+            large += usize::from(first_large.is_some_and(|h| h <= 240.0));
+            ended += usize::from(own_end);
+        }
+        println!(
+            "{style}: small in the first hour {small} of {n}; large in ten days {large} of {n}; own ending {ended} of {n}"
+        );
+    }
+    let mut two = 0;
+    for seed in 1..=n {
+        let r = play(&p, seed, "explorer", 72.0, 20_000);
+        let arcs: std::collections::BTreeSet<&str> = r
+            .arc_steps
+            .iter()
+            .map(|(k, _)| k.split(':').next().unwrap_or(""))
+            .filter(|a| *a != "scribe")
+            .collect();
+        two += usize::from(arcs.len() >= 2);
+    }
+    println!("explorer: two arcs or more advanced without writing on {two} of {n}");
+}

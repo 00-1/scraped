@@ -29,6 +29,8 @@ pub const ENDINGS: &[&str] = &[
     "old_age",
     "overtaken",
     "beyond",
+    "settled",
+    "restored",
 ];
 
 /// How near the world's rim a player must stand to go beyond it, metres.
@@ -554,6 +556,8 @@ impl Game {
             ("rim", Value::Bool(rec.rim)),
         ]);
         out.push(self.say("end.summary", c));
+        // Each way of playing the player went along (D15).
+        out.extend(self.arc_summary());
         // Regions that changed alike are told together; the player's doing
         // first.
         let mut groups: Vec<(&Change, Vec<&RegionOutcome>)> = Vec::new();
@@ -635,6 +639,11 @@ impl Game {
 
     /// What the end of a run says to any further command.
     pub(crate) fn ended(&mut self) -> Output {
+        // Just ended: the ending's words, then the summary, once (D15: a
+        // run ended by choice told its summary twice).
+        if !self.summarised {
+            return self.output(Vec::new(), None);
+        }
         let parts = self.summary_parts();
         let truth = self.end_truth();
         self.output(parts, Some(truth))

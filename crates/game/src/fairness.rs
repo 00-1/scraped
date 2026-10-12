@@ -38,6 +38,9 @@ pub const GOALS: &[&str] = &[
     "flame",
     "tracing",
     "cues",
+    "camp",
+    "works",
+    "summit",
 ];
 
 /// Concepts that must be attested in both the oldest and the newest era's
@@ -624,6 +627,39 @@ pub fn check(site: &Site, preset: &str) -> Report {
     }
     causes.dedup();
     goal("cues", causes);
+    // D15: each way of playing can reach its large payoffs. A camp needs
+    // wood, water and a flame near the start; a mason, a building whose
+    // works can be run; a wayfarer, a hill or mountain to climb.
+    // DESIGN-Q: these three goals.
+    goal(
+        "camp",
+        need(
+            clay && wooded && flame,
+            "no wood, water and flame for a camp near the start",
+        )
+        .into_iter()
+        .collect(),
+    );
+    let works = site
+        .fixtures
+        .works
+        .iter()
+        .any(|x| reach.structure(x.structure));
+    goal(
+        "works",
+        need(works, "no building whose works can be reached")
+            .into_iter()
+            .collect(),
+    );
+    let summit = site.land.landmarks.iter().any(|l| {
+        matches!(l.kind, "hill" | "mountain") && site.land.route(w, reach.start, l.pos).is_some()
+    });
+    goal(
+        "summit",
+        need(summit, "no hill or mountain a walker can reach")
+            .into_iter()
+            .collect(),
+    );
     // Ambiguity: roots of the newest era that write the same as another.
     let lang = &w.languages[newest as usize];
     let mut forms: BTreeMap<String, usize> = BTreeMap::new();

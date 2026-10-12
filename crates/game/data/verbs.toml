@@ -319,6 +319,12 @@ words = ["clean", "scrub", "scour", "wipe", "wipe off", "brush off", "clear moss
 object = "required"
 
 # Leaving by the world's rim (D10).
+# Ending a run by staying (D15): at a camp, or in a building made sound.
+[[verb]]
+id = "settle"
+words = ["settle", "settle here", "stay here", "stay for good", "make this home", "make a home here", "live here"]
+object = "none"
+
 [[verb]]
 id = "beyond"
 words = ["go beyond", "walk beyond", "pass beyond", "walk on beyond", "leave this land", "step beyond"]

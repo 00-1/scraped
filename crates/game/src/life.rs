@@ -600,7 +600,9 @@ impl Game {
             .region_ratio(self.state.pos, LIFE)
             .unwrap_or(1000)
             .clamp(0, 1500);
-        let chance = chance * life as u64 / 1000;
+        // Practice finds more (D15).
+        // DESIGN-Q: a point a find, up to twenty.
+        let chance = chance * life as u64 / 1000 + u64::from(self.state.arcs.gathered.min(20));
         let roll = hash(&[self.seed(), 0xf0a6, u64::from(now), self.state.pos.x as u64]) % 100;
         self.advance(60, scraped_sim::body::Activity::Walking);
         let biome = crate::site::label(&self.biome_here());
@@ -614,6 +616,7 @@ impl Game {
                 None => ("berries", "", ""),
             };
             self.make_item(kind, true);
+            self.state.arcs.gathered += 1;
             let t = self.say(
                 "forage.found",
                 ctx(&[
@@ -657,8 +660,10 @@ impl Game {
             .map(|l| (l.plenty, l.species))
             .collect();
         let winter = season(now) == 3;
-        let chance: f64 =
-            fish.iter().map(|(p, _)| p * 40.0).sum::<f64>() * if winter { 0.4 } else { 1.0 };
+        let practice = 1.0 + f64::from(self.state.arcs.gathered.min(20)) / 40.0;
+        let chance: f64 = fish.iter().map(|(p, _)| p * 40.0).sum::<f64>()
+            * if winter { 0.4 } else { 1.0 }
+            * practice;
         let roll = hash(&[self.seed(), 0xf15_u64, u64::from(now)]) % 100;
         self.advance(90, scraped_sim::body::Activity::Resting);
         let water_id = match water {
@@ -677,6 +682,7 @@ impl Game {
             ]);
             self.note_life(&format!("life-seen:{sp}"));
             self.make_item("fish", true);
+            self.state.arcs.gathered += 1;
             let t = self.say("fish.caught", vars);
             self.output(vec![t], None)
         } else {
@@ -739,6 +745,7 @@ impl Game {
             ]);
             self.note_life(&format!("life-seen:{sp}"));
             self.make_item("game", true);
+            self.state.arcs.gathered += 1;
             let t = self.say("snare.caught", vars);
             self.output(vec![t], None)
         } else {

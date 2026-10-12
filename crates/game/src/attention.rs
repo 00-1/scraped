@@ -421,6 +421,9 @@ impl Game {
                 .get(&f.key)
                 .filter(|t| t.said)
                 .map(|t| t.minutes);
+            if before.is_some() && f.slot == "place.signature" {
+                self.arc_flag("recognised");
+            }
             self.fact_ambient = Some(ctx(&[
                 ("seen_before", Value::Bool(before.is_some())),
                 (

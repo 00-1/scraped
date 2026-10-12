@@ -299,6 +299,8 @@ impl Game {
             let t = self.say("read.nothing", named);
             return self.output(vec![t], None);
         }
+        // The player's own scraping, for the scribe's arc (D15).
+        self.arc_flag("released");
         if self.is_dark() {
             let t = self.say("read.dark", named);
             return self.output(vec![t], None);

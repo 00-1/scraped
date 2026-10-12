@@ -1005,3 +1005,27 @@ Released as v0.7.0, a minor bump (`saves check --against v0.6.0`), with a 0.7.0 
 **Open questions** (DECISIONS, "Finding your way"): signature blocks of about 3 km; known ground as a reason not to drift; the difficulty scale. Not built: fords and bridges as places to head for (the world has no crossing points yet), and `follow the ridge` (ridges aren't edges).
 
 **New content slots:** `place.signature`, `travel.approach`, `travel.until`.
+
+## 2026-10-12 — D15: Ways of playing
+
+**Done**
+- **Arcs:** forager, mason, wayfarer and scribe each have steps: small payoffs, mastery and large payoffs. Steps are worked out from the state after each command and said once, one per reply (`arc.step`). See DECISIONS, "Ways of playing (D15)".
+- **Forager:** practice improves foraging and fishing. A camp is a shelter with a fire by it; a store is six foods there. A scavenger fed three times follows, and warns when a hunter comes into view.
+- **Mason:** works parts, a hidden way found by looking closely, works run, the way the works open, a great interior seen whole.
+- **Wayfarer:** a landmark, a place recognised, far walked, a summit, every town on an old map, the rim seen.
+- **Endings:** `settle`: **settled** at a camp with a store, **restored** in a building made sound or known whole. The wayfarer's ending is the rim. The end summary has a line per arc.
+- **Fairness:** goals for a camp, works and a summit (every seed of 1–50 still has a fair world).
+- **Bots:** each style follows its arc (`arc_step`); none reads, scrapes or writes. Numbers in DEPTH: forager settles on 9 of 10, wayfarer goes beyond on 10 of 10, mason reaches no ending.
+- **Fixes found on the way:**
+  - The bots had north and south swapped for positions; the explorer walked away from shelter.
+  - A heading off the map's edge, and a second look down, answered with nothing (`travel.no_further`).
+  - A heading now stops at the world's rim, and "go beyond" is only suggested there.
+  - A run ended by choice printed its summary twice.
+  - The scribe's "released" step counted history's scraping.
+  - The scholar asked the same "which one?" about a barred door for ever, running CI out of memory.
+  - Suggestion wording: "go out", "close the door", no "head the block".
+- **Samples:** `docs/samples/D15/`.
+
+**Open questions** (DECISIONS): the steps and which are large, the endings and the one verb for both, the companion, the bots' plans (the wayfarer knows the rim's way), the mason's reachable large payoffs (works are only in great buildings), whether a store of six is enough.
+
+**New content slots:** `arc.step`, `settle.not_yet`, `feed.animal`, `feed.no_animal`, `feed.no_food`, `companion.warns`, `end.settled`, `end.restored`, `end.arc`, `travel.no_further`.

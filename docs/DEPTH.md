@@ -354,6 +354,20 @@ A wayfarer walks out by heading one way for about eight hours, turning when barr
 
 Before ground walked kept the bearings, the fog walk back failed on 4 of 10. The same heading from the same place gives the same result, and in the explorer's runs no return is told as a first sight (tests in `d14_tests.rs`).
 
+### After D15 (seeds 1–10)
+
+Each non-writing style plays a season (90 days), kept well as the scholar is, never reading, scraping or writing (`cargo test --release -p scraped-game --test depth d15 -- --ignored --nocapture`, `D13_SEEDS=10`):
+
+| Style | First small payoff in the first hour | A large payoff in ten days | Its own ending in a season |
+|---|---|---|---|
+| Forager | 5 of 10 (the rest by hour 3, one at 22 h) | 7 of 10 | 9 of 10 (settled, day 1–29) |
+| Mason | 8 of 10 | 4 of 10 (a hidden way) | 0 of 10 |
+| Wayfarer | 3 of 10 (most by hour 3) | 10 of 10 (a summit) | 10 of 10 (beyond, day 1–37) |
+
+In the explorer's runs (three days), two arcs or more advance without writing on 9 of 10.
+
+Not met: the mason's large payoffs and ending, and the first hour for the forager and wayfarer. The mason's works lie only in great buildings, often far off, with parts hundreds of rooms apart (on seed 2: rooms 1, 435, 235 and 505), and hidden ways are mostly in large interiors that are never seen whole. Four attempts: work ready parts, keep to a building with unfinished works and go round it again, a hidden way as a large step, keep to a building with a found hidden way. Unkept, the style bots die within days as the explorer does (forager 1 of 3 settled, the others died), so these numbers measure the arcs, not survival.
+
 ### The bots (D01)
 
 `scraped-lang bots --seeds A-B [--bot explorer|scholar] [--hours H]`.
@@ -395,6 +409,7 @@ Before ground walked kept the bearings, the fog walk back failed on 4 of 10. The
 | S06 | [What the game shows](milestones/S06-what-the-game-shows.md) | From Jb's first playtest: nothing in the JSON beyond the text, no statement of what the game is about, help and manual, marks in three steps, no modern units, cues that can be followed up |
 | D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what is noticed unasked, suggested verbs, signs of spells in every kind of noticing, the world's own measures |
 | S07 | [From the second playtest](milestones/S07-from-the-second-playtest.md) | Looking as a progression, say it once, take stock, recognition; chains, all, the sweep, studying fully; pieces of writing apart; obvious next steps; small payoffs; the playtest's bugs |
+| D15 | [Ways of playing](milestones/D15-ways-of-playing.md) | An arc per style with small and large payoffs, mastery and an ending that needs no writing (settled, restored, beyond); the end summary tells each arc |
 | D14 | [Finding your way](milestones/D14-finding-your-way.md) | Places with fixed signatures recognised on return; heading to what is in view; head until; barriers seen ahead; drift only for reasons, by difficulty; go back retraces |
 | D13 | [Ways of noticing](milestones/D13-ways-of-noticing.md) | Play styles and habit shape what the character notices unasked; verbs suggested by situations; evidence of old spells in every category |
 | S07 | [From the second playtest](milestones/S07-from-the-second-playtest.md) | After D13: looking as a progression, say it once and recognise on return, chains and a sweep, pieces of writing studied separately, obvious next steps, and the playtest's bugs |

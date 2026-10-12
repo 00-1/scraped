@@ -200,6 +200,9 @@ pub struct DepthBot {
     sheltering: bool,
     /// "Which one?" asked in a place, how often (answers go round them).
     which: BTreeMap<String, u32>,
+    /// A building to keep exploring rather than leave ("structure N"):
+    /// the mason's, while its works are unfinished (D15).
+    pub keep: Option<String>,
     /// Turns taken wandering when no known way leads out (D04: after a
     /// drop that can't be climbed back).
     wander: std::cell::RefCell<BTreeMap<String, usize>>,
@@ -282,6 +285,7 @@ impl DepthBot {
             entered_kinds: BTreeMap::new(),
             sheltering: false,
             which: BTreeMap::new(),
+            keep: None,
             wander: std::cell::RefCell::new(BTreeMap::new()),
             shut: BTreeSet::new(),
             sealed: Vec::new(),
@@ -323,6 +327,14 @@ impl DepthBot {
         self.kind == "scholar"
     }
 
+    /// Forgets the ways taken in a building, so it is gone round again
+    /// (D15: works move only in order, so their rooms are visited again).
+    pub fn forget(&mut self, building: &str) {
+        let prefix = format!("{building} room ");
+        self.rooms.retain(|p, _| !p.starts_with(&prefix));
+        self.leaving = None;
+    }
+
     fn roll(&self, salt: u64) -> u64 {
         hash(&[self.seed, 0xde97, self.step, salt])
     }
@@ -357,7 +369,12 @@ impl DepthBot {
             self.idle = 0;
             if last.state.place == "outside" {
                 cmd = format!("head {}", BEARINGS[(self.roll(9) % 8) as usize]);
-            } else if let Some((b, _)) = last.state.place.rsplit_once(" room ") {
+            } else if let Some((b, _)) = last
+                .state
+                .place
+                .rsplit_once(" room ")
+                .filter(|(b, _)| self.keep.as_deref() != Some(*b))
+            {
                 // Going round in circles inside: done with this building.
                 self.notes.push(format!(
                     "step {}: going round in circles in {b}; leaving",
@@ -741,6 +758,7 @@ impl DepthBot {
                 BUILDING_MINUTES
             };
             let long = !self.scholar()
+                && self.keep.as_deref() != Some(b)
                 && self
                     .inside_since
                     .as_ref()
@@ -2420,6 +2438,9 @@ fn carried_lens(s: &Summary) -> u8 {
 
 /// The bearing nearest a direction.
 fn bearing_to(dx: i32, dy: i32) -> usize {
+    // Positions run south as y grows (D15: north and south were swapped,
+    // and walks back to shelter went the wrong way).
+    let dy = -dy;
     let mut best = (f64::MIN, 0);
     for (i, b) in BEARINGS.iter().enumerate() {
         let (bx, by) = bearing_step(b);
@@ -2538,6 +2559,10 @@ pub struct BotRun {
     pub first_marks: Option<f64>,
     /// S07: when each small payoff was found, by hour.
     pub payoffs: Vec<f64>,
+    /// D15: each arc step reached ("arc:step") and when, by hour.
+    pub arc_steps: Vec<(String, f64)>,
+    /// How the run ended, if it did.
+    pub ending: Option<String>,
 }
 
 /// The style bots (D13): the explorer, with a style chosen at the start,
@@ -2670,6 +2695,244 @@ fn style_step(
                 {
                     return Some(c);
                 }
+            }
+            None
+        }
+        _ => None,
+    }
+}
+
+/// The nearest cell within about 25 km with wood and water both (a
+/// wooded biome beside a river, stream or lake), for a camp.
+fn camp_spot(g: &Game) -> Option<(usize, usize)> {
+    use scraped_world::terrain::Biome;
+    let (cx, cy) = g.state.pos.cell();
+    let banks: Vec<usize> = ["river", "stream", "lakeshore"]
+        .iter()
+        .filter_map(|k| scraped_sim::outdoors::EDGES.iter().position(|e| e == k))
+        .collect();
+    let size = g.site.world.terrain.biome.size as i64;
+    let mut found: Vec<(i64, (usize, usize))> = Vec::new();
+    for dy in -24i64..=24 {
+        for dx in -24i64..=24 {
+            let (x, y) = (cx as i64 + dx, cy as i64 + dy);
+            if x < 0 || y < 0 || x >= size || y >= size {
+                continue;
+            }
+            let (x, y) = (x as usize, y as usize);
+            let wooded = matches!(
+                g.site.world.terrain.biome.get(x, y),
+                Biome::Forest | Biome::Pine | Biome::Scrub
+            );
+            if wooded && banks.iter().any(|&e| g.site.land.has_edge(x, y, e)) {
+                found.push((dx * dx + dy * dy, (x, y)));
+            }
+        }
+    }
+    found.sort_unstable();
+    // The nearest a walker can get to.
+    found.into_iter().take(8).map(|(_, c)| c).find(|&(x, y)| {
+        g.site
+            .land
+            .route(
+                &g.site.world,
+                g.state.pos,
+                scraped_sim::outdoors::Pos::of_cell(x, y),
+            )
+            .is_some()
+    })
+}
+
+/// A style bot's way along its arc (D15): the steps that need a plan, not
+/// just attention. The forager makes a camp by water where there is wood,
+/// lays food up there, feeds a scavenger, and settles; the mason works
+/// every part that is ready and settles in a building made sound; the
+/// wayfarer climbs what it sees, then walks to the rim and beyond. The
+/// bot knows which way the rim lies (a wayfarer's sense).
+// DESIGN-Q: the bots' plans, and that the wayfarer knows the rim's way.
+fn arc_step(g: &Game, out: &Output, style: &str, done: &mut BTreeSet<String>) -> Option<String> {
+    let outside = g.state.place == Place::Outside;
+    let hour = (g.state.minutes / 60) % 24;
+    let day = (8..17).contains(&hour);
+    let now = g.state.minutes / 60;
+    let hourly = |done: &mut BTreeSet<String>, cmd: &str| {
+        done.insert(format!("{now} {cmd}")).then(|| cmd.to_string())
+    };
+    let carried = &out.state.carried;
+    let has = |k: &str| carried.iter().any(|c| c.contains(k));
+    let foods: Vec<usize> = (0..carried.len())
+        .filter(|&i| crate::arcs::FOODS.iter().any(|f| carried[i].contains(f)))
+        .collect();
+    let body = &g.state.body;
+    let needy = body.thirst > 480 || body.hunger > 720 || body.chill > 300;
+    match style {
+        "forager" => {
+            let a = &g.state.arcs;
+            // A scavenger close by, and food to give it.
+            if a.companion.is_none() && !foods.is_empty() {
+                for (i, c) in g.state.creatures.iter().enumerate() {
+                    let sp = &g.site.fixtures.creatures[i];
+                    if sp.archetype == "scavenger" && c.seen && c.pos.dist(g.state.pos) <= 300.0 {
+                        if let Some(c) = hourly(done, "feed scavenger") {
+                            return Some(c);
+                        }
+                    }
+                }
+            }
+            if !outside || !has("firesteel") {
+                return None;
+            }
+            // The camp, or where to make one: wood and water together.
+            // Chosen once, then kept.
+            let chosen = done.iter().find_map(|k| {
+                let r = k.strip_prefix("campsite ")?;
+                let (x, y) = r.split_once(' ')?;
+                Some((x.parse::<usize>().ok()?, y.parse::<usize>().ok()?))
+            });
+            let spot = chosen.or_else(|| {
+                let c = camp_spot(g)?;
+                done.insert(format!("campsite {} {}", c.0, c.1));
+                Some(c)
+            });
+            let target = match a.camp {
+                Some(c) => Some(c),
+                None => spot.map(|(x, y)| scraped_sim::outdoors::Pos::of_cell(x, y)),
+            }?;
+            let p = g.state.pos;
+            // Wood underfoot and water close by will do for a camp.
+            let drinkable = g
+                .site
+                .land
+                .edges_near(p)
+                .iter()
+                .any(|(k, _)| matches!(*k, 0 | 1 | 4));
+            let good_ground = g.wooded() && drinkable;
+            let here = if a.camp.is_none() { good_ground } else { false };
+            if !here && p.dist(target) > 150.0 {
+                if g.is_dark() {
+                    return None;
+                }
+                if a.camp.is_some() && done.contains("named camp") {
+                    return hourly(done, "go to camp");
+                }
+                // Along the way a walker can go, a stretch at a time.
+                let via = g
+                    .site
+                    .land
+                    .route(&g.site.world, p, target)
+                    .and_then(|r| r.into_iter().find(|w| w.dist(p) >= 1200.0))
+                    .unwrap_or(target);
+                let b = bearing_to(via.x - p.x, via.y - p.y);
+                return hourly(done, &format!("head {}", BEARINGS[b]));
+            }
+            // At the camp (or its ground): the body first, by the fire.
+            if body.thirst > 360 {
+                if let Some(c) = hourly(done, "drink") {
+                    return Some(c);
+                }
+            }
+            if body.hunger > 600 && !foods.is_empty() {
+                return Some("eat".into());
+            }
+            let shelter = g.state.sim.shelters.iter().any(|s| s.dist(p) <= 100.0);
+            if a.camp.is_none() {
+                if !has("wood") {
+                    return hourly(done, "gather");
+                }
+                if !shelter {
+                    return hourly(done, "make shelter");
+                }
+                return hourly(done, "make fire");
+            }
+            if !done.contains("named camp") {
+                done.insert("named camp".into());
+                return Some("name this place camp".into());
+            }
+            if g.camp_store() >= crate::arcs::STORE {
+                return Some("settle".into());
+            }
+            if foods.len() > 2 {
+                return Some(format!("drop {}", noun(carried, foods[0])));
+            }
+            let cold = body.chill > 120;
+            if (!day || cold) && !g.fire_here_pub() {
+                if has("wood") {
+                    return hourly(done, "make fire");
+                }
+                return hourly(done, "gather");
+            }
+            if !day {
+                if !has("wood") {
+                    if let Some(c) = hourly(done, "gather") {
+                        return Some(c);
+                    }
+                }
+                return Some("sleep".into());
+            }
+            let water = g.water_near(1).iter().any(|(_, d, _)| *d <= 300.0);
+            if water && hour < 14 {
+                if let Some(c) = hourly(done, "fish") {
+                    return Some(c);
+                }
+            }
+            if let Some(c) = hourly(done, "forage") {
+                return Some(c);
+            }
+            if !has("wood") {
+                return hourly(done, "gather");
+            }
+            Some("wait 1 hour".into())
+        }
+        "mason" => {
+            if let Place::Room { structure, .. } = g.state.place {
+                if g.restored(structure) {
+                    return Some("settle".into());
+                }
+            }
+            if needy {
+                return None;
+            }
+            for m in g.mechanisms_here() {
+                if g.part_state(m) == "ready" {
+                    let k = scraped_sim::outdoors::label(&g.site.fixtures.mechanisms[m].kind);
+                    if let Some(c) = hourly(done, &format!("work {}", k.replace('_', " "))) {
+                        return Some(c);
+                    }
+                }
+            }
+            None
+        }
+        "wayfarer" => {
+            if !outside || needy || g.is_dark() {
+                return None;
+            }
+            if g.site
+                .edge
+                .is_some_and(|e| e.dist(g.state.pos) <= crate::ending::RIM)
+            {
+                return Some("go beyond".into());
+            }
+            // Hills and mountains in sight first, then the rim.
+            for l in &out.state.landmarks {
+                if l.name.ends_with("hill") || l.name.ends_with("mountain") {
+                    let name = l.name.trim_start_matches("the ").to_string();
+                    if done.insert(format!("climb {name}")) {
+                        return Some(format!("go to the {name}"));
+                    }
+                }
+            }
+            let e = g.site.edge?;
+            let p = g.state.pos;
+            if g.state.arcs.flags.contains("summit") || g.state.minutes > 3 * 1440 {
+                // Along the way a walker can go, a stretch at a time.
+                let via = g
+                    .site
+                    .land
+                    .route(&g.site.world, p, e)
+                    .and_then(|r| r.into_iter().find(|w| w.dist(p) >= 1200.0))
+                    .unwrap_or(e);
+                let b = bearing_to(via.x - p.x, via.y - p.y);
+                return hourly(done, &format!("head {}", BEARINGS[b]));
             }
             None
         }
@@ -2828,11 +3091,14 @@ pub fn play_with(
         first_sign: BTreeMap::new(),
         first_marks: None,
         payoffs: Vec::new(),
+        arc_steps: Vec::new(),
+        ending: None,
     };
     // A style bot answers the offer first (D13); the others say nothing to
     // it and simply play.
     let style = STYLE_BOTS.iter().copied().find(|s| *s == kind);
     let mut style_done: BTreeSet<String> = BTreeSet::new();
+    let mut mason_moved = 0;
     if let Some(s) = style {
         out = g.step(s);
         run.commands.push(s.to_string());
@@ -2892,6 +3158,37 @@ pub fn play_with(
             break;
         }
         let step = run.commands.len() as u64;
+        // The mason keeps to a building whose works are unfinished, and
+        // goes round it again each time a part starts moving (D15).
+        if style == Some("mason") {
+            let unfinished = |s: usize| {
+                g.site
+                    .fixtures
+                    .works
+                    .iter()
+                    .enumerate()
+                    .any(|(w, x)| x.structure == s && !g.works_done(w))
+            };
+            // Or one that hides a way it found, until all of it is seen.
+            let half_known = |s: usize| {
+                let n = g.site.world.structures[s].interior.rooms.len();
+                let seen = g.state.rooms_seen.iter().filter(|(st, _)| *st == s).count();
+                g.state.revealed.iter().any(|(st, _)| *st == s) && seen < n
+            };
+            bot.keep = match g.state.place {
+                Place::Room { structure, .. } if unfinished(structure) || half_known(structure) => {
+                    Some(format!("structure {structure}")) // DEBUG-TEXT: a key
+                }
+                _ => None,
+            };
+            let moved = g.state.sim.moved.len();
+            if moved != mason_moved {
+                mason_moved = moved;
+                if let Some(b) = bot.keep.clone() {
+                    bot.forget(&b);
+                }
+            }
+        }
         let cmd = match extra.take() {
             Some(c) => c,
             None if hand => hand_phrase(&bot.next(&g, &out), seed, step),
@@ -2900,7 +3197,8 @@ pub fn play_with(
                     .iter()
                     .map(|r| (r.trace.slot.clone(), r.vars.clone()))
                     .collect();
-                style_step(&g, &out, s, &said, &mut style_done)
+                arc_step(&g, &out, s, &mut style_done)
+                    .or_else(|| style_step(&g, &out, s, &said, &mut style_done))
             }) {
                 Some(c) => c,
                 None => {
@@ -2912,7 +3210,8 @@ pub fn play_with(
                         .any(|v| c.split_whitespace().next() == Some(*v));
                     match style {
                         Some(st) if st != "scribe" && reading => {
-                            style_move(&g, &out, st, &mut style_done).unwrap_or(c)
+                            style_move(&g, &out, st, &mut style_done)
+                                .unwrap_or_else(|| "look".into())
                         }
                         _ => c,
                     }
@@ -2974,6 +3273,12 @@ pub fn play_with(
                 if let Some(c) = crate::noticing::category_of(slot, &r.vars) {
                     *run.unasked.entry(c.to_string()).or_default() += 1;
                 }
+            }
+        }
+        // D15: steps along the arcs, by hour.
+        for k in &g.state.arcs.reached {
+            if !run.arc_steps.iter().any(|(x, _)| x == k) {
+                run.arc_steps.push((k.clone(), hour_now));
             }
         }
         // S07: small payoffs found, and a cue for one followed up next.
@@ -3047,6 +3352,7 @@ pub fn play_with(
     }
     run.hours = f64::from(g.state.minutes - start) / 60.0;
     run.died = g.state.dead.as_ref().map(|d| d.cause.clone());
+    run.ending = g.ending().map(str::to_string);
     if let Some(d) = &g.state.dead {
         if g.deadly_spell_here(&d.cause) && !cued.contains(&g.spell_place()) {
             run.uncued_death = Some(format!("{} at {}", d.cause, d.place)); // DEBUG-TEXT

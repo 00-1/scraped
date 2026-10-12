@@ -717,7 +717,14 @@ impl Game {
                 }
             }
             // Heading a way stops on reaching something on it (S07): a walk
-            // never passes a place it comes to.
+            // never passes a place it comes to, nor the world's rim (D15).
+            if matches!(goal, Goal::Heading(_))
+                && self.site.edge.is_some_and(|e| {
+                    e.dist(pos) <= crate::ending::RIM && e.dist(start) > crate::ending::RIM
+                })
+            {
+                break;
+            }
             if matches!(goal, Goal::Heading(_)) {
                 let reached = self.site.land.landmarks.iter().position(|l| {
                     !matches!(l.kind, "hill" | "mountain")
@@ -726,6 +733,7 @@ impl Game {
                 });
                 if let Some(i) = reached {
                     self.state.seen.insert(i);
+                    self.arc_flag("landmark");
                     let name = self.landmark_name(i);
                     event = Some(("travel.arrive", ctx(&[("name", Value::from(name))])));
                     self.arrival_keys = self.target_keys(Target::Landmark(i));
@@ -805,6 +813,14 @@ impl Game {
                     if pos.dist(*g) <= ARRIVE {
                         pos = *g;
                         if let Some(d) = dest {
+                            // A landmark reached; a hill or mountain is a
+                            // summit (D15).
+                            if let Target::Landmark(i) = d {
+                                self.arc_flag("landmark");
+                                if matches!(self.site.land.landmarks[i].kind, "hill" | "mountain") {
+                                    self.arc_flag("summit");
+                                }
+                            }
                             let name = self.target_name(d);
                             event = Some(("travel.arrive", ctx(&[("name", Value::from(name))])));
                             self.arrival_keys = self.target_keys(d);
@@ -866,6 +882,19 @@ impl Game {
         }
         if let Some((slot, c)) = event {
             parts.push(self.say(slot, c));
+        }
+        // Nowhere to go that way, the land's end (D15: an empty reply).
+        if !moved && parts.is_empty() && self.state.dead.is_none() {
+            let rim = self
+                .site
+                .edge
+                .is_some_and(|e| e.dist(pos) <= 2.0 * crate::ending::RIM);
+            let bearing = match &goal {
+                Goal::Heading(b) => BEARINGS[*b],
+                _ => "nowhere",
+            };
+            let c = ctx(&[("bearing", Value::from(bearing)), ("rim", Value::Bool(rim))]);
+            parts.push(self.say("travel.no_further", c));
         }
         if moved && self.state.dead.is_none() {
             let skip = sighted.map(|i| format!("landmark:{i}"));

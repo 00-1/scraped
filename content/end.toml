@@ -49,3 +49,13 @@ example = true
 slot = "end.beyond"
 text = "You walk on past the last of the land, and do not come back."
 example = true
+
+[[variant]]
+slot = "end.settled"
+text = "You stay. The camp becomes a home, and the seasons turn around it."
+example = true
+
+[[variant]]
+slot = "end.restored"
+text = "You stay. The old house holds, and is lived in again."
+example = true

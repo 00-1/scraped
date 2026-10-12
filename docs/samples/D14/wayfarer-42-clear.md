@@ -43,6 +43,8 @@ The grazer attacks you.
 
 Pain flares.
 
+A small thing, but yours.
+
 You could listen.
 
 > head south
@@ -93,6 +95,8 @@ You reach the plain ruins.
 
 A ruined market town of a few houses. The road runs here. Here and there: bare earth.
 
+A small thing, but yours.
+
 You could follow.
 
 > head south
@@ -101,6 +105,8 @@ You travel south, a long walk.
 You reach the flat grassy mountain.
 
 Road, mountain and grassland. The market town ruins to the north (middle). You notice lengthening days.
+
+A small thing, but yours.
 
 You could go back.
 
@@ -112,6 +118,8 @@ You stop: the large town has come into view to the southwest.
 Grassland. The upland town to the southwest (far).
 
 You find yourself noticing more of it now.
+
+Something has changed.
 
 You could name this place.
 

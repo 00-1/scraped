@@ -444,6 +444,18 @@ impl Game {
                         ),
                         ("distance", Value::from(distance_band(player.dist(at)))),
                     ]);
+                    // A companion warns of a hunter first (D15).
+                    if arch == "predator" && self.state.arcs.companion.is_some() {
+                        let kind = self.state.arcs.companion.clone().unwrap_or_default();
+                        let w = self.say(
+                            "companion.warns",
+                            ctx(&[
+                                ("kind", Value::from(kind.as_str())),
+                                ("threat", Value::from(arch)),
+                            ]),
+                        );
+                        self.notes.push(w);
+                    }
                     let t = self.say("creature.sighted", c);
                     self.notes.push(t);
                     self.interrupted = true;

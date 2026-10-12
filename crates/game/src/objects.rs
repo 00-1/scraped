@@ -338,6 +338,12 @@ impl Game {
             .filter(|(d, _)| *d <= 15_000.0)
             .collect();
         towns.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+        // Towns the map shows, standing still, for the wayfarer (D15).
+        for &(_, s) in towns.iter().take(6) {
+            if h.settlements[s].abandoned.is_none() {
+                self.state.arcs.map_towns.insert(s);
+            }
+        }
         let seen: Vec<(f64, &'static str, bool)> = towns
             .iter()
             .take(6)

@@ -8,6 +8,7 @@
 
 pub use scraped_sim::outdoors;
 pub mod actions;
+pub mod arcs;
 pub mod attention;
 #[cfg(test)]
 mod attention_tests;
@@ -20,6 +21,8 @@ pub mod coverage;
 mod coverage_tests;
 #[cfg(test)]
 mod d14_tests;
+#[cfg(test)]
+mod d15_tests;
 pub mod depth;
 pub mod ending;
 #[cfg(test)]
@@ -318,6 +321,9 @@ pub struct State {
     /// recognised, and keeps the player's bearings.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub walked: BTreeSet<(u16, u16)>,
+    /// Ways of playing (D15): each style's arc.
+    #[serde(default)]
+    pub arcs: arcs::ArcState,
     /// Small payoffs found (S07 §7), by thing.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub payoffs_done: BTreeSet<usize>,
@@ -784,6 +790,7 @@ impl Game {
             payoffs_done: BTreeSet::new(),
             approached: BTreeSet::new(),
             walked: BTreeSet::new(),
+            arcs: arcs::ArcState::default(),
             noticing: Default::default(),
             suggested: BTreeMap::new(),
             cues: Vec::new(),
@@ -1759,7 +1766,14 @@ impl Game {
             }
         }
         if (!failed || followed) && !matches!(verb.as_str(), "help" | "manual") {
-            self.state.used.insert(verb);
+            self.state.used.insert(verb.clone());
+        }
+        // A step along a way of playing (D15), said once.
+        if verb != "settle" {
+            self.find_camp();
+            for t in self.arc_news() {
+                self.append(&mut out, t);
+            }
         }
         // A verb this situation suggests (D13), at most one.
         if !failed && self.state.dead.is_none() {
@@ -2220,7 +2234,17 @@ impl Game {
             "snare" => self.snare(),
             "gather" => self.gather(&cmd.words),
             "make" => self.make(&cmd.words),
+            // Feeding an animal (D15); the fire otherwise.
+            "feed"
+                if cmd
+                    .words
+                    .iter()
+                    .any(|w| !matches!(w.as_str(), "fire" | "the" | "it" | "a")) =>
+            {
+                self.feed_creature(&cmd.words)
+            }
             "feed" => self.feed_fire(),
+            "settle" => self.settle(),
             "shout" => self.shout(),
             "cross" => self.cross(&cmd.words),
             "status" => self.status(),

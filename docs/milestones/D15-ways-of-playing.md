@@ -53,10 +53,10 @@ Each arc has three things:
 
 ## Checklist
 
-- [ ] Arcs per style, with gates as DESIGN-Q
-- [ ] Small payoffs weighted per style (with S07)
-- [ ] Mastery mechanics per arc
-- [ ] Large payoffs per arc
-- [ ] Endings per arc; end summary per arc
-- [ ] Fairness goals; non-writing style bots; targets
-- [ ] Samples; LOG; DECISIONS
+- [x] Arcs per style, with gates as DESIGN-Q
+- [x] Small payoffs weighted per style (with S07)
+- [x] Mastery mechanics per arc
+- [x] Large payoffs per arc
+- [x] Endings per arc; end summary per arc
+- [x] Fairness goals; non-writing style bots; targets
+- [x] Samples; LOG; DECISIONS

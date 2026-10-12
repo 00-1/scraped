@@ -74,3 +74,8 @@ example = true
 slot = "travel.until"
 text = "[if what == 'dark']Dark falls, and you stop.[else]You reach the {what}.[end]"
 example = true
+
+[[variant]]
+slot = "travel.no_further"
+text = "[if rim]The land ends here.[else]You can go no further {bearing}.[end]"
+example = true

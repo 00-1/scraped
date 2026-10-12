@@ -137,7 +137,7 @@ pub const TABLE: &[Suggestion] = &[
         "buildings",
         &["place.building", "place.standout", "land.landmark"],
     ),
-    s("out", "out", "buildings", &["room.ways"]),
+    s("out", "go out", "buildings", &["room.ways"]),
     s(
         "take",
         "take",
@@ -206,7 +206,7 @@ pub const TABLE: &[Suggestion] = &[
         "buildings",
         &["room.ways", "object.locked", "way.examine"],
     ),
-    s("close", "close", "buildings", &["say.door_open"]),
+    s("close", "close the door", "buildings", &["say.door_open"]),
     s(
         "light",
         "light",
@@ -290,6 +290,7 @@ pub const TABLE: &[Suggestion] = &[
     s("scrape", "scrape", "marks", &["scrape.done", "write.done"]),
     s("clean", "clean", "marks", &["read.grime", "thing.examine"]),
     s("beyond", "go beyond", "land", &["land.rim"]),
+    s("settle", "settle here", "life", &["arc.step"]),
     s("write", "write", "marks", &["write.done", "scrape.done"]),
     s("manual", "manual", "things", &["say.help"]),
     s(
@@ -392,6 +393,14 @@ impl Game {
         // Payoff verbs name the thing with the cue; put needs no name, and
         // naming a place takes the player's own word (D14).
         if matches!(verb, "put" | "name" | "make") {
+            return Some(String::new());
+        }
+        // A way to head is no thing (D14: "head the block"); the door just
+        // opened is the thing to close (D15: "close the stele").
+        if verb == "head" {
+            return None;
+        }
+        if verb == "close" {
             return Some(String::new());
         }
         if matches!(verb, "knock" | "shake" | "lift" | "pry") {
@@ -501,6 +510,13 @@ fn perceived(verb: &str, slot: &str, vars: &Context) -> bool {
         "shake" => var("kind") == "fruit_tree",
         "lift" => var("kind") == "loose_stone",
         "pry" => !slot.starts_with("payoff.") || var("kind") == "jammed_lid",
+        // Only at the rim itself, where going beyond works (D15).
+        "beyond" => var("distance") == "here",
+        // Once there is somewhere to stay (D15).
+        "settle" => matches!(
+            var("step").as_str(),
+            "store" | "works_run" | "whole_interior"
+        ),
         _ => true,
     }
 }

@@ -1559,6 +1559,11 @@ pub fn slots() -> Vec<SlotDef> {
         SlotDef::new("chain.stopped", "A chain of commands stopped part way because something happened (S07); say where it stopped and what was not done.")
             .var("rest", VarType::Text, "The commands not done, as typed.")
             .sampler(|_| vec![ctx(&[("rest", Value::from("examine the basin, read the map"))])]),
+        SlotDef::new("travel.no_further", "A walk that goes nowhere at all (D15): the land ends that way, or the way is closed at once. With rim, the player stands at the world's rim (going beyond it ends the run); never say so outright.")
+            .var("bearing", VarType::Enum { values: BEARINGS.iter().map(|b| b.to_string()).chain(["nowhere".to_string()]).collect() }, "The way they tried.")
+            .var("rim", VarType::Bool, "At the world's rim.")
+            .max_len(160)
+            .sampler(|_| vec![ctx(&[("bearing", Value::from("south")), ("rim", Value::Bool(true))]), ctx(&[("bearing", Value::from("east")), ("rim", Value::Bool(false))])]),
         SlotDef::new("travel.until", "A walk headed somewhere 'until' something is reached, and it is (D14): the river, the road, a town, dark.")
             .var("what", VarType::Text, "What was reached, as the player named it.")
             .sampler(|_| vec![ctx(&[("what", Value::from("river"))]), ctx(&[("what", Value::from("dark"))])]),
@@ -2098,6 +2103,7 @@ pub fn registry() -> Registry {
     all.extend(crate::noticing::slots());
     all.extend(crate::suggest::slots());
     all.extend(crate::actions::slots());
+    all.extend(crate::arcs::slots());
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());
@@ -2307,6 +2313,7 @@ pub fn registry_for(pack: &scraped_content::Pack) -> Registry {
     all.extend(crate::noticing::slots());
     all.extend(crate::suggest::slots());
     all.extend(crate::actions::slots());
+    all.extend(crate::arcs::slots());
     all.extend(crate::place_slots::slots());
     all.extend(crate::interior_slots::slots());
     all.extend(crate::reading_slots::slots());

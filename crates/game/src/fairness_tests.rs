@@ -57,7 +57,8 @@ fn crafted_worlds_fail_where_they_should() {
     // S06: no firesteel anywhere.
     let mut s = Site::create(1, "standard", None);
     s.fixtures.items.retain(|p| p.kind != "firesteel");
-    assert_eq!(failing(&s), ["flame"]);
+    // D15: and with no flame, no camp.
+    assert_eq!(failing(&s), ["flame", "camp"]);
     // S06: a spell felt in the open whose wall is out of reach, and not
     // put to sleep: its cause can't be found.
     let mut s = Site::create(1, "standard", None);
